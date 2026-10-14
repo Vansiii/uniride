@@ -1,0 +1,46 @@
+# Entorno local de UniRide (AGENTS.md §9.4): PostgreSQL, MinIO (S3 local), nodo Hardhat y la API.
+# Uso: copiar .env.example a .env, completar las contraseñas y ejecutar `docker compose up --build`.
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-uniride}
+      POSTGRES_USER: ${POSTGRES_USER:-uniride_migraciones}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Definir POSTGRES_PASSWORD en .env}
+    ports: ["5432:5432"]
+    volumes: [datos_postgres:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Definir MINIO_ROOT_USER en .env}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Definir MINIO_ROOT_PASSWORD en .env}
+    ports: ["9000:9000", "9001:9001"]
+    volumes: [datos_minio:/data]
+
+  hardhat:
+    build: ./contracts
+    ports: ["8545:8545"]
+
+  backend:
+    build: ./backend
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      PORT: 3000
+      S3_ENDPOINT: http://minio:9000
+      CADENA_RPC_URL: http://hardhat:8545
+    ports: ["3000:3000"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  datos_postgres:
+  datos_minio:

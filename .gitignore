@@ -1,0 +1,30 @@
+# Dependencias y builds
+node_modules/
+dist/
+build/
+coverage/
+.expo/
+web-build/
+
+# Hardhat
+contracts/artifacts/
+contracts/cache/
+contracts/types/
+contracts/coverage/
+contracts/ignition/deployments/chain-31337/
+
+# Configuración local y secretos (nunca al repo)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+
+# Cliente generado por Prisma
+backend/src/generated/

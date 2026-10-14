@@ -1,0 +1,16 @@
+[submodule "backend"]
+	path = backend
+	url = https://github.com/Vansiii/uniride-backend.git
+	branch = main
+[submodule "web"]
+	path = web
+	url = https://github.com/Vansiii/uniride-web.git
+	branch = main
+[submodule "mobile"]
+	path = mobile
+	url = https://github.com/Vansiii/uniride-mobile.git
+	branch = main
+[submodule "contracts"]
+	path = contracts
+	url = https://github.com/Vansiii/uniride-contracts.git
+	branch = main
