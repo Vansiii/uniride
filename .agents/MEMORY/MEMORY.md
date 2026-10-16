@@ -299,3 +299,16 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
   - principal: sin borrado, sin force-push, PR obligatorio con 1 aprobación;
   - subrepositorios: lo mismo más el check de estado `verificar` (job del CI) en verde.
 - **Consecuencia:** con 1 aprobación obligatoria y sin bypass, nadie puede fusionar solo. Los demás integrantes deben ser colaboradores de los cinco repositorios para revisar.
+
+---
+
+## 2026-10-16 · Sistema de diseño y marca de UniRide
+
+**Decisión:**
+- Se crea `DESIGN_SYSTEM.md` en la raíz como fuente de verdad de la interfaz (tokens, navegación, componentes, estados, accesibilidad y microcopia) para `mobile/` y `web/`. Lo visual queda como **Propuesta** hasta validarse en PB-03 (Figma) y con la prueba SUS (HU-30); sus pendientes P-01…P-12 están en su §17.
+- Rasgos principales: estilo plano, color de marca índigo `#3447CC`, fuente del sistema, 5 pestañas en móvil (Buscar, Mis viajes, Publicar, Billetera, Perfil), interfaz solo clara hasta HU-31, sin librerías de UI.
+- **Marca aprobada por el PO (resuelve P-01):** isotipo con forma de U trazada como línea de trayecto (punto de origen relleno → anillo de destino) y logotipo monolineal con los puntos de las "i" como origen y destino. Fuentes SVG en `marca/`. Se aplica en `feat/PB-03-marca` de `mobile/` (íconos de Android, splash, favicon, `app.json`) y `web/` (`favicon.svg`). El ícono de iOS de la plantilla se deja: iOS no es plataforma de demostración.
+
+**Razón:** no había ningún criterio visual ni de navegación y las 8 HU de S1 empiezan a crear pantallas; sin un contrato común cada integrante (o agente) improvisaría estilos. Los íconos eran los de las plantillas de Expo y Vite.
+
+**Archivos afectados:** `DESIGN_SYSTEM.md`, `marca/`, `.agents/STEERING/backlog.md` (SP83, SP84), `mobile/app.json`, `mobile/assets/images/*`, `web/public/favicon.svg`.
