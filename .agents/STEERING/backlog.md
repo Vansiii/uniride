@@ -33,6 +33,8 @@
 ### PB-03 · Prototipo Figma
 - [ ] SP18 · Prototipo del flujo principal (buscar, reservar, abordar, pagar) en ≤ 4 pasos, con puntos de entrada de voz — 8h — @[POR DEFINIR]
 - [ ] SP19 · Prototipo de paneles web (alta de organización, afiliación, aprobación de miembros) — 4h — @[POR DEFINIR]
+- [x] SP83 · Sistema de diseño `DESIGN_SYSTEM.md` (tokens, navegación, componentes, estados, accesibilidad, microcopia); base para SP18–SP19 — 4h — @agente 16/10
+- [x] SP84 · Marca (isotipo, logotipo, ícono de app) aprobada por el PO y aplicada a `mobile/` y `web/` en `feat/PB-03-marca` — 2h — @agente 16/10 · falta fusionar los PR
 
 ### PB-04 · Token URC y escrow
 - [x] SP20 · Scaffolding de `contracts/`: Hardhat + OpenZeppelin + TS — 2h — @[POR DEFINIR] · @agente 14/10
