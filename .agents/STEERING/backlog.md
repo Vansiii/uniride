@@ -66,15 +66,15 @@ Borradores listos el 14/10; cada tarea se cierra cuando el PO aprueba la spec.
 Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: HU-06 → HU-01 → HU-02 → HU-05 → HU-03 → HU-07 → HU-34 → HU-11. Total: 142 h. Si a mitad del sprint la velocidad no alcanza, HU-07 y HU-34 pasan a S2.
 
 ### HU-06 · Inicio de sesión (30 h)
-- [ ] SP39 · Infraestructura común backend: `PrismaService`, `ValidationPipe`, filtro de errores con `codigo`, Swagger, `t()` — 4h — @[POR DEFINIR]
-- [ ] SP40 · Migración `001`: usuarios, tokens_refresco, registros_auditoria, roles de BD; semilla del super admin — 3h — @[POR DEFINIR]
-- [ ] SP41 · `AuditoriaService` — 1h — @[POR DEFINIR]
-- [ ] SP42 · Iniciar sesión con bloqueo y respuesta uniforme — 3h — @[POR DEFINIR]
-- [ ] SP43 · Refrescar (rotación, límite absoluto, reuso) y cerrar sesión — 4h — @[POR DEFINIR]
-- [ ] SP44 · `JwtGuard` global, `@Publico`, `@UsuarioActual`, `GET /yo` — 2h — @[POR DEFINIR]
-- [ ] SP45 · Web: shell, router, cliente HTTP con renovación, pantalla de inicio de sesión — 4h — @[POR DEFINIR]
-- [ ] SP46 · Mobile: shell, cliente HTTP, almacenamiento seguro, pantallas de inicio de sesión y estado de membresía — 4h — @[POR DEFINIR]
-- [ ] SP47 · Pruebas HU-06 (CA-1 a CA-10) — 5h — @[POR DEFINIR]
+- [x] SP39 · Infraestructura común backend: `PrismaService`, `ValidationPipe`, filtro de errores con `codigo`, Swagger, `t()` — 4h — @[POR DEFINIR] · @agente 17/10: `PrismaService` (adaptador pg), `ValidationPipe`, filtro con `codigo`, `t()`; se añadieron `@prisma/adapter-pg`, `pg` y `@types/pg` (Prisma 7 los exige; aprobado por el PO)
+- [x] SP40 · Migración `001`: usuarios, tokens_refresco, registros_auditoria, roles de BD; semilla del super admin — 3h — @[POR DEFINIR] · @agente 17/10: migración `001` con RLS en la auditoría y semilla (`npm run prisma:semilla`); rol `uniride_app` lo crea `docker/postgres/01-rol-app.sh`
+- [x] SP41 · `AuditoriaService` — 1h — @[POR DEFINIR] · @agente 17/10
+- [x] SP42 · Iniciar sesión con bloqueo y respuesta uniforme — 3h — @[POR DEFINIR] · @agente 17/10
+- [x] SP43 · Refrescar (rotación, límite absoluto, reuso) y cerrar sesión — 4h — @[POR DEFINIR] · @agente 17/10
+- [x] SP44 · `JwtGuard` global, `@Publico`, `@UsuarioActual`, `GET /yo` — 2h — @[POR DEFINIR] · @agente 17/10: `membresias` de `GET /yo` va vacío hasta HU-05 (tabla `membresias`)
+- [x] SP45 · Web: shell, router, cliente HTTP con renovación, pantalla de inicio de sesión — 4h — @[POR DEFINIR] · @agente 17/10
+- [x] SP46 · Mobile: shell, cliente HTTP, almacenamiento seguro, pantallas de inicio de sesión y estado de membresía — 4h — @[POR DEFINIR] · @agente 17/10: `expo-secure-store`
+- [x] SP47 · Pruebas HU-06 (CA-1 a CA-10) — 5h — @[POR DEFINIR] · @agente 17/10: 11 e2e + 5 unitarias backend, 8 web, 12 mobile; CA-7 del backend se prueba en HU-05 cuando exista `membresias`; CI con PostgreSQL
 
 ### HU-01 · Alta de organización (26 h)
 - [ ] SP48 · `enOrganizacion` / `comoSuperAdmin`, `RolPlataformaGuard`, migración `002` con políticas RLS — 4h — @[POR DEFINIR]

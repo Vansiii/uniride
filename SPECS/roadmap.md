@@ -43,7 +43,7 @@ Tareas concretas: `/.agents/STEERING/backlog.md`.
 | PB-02 | Modelo de datos y arquitectura | Como equipo quiero el modelo multi-tenant y la arquitectura para construir sin rehacer | Alta (Must) | 3 | S0 | pendiente | — |
 | PB-03 | Prototipo Figma | Como equipo quiero el prototipo de los flujos principales para validar la usabilidad antes de codificar | Alta (Must) | 5 | S0 | pendiente | — |
 | PB-04 | Token URC y escrow | Como equipo quiero el token y el escrow probados para reducir el riesgo R-01 | Alta (Must) | 5 | S0 | en progreso | — |
-| HU-06 | Inicio de sesión | Como usuario quiero iniciar sesión de forma segura para no repetir el registro | Alta (Must) | 3 | S1 | en plan | PB-01, PB-02 |
+| HU-06 | Inicio de sesión | Como usuario quiero iniciar sesión de forma segura para no repetir el registro | Alta (Must) | 3 | S1 | en progreso | PB-01, PB-02 |
 | HU-01 | Alta de organización | Como super administrador quiero registrar una organización para que sus miembros usen UniRide | Alta (Must) | 3 | S1 | en plan | HU-06 |
 | HU-02 | Reglas de afiliación | Como admin. de organización quiero definir dominios de correo y tipo de aprobación para controlar quién entra | Alta (Must) | 3 | S1 | en plan | HU-01 |
 | HU-05 | Registro con correo institucional | Como estudiante o empleado quiero registrarme con el correo de mi organización para acceder a sus viajes | Alta (Must) | 5 | S1 | en plan | HU-02 |
