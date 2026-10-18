@@ -73,7 +73,7 @@ Cubre las dos interfaces de usuario (`mobile/`, `web/`) y los textos que muestra
 | Selector de fecha | `@expo/ui` 57 instalado (incluye `DatePicker` de Jetpack Compose) | `mobile/node_modules/@expo/ui/build/jetpack-compose` |
 | Modo de color | `userInterfaceStyle: automatic` (móvil); `color-scheme: light dark` (web) | `mobile/app.json`, `web/src/index.css` |
 | Marca | Aprobada el 16/10/2026 (3.4); aplicada en `feat/PB-03-marca` de `mobile/` y `web/`, pendiente de fusionar | `marca/`, `mobile/app.json`, `web/public/favicon.svg` |
-| Prototipo Figma | Pendiente (PB-03: SP18 flujo principal, SP19 paneles) | `.agents/STEERING/backlog.md` |
+| Prototipo | Navegable en HTML con las 26 vistas de S1 (16 móviles, 10 web), con la propuesta de zonas de marca (3.5); se abre en cualquier navegador. Falta el del flujo principal (SP18) | [`prototipos/sprint-1.html`](prototipos/sprint-1.html), `.agents/STEERING/backlog.md` |
 
 Consecuencia: casi todo lo visual de este documento es **[Propuesta]**. Se escribió antes de que existan pantallas para que la primera pantalla real ya nazca coherente.
 
@@ -110,7 +110,7 @@ Cada principio tiene una regla verificable. Si dos principios chocan, gana el de
 | P7 | **Táctil primero, voz como atajo** | Todo comando de voz lleva a la misma pantalla que su alternativa táctil. La voz navega y prepara; nunca confirma. | "Reserva el primero" abre la confirmación de reserva con la huella. | Una reserva que solo se puede hacer por voz. |
 | P8 | **Carpooling, no taxi** | Los viajes son programados, con conductor de la comunidad, precio fijo y punto de encuentro. La lista de viajes es el centro, no el mapa. | Resultados como lista de tarjetas ordenadas por hora de salida. | Mapa a pantalla completa con autos moviéndose y un botón "Pedir ahora". |
 | P9 | **Consistencia antes que novedad** | Un problema, un componente. Antes de crear un patrón, buscarlo en la sección 8. | Todos los estados usan `EtiquetaEstado`. | Un chip distinto para cada pantalla. |
-| P10 | **Lo más simple que cumpla** | Sin decoración que no informe. Sin librerías de UI. Sin animaciones que no expliquen un cambio. | Tarjeta plana con borde. | Sombras, degradados y efectos de vidrio. |
+| P10 | **Expresiva en la marca, sobria en el dinero** | La expresión visual (banda de marca, degradado, ilustración, tipografía display) vive solo en las **zonas de marca** (3.5): encabezados de pantallas raíz, inicio de sesión, resultados, estados vacíos y de espera. Formularios, montos, confirmaciones con biometría y tablas quedan planos. Sin librerías de UI; animaciones solo para explicar un cambio. | Banda índigo con saludo y organización en Buscar; formulario de reserva blanco y plano debajo. | Degradado detrás del botón "Reservar y pagar"; efectos de vidrio; ilustración en un diálogo de cancelación. |
 
 ---
 
@@ -118,7 +118,7 @@ Cada principio tiene una regla verificable. Si dos principios chocan, gana el de
 
 ### 3.1 Dirección estética [Propuesta]
 
-**"Confianza en movimiento"**: minimalismo funcional y plano (flat), con mucho espacio en blanco, una sola tonalidad de marca y color semántico reservado para comunicar estado. La interfaz debe sentirse **seria con el dinero, cercana con las personas y rápida en la calle**.
+**"Confianza en movimiento"**: una sola tonalidad de marca, el índigo, **usada con audacia en tres profundidades** (`marcaProfundo`, `primario`, `marcaBrillante`) en las zonas de marca, y superficies blancas y planas donde la persona decide. El color semántico sigue reservado para comunicar estado. La interfaz debe sentirse **seria con el dinero, cercana con las personas y rápida en la calle** (revisión del 17/10/2026, ver 3.5).
 
 | Rasgo | Se expresa con | Se evita |
 |---|---|---|
@@ -160,6 +160,19 @@ Reglas de uso:
 - Tamaño mínimo: isotipo 16 px; logotipo 80 px de ancho; firma horizontal 120 px de ancho.
 - No se deforma, no se rota, no se separa el anillo de la U ni se reemplazan los puntos de las "i" por puntos comunes.
 - Ícono adaptativo de Android: fondo `primario` liso; primer plano y versión monocroma con el isotipo dentro del círculo seguro de 66/108. Si cambia la marca, se vuelven a exportar todos los PNG de `mobile/assets/images/` desde los SVG de `marca/`, nunca se editan a mano.
+
+### 3.5 Zonas de marca [Propuesta — aprobada por el PO el 17/10/2026]
+
+Origen: en la revisión del prototipo de S1 (PB-03), el PO pidió una interfaz "más llamativa". La respuesta es concentrar la expresión en lugares acotados, sin tocar las pantallas donde se mueve dinero o se verifica un viaje (P1, P10).
+
+| Zona | Dónde | Qué se permite |
+|---|---|---|
+| **Banda de marca** | Encabezado de las pantallas raíz (Buscar, Mis viajes, Publicar, Billetera, Perfil), inicio de sesión y registro | Fondo `degradadoMarca`, texto `sobreMarca`, título en `display`, ilustración de trayecto de fondo al 12 % de opacidad. Esquinas inferiores `radio.xl` |
+| **Escena de resultado** | Pantallas de resultado, estado de membresía, estados vacíos | `Ilustracion` de trayecto (8.12) a 160 dp de alto y animación de entrada del ícono (4.7) |
+| **Panel de marca (web)** | Mitad izquierda de inicio de sesión y de aceptar invitación; `BarraLateral` | Fondo `marcaProfundo`, texto `sobreMarca`, ítem activo `marcaBrillante` |
+| **Tarjeta destacada** | Viaje activo anclado (N7) y saldo de la billetera | Fondo `marcaProfundo` con cifras en `display`; es la única tarjeta oscura de la pantalla |
+
+Fuera de esas zonas todo sigue igual: fondo blanco, tarjetas con borde, sin degradados. **Nunca** hay banda, degradado ni ilustración en una pantalla de confirmación con biometría, un `Dialogo`, una tabla del panel o un formulario de dinero.
 
 ---
 
@@ -208,6 +221,14 @@ Contraste calculado con la fórmula WCAG 2.2 sobre el fondo indicado.
 | `peligroTexto` | `#912018` | `#FFD3CE` | Texto sobre `peligroSuave` | 7,58 : 1 |
 | `foco` | `#3447CC` | `#8B9BFF` | Anillo de foco (web) | 7,19 : 1 |
 | `superposicion` | `rgba(15,18,24,0.5)` | `rgba(0,0,0,0.6)` | Capa detrás de diálogos y hojas | — |
+| `marcaProfundo` | `#1D2763` | `#1D2763` | **Solo zonas de marca (3.5):** panel web, tarjeta destacada, final del degradado | — |
+| `degradadoMarca` | `#3447CC → #1D2763` a 160° | igual | **Solo** fondo de la banda de marca | — |
+| `sobreMarca` | `#FFFFFF` | `#FFFFFF` | Texto e íconos sobre `marcaProfundo` o `degradadoMarca` | 13,8 : 1 (7,19 en el extremo claro) |
+| `sobreMarcaSecundario` | `#C9D1FF` | `#C9D1FF` | Texto secundario en zonas de marca | 9,2 : 1 (4,8 en el extremo claro) |
+| `marcaBrillante` | `#8B9BFF` | `#8B9BFF` | Acento sobre `marcaProfundo`: ítem activo de la barra lateral, trazo de ilustraciones, indicadores | 5,41 : 1 sobre `marcaProfundo` |
+| `marcaVelo` | `rgba(255,255,255,0.14)` | igual | Chips y botones de ícono dentro de la banda (organización activa, voz) | — |
+
+Las zonas de marca se ven **igual en los dos temas**: son identidad, no superficie. Por eso sus tokens no cambian en oscuro.
 
 Reglas de uso:
 
@@ -254,6 +275,8 @@ Solo para construir los semánticos; no se usan en componentes.
 ### 4.2 Tipografía [Propuesta]
 
 **Familia:** la del sistema. En Android, Roboto (no se fija `fontFamily`). En web, la pila existente ampliada: `system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif` **[Existe parcialmente]**. Razones: cero dependencias, carga instantánea, familiaridad nativa y buen soporte de tildes y ñ. Una fuente de marca propia solo entra por la sección 15.
+
+**Familia display [Propuesta — aprobada por el PO el 17/10/2026]:** *Bricolage Grotesque* (licencia SIL OFL 1.1, compatible con la Ley N.º 1322), pesos 700 y 800, **solo** para los tokens `pantalla`, `cifra` y los títulos de las zonas de marca. Todo lo demás sigue en la fuente del sistema. Se incluye como archivo de fuente, sin paquete npm nuevo: en móvil, el `.ttf` en `assets/fonts/` cargado con `expo-font` [Existe, instalado]; en web, el `.woff2` en `public/fuentes/` con `@font-face` y `font-display: swap`. Si la fuente no carga, se usa la del sistema sin romper el diseño. Razón: le da a UniRide una voz propia en los títulos y en el saldo sin afectar la lectura de formularios.
 
 **Cifras:** horas, montos, códigos y conteos usan cifras tabulares (`fontVariant: ['tabular-nums']` / `font-variant-numeric: tabular-nums`) para que no "bailen" al cambiar.
 
@@ -326,11 +349,12 @@ Regla: el espacio comunica agrupación. Elementos relacionados a 8–12; grupos 
 
 ### 4.6 Elevación, sombras y capas [Propuesta]
 
-Diseño plano: la separación se logra con `borde` y con el contraste `fondoSutil`/`superficie`, no con sombras.
+Diseño plano por defecto: la separación se logra con `borde` y con el contraste `fondoSutil`/`superficie`. La única sombra nueva es la de la tarjeta que **flota sobre una banda de marca** (nivel 0,5), para que se lea como un objeto encima del color.
 
 | Nivel | Uso | Móvil | Web |
 |---|---|---|---|
 | 0 | Todo por defecto (tarjetas, barras, tablas) | Sin sombra, `borde` de 1 | Sin sombra, `borde` de 1 |
+| 0,5 [Propuesta 17/10] | Tarjeta que se superpone 24 dp al borde inferior de una banda de marca (búsqueda en Buscar, datos de cuenta en Perfil) | `elevation: 3`, sin borde | `0 6px 20px rgba(29,39,99,.14)` |
 | 1 | Elementos que flotan sobre mapa o cámara | `elevation: 2` | `0 1px 3px rgba(15,18,24,.12)` |
 | 2 | Diálogos, hojas inferiores, menús | `elevation: 8` + `superposicion` | `0 8px 24px rgba(15,18,24,.16)` + `superposicion` |
 
@@ -346,6 +370,8 @@ Capas (`z-index`, web): contenido 0 · encabezado fijo 10 · menú desplegable 2
 | `curva.estandar` | `cubic-bezier(0.2, 0, 0, 1)` | Movimientos dentro de la pantalla |
 | `curva.entrada` | `cubic-bezier(0, 0, 0, 1)` | Elementos que entran |
 | `curva.salida` | `cubic-bezier(0.3, 0, 1, 1)` | Elementos que salen |
+
+Animaciones con nombre [Propuesta 17/10]: **`entradaResultado`** (el ícono de una pantalla de resultado escala de 0,6 a 1 con `curva.entrada` en `duracion.larga`, una sola vez) y **`trazoIlustracion`** (la línea de trayecto de una `Ilustracion` se dibuja de origen a destino en 600 ms, una sola vez). En móvil se hacen con `react-native-reanimated` [Existe, instalado].
 
 Reglas: la animación explica un cambio de estado o de lugar; nunca decora. Prohibido: bucles decorativos, parallax, confeti, rebotes. Si el sistema pide reducir el movimiento (`AccessibilityInfo.isReduceMotionEnabled()` / `prefers-reduced-motion`), las duraciones pasan a 0, salvo los indicadores de progreso.
 
@@ -586,6 +612,8 @@ Todos los componentes son **[Propuesta]**: no existe ninguno todavía. Se constr
 | `FilaMovimiento` | ✔ | — | HU-14 | Movimiento de la billetera |
 | `BotonVoz` + `PanelVoz` | ✔ | — ([Abierto] D-08) | HU-27 | Comandos de voz |
 | `Encabezado` | ✔ | ✔ | HU-06 | Barra superior |
+| `BandaMarca` | ✔ | — | HU-06 | Encabezado expresivo de las zonas de marca (3.5); variante de `Encabezado` |
+| `Ilustracion` | ✔ | ✔ | HU-05, HU-06 | Escena de trayecto para resultados, vacíos y estados (8.12) |
 | `BarraLateral` | — | ✔ | HU-01 | Navegación del panel |
 | `CodigoQR`, `EscanerQR`, `MapaTrayecto` | ✔ | — | HU-22, HU-23 | [Abierto → P-02, P-03] |
 
@@ -712,7 +740,40 @@ Lista completa de comandos: `ssd.md` §11 y pantalla `ayuda`.
 
 - **`Tabla`**: `<table>` semántico con `<caption>` (puede ser visualmente oculto), encabezado `fondoSutil` y `etiqueta`, filas de 52 px sin cebra, fondo `fondoSutil` al pasar el cursor, acciones a la derecha con `tamano="compacto"`. Por debajo de 640 px cada fila pasa a ser una `Tarjeta` con los mismos datos y acciones.
 - **`ListaEditable`**: campo + botón "Agregar" en una fila; debajo, la lista de valores, cada uno con `BotonIcono` `close` "Quitar {valor}". Si quitar está prohibido (último dominio, HU-02 CA-6), la ayuda lo dice ("Debe quedar al menos un dominio") y el botón se deshabilita.
-- **`BarraLateral`**: logotipo, nombre y tipo de la organización activa (admin. de organización), grupos de navegación por rol con ícono + etiqueta, contador en Solicitudes, y al pie el nombre de la persona y "Cerrar sesión".
+- **`BarraLateral`**: logotipo, nombre y tipo de la organización activa (admin. de organización), grupos de navegación por rol con ícono + etiqueta, contador en Solicitudes, y al pie el nombre de la persona y "Cerrar sesión". [Propuesta 17/10] Fondo `marcaProfundo`, logotipo blanco, texto `sobreMarca`/`sobreMarcaSecundario`, ítem activo con fondo `marcaVelo`, ícono relleno y marca lateral de 3 px en `marcaBrillante`; contador en `marcaBrillante` con texto `marcaProfundo`.
+
+### 8.12 BandaMarca e Ilustracion [Propuesta — aprobada por el PO el 17/10/2026]
+
+**`BandaMarca`** (móvil). Variante expresiva de `Encabezado` para las zonas de marca (3.5).
+
+```
+┌──────────────────────────────┐
+│ 07:24              ▮▮ 80 %   │  barra de estado en sobreMarca
+│ [● UAGRM ▾]            (mic) │  chip marcaVelo · BotonIcono marcaVelo
+│ Hola, Ana                    │  pantalla (display) · sobreMarca
+│ Termina tu verificación      │  cuerpo · sobreMarcaSecundario
+│            ╭──╮ (U al 12 %)  │  Ilustracion de fondo, decorativa
+╰──────────────────────────────╯  radio.xl abajo · degradadoMarca
+   ┌────────────────────────┐
+   │ tarjeta nivel 0,5      │     se superpone 24 dp a la banda
+```
+
+- Alto según contenido (sin alto fijo, 12.3). La barra de estado del sistema pasa a íconos claros mientras la banda está visible.
+- La acción primaria de la pantalla **nunca** va dentro de la banda: sigue en la zona de acción o en la tarjeta superpuesta.
+- La ilustración de fondo es decorativa (`accessibilityElementsHidden` / `aria-hidden`).
+
+**`Ilustracion`**. Escenas construidas solo con el motivo de trayecto de la marca (3.2): la U, el punto de origen relleno, el anillo de destino y, como máximo, un ícono de Material Symbols en el centro. Colores: `primario`, `marcaBrillante`, `primarioSuave` y el color del estado cuando lo comunica (éxito, aviso, peligro). Sin personas, sin autos dibujados, sin texto dentro.
+
+| Escena | Uso | Ícono central |
+|---|---|---|
+| `bienvenida` | Inicio de sesión, banda de registro | — (solo la U grande) |
+| `correo` | Código enviado (HU-05, HU-07, HU-34) | `mark_email_read` |
+| `espera` | Membresía pendiente | `hourglass_top` en `aviso` |
+| `rechazo` | Membresía rechazada | `cancel` en `peligro` |
+| `exito` | Resultados (vehículo registrado, viaje publicado, abordaje verificado) | `check_circle` en `exito` |
+| `vacio` | Listas sin elementos | ícono de la sección |
+
+Implementación: un SVG por escena en `mobile/assets/ilustraciones/` y `web/src/iconos/`, dibujado desde los trazos de `marca/`. En móvil se muestra con `expo-image` [Existe, instalado; soporta SVG], sin dependencia nueva.
 
 ---
 
@@ -1182,6 +1243,7 @@ No se aplican en esta tarea; se hacen en la primera HU de interfaz (HU-06):
 | 2026-10-16 | Versión inicial: análisis del repositorio y propuesta completa del sistema | Agente, a pedido del PO |
 | 2026-10-16 | Propuesta de marca: isotipo, logotipo, firma horizontal e ícono de app en `marca/` (3.4) | Agente, a pedido del PO |
 | 2026-10-16 | Marca aprobada por el PO y aplicada a los íconos de `mobile/` y `web/` | Agente, a pedido del PO |
+| 2026-10-17 | Propuesta de identidad más expresiva tras revisar el prototipo de S1: P10 reformulado, zonas de marca (3.5), tokens de marca (4.1.1), familia display (4.2), nivel de elevación 0,5 (4.6), animaciones con nombre (4.7), `BandaMarca` e `Ilustracion` (8.12), `BarraLateral` oscura. Aprobada por el PO el mismo día | Agente, a pedido del PO |
 
 ---
 
@@ -1244,7 +1306,7 @@ Cosas que el análisis no pudo resolver. Las que necesitan una dependencia nueva
 | P-04 | Reconocimiento y síntesis de voz | Android SpeechRecognizer es el stack, pero no hay módulo instalado que lo exponga ni uno de texto a voz | Decidir en el plan de HU-27 | HU-27, HU-28 |
 | P-05 | Biometría y prueba de vida | La llave del Keystore con biometría y la UI de Face Liveness requieren módulos nativos | El diseño de 9.6 y 8.9 envuelve esas pantallas; la UI interna de Face Liveness la impone AWS | HU-08, HU-09, HU-29 |
 | P-06 | Monto del reembolso antes de cancelar | La API no expone una vista previa | Agregar el monto de reembolso vigente a `GET /reservas/{id}` para no calcularlo en el cliente | HU-20 |
-| P-07 | Paleta y tipografía | Propuestas sin validar | Validar en PB-03 con el PO; probar al sol en un teléfono real | — |
+| P-07 | Paleta y tipografía | Propuestas sin validar; el 17/10 se sumaron las zonas de marca y la familia display (3.5, 4.2) | Validar en PB-03 con el PO; probar la banda de marca y el saldo oscuro al sol en un teléfono real | Implementación de `BandaMarca` |
 | P-08 | Selector de hora | `DatePicker` de `@expo/ui` instalado; no se verificó el modo hora | Verificar en HU-17 | HU-17 |
 | P-09 | Nombre visible de otras personas | Las specs no lo definen | "Nombre + inicial del apellido" (exposición mínima) | HU-18 |
 | P-10 | Unidad monetaria visible | El documento técnico habla de Bs y URC | Mostrar siempre "URC" y la equivalencia en Bs solo al recargar; confirmar con el PO | HU-13, HU-14 |

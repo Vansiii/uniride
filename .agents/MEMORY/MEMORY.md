@@ -337,3 +337,23 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 - Pantallas sin probar en un teléfono ni en un navegador real.
 
 **Archivos afectados:** `backend/`, `web/`, `mobile/`, `docker-compose.yml`, `docker/postgres/`, `.env.example`, `.agents/STEERING/backlog.md`, `SPECS/roadmap.md`, `SPECS/features/HU-06-inicio-sesion/plan.md`.
+
+---
+
+## 2026-10-17 · Propuesta de identidad visual más expresiva (PB-03)
+
+**Evento:** al revisar el prototipo navegable de las 26 vistas de S1, el PO pidió una interfaz "más llamativa". El agente propuso el cambio en `DESIGN_SYSTEM.md` (rama `feat/PB-03-identidad-visual` del principal, sin commit) siguiendo su §15.
+
+**Propuesta (aprobada por el PO el 17/10/2026):**
+- P10 pasa de "lo más simple" a **"expresiva en la marca, sobria en el dinero"**: la expresión vive solo en zonas de marca (3.5): bandas de las pantallas raíz, inicio de sesión, resultados, vacíos, panel lateral web y tarjeta destacada. Formularios de dinero, confirmaciones con biometría, diálogos y tablas siguen planos.
+- Índigo en tres profundidades: tokens `marcaProfundo`, `degradadoMarca`, `sobreMarca`, `sobreMarcaSecundario`, `marcaBrillante`, `marcaVelo` (contrastes documentados). No se agrega un segundo color de marca para no chocar con los semánticos.
+- Familia display Bricolage Grotesque (OFL) solo para títulos de pantalla, cifras y zonas de marca, como archivo de fuente con `expo-font` (instalado) y `@font-face`; **sin paquete npm nuevo**.
+- Nivel de elevación 0,5, animaciones `entradaResultado` y `trazoIlustracion` (reanimated, instalado), componentes `BandaMarca` e `Ilustracion` (SVG vía `expo-image`, instalado).
+
+**Razón:** dar presencia de marca sin romper P1 (seguridad comprensible) ni la accesibilidad, y sin dependencias nuevas.
+
+**Pendiente:** prueba al sol en un teléfono real (P-07); revisión por otro integrante del PR al abrirlo.
+
+**Prototipo:** `prototipos/sprint-1.html` (HTML autocontenido, se abre en el navegador; solo carga fuentes de Google Fonts). Reemplaza al Figma para SP19 si el equipo lo acepta.
+
+**Archivos afectados:** `DESIGN_SYSTEM.md` (1.4, 2, 3.1, 3.5, 4.1.1, 4.2, 4.6, 4.7, 8.1, 8.11, 8.12, 15, 17), `prototipos/sprint-1.html`, `.agents/STEERING/backlog.md` (SP19, SP85, SP86).
