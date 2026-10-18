@@ -32,7 +32,9 @@
 
 ### PB-03 · Prototipo Figma
 - [ ] SP18 · Prototipo del flujo principal (buscar, reservar, abordar, pagar) en ≤ 4 pasos, con puntos de entrada de voz — 8h — @[POR DEFINIR]
-- [ ] SP19 · Prototipo de paneles web (alta de organización, afiliación, aprobación de miembros) — 4h — @[POR DEFINIR]
+- [x] SP19 · Prototipo de paneles web (alta de organización, afiliación, aprobación de miembros) — 4h — @agente 17/10 · en HTML (`prototipos/sprint-1.html`), no en Figma; confirmar con el equipo
+- [x] SP85 · Prototipo navegable de todas las interfaces de S1: 16 vistas móviles y 10 web, trazadas a los CA, en `prototipos/sprint-1.html` — 4h — @agente 17/10
+- [ ] SP86 · Aprobación del PO de la identidad más expresiva (`DESIGN_SYSTEM.md` §3.5) y prueba al sol en un teléfono real (P-07) — 1h — @[PO]
 - [x] SP83 · Sistema de diseño `DESIGN_SYSTEM.md` (tokens, navegación, componentes, estados, accesibilidad, microcopia); base para SP18–SP19 — 4h — @agente 16/10
 - [x] SP84 · Marca (isotipo, logotipo, ícono de app) aprobada por el PO y aplicada a `mobile/` y `web/` en `feat/PB-03-marca` — 2h — @agente 16/10 · falta fusionar los PR
 
