@@ -161,7 +161,7 @@ Reglas de uso:
 - No se deforma, no se rota, no se separa el anillo de la U ni se reemplazan los puntos de las "i" por puntos comunes.
 - Ícono adaptativo de Android: fondo `primario` liso; primer plano y versión monocroma con el isotipo dentro del círculo seguro de 66/108. Si cambia la marca, se vuelven a exportar todos los PNG de `mobile/assets/images/` desde los SVG de `marca/`, nunca se editan a mano.
 
-### 3.5 Zonas de marca [Propuesta — 17/10/2026, pendiente de aprobación del PO]
+### 3.5 Zonas de marca [Propuesta — aprobada por el PO el 17/10/2026]
 
 Origen: en la revisión del prototipo de S1 (PB-03), el PO pidió una interfaz "más llamativa". La respuesta es concentrar la expresión en lugares acotados, sin tocar las pantallas donde se mueve dinero o se verifica un viaje (P1, P10).
 
@@ -276,7 +276,7 @@ Solo para construir los semánticos; no se usan en componentes.
 
 **Familia:** la del sistema. En Android, Roboto (no se fija `fontFamily`). En web, la pila existente ampliada: `system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif` **[Existe parcialmente]**. Razones: cero dependencias, carga instantánea, familiaridad nativa y buen soporte de tildes y ñ. Una fuente de marca propia solo entra por la sección 15.
 
-**Familia display [Propuesta — 17/10/2026, pendiente de aprobación del PO]:** *Bricolage Grotesque* (licencia SIL OFL 1.1, compatible con la Ley N.º 1322), pesos 700 y 800, **solo** para los tokens `pantalla`, `cifra` y los títulos de las zonas de marca. Todo lo demás sigue en la fuente del sistema. Se incluye como archivo de fuente, sin paquete npm nuevo: en móvil, el `.ttf` en `assets/fonts/` cargado con `expo-font` [Existe, instalado]; en web, el `.woff2` en `public/fuentes/` con `@font-face` y `font-display: swap`. Si la fuente no carga, se usa la del sistema sin romper el diseño. Razón: le da a UniRide una voz propia en los títulos y en el saldo sin afectar la lectura de formularios.
+**Familia display [Propuesta — aprobada por el PO el 17/10/2026]:** *Bricolage Grotesque* (licencia SIL OFL 1.1, compatible con la Ley N.º 1322), pesos 700 y 800, **solo** para los tokens `pantalla`, `cifra` y los títulos de las zonas de marca. Todo lo demás sigue en la fuente del sistema. Se incluye como archivo de fuente, sin paquete npm nuevo: en móvil, el `.ttf` en `assets/fonts/` cargado con `expo-font` [Existe, instalado]; en web, el `.woff2` en `public/fuentes/` con `@font-face` y `font-display: swap`. Si la fuente no carga, se usa la del sistema sin romper el diseño. Razón: le da a UniRide una voz propia en los títulos y en el saldo sin afectar la lectura de formularios.
 
 **Cifras:** horas, montos, códigos y conteos usan cifras tabulares (`fontVariant: ['tabular-nums']` / `font-variant-numeric: tabular-nums`) para que no "bailen" al cambiar.
 
@@ -742,7 +742,7 @@ Lista completa de comandos: `ssd.md` §11 y pantalla `ayuda`.
 - **`ListaEditable`**: campo + botón "Agregar" en una fila; debajo, la lista de valores, cada uno con `BotonIcono` `close` "Quitar {valor}". Si quitar está prohibido (último dominio, HU-02 CA-6), la ayuda lo dice ("Debe quedar al menos un dominio") y el botón se deshabilita.
 - **`BarraLateral`**: logotipo, nombre y tipo de la organización activa (admin. de organización), grupos de navegación por rol con ícono + etiqueta, contador en Solicitudes, y al pie el nombre de la persona y "Cerrar sesión". [Propuesta 17/10] Fondo `marcaProfundo`, logotipo blanco, texto `sobreMarca`/`sobreMarcaSecundario`, ítem activo con fondo `marcaVelo`, ícono relleno y marca lateral de 3 px en `marcaBrillante`; contador en `marcaBrillante` con texto `marcaProfundo`.
 
-### 8.12 BandaMarca e Ilustracion [Propuesta — 17/10/2026]
+### 8.12 BandaMarca e Ilustracion [Propuesta — aprobada por el PO el 17/10/2026]
 
 **`BandaMarca`** (móvil). Variante expresiva de `Encabezado` para las zonas de marca (3.5).
 
@@ -1243,7 +1243,7 @@ No se aplican en esta tarea; se hacen en la primera HU de interfaz (HU-06):
 | 2026-10-16 | Versión inicial: análisis del repositorio y propuesta completa del sistema | Agente, a pedido del PO |
 | 2026-10-16 | Propuesta de marca: isotipo, logotipo, firma horizontal e ícono de app en `marca/` (3.4) | Agente, a pedido del PO |
 | 2026-10-16 | Marca aprobada por el PO y aplicada a los íconos de `mobile/` y `web/` | Agente, a pedido del PO |
-| 2026-10-17 | Propuesta de identidad más expresiva tras revisar el prototipo de S1: P10 reformulado, zonas de marca (3.5), tokens de marca (4.1.1), familia display (4.2), nivel de elevación 0,5 (4.6), animaciones con nombre (4.7), `BandaMarca` e `Ilustracion` (8.12), `BarraLateral` oscura. Pendiente de aprobación del PO | Agente, a pedido del PO |
+| 2026-10-17 | Propuesta de identidad más expresiva tras revisar el prototipo de S1: P10 reformulado, zonas de marca (3.5), tokens de marca (4.1.1), familia display (4.2), nivel de elevación 0,5 (4.6), animaciones con nombre (4.7), `BandaMarca` e `Ilustracion` (8.12), `BarraLateral` oscura. Aprobada por el PO el mismo día | Agente, a pedido del PO |
 
 ---
 
