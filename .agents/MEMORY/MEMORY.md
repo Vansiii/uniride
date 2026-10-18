@@ -312,3 +312,28 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 **Razón:** no había ningún criterio visual ni de navegación y las 8 HU de S1 empiezan a crear pantallas; sin un contrato común cada integrante (o agente) improvisaría estilos. Los íconos eran los de las plantillas de Expo y Vite.
 
 **Archivos afectados:** `DESIGN_SYSTEM.md`, `marca/`, `.agents/STEERING/backlog.md` (SP83, SP84), `mobile/app.json`, `mobile/assets/images/*`, `web/public/favicon.svg`.
+
+---
+
+## 2026-10-17 · HU-06 implementada (pendiente de revisión y despliegue)
+
+**Evento:** el agente implementó HU-06 completa en la rama `feat/HU-06-inicio-sesion` de `backend`, `web`, `mobile` y el principal (SP39–SP47). Commits locales, sin push ni PR todavía.
+
+**Decisiones y desvíos (registrados aquí):**
+- **Dependencias fuera del plan, aprobadas por el PO:** `@prisma/adapter-pg`, `pg` y `@types/pg` (Prisma 7 no se conecta sin adaptador de controlador).
+- **Base local:** `docker/postgres/01-rol-app.sh` crea el rol `uniride_app` (sin dueño ni `BYPASSRLS`) al iniciar el volumen; nueva variable `POSTGRES_APP_PASSWORD` y `POSTGRES_PUERTO` (5432 por defecto) para evitar choques con un PostgreSQL local.
+- **CI del backend** (cambio aprobado por el PO): servicio PostgreSQL, rol `uniride_app` y `prisma migrate deploy` antes de `test:e2e`. Scripts `prebuild`, `pretest` y `pretest:e2e` ejecutan `prisma generate` (el cliente generado no se versiona).
+- **Cierre de sesión:** con el token de refresco revoca solo esa sesión; sin él revoca todas las del usuario.
+- **Bloqueo:** al quinto fallo se bloquea 15 min y el contador vuelve a 0.
+- **Refresco y límite absoluto:** el refresh vence con la sesión (30 d móvil, 7 d web); cada rotación conserva `sesion_vence_en`.
+- **Web:** token de acceso en memoria, refresco en cookie `httpOnly` (`Path=/api/v1/autenticacion`, `SameSite=Strict`, `Secure` en producción).
+
+**Verificado:** backend 5 unitarias + 11 e2e (CA-1 a CA-6, CA-8 a CA-10, auditoría y cookie), cobertura 82,75 %; web 8 pruebas; mobile 12 pruebas, tipos y bundle Android; lint y formato en verde en las tres carpetas.
+
+**Sin verificar / pendiente:**
+- **CA-7 en el backend:** `GET /yo` devuelve `membresias: []` hasta que HU-05 cree la tabla `membresias`; la app ya redirige a "Estado de membresía" cuando llegan pendientes o rechazadas (probado con datos simulados).
+- Revisión de código por otro integrante, CI en GitHub, despliegue en AWS y aceptación del PO (DoD).
+- Todo se corrió con Node 22.18 y `npx npm@11`; falta confirmar con Node 24.
+- Pantallas sin probar en un teléfono ni en un navegador real.
+
+**Archivos afectados:** `backend/`, `web/`, `mobile/`, `docker-compose.yml`, `docker/postgres/`, `.env.example`, `.agents/STEERING/backlog.md`, `SPECS/roadmap.md`, `SPECS/features/HU-06-inicio-sesion/plan.md`.

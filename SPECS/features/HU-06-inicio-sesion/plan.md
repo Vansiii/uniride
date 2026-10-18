@@ -43,7 +43,7 @@ Reglas de implementación:
 - Bloqueo: `intentos_fallidos` llega a 5 → `bloqueado_hasta = ahora + 15 min`; se reinicia al entrar bien.
 - Hash de contraseñas: bcrypt (`bcryptjs`, costo 12).
 
-Swagger actualizado: [ ]
+Swagger actualizado: [x]
 
 ## 4. Pantallas y voz
 
