@@ -45,7 +45,7 @@ Reglas de implementación:
 - Aceptar crea la membresía `admin_organizacion` en estado `aprobada` y fija `ultima_organizacion_id` (RN-7: reutiliza la cuenta si el correo ya existe).
 - Doble clic: el botón se desactiva al enviar y `UNIQUE(nombre_normalizado)` garantiza una sola organización.
 
-Swagger actualizado: [ ]
+Swagger actualizado: [x]
 
 ## 4. Pantallas y voz
 

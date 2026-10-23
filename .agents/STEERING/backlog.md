@@ -79,13 +79,13 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP47 · Pruebas HU-06 (CA-1 a CA-10) — 5h — @[POR DEFINIR] · @agente 17/10: 11 e2e + 5 unitarias backend, 8 web, 12 mobile; CA-7 del backend se prueba en HU-05 cuando exista `membresias`; CI con PostgreSQL
 
 ### HU-01 · Alta de organización (26 h)
-- [ ] SP48 · `enOrganizacion` / `comoSuperAdmin`, `RolPlataformaGuard`, migración `002` con políticas RLS — 4h — @[POR DEFINIR]
-- [ ] SP49 · Modelo: organizaciones, membresias, invitaciones, correos_salientes — 2h — @[POR DEFINIR]
-- [ ] SP50 · Notificaciones: cola, worker con reintentos, cliente SES, modo consola, plantillas — 4h — @[POR DEFINIR]
-- [ ] SP51 · Alta y listado de organizaciones (servicio, controlador, DTOs, Swagger, auditoría) — 3h — @[POR DEFINIR]
-- [ ] SP52 · Invitaciones: reenviar, consultar, aceptar (cuenta nueva y existente) — 4h — @[POR DEFINIR]
-- [ ] SP53 · Web: Organizaciones, Nueva organización, Aceptar invitación — 5h — @[POR DEFINIR]
-- [ ] SP54 · Pruebas HU-01 (CA-1 a CA-8, ataques A-13 y de rol, worker) — 4h — @[POR DEFINIR]
+- [x] SP48 · `enOrganizacion` / `comoSuperAdmin`, `RolPlataformaGuard`, migración `002` con políticas RLS — 4h — @[POR DEFINIR] · @agente 23/10: `PrismaService.enOrganizacion/comoSuperAdmin`, `RolPlataformaGuard` (rol leído de BD), migración `002`
+- [x] SP49 · Modelo: organizaciones, membresias, invitaciones, correos_salientes — 2h — @[POR DEFINIR] · @agente 23/10: tablas en `002`; `registros_auditoria` ya tenía RLS
+- [x] SP50 · Notificaciones: cola, worker con reintentos, cliente SES, modo consola, plantillas — 4h — @[POR DEFINIR] · @agente 23/10: `CorreosService` + worker cada 30 s, máx. 5 intentos, SES v2 (`@aws-sdk/client-sesv2`), modo consola
+- [x] SP51 · Alta y listado de organizaciones (servicio, controlador, DTOs, Swagger, auditoría) — 3h — @[POR DEFINIR] · @agente 23/10: `/admin/organizaciones`, auditoría en la misma transacción
+- [x] SP52 · Invitaciones: reenviar, consultar, aceptar (cuenta nueva y existente) — 4h — @[POR DEFINIR] · @agente 23/10: consulta y aceptación públicas (410 uniforme), reenvío; token solo como hash
+- [x] SP53 · Web: Organizaciones, Nueva organización, Aceptar invitación — 5h — @[POR DEFINIR] · @agente 23/10: Organizaciones, Nueva organización, Aceptar invitación
+- [x] SP54 · Pruebas HU-01 (CA-1 a CA-8, ataques A-13 y de rol, worker) — 4h — @[POR DEFINIR] · @agente 23/10: 38 e2e backend (alta, invitaciones, A-13 API y SQL, rol, worker), 10 pruebas web nuevas
 
 ### HU-02 · Reglas de afiliación (13 h)
 - [ ] SP55 · Migración `003`: dominios_organizacion y función `organizacion_por_dominio` — 2h — @[POR DEFINIR]

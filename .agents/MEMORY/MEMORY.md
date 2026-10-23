@@ -357,3 +357,30 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 **Prototipo:** `prototipos/sprint-1.html` (HTML autocontenido, se abre en el navegador; solo carga fuentes de Google Fonts). Reemplaza al Figma para SP19 si el equipo lo acepta.
 
 **Archivos afectados:** `DESIGN_SYSTEM.md` (1.4, 2, 3.1, 3.5, 4.1.1, 4.2, 4.6, 4.7, 8.1, 8.11, 8.12, 15, 17), `prototipos/sprint-1.html`, `.agents/STEERING/backlog.md` (SP19, SP85, SP86).
+
+---
+
+## 2026-10-23 · HU-01 Alta de organización implementada (SP48–SP54)
+
+**Evento:** implementación de HU-01 según su `plan.md` aprobado (rama `feat/HU-01-alta-organizacion` en principal, `backend` y `web`; sin push ni PR).
+
+**Decisiones de implementación (no cambian la spec):**
+- `AuditoriaService.registrar(evento, tx?)` acepta la transacción: el alta se audita en la misma transacción.
+- `RolPlataformaGuard` lee el rol de la BD (no del token), así revocar el rol surte efecto de inmediato. Responde 403 `NO_AUTORIZADO` igual exista o no la organización consultada (A-13: no revela existencia).
+- Las rutas públicas de invitación (`GET/POST /invitaciones/{token}`) corren en contexto `comoSuperAdmin` porque no hay sesión: el token de 256 bits es la autorización. Token inexistente, usado, reemplazado o vencido dan el mismo 410.
+- `correos_salientes.datos` guarda el enlace con el token solo hasta que el correo sale; al marcarlo `enviado` se vacía (el hash en `invitaciones` es lo único que perdura).
+- Aceptar crea la membresía `admin_organizacion` en estado `aprobada`; con cuenta existente exige su contraseña (RN-7).
+- `AutenticacionService.abrirSesion` (sin contraseña) y `responderSesion` quedaron exportados para flujos que ya autenticaron a la persona.
+- Nueva variable `WEB_URL` (enlaces de los correos) en `.env.example`. Dependencia nueva aprobada en el plan: `@aws-sdk/client-sesv2`.
+- Migración `002` cambia RLS (confirmada al aprobar el plan, 14/10). `registros_auditoria` ya tenía RLS desde la `001`.
+
+**Verificado:** backend 6 unitarias + 38 e2e (CA-1 a CA-8, RN-7, A-13 a nivel API y SQL, rol, worker con reintentos), lint, formato y build; web 18 pruebas (10 nuevas), lint, formato, tipos y build.
+
+**Sin verificar / pendiente:**
+- Envío real por SES (solo `CORREO_MODO=consola` probado; SES sandbox exige correos verificados, SP13).
+- Cobertura de backend no medida con las e2e; revisión de otro integrante, CI en GitHub, despliegue y aceptación del PO.
+- Pantallas no probadas en un navegador real.
+- UML: secuencia ya en el plan; falta el diagrama de clases y el de casos de uso.
+- Node 22.18 + `npx npm@11` en esta máquina (no Node 24).
+
+**Archivos afectados:** `backend/` (`prisma/`, `src/organizaciones`, `src/notificaciones`, `src/comun`, `test/`), `web/src`, `.env.example`, `.agents/`, `SPECS/`.
