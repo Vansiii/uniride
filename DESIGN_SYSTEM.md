@@ -323,7 +323,7 @@ Regla: el espacio comunica agrupación. Elementos relacionados a 8–12; grupos 
 | Token | Móvil | Web | Uso |
 |---|---|---|---|
 | `tactilMinimo` | 48 | 44 (primario) / 24 mínimo WCAG | Área tocable mínima de cualquier control |
-| `altoControl` | 48 | 40 | Botones y campos |
+| `altoControl` | 48 | 44 [Existe, 23/10] | Botones y campos. En web subió de 40 a 44 para que toda acción principal cumpla 12.2 sin mezclar alturas |
 | `altoControlCompacto` | 40 | 32 | Acciones dentro de filas de tabla o tarjetas densas |
 | `altoFila` | 56 | 52 | Filas de lista y de tabla |
 | `altoEncabezado` | 56 | 64 | Barra superior |
@@ -1244,6 +1244,7 @@ No se aplican en esta tarea; se hacen en la primera HU de interfaz (HU-06):
 | 2026-10-16 | Propuesta de marca: isotipo, logotipo, firma horizontal e ícono de app en `marca/` (3.4) | Agente, a pedido del PO |
 | 2026-10-16 | Marca aprobada por el PO y aplicada a los íconos de `mobile/` y `web/` | Agente, a pedido del PO |
 | 2026-10-17 | Propuesta de identidad más expresiva tras revisar el prototipo de S1: P10 reformulado, zonas de marca (3.5), tokens de marca (4.1.1), familia display (4.2), nivel de elevación 0,5 (4.6), animaciones con nombre (4.7), `BandaMarca` e `Ilustracion` (8.12), `BarraLateral` oscura. Aprobada por el PO el mismo día | Agente, a pedido del PO |
+| 2026-10-23 | Rediseño de UI de `web/` y `mobile/` sobre este sistema (rama `feat/PB-03-rediseno-ui`): tokens completos (color de estado, marca, movimiento, capas), `altoControl` web 40 → 44, Bricolage Grotesque 800 en `web/public/fuentes/`, íconos Material Symbols en `web/src/iconos/rutas.ts`. Pasan a **[Existe]**: web `Icono`, `Boton` (+ `peligro`, `compacto`, `icono`, enlace), `BotonIcono`, `Campo` (mostrar contraseña, sufijo), `Aviso`, `Notificacion`, `Dialogo`, `EtiquetaEstado`, `Tabla` (tarjetas < 640 px), `GrupoOpciones`, `EstadoVacio`, `Esqueleto`, `Ilustracion`, `BarraLateral` oscura; móvil `Icono`, `BotonIcono`, `Aviso`, `EtiquetaEstado`, `BandaMarca`, `Ilustracion`, zona de acción fija. Desvíos: en móvil la `Ilustracion` se arma con `View` (sin `react-native-svg`), por eso no tiene `trazoIlustracion`; la familia display aún no se carga en móvil | Agente, a pedido del equipo |
 
 ---
 
