@@ -2,24 +2,25 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-10-17
+**Última actualización:** 2026-10-23
 
-**Sprint actual:** Sprint 0 · 14/10 – 20/10/2026 (sprints de 1 semana, miércoles a martes). Sprint 1 empieza el 21/10.
+**Sprint actual:** Sprint 1 · 21/10 – 27/10/2026 (sprints de 1 semana, miércoles a martes).
 
-**HU en curso:** HU-06 · Inicio de sesión. Implementación terminada y probada en local (SP39–SP47); falta PR, revisión de otro integrante, CI en GitHub, despliegue y aceptación del PO. Siguiente en el orden de S1: HU-01.
+**HU en curso:** HU-01 · Alta de organización. Implementación terminada y probada en local (SP48–SP54); falta PR, revisión de otro integrante, CI en GitHub, despliegue y aceptación del PO. HU-06 sigue con su PR pendiente. Siguiente en el orden de S1: HU-02.
 
 ## Última sesión
 
-- Ramas `feat/HU-06-inicio-sesion` en `backend` (6 commits), `web` (2), `mobile` (1) y principal. **Sin push ni PR** (pide confirmación humana).
-- Backend: sesión con JWT + refresh rotativo, bloqueo, auditoría, `JwtGuard` global, `GET /yo`, migración `001` con RLS. Web y mobile: shell, cliente HTTP con renovación, pantalla de inicio de sesión (mobile también estado de membresía).
-- Postgres local en Docker (puerto 5433 en el `.env` del agente, ignorado por git).
+- Ramas `feat/HU-01-alta-organizacion` en `backend`, `web` y principal, **sin push ni PR** (pide confirmación humana). Salen de `develop`; los PR de HU-06 ya se fusionaron en `develop` (principal #5).
+- Backend: `enOrganizacion`/`comoSuperAdmin`, `RolPlataformaGuard`, migración `002` con RLS, cola de correos con worker y reintentos (`CORREO_MODO=consola` en desarrollo), alta/listado/reenvío/consulta/aceptación de invitaciones. Web: Organizaciones, Nueva organización, Aceptar invitación.
+- Postgres local en Docker (puerto 5433 en el `.env` del agente): hay que abrir Docker Desktop y `docker compose up -d postgres`; la migración `002` ya está aplicada.
 
 ## Próximo paso concreto
 
-1. **Subir las ramas y abrir un PR por repositorio** (backend, web, mobile) hacia `develop`; después PR en el principal con los punteros de submódulos. El CI del backend ahora necesita su servicio PostgreSQL (ya está en el workflow).
-2. **Revisión por otro integrante** y aceptación del PO. Agregar a los otros cuatro integrantes como colaboradores (sin eso nadie aprueba).
-3. **HU-01** (SP48–SP54): `enOrganizacion`/`comoSuperAdmin`, migración `002` con RLS, cola de correos, alta e invitaciones. Ahí se completa la parte pendiente de CA-7 de HU-06 junto con HU-05 (`membresias`).
-4. Instalar Node 24 LTS en las máquinas (el agente usa 22.18 + `npx npm@11`).
+1. **Subir las ramas y abrir un PR por repositorio** (backend, web) hacia `develop`; después PR en el principal con los punteros de submódulos. Agregar a los otros cuatro integrantes como colaboradores (sin eso nadie aprueba).
+2. **Pedir acceso de producción a SES** (SP13) o verificar los correos del equipo, para probar el envío real de invitaciones.
+3. **HU-02** (SP55–SP60): `OrganizacionGuard`, dominios de correo y modo de aprobación. Reutiliza `enOrganizacion` y la tabla `membresias` ya creada.
+4. **HU-05** completa la parte pendiente de CA-7 de HU-06 (`GET /yo` aún devuelve `membresias: []`).
+5. Instalar Node 24 LTS en las máquinas (el agente usa 22.18 + `npx npm@11`).
 
 ## Bloqueos activos
 
