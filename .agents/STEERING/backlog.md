@@ -37,6 +37,7 @@
 - [x] SP86 · Aprobación del PO de la identidad más expresiva (`DESIGN_SYSTEM.md` §3.5) — 1h — @PO 17/10 · falta la prueba al sol en un teléfono real (P-07)
 - [x] SP83 · Sistema de diseño `DESIGN_SYSTEM.md` (tokens, navegación, componentes, estados, accesibilidad, microcopia); base para SP18–SP19 — 4h — @agente 16/10
 - [x] SP84 · Marca (isotipo, logotipo, ícono de app) aprobada por el PO y aplicada a `mobile/` y `web/` en `feat/PB-03-marca` — 2h — @agente 16/10 · falta fusionar los PR
+- [x] SP87 · Rediseño de UI de `web/` y `mobile/` sobre `DESIGN_SYSTEM.md` (tokens, componentes, navegación, estados, accesibilidad) — 6h — @agente 23/10 · PR web #6 (sobre #5) y mobile #3; falta revisión y prueba en Android físico
 
 ### PB-04 · Token URC y escrow
 - [x] SP20 · Scaffolding de `contracts/`: Hardhat + OpenZeppelin + TS — 2h — @[POR DEFINIR] · @agente 14/10
