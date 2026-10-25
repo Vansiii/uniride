@@ -11,8 +11,8 @@
 ## Última sesión
 
 - HU-02: `feat/HU-02-reglas-afiliacion` subida en `backend` y `web` (PR por abrir en GitHub; esta PC no tiene `gh`). Documentos del principal en el commit local `1e48d92`.
-- HU-05: `feat/HU-05-registro-correo-institucional` en `backend` (`37f1b8e`, sale de la rama de HU-02), `mobile` (`c7fecb7`) y principal (documentos, sin commit). OTP, registro, verificación, reenvío, `GET /yo` con `membresias`, pantallas Registro y Código.
-- HU-03: `feat/HU-03-aprobacion-miembros` en `backend` (`798060c`, `8b2cda8`), `web` (`91a26f3`, incluye el menú por rol pendiente de HU-02) y principal.
+- HU-05: `feat/HU-05-registro-correo-institucional` en `backend` (`37f1b8e`, sale de la rama de HU-02), `mobile` (`c7fecb7`) y principal (documentos en `5fc7c63`). OTP, registro, verificación, reenvío, `GET /yo` con `membresias`, pantallas Registro y Código.
+- HU-03: `feat/HU-03-aprobacion-miembros` en `backend` (`798060c`, `8b2cda8`), `web` (`91a26f3`, incluye el menú por rol pendiente de HU-02) y principal (documentos en `b71955a`).
 - Entorno local: PostgreSQL de `docker compose` en el puerto 5434 (`.env` local).
 
 ## Próximo paso concreto
