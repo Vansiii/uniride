@@ -31,7 +31,9 @@ Reglas de implementación:
 - Al aprobar, si la persona no tiene `ultima_organizacion_id`, se fija esta organización.
 - El rechazo es definitivo en v1: HU-07 lo respeta al intentar unirse otra vez.
 
-Swagger actualizado: [ ]
+Swagger actualizado: [x] (24/10)
+
+Al implementar (24-25/10): el motivo solo se guarda al rechazar; un intento sobre una solicitud ya decidida queda auditado como `fallo`.
 
 ## 4. Pantallas y voz
 
@@ -62,7 +64,7 @@ Voz: no aplica (panel web; D-08 abierta).
 
 | Riesgo | Probabilidad | Impacto | Mitigación |
 |---|---|---|---|
-| Un admin aprueba por error (no hay forma de revertir en v1) | Media | Bajo | Diálogo de confirmación; queda auditado |
+| Un admin aprueba por error (no hay forma de revertir en v1) | Media | Bajo | Queda auditado y la `Notificacion` muestra el resultado. Aprobar va **sin diálogo** (`DESIGN_SYSTEM.md` §9, confirmado por el integrante el 25/10); rechazar sí lo pide |
 
 Dependencias nuevas: ninguna.
 

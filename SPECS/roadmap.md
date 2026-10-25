@@ -47,7 +47,7 @@ Tareas concretas: `/.agents/STEERING/backlog.md`.
 | HU-01 | Alta de organización | Como super administrador quiero registrar una organización para que sus miembros usen UniRide | Alta (Must) | 3 | S1 | implementada | HU-06 |
 | HU-02 | Reglas de afiliación | Como admin. de organización quiero definir dominios de correo y tipo de aprobación para controlar quién entra | Alta (Must) | 3 | S1 | implementada | HU-01 |
 | HU-05 | Registro con correo institucional | Como estudiante o empleado quiero registrarme con el correo de mi organización para acceder a sus viajes | Alta (Must) | 5 | S1 | implementada | HU-02 |
-| HU-03 | Aprobación de miembros | Como admin. de organización quiero aprobar o rechazar solicitudes para que solo entren personas legítimas | Alta (Must) | 3 | S1 | en plan | HU-02, HU-05 |
+| HU-03 | Aprobación de miembros | Como admin. de organización quiero aprobar o rechazar solicitudes para que solo entren personas legítimas | Alta (Must) | 3 | S1 | implementada | HU-02, HU-05 |
 | HU-07 | Varias organizaciones | Como usuario quiero pertenecer a varias organizaciones para viajar con cada comunidad | Media (Should) | 3 | S1 | en plan | HU-06 |
 | HU-34 | Recuperación de contraseña | Como usuario quiero recuperar el acceso si olvido mi contraseña para no perder mi cuenta | Media (Should) | 3 | S1 | en plan | HU-05, HU-06 |
 | HU-11 | Registro de vehículo | Como conductor quiero registrar mi vehículo para que los pasajeros me identifiquen | Alta (Must) | 3 | S1 | en plan | HU-06 |

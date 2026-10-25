@@ -104,9 +104,9 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP65 · Pruebas HU-05 (CA-1 a CA-9, ataque A-13) — 5h — @Nannj446 · @agente 24/10: 70 unitarias + 77 e2e backend (CA-1 a CA-9, A-13 y `/yo`); cobertura 86,8→90,1 %
 
 ### HU-03 · Aprobación de miembros (11 h)
-- [ ] SP66 · Módulo `membresias`: listar y decidir (actualización condicional, auditoría, correo) — 4h — @[POR DEFINIR]
-- [ ] SP67 · Web: pantalla Solicitudes — 4h — @[POR DEFINIR]
-- [ ] SP68 · Pruebas HU-03 (CA-1 a CA-7, ataque A-13, concurrencia) — 3h — @[POR DEFINIR]
+- [x] SP66 · Módulo `membresias`: listar y decidir (actualización condicional, auditoría, correo) — 4h — @Nannj446 · @agente 24/10: `GET /organizaciones/{id}/membresias?estado=pendiente` y `POST /membresias/{id}/decision`; update condicional, auditoría y correo en la misma transacción; motivo solo al rechazar
+- [x] SP67 · Web: pantalla Solicitudes — 4h — @Nannj446 · @agente 25/10: Solicitudes (aprobar directo, rechazar con diálogo y motivo, ya decidida, vacío/error); menú por rol de la organización activa desde `/yo` y nombre de la organización en la barra lateral (pendiente de HU-02); 51 pruebas web; probada en navegador a 360/768/1280
+- [x] SP68 · Pruebas HU-03 (CA-1 a CA-7, ataque A-13, concurrencia) — 3h — @Nannj446 · @agente 24/10: 79 unitarias + 95 e2e backend (CA-1 a CA-7, concurrencia 200+409, A-13 404 idéntico a inexistente); cobertura 90,9 %
 
 ### HU-07 · Varias organizaciones (13 h)
 - [ ] SP69 · Agregar organización (validaciones, código, confirmar) — 3h — @[POR DEFINIR]

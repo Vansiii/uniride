@@ -438,3 +438,21 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 - Node 22 (no 24); revisión, CI, despliegue y aceptación del PO. UML: clase `CodigoOtp`, caso de uso "Registrarse".
 
 **Archivos afectados:** `backend/` (`prisma/migrations/004_codigos_otp`, `src/autenticacion/{otp,registro}.*`, `yo.controller.ts`, `src/notificaciones`, `src/comun`, `test/`), `mobile/src` (`app/registro.tsx`, `app/codigo.tsx`, `componentes/`, `api/cliente.ts`, `contexto/sesion.tsx`), `.agents/`, `SPECS/`.
+
+---
+
+## 2026-10-25 · HU-03 Aprobación de miembros implementada (SP66–SP68)
+
+**Evento:** implementación de HU-03 según su `plan.md` aprobado. Ramas `feat/HU-03-aprobacion-miembros` en principal, `backend` (sale de la rama de HU-05) y `web` (sale de la de HU-02), sin push.
+
+**Decisiones:**
+- **Aprobar una solicitud no pide confirmación** (confirmado por el integrante el 25/10). `DESIGN_SYSTEM.md` §9 (aprobado el 16-17/10) prevalece sobre la mitigación del plan §7 (14/10). Mitigación: auditoría y `Notificacion` con el resultado. Rechazar sí abre un diálogo con motivo opcional, porque es definitivo.
+- La decisión es un `updateMany` condicional (`estado = 'pendiente'`) dentro de `enOrganizacion`: de dos decisiones simultáneas vale la primera y la otra recibe `MEMBRESIA_YA_DECIDIDA` (409), que se audita como `fallo`. Una membresía de otra organización responde `NO_ENCONTRADO`, igual que una inexistente (A-13). Auditoría y correo van en la misma transacción.
+- El motivo solo se guarda al rechazar. Al aprobar se fija `ultima_organizacion_id` si la persona no tenía una.
+- Web: el menú usa las `membresias` de `GET /yo` (HU-05). "Afiliación" y "Solicitudes" solo se muestran si el rol en la organización activa es `admin_organizacion`, y la barra lateral muestra el nombre de la organización (cierra el pendiente de HU-02). La página de llegada del admin es Solicitudes (`DESIGN_SYSTEM.md`).
+
+**Verificado:** backend 79 unitarias + 95 e2e (CA-1 a CA-7, concurrencia 200+409, A-13), cobertura 90,9 %, lint y build; prueba real con 30 casos, partiendo de un registro real de HU-05. Web 51 pruebas, lint y build; navegador contra el backend local a 360, 768 y 1280 (aprobar, rechazar con motivo, ya decidida, vacío, error de carga, miembro sin rol, rechazado sin acceso, admin de otra organización).
+
+**Sin verificar / pendiente:** correo real por SES; Node 24; revisión, CI, despliegue y aceptación del PO. UML: estados de la membresía, caso de uso "Decidir solicitud". CA-7 ("no puede usar viajes ni billetera") queda probado con los endpoints que hoy protege `OrganizacionGuard`; viajes y billetera llegan en S2.
+
+**Archivos afectados:** `backend/src/membresias/`, `src/notificaciones/plantillas.ts`, `test/membresias/`, `test/ataques/a-13-membresias.e2e-spec.ts`; `web/src/paginas/admin/Solicitudes*`, `src/app/membresia.ts`, `componentes/Estructura*`, `api/cliente.ts`; `.agents/`, `SPECS/`.
