@@ -96,12 +96,12 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP59 · Pruebas HU-02 (CA-1 a CA-8, ataque A-13) — 3h — @Nannj446 · @agente 24/10: 26 unitarias + 55 e2e backend (CA-1 a CA-8, A-13 en API y SQL, concurrencia); cobertura 80→86,8 %; CA-4/CA-5 de punta a punta con HU-05
 
 ### HU-05 · Registro con correo institucional (21 h)
-- [ ] SP60 · Migración `004`: codigos_otp — 1h — @[POR DEFINIR]
-- [ ] SP61 · `OtpService` compartido (generar, verificar, bloqueo, límites, invalidación) — 4h — @[POR DEFINIR]
-- [ ] SP62 · Endpoints de registro, verificación y reenvío; alta de usuario y membresía — 4h — @[POR DEFINIR]
-- [ ] SP63 · `enviarAhora()` y plantillas de correo — 1h — @[POR DEFINIR]
-- [ ] SP64 · Mobile: pantallas Registro y Código, y navegación al estado o al inicio — 6h — @[POR DEFINIR]
-- [ ] SP65 · Pruebas HU-05 (CA-1 a CA-9, ataque A-13) — 5h — @[POR DEFINIR]
+- [x] SP60 · Migración `004`: codigos_otp — 1h — @Nannj446 · @agente 24/10: migración `004` (dato personal, sin RLS; rol de la API sin borrado)
+- [x] SP61 · `OtpService` compartido (generar, verificar, bloqueo, límites, invalidación) — 4h — @Nannj446 · @agente 24/10: `OtpService` con HMAC + `timingSafeEqual`, `randomInt`, 10 min, bloqueo 15 min tras 5 errores, 1/min y 5/h, invalidación del anterior
+- [x] SP62 · Endpoints de registro, verificación y reenvío; alta de usuario y membresía — 4h — @Nannj446 · @agente 24/10: `POST /autenticacion/registro`, `verificar-otp`, `reenviar-codigo`; alta de usuario y membresía según el modo; `GET /yo` ahora trae `membresias` (cierra HU-06 CA-7)
+- [x] SP63 · `enviarAhora()` y plantillas de correo — 1h — @Nannj446 · @agente 24/10: `enviarAhora()`, plantillas `otp_registro` y `ya_tienes_cuenta`
+- [x] SP64 · Mobile: pantallas Registro y Código, y navegación al estado o al inicio — 6h — @Nannj446 · @agente 24/10: `registro.tsx`, `codigo.tsx`, `CampoCodigo`, `Casilla`; 27 pruebas nuevas (40 mobile); probado en navegador (expo web) contra backend local a 360/412; falta probar en Android y el texto legal del consentimiento
+- [x] SP65 · Pruebas HU-05 (CA-1 a CA-9, ataque A-13) — 5h — @Nannj446 · @agente 24/10: 70 unitarias + 77 e2e backend (CA-1 a CA-9, A-13 y `/yo`); cobertura 86,8→90,1 %
 
 ### HU-03 · Aprobación de miembros (11 h)
 - [ ] SP66 · Módulo `membresias`: listar y decidir (actualización condicional, auditoría, correo) — 4h — @[POR DEFINIR]

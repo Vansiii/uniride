@@ -410,3 +410,31 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 - Node 22 en esta máquina (no 24); revisión de otro integrante, CI en GitHub, despliegue y aceptación del PO. UML: clase `DominioOrganizacion`.
 
 **Archivos afectados:** `backend/` (`prisma/migrations/003_dominios`, `schema.prisma`, `src/comun/organizacion.guard.ts`, `src/organizaciones/afiliacion.*`, `test/`), `web/src` (`paginas/admin/Afiliacion*`, `api/cliente.ts`, `App.tsx`, `componentes/`), `.agents/`, `SPECS/`.
+
+---
+
+## 2026-10-24 · HU-05 Registro con correo institucional implementada (SP60–SP65)
+
+**Evento:** implementación de HU-05 según su `plan.md` aprobado. Ramas `feat/HU-05-registro-correo-institucional` en principal, `backend` y `mobile`, sin push. **La rama del backend sale de `feat/HU-02-reglas-afiliacion`** (sin fusionar todavía): su PR mostrará también los commits de HU-02 hasta que ese PR se fusione en `develop`.
+
+**Decisiones de implementación:**
+- **CA-8:** el `ValidationPipe` global usa `forbidNonWhitelisted`, así que un campo desconocido da 400 y no se descarta como suponía el plan. Para cumplir la spec ("se procesa y el dato se ignora"), `RegistroDto` acepta `organizacionId` con `@Allow()` + `@ApiHideProperty()` y el servicio nunca lo lee. Cualquier otro campo extra sigue dando 400. La configuración global no cambia.
+- **CA-7:** si el correo ya tiene cuenta, se guarda una fila señuelo en `codigos_otp` que nunca valida y el aviso `ya_tienes_cuenta` se envía en el momento. Así límites, bloqueo, reenvío y 503 se comportan igual con o sin cuenta. Desvío del plan, que decía no generar fila y encolar el aviso.
+- `codigos_otp` es dato personal: sin RLS; el rol de la API no puede borrar. El código se guarda con HMAC-SHA256 (`OTP_SECRETO`) y se compara con `timingSafeEqual`.
+- El quinto error ya responde `OTP_BLOQUEADO` con `reintentarEn`.
+- `PrismaService.fijarOrganizacion(tx, id)`: fija el contexto RLS dentro de una transacción ya abierta (la organización se conoce al leer el código).
+- **`GET /yo` trae `membresias`** (`organizacionId`, `organizacion`, `rol`, `estado`), filtradas por el propio usuario. Cambio compatible; cierra el CA-7 pendiente de HU-06. Pendiente: que la web lo use para mostrar "Afiliación" solo a admins (HU-02).
+- `reenviar-codigo` acepta por ahora solo `proposito: 'registro'`; HU-07 y HU-34 agregan los suyos.
+
+**Verificado:** backend 70 unitarias + 77 e2e (CA-1 a CA-9, A-13, `/yo`), cobertura 86,8 → 90,1 %, lint y build; peticiones reales con cada error del plan §3. Mobile 40 pruebas (27 nuevas), lint, tipos y bundle Android; pantallas probadas con `expo web` contra el backend local a 360 y 412 (no afiliada, código incorrecto, bloqueo, vencido, reenvío; el código correcto creó cuenta y membresía en la BD). Con esto CA-4 y CA-5 de HU-02 quedan cubiertos de punta a punta en el servidor.
+
+**Sin verificar / pendiente:**
+- Flujo completo en un Android real o emulador: teclado numérico, autocompletado del código, guardar la sesión (`expo-secure-store` no funciona en web) y la redirección al estado de membresía.
+- **Falta el texto legal del tratamiento de datos** (RN-7, Ley 164): la casilla solo lleva la frase. Lo tiene que entregar el PO o el equipo.
+- El prototipo muestra "Te quedan 2 intentos"; la API no informa los intentos restantes.
+- Correo real por SES (`CORREO_NO_DISPONIBLE` solo en pruebas automáticas).
+- Un código vencido que nadie reemplaza conserva el hash de la contraseña en `datos`; no hay tarea de limpieza.
+- Varias suites e2e crean organizaciones en `beforeAll` y pueden pasar los 10 s de `hookTimeout` bajo carga; las nuevas usan 60 s. Candidato: `hookTimeout` global en `vitest.config.e2e.ts`.
+- Node 22 (no 24); revisión, CI, despliegue y aceptación del PO. UML: clase `CodigoOtp`, caso de uso "Registrarse".
+
+**Archivos afectados:** `backend/` (`prisma/migrations/004_codigos_otp`, `src/autenticacion/{otp,registro}.*`, `yo.controller.ts`, `src/notificaciones`, `src/comun`, `test/`), `mobile/src` (`app/registro.tsx`, `app/codigo.tsx`, `componentes/`, `api/cliente.ts`, `contexto/sesion.tsx`), `.agents/`, `SPECS/`.
