@@ -36,7 +36,9 @@ Reglas de implementación:
 - Se reemplaza la lista completa en una transacción: se normalizan los dominios (minúsculas, sin `@` ni espacios, sin repetidos), se validan el formato (nombre de host con al menos un punto) y la lista `DOMINIOS_PUBLICOS` (gmail.com, hotmail.com, outlook.com, yahoo.com, icloud.com), y la violación de `UNIQUE(dominio)` se traduce a `DOMINIO_NO_DISPONIBLE`.
 - La auditoría guarda en `detalle` los valores anterior y nuevo (CA-8).
 
-Swagger actualizado: [ ]
+Swagger actualizado: [x] (24/10)
+
+Desvío al implementar (24/10): `OrganizacionGuard` valida la membresía y deja `organizacionId` en la petición, pero no envuelve el handler en `enOrganizacion` (un guard de Nest no puede); cada servicio abre `enOrganizacion` y, si lo olvida, RLS forzado devuelve 0 filas.
 
 ## 4. Pantallas y voz
 

@@ -89,11 +89,11 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP54 · Pruebas HU-01 (CA-1 a CA-8, ataques A-13 y de rol, worker) — 4h — @[POR DEFINIR] · @agente 23/10: 38 e2e backend (alta, invitaciones, A-13 API y SQL, rol, worker), 10 pruebas web nuevas
 
 ### HU-02 · Reglas de afiliación (13 h)
-- [ ] SP55 · Migración `003`: dominios_organizacion y función `organizacion_por_dominio` — 2h — @[POR DEFINIR]
-- [ ] SP56 · `OrganizacionGuard` y `RolOrganizacionGuard` — 2h — @[POR DEFINIR]
-- [ ] SP57 · Servicio y controlador de afiliación con validaciones y auditoría — 3h — @[POR DEFINIR]
-- [ ] SP58 · Web: pantalla Afiliación — 3h — @[POR DEFINIR]
-- [ ] SP59 · Pruebas HU-02 (CA-1 a CA-8, ataque A-13) — 3h — @[POR DEFINIR]
+- [x] SP55 · Migración `003`: dominios_organizacion y función `organizacion_por_dominio` — 2h — @Nannj446 · @agente 24/10: migración `003` con RLS forzado; `organizacion_por_dominio` SECURITY DEFINER (solo el id, solo `activa`); rol de la API con SELECT, INSERT, DELETE en la tabla nueva
+- [x] SP56 · `OrganizacionGuard` y `RolOrganizacionGuard` — 2h — @Nannj446 · @agente 24/10: `OrganizacionGuard` (membresía `aprobada` leída de BD), `RolOrganizacionGuard` + `@RolOrganizacion`, `@OrganizacionActual`
+- [x] SP57 · Servicio y controlador de afiliación con validaciones y auditoría — 3h — @Nannj446 · @agente 24/10: `GET/PUT /organizaciones/{id}/afiliacion`, normalización, `DOMINIOS_PUBLICOS`, auditoría con anterior/nuevo, Swagger
+- [x] SP58 · Web: pantalla Afiliación — 3h — @Nannj446 · @agente 24/10: `/organizacion/afiliacion` con dominios, modo y estados de carga/vacío/error; 14 pruebas nuevas (32 web); probada en navegador contra backend local a 360/768/1280
+- [x] SP59 · Pruebas HU-02 (CA-1 a CA-8, ataque A-13) — 3h — @Nannj446 · @agente 24/10: 26 unitarias + 55 e2e backend (CA-1 a CA-8, A-13 en API y SQL, concurrencia); cobertura 80→86,8 %; CA-4/CA-5 de punta a punta con HU-05
 
 ### HU-05 · Registro con correo institucional (21 h)
 - [ ] SP60 · Migración `004`: codigos_otp — 1h — @[POR DEFINIR]

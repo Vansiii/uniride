@@ -384,3 +384,29 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 - Node 22.18 + `npx npm@11` en esta máquina (no Node 24).
 
 **Archivos afectados:** `backend/` (`prisma/`, `src/organizaciones`, `src/notificaciones`, `src/comun`, `test/`), `web/src`, `.env.example`, `.agents/`, `SPECS/`.
+
+---
+
+## 2026-10-24 · HU-02 Reglas de afiliación implementada (SP55–SP59)
+
+**Evento:** implementación de HU-02 según su `plan.md` aprobado (rama `feat/HU-02-reglas-afiliacion` en principal, `backend` y `web`; sin push ni PR).
+
+**Decisiones de implementación:**
+- **El rol de la API puede borrar en `dominios_organizacion`** (`GRANT SELECT, INSERT, DELETE`; aprobado por el integrante, §14). Es la única tabla con borrado. La regla "solo inserción" de `ssd.md` vale para `movimientos` y `registros_auditoria`. Para el resto de tablas, HU-01 dejó en su migración el comentario "sin borrado", que fue una decisión de implementación y no una regla documentada. Quitar un dominio (CA-6, RN-7) tiene que liberarlo: con borrado lógico, `UNIQUE(dominio)` impediría que otra organización lo tome (RN-2). El historial queda en la auditoría (CA-8, anterior y nuevo). RLS limita el borrado a la organización propia (prueba A-13).
+- `OrganizacionGuard` valida la membresía `aprobada` de la organización del token, leída de BD en cada petición, y deja `organizacionId` y `rolOrganizacion` en la petición. **No envuelve el handler en `enOrganizacion`**, porque un guard de Nest no puede hacerlo: cada servicio abre `enOrganizacion`, y si lo olvida RLS forzado devuelve 0 filas. Es un desvío del texto de plan §1 / `ssd.md`; está anotado en el plan.
+- `organizacion_por_dominio` es `SECURITY DEFINER` con `SET app.super_admin = 'true'` dentro de la función: devuelve solo el id de una organización `activa` y no abre RLS en la transacción que la llama (probado).
+- `{id}` distinto de la organización activa responde 404 `NO_ENCONTRADO`, idéntico a una organización inexistente. `DOMINIO_INVALIDO` incluye el dominio enviado por el cliente.
+- Web: ruta `/organizacion/afiliacion`; el id sale de la sesión, no de la URL.
+
+**Verificado:** backend 26 unitarias y 55 e2e (CA-1 a CA-8, A-13 en API y SQL, concurrencia), cobertura 80 → 86,8 %, lint y build. Peticiones reales contra el backend local, 403/404 a mano y Swagger. Web 32 pruebas (14 nuevas), lint y build. Pantalla probada en el navegador contra el backend local a 360, 768 y 1280 (feliz, errores, vacío, error de carga, roles, teclado).
+
+**Sin verificar / pendiente:**
+- CA-4/CA-5 de punta a punta: se cierran con HU-05 (registro).
+- `GET /yo` no trae rol ni nombre de la organización (membresías vacías hasta HU-05): el enlace "Afiliación" aparece a cualquier miembro (el servidor responde 403 y la pantalla vuelve al inicio), y la barra lateral no muestra la organización.
+- Contra el prototipo falta: el aviso "Último cambio: autor, fecha" (requiere un campo nuevo en `GET …/afiliacion`) y la confirmación al salir por el menú con cambios sin guardar (la app usa `BrowserRouter`).
+- `OrganizacionGuard` no mira `organizaciones.estado`: un admin de una organización suspendida podría seguir editando. La spec no lo cubre.
+- `format:verificar` falla en máquinas Windows con `core.autocrlf=true` (los archivos quedan en CRLF en la copia de trabajo; en el índice están en LF y en CI pasa). Propuesta: `.gitattributes` con `* text=auto eol=lf`, que también evita que `docker/postgres/01-rol-app.sh` rompa PostgreSQL al arrancar.
+- `start:dev` no carga `../.env`, y `vite.config.ts` hace de proxy solo hacia el puerto 3000 (el backend no tiene CORS).
+- Node 22 en esta máquina (no 24); revisión de otro integrante, CI en GitHub, despliegue y aceptación del PO. UML: clase `DominioOrganizacion`.
+
+**Archivos afectados:** `backend/` (`prisma/migrations/003_dominios`, `schema.prisma`, `src/comun/organizacion.guard.ts`, `src/organizaciones/afiliacion.*`, `test/`), `web/src` (`paginas/admin/Afiliacion*`, `api/cliente.ts`, `App.tsx`, `componentes/`), `.agents/`, `SPECS/`.
