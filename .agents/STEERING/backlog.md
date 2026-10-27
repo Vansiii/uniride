@@ -115,10 +115,10 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP72 · Pruebas HU-07 (CA-1 a CA-7, ataque A-13) — 3h — @Nannj446 · @agente 26/10: 96 unitarias + 115 e2e backend (CA-1 a CA-7, A-13 entre organizaciones propias); cobertura 92 %
 
 ### HU-34 · Recuperación de contraseña (12 h)
-- [ ] SP73 · Endpoints de recuperar y restablecer (revocación de sesiones, auditoría, correos) — 3h — @[POR DEFINIR]
-- [ ] SP74 · Web: pantallas de recuperación — 3h — @[POR DEFINIR]
-- [ ] SP75 · Mobile: pantalla de recuperación — 3h — @[POR DEFINIR]
-- [ ] SP76 · Pruebas HU-34 (CA-1 a CA-6) — 3h — @[POR DEFINIR]
+- [x] SP73 · Endpoints de recuperar y restablecer (revocación de sesiones, auditoría, correos) — 3h — @Nannj446 · @agente 26/10: `recuperar-contrasena` (202, código por la cola; sin cuenta, fila señuelo que no envía ni valida) y `restablecer-contrasena` (204: hash nuevo, revoca todos los refresh, levanta el bloqueo, auditoría y aviso `contrasena_cambiada`)
+- [x] SP74 · Web: pantallas de recuperación — 3h — @Nannj446 · @agente 26/10: `/recuperar-contrasena` en 2 pasos, enlace "Olvidé mi contraseña" y aviso al volver; 68 pruebas web; probada en navegador a 360/768/1280 (sesiones previas → 401)
+- [x] SP75 · Mobile: pantalla de recuperación — 3h — @Nannj446 · @agente 26/10: `/recuperar` (correo → código + contraseña nueva → listo) y enlace en Iniciar sesión; 94 pruebas mobile; en vivo: sesiones previas y contraseña vieja → 401, la nueva entra
+- [x] SP76 · Pruebas HU-34 (CA-1 a CA-6) — 3h — @Nannj446 · @agente 26/10: 110 unitarias + 124 e2e backend (CA-1 a CA-6; con y sin cuenta: misma respuesta, 429 y bloqueo); cobertura 92,6 %
 
 ### HU-11 · Registro de vehículo (16 h)
 - [ ] SP77 · Migración `005`: vehiculos — 1h — @[POR DEFINIR]

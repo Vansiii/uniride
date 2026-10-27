@@ -33,7 +33,9 @@ Reglas de implementación:
 - Al restablecer, en una transacción: hash nuevo, revocación de **todos** los `tokens_refresco` del usuario, reinicio del bloqueo de inicio de sesión, auditoría y correo `contrasena_cambiada` en la cola.
 - No toca dispositivos ni billetera (RN-5). CA-7 se cubre con `FirmaDispositivoGuard` en S2.
 
-Swagger actualizado: [ ]
+Swagger actualizado: [x] (26/10)
+
+Al implementar (26/10): sin cuenta se guarda una fila señuelo en `codigos_otp` (como HU-05 CA-7) para que el límite 429 y el bloqueo sean iguales con o sin cuenta; no envía nada y nunca valida.
 
 ## 4. Pantallas y voz
 

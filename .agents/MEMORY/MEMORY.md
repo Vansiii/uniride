@@ -474,3 +474,22 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 **Sin verificar / pendiente:** Android real; Node 24; correo real por SES; revisión, CI, despliegue y PO. Para probar la app en web hace falta sustituir `expo-secure-store` (no tiene implementación web); hoy se hace con un `metro.config.js` temporal fuera de git.
 
 **Archivos afectados:** `backend/src/membresias/mis-membresias.*`, `src/autenticacion/{autenticacion,registro}.*`, `test/membresias/varias.e2e-spec.ts`, `test/ataques/a-13-varias-organizaciones.e2e-spec.ts`; `mobile/src/app/{organizaciones,agregar-organizacion,codigo,estado-membresia,index}.tsx`, `contexto/sesion.tsx`; `.agents/`, `SPECS/`.
+
+---
+
+## 2026-10-26 · HU-34 Recuperación de contraseña implementada (SP73–SP76)
+
+**Evento:** implementación de HU-34 según su `plan.md` aprobado. Ramas `feat/HU-34-recuperacion-contrasena` en principal, `backend` (sale de la de HU-07), `web` (sale de la de HU-03) y `mobile` (sale de la de HU-07), sin push.
+
+**Decisiones de implementación:**
+- `recuperar-contrasena` siempre responde 202. Con cuenta, el código va por la cola de correos (plan §3); sin cuenta, se guarda una fila señuelo en `codigos_otp` (propósito `recuperacion`) que no envía nada y nunca valida, para que el límite 429, el bloqueo y los tiempos sean iguales con o sin cuenta (mismo patrón que HU-05 CA-7).
+- `restablecer-contrasena` (204) valida la contraseña antes de gastar el código y hace el bcrypt fuera de la transacción. Dentro de ella: verifica el código, guarda el hash nuevo, levanta el bloqueo de inicio de sesión, revoca **todos** los refresh tokens (RN-3) y deja auditoría y el aviso `contrasena_cambiada`. No toca dispositivos ni billetera (RN-5).
+- `reenviar-codigo` acepta también el propósito `recuperacion`.
+
+**Verificado:** backend 110 unitarias + 124 e2e (CA-1 a CA-6), cobertura 92,6 %, lint y build; peticiones reales con y sin cuenta (misma respuesta, 429 y bloqueo). Web 68 pruebas y mobile 94 pruebas, lint y build en ambas; flujo completo en navegador (web a 360/768/1280, mobile con expo web a 360/412): tras restablecer, las sesiones abiertas y la contraseña vieja dan 401 y la nueva entra.
+
+**Sin verificar / pendiente:** CA-7 (dispositivo) llega con `FirmaDispositivoGuard` en S2; Android real; SES real; Node 24; revisión, CI, despliegue y PO.
+- Defecto previo encontrado: Iniciar sesión (web) muestra la hora del bloqueo con doble punto ("a. m.."). No es de esta HU; corregir aparte.
+- Para el entorno local: dos backends sobre la misma base comparten la cola de correos, así que el worker de uno puede enviar los correos del otro.
+
+**Archivos afectados:** `backend/src/autenticacion/{recuperacion,otp,autenticacion,registro}.*`, `test/`; `web/src/paginas/RecuperarContrasena*`, `IniciarSesion*`; `mobile/src/app/recuperar.tsx`, `iniciar-sesion.tsx`; `.agents/`, `SPECS/`.
