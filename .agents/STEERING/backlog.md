@@ -109,10 +109,10 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP68 · Pruebas HU-03 (CA-1 a CA-7, ataque A-13, concurrencia) — 3h — @Nannj446 · @agente 24/10: 79 unitarias + 95 e2e backend (CA-1 a CA-7, concurrencia 200+409, A-13 404 idéntico a inexistente); cobertura 90,9 %
 
 ### HU-07 · Varias organizaciones (13 h)
-- [ ] SP69 · Agregar organización (validaciones, código, confirmar) — 3h — @[POR DEFINIR]
-- [ ] SP70 · Cambiar organización activa con token nuevo — 2h — @[POR DEFINIR]
-- [ ] SP71 · Mobile: Mis organizaciones y Agregar organización — 5h — @[POR DEFINIR]
-- [ ] SP72 · Pruebas HU-07 (CA-1 a CA-7, ataque A-13) — 3h — @[POR DEFINIR]
+- [x] SP69 · Agregar organización (validaciones, código, confirmar) — 3h — @Nannj446 · @agente 26/10: `POST /membresias` (202) y `POST /membresias/confirmar`; organización solo por dominio; `YA_ES_MIEMBRO`, `MEMBRESIA_RECHAZADA`, `CORREO_EN_USO`; reenvío con propósito `agregar_organizacion`
+- [x] SP70 · Cambiar organización activa con token nuevo — 2h — @Nannj446 · @agente 26/10: `PUT /yo/organizacion-activa` → token de acceso nuevo; `MEMBRESIA_NO_APROBADA` 403 igual sin membresía, pendiente o rechazada
+- [x] SP71 · Mobile: Mis organizaciones y Agregar organización — 5h — @Nannj446 · @agente 26/10: `organizaciones.tsx`, `agregar-organizacion.tsx`, pantalla Código reutilizada, token nuevo al cambiar la activa; acceso desde inicio y estado de membresía; 73 pruebas mobile; probado con expo web a 360/412 contra backend local
+- [x] SP72 · Pruebas HU-07 (CA-1 a CA-7, ataque A-13) — 3h — @Nannj446 · @agente 26/10: 96 unitarias + 115 e2e backend (CA-1 a CA-7, A-13 entre organizaciones propias); cobertura 92 %
 
 ### HU-34 · Recuperación de contraseña (12 h)
 - [ ] SP73 · Endpoints de recuperar y restablecer (revocación de sesiones, auditoría, correos) — 3h — @[POR DEFINIR]

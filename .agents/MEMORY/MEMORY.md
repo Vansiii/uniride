@@ -456,3 +456,21 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 **Sin verificar / pendiente:** correo real por SES; Node 24; revisión, CI, despliegue y aceptación del PO. UML: estados de la membresía, caso de uso "Decidir solicitud". CA-7 ("no puede usar viajes ni billetera") queda probado con los endpoints que hoy protege `OrganizacionGuard`; viajes y billetera llegan en S2.
 
 **Archivos afectados:** `backend/src/membresias/`, `src/notificaciones/plantillas.ts`, `test/membresias/`, `test/ataques/a-13-membresias.e2e-spec.ts`; `web/src/paginas/admin/Solicitudes*`, `src/app/membresia.ts`, `componentes/Estructura*`, `api/cliente.ts`; `.agents/`, `SPECS/`.
+
+---
+
+## 2026-10-26 · HU-07 Varias organizaciones implementada (SP69–SP72)
+
+**Evento:** implementación de HU-07 según su `plan.md` aprobado. Ramas `feat/HU-07-varias-organizaciones` en principal, `backend` (sale de la de HU-03) y `mobile` (sale de la de HU-05), sin push.
+
+**Decisiones de implementación:**
+- `POST /membresias` + `POST /membresias/confirmar` reutilizan `OtpService` con propósito `agregar_organizacion`, con los mismos errores OTP que el registro. La organización sale solo del dominio. `YA_ES_MIEMBRO` (aprobada o pendiente), `MEMBRESIA_RECHAZADA` (rechazo definitivo de HU-03) y `CORREO_EN_USO`.
+- `PUT /yo/organizacion-activa` exige una membresía `aprobada` y emite un token de acceso nuevo. Sin membresía responde el mismo 403 `MEMBRESIA_NO_APROBADA` que pendiente o rechazada.
+- **Riesgo aceptado (lo pide el plan):** `CORREO_EN_USO` permite a una persona con sesión averiguar si un correo institucional ya lo usa otra cuenta. Mitigación posible en S4 (HU de calidad): responder igual que un envío normal y avisar por correo, como CA-7 de HU-05.
+- Mobile: Mis organizaciones (estado, activa, cambiar) y Agregar organización; la pantalla Código de HU-05 se reutiliza. Se entra desde Inicio y desde Estado de membresía.
+
+**Verificado:** backend 96 unitarias + 115 e2e (CA-1 a CA-7, A-13: con A activa, B responde 404 igual que una inexistente aunque la persona sea miembro de B), cobertura 92 %, lint y build; 43 peticiones reales. Mobile 73 pruebas, lint, tipos y bundle; flujo completo con `expo web` a 360/412 contra el backend local.
+
+**Sin verificar / pendiente:** Android real; Node 24; correo real por SES; revisión, CI, despliegue y PO. Para probar la app en web hace falta sustituir `expo-secure-store` (no tiene implementación web); hoy se hace con un `metro.config.js` temporal fuera de git.
+
+**Archivos afectados:** `backend/src/membresias/mis-membresias.*`, `src/autenticacion/{autenticacion,registro}.*`, `test/membresias/varias.e2e-spec.ts`, `test/ataques/a-13-varias-organizaciones.e2e-spec.ts`; `mobile/src/app/{organizaciones,agregar-organizacion,codigo,estado-membresia,index}.tsx`, `contexto/sesion.tsx`; `.agents/`, `SPECS/`.
