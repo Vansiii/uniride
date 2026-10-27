@@ -121,11 +121,11 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP76 · Pruebas HU-34 (CA-1 a CA-6) — 3h — @Nannj446 · @agente 26/10: 110 unitarias + 124 e2e backend (CA-1 a CA-6; con y sin cuenta: misma respuesta, 429 y bloqueo); cobertura 92,6 %
 
 ### HU-11 · Registro de vehículo (16 h)
-- [ ] SP77 · Migración `005`: vehiculos — 1h — @[POR DEFINIR]
-- [ ] SP78 · `AlmacenamientoService` (S3 + SSE-KMS) y MinIO en `docker compose` — 3h — @[POR DEFINIR]
-- [ ] SP79 · Endpoint de registro con validaciones, normalización y compensación; `GET /vehiculos/mio` — 4h — @[POR DEFINIR]
-- [ ] SP80 · Mobile: pantalla Registrar vehículo — 5h — @[POR DEFINIR]
-- [ ] SP81 · Pruebas HU-11 (CA-1 a CA-8) — 3h — @[POR DEFINIR]
+- [x] SP77 · Migración `005`: vehiculos — 1h — @Nannj446 · @agente 27/10: migración `005` (placa y dueño únicos, CHECK de placa y capacidad 1–6; dato personal sin RLS; rol de la API solo SELECT e INSERT)
+- [x] SP78 · `AlmacenamientoService` (S3 + SSE-KMS) y MinIO en `docker compose` — 3h — @Nannj446 · @agente 27/10: `AlmacenamientoService` con `@aws-sdk/client-s3`; cifrado por `S3_CIFRADO` (kms por defecto, `ninguno` prohibido en producción); MinIO del compose pasa a `bitnamilegacy/minio` (minio/minio ya no se publica)
+- [x] SP79 · Endpoint de registro con validaciones, normalización y compensación; `GET /vehiculos/mio` — 4h — @Nannj446 · @agente 27/10: `POST /vehiculos` (multipart; JPEG/PNG por sus bytes, 5 MB; placa normalizada; borra la foto si falla la inserción) y `GET /vehiculos/mio`; la clave de la foto nunca sale
+- [x] SP80 · Mobile: pantalla Registrar vehículo — 5h — @Nannj446 · @agente 27/10: `/vehiculo` (formulario con foto de cámara o galería y consentimiento; resumen sin foto si ya tiene vehículo), acceso "Mi vehículo" desde Inicio, `expo-image-picker` ~57.0.20; 133 pruebas mobile; probada con expo web a 360/412 contra backend local; falta cámara y galería en Android
+- [x] SP81 · Pruebas HU-11 (CA-1 a CA-8) — 3h — @Nannj446 · @agente 27/10: 133 unitarias + 140 e2e backend (CA-1 a CA-4, CA-7, CA-8; placa en paralelo sin foto huérfana); cobertura 93,9 %; CA-5/CA-6 se prueban con HU-17
 
 ### Cierre del sprint
 - [ ] SP82 · Sprint Review con el docente, Retrospective, velocidad medida y resumen en MEMORY; tag `sprint-1` — 2h — @[POR DEFINIR]

@@ -493,3 +493,26 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 - Para el entorno local: dos backends sobre la misma base comparten la cola de correos, así que el worker de uno puede enviar los correos del otro.
 
 **Archivos afectados:** `backend/src/autenticacion/{recuperacion,otp,autenticacion,registro}.*`, `test/`; `web/src/paginas/RecuperarContrasena*`, `IniciarSesion*`; `mobile/src/app/recuperar.tsx`, `iniciar-sesion.tsx`; `.agents/`, `SPECS/`.
+
+---
+
+## 2026-10-27 · HU-11 Registro de vehículo implementada (SP77–SP81) y MinIO del compose
+
+**Evento:** implementación de HU-11 según su `plan.md` aprobado. Ramas `feat/HU-11-registro-vehiculo` en principal, `backend` (sale de la de HU-34) y `mobile` (sale de la de HU-34), sin push. Con ella, las 8 HU del Sprint 1 quedan implementadas.
+
+**Decisiones:**
+- **MinIO del compose pasa a `bitnamilegacy/minio:2025.5.24-debian-12-r5`** (aprobado por el integrante el 27/10): `minio/minio` ya no se publica en Docker Hub ("repository does not exist"). Es solo para desarrollo; los datos van en `/bitnami/minio/data`. Probado: subida y borrado reales con `AlmacenamientoService`.
+- **Variables nuevas `S3_CIFRADO` y `S3_KMS_LLAVE_ID`** (en `.env.example`): `kms` por defecto (SSE-KMS en AWS), `s3` (SSE-S3) y `ninguno` (MinIO sin KMS); el servicio falla si vale `ninguno` en producción. El servicio `backend` del compose usa `S3_CIFRADO: ninguno`. Cada integrante tiene que poner `S3_CIFRADO=ninguno` en su `.env` local.
+- La foto se verifica por sus bytes (JPEG/PNG, 5 MB), se sube con la clave `vehiculos/{uuid}` y se borra si la inserción falla. Ningún `select` de salida incluye la clave (CA-7, D-20) y los errores del SDK solo registran el tipo. La tabla `vehiculos` es dato personal: sin RLS; el rol de la API solo tiene SELECT e INSERT.
+- Mobile: `expo-image-picker` ~57.0.20 (aprobada con el plan). Se entra desde "Mi vehículo" en Inicio; si ya tiene vehículo, ve el resumen sin foto.
+
+**Verificado:** backend 133 unitarias + 140 e2e (CA-1 a CA-4, CA-7, CA-8; misma placa en paralelo sin foto huérfana; 503 con el almacenamiento caído), cobertura 93,9 %, lint y build. Mobile 133 pruebas, lint, tipos y bundle; expo web a 360/412 contra el backend local y MinIO.
+
+**Sin verificar / pendiente:**
+- Cámara, galería y multipart nativo en Android real.
+- SSE-KMS en AWS real (SP13).
+- CA-5 y CA-6 se prueban con HU-17 (publicar viaje, S2).
+- Paridad con el prototipo `m-vehiculo`: el título dice "Mi vehículo" en vez de "Registrar vehículo"; el resumen es una lista de campos en vez de la tarjeta "Marca Modelo · color / placa · asientos"; falta "Volver al perfil". Son diferencias visuales menores.
+- La primera ejecutora del backend se cortó por el límite de uso; el relevo encontró el trabajo completo y lo verificó.
+
+**Archivos afectados:** `backend/prisma/migrations/005_vehiculos`, `src/vehiculos/`, `src/comun/almacenamiento.service.ts`, `test/vehiculos/`, `package.json`; `mobile/src/app/vehiculo.tsx`, `package.json`; `docker-compose.yml`, `.env.example`, `.agents/`, `SPECS/`.

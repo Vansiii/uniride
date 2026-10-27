@@ -50,7 +50,7 @@ Tareas concretas: `/.agents/STEERING/backlog.md`.
 | HU-03 | Aprobación de miembros | Como admin. de organización quiero aprobar o rechazar solicitudes para que solo entren personas legítimas | Alta (Must) | 3 | S1 | implementada | HU-02, HU-05 |
 | HU-07 | Varias organizaciones | Como usuario quiero pertenecer a varias organizaciones para viajar con cada comunidad | Media (Should) | 3 | S1 | implementada | HU-06 |
 | HU-34 | Recuperación de contraseña | Como usuario quiero recuperar el acceso si olvido mi contraseña para no perder mi cuenta | Media (Should) | 3 | S1 | implementada | HU-05, HU-06 |
-| HU-11 | Registro de vehículo | Como conductor quiero registrar mi vehículo para que los pasajeros me identifiquen | Alta (Must) | 3 | S1 | en plan | HU-06 |
+| HU-11 | Registro de vehículo | Como conductor quiero registrar mi vehículo para que los pasajeros me identifiquen | Alta (Must) | 3 | S1 | implementada | HU-06 |
 | HU-08 | Verificación de identidad | Como usuario quiero verificar mi identidad con carnet y prueba de vida para que confíen en mí | Alta (Must) | 8 | S2 | pendiente | HU-06 |
 | HU-17 | Publicar viaje | Como conductor quiero publicar un viaje para compartir mi trayecto | Alta (Must) | 5 | S2 | pendiente | HU-11, HU-08 |
 | HU-09 | Vinculación de dispositivo | Como usuario quiero mi cuenta atada a mi teléfono para que nadie la use desde otro | Alta (Must) | 8 | S2 | pendiente | HU-06 |
