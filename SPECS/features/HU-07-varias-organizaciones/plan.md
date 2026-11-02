@@ -33,7 +33,9 @@ Reglas de implementación:
 - Cambiar de organización activa: verifica membresía `aprobada`, actualiza `ultima_organizacion_id` y emite un token de acceso nuevo con ese `org`. El refresh token no cambia; las renovaciones siguientes leen `ultima_organizacion_id`.
 - CA-6: toda consulta de datos de organización corre con `app.organizacion_id = org del token`. Pedir datos de B con A activa devuelve 404 aunque la persona sea miembro de B.
 
-Swagger actualizado: [ ]
+Swagger actualizado: [x] (26/10)
+
+Al implementar (26/10): `MEMBRESIA_NO_APROBADA` (403) también sin membresía, para no revelar si existe. Las pantallas se abren desde Inicio y desde Estado de membresía ("Agregar otra organización").
 
 ## 4. Pantallas y voz
 

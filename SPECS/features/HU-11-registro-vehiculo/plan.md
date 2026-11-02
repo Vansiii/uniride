@@ -36,7 +36,9 @@ Reglas de implementación:
 - Orden para no dejar nada a medias: validar → comprobar placa y vehículo previo → subir foto → insertar en BD. Si la inserción falla (por ejemplo, otra persona registró la placa a la vez), se borra la foto subida.
 - La foto y su clave **nunca** salen en respuestas, mensajes de error, auditoría ni logs (CA-7, D-20). Ningún DTO de salida tiene esos campos.
 
-Swagger actualizado: [ ]
+Swagger actualizado: [x] (27/10)
+
+Al implementar (27/10): el cifrado de S3 se elige con `S3_CIFRADO` (`kms` por defecto en AWS; `s3`; `ninguno` solo fuera de producción, porque MinIO no tiene KMS) y `S3_KMS_LLAVE_ID`. El MinIO del compose pasó a `bitnamilegacy/minio` con versión fija porque `minio/minio` ya no se publica en Docker Hub.
 
 ## 4. Pantallas y voz
 

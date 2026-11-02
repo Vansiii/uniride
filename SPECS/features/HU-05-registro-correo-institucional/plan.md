@@ -39,7 +39,9 @@ Reglas de implementación:
 - El OTP se envía en el momento. Si SES falla, se revierte la transacción y se responde `CORREO_NO_DISPONIBLE`.
 - Al verificar, en una transacción `enOrganizacion(orgId)`: se crea el usuario (con `consentimiento_datos_en`) y la membresía (`aprobada` si el modo es automático, `pendiente` si es manual) con `correo_institucional`; se fija `ultima_organizacion_id` si quedó aprobada, se registra la auditoría y se inicia la sesión (un paso menos para la persona).
 
-Swagger actualizado: [ ]
+Swagger actualizado: [x] (24/10)
+
+Desvíos al implementar (24/10, ver MEMORY): CA-8 con `@Allow()` en `organizacionId` porque el `ValidationPipe` global usa `forbidNonWhitelisted` (rechazaba en vez de descartar); CA-7 con una fila señuelo que nunca valida y el aviso enviado en el momento, para que límites, bloqueo y respuestas sean iguales con o sin cuenta.
 
 ## 4. Pantallas y voz
 

@@ -384,3 +384,135 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 - Node 22.18 + `npx npm@11` en esta máquina (no Node 24).
 
 **Archivos afectados:** `backend/` (`prisma/`, `src/organizaciones`, `src/notificaciones`, `src/comun`, `test/`), `web/src`, `.env.example`, `.agents/`, `SPECS/`.
+
+---
+
+## 2026-10-24 · HU-02 Reglas de afiliación implementada (SP55–SP59)
+
+**Evento:** implementación de HU-02 según su `plan.md` aprobado (rama `feat/HU-02-reglas-afiliacion` en principal, `backend` y `web`; sin push ni PR).
+
+**Decisiones de implementación:**
+- **El rol de la API puede borrar en `dominios_organizacion`** (`GRANT SELECT, INSERT, DELETE`; aprobado por el integrante, §14). Es la única tabla con borrado. La regla "solo inserción" de `ssd.md` vale para `movimientos` y `registros_auditoria`. Para el resto de tablas, HU-01 dejó en su migración el comentario "sin borrado", que fue una decisión de implementación y no una regla documentada. Quitar un dominio (CA-6, RN-7) tiene que liberarlo: con borrado lógico, `UNIQUE(dominio)` impediría que otra organización lo tome (RN-2). El historial queda en la auditoría (CA-8, anterior y nuevo). RLS limita el borrado a la organización propia (prueba A-13).
+- `OrganizacionGuard` valida la membresía `aprobada` de la organización del token, leída de BD en cada petición, y deja `organizacionId` y `rolOrganizacion` en la petición. **No envuelve el handler en `enOrganizacion`**, porque un guard de Nest no puede hacerlo: cada servicio abre `enOrganizacion`, y si lo olvida RLS forzado devuelve 0 filas. Es un desvío del texto de plan §1 / `ssd.md`; está anotado en el plan.
+- `organizacion_por_dominio` es `SECURITY DEFINER` con `SET app.super_admin = 'true'` dentro de la función: devuelve solo el id de una organización `activa` y no abre RLS en la transacción que la llama (probado).
+- `{id}` distinto de la organización activa responde 404 `NO_ENCONTRADO`, idéntico a una organización inexistente. `DOMINIO_INVALIDO` incluye el dominio enviado por el cliente.
+- Web: ruta `/organizacion/afiliacion`; el id sale de la sesión, no de la URL.
+
+**Verificado:** backend 26 unitarias y 55 e2e (CA-1 a CA-8, A-13 en API y SQL, concurrencia), cobertura 80 → 86,8 %, lint y build. Peticiones reales contra el backend local, 403/404 a mano y Swagger. Web 32 pruebas (14 nuevas), lint y build. Pantalla probada en el navegador contra el backend local a 360, 768 y 1280 (feliz, errores, vacío, error de carga, roles, teclado).
+
+**Sin verificar / pendiente:**
+- CA-4/CA-5 de punta a punta: se cierran con HU-05 (registro).
+- `GET /yo` no trae rol ni nombre de la organización (membresías vacías hasta HU-05): el enlace "Afiliación" aparece a cualquier miembro (el servidor responde 403 y la pantalla vuelve al inicio), y la barra lateral no muestra la organización.
+- Contra el prototipo falta: el aviso "Último cambio: autor, fecha" (requiere un campo nuevo en `GET …/afiliacion`) y la confirmación al salir por el menú con cambios sin guardar (la app usa `BrowserRouter`).
+- `OrganizacionGuard` no mira `organizaciones.estado`: un admin de una organización suspendida podría seguir editando. La spec no lo cubre.
+- `format:verificar` falla en máquinas Windows con `core.autocrlf=true` (los archivos quedan en CRLF en la copia de trabajo; en el índice están en LF y en CI pasa). Propuesta: `.gitattributes` con `* text=auto eol=lf`, que también evita que `docker/postgres/01-rol-app.sh` rompa PostgreSQL al arrancar.
+- `start:dev` no carga `../.env`, y `vite.config.ts` hace de proxy solo hacia el puerto 3000 (el backend no tiene CORS).
+- Node 22 en esta máquina (no 24); revisión de otro integrante, CI en GitHub, despliegue y aceptación del PO. UML: clase `DominioOrganizacion`.
+
+**Archivos afectados:** `backend/` (`prisma/migrations/003_dominios`, `schema.prisma`, `src/comun/organizacion.guard.ts`, `src/organizaciones/afiliacion.*`, `test/`), `web/src` (`paginas/admin/Afiliacion*`, `api/cliente.ts`, `App.tsx`, `componentes/`), `.agents/`, `SPECS/`.
+
+---
+
+## 2026-10-24 · HU-05 Registro con correo institucional implementada (SP60–SP65)
+
+**Evento:** implementación de HU-05 según su `plan.md` aprobado. Ramas `feat/HU-05-registro-correo-institucional` en principal, `backend` y `mobile`, sin push. **La rama del backend sale de `feat/HU-02-reglas-afiliacion`** (sin fusionar todavía): su PR mostrará también los commits de HU-02 hasta que ese PR se fusione en `develop`.
+
+**Decisiones de implementación:**
+- **CA-8:** el `ValidationPipe` global usa `forbidNonWhitelisted`, así que un campo desconocido da 400 y no se descarta como suponía el plan. Para cumplir la spec ("se procesa y el dato se ignora"), `RegistroDto` acepta `organizacionId` con `@Allow()` + `@ApiHideProperty()` y el servicio nunca lo lee. Cualquier otro campo extra sigue dando 400. La configuración global no cambia.
+- **CA-7:** si el correo ya tiene cuenta, se guarda una fila señuelo en `codigos_otp` que nunca valida y el aviso `ya_tienes_cuenta` se envía en el momento. Así límites, bloqueo, reenvío y 503 se comportan igual con o sin cuenta. Desvío del plan, que decía no generar fila y encolar el aviso.
+- `codigos_otp` es dato personal: sin RLS; el rol de la API no puede borrar. El código se guarda con HMAC-SHA256 (`OTP_SECRETO`) y se compara con `timingSafeEqual`.
+- El quinto error ya responde `OTP_BLOQUEADO` con `reintentarEn`.
+- `PrismaService.fijarOrganizacion(tx, id)`: fija el contexto RLS dentro de una transacción ya abierta (la organización se conoce al leer el código).
+- **`GET /yo` trae `membresias`** (`organizacionId`, `organizacion`, `rol`, `estado`), filtradas por el propio usuario. Cambio compatible; cierra el CA-7 pendiente de HU-06. Pendiente: que la web lo use para mostrar "Afiliación" solo a admins (HU-02).
+- `reenviar-codigo` acepta por ahora solo `proposito: 'registro'`; HU-07 y HU-34 agregan los suyos.
+
+**Verificado:** backend 70 unitarias + 77 e2e (CA-1 a CA-9, A-13, `/yo`), cobertura 86,8 → 90,1 %, lint y build; peticiones reales con cada error del plan §3. Mobile 40 pruebas (27 nuevas), lint, tipos y bundle Android; pantallas probadas con `expo web` contra el backend local a 360 y 412 (no afiliada, código incorrecto, bloqueo, vencido, reenvío; el código correcto creó cuenta y membresía en la BD). Con esto CA-4 y CA-5 de HU-02 quedan cubiertos de punta a punta en el servidor.
+
+**Sin verificar / pendiente:**
+- Flujo completo en un Android real o emulador: teclado numérico, autocompletado del código, guardar la sesión (`expo-secure-store` no funciona en web) y la redirección al estado de membresía.
+- **Falta el texto legal del tratamiento de datos** (RN-7, Ley 164): la casilla solo lleva la frase. Lo tiene que entregar el PO o el equipo.
+- El prototipo muestra "Te quedan 2 intentos"; la API no informa los intentos restantes.
+- Correo real por SES (`CORREO_NO_DISPONIBLE` solo en pruebas automáticas).
+- Un código vencido que nadie reemplaza conserva el hash de la contraseña en `datos`; no hay tarea de limpieza.
+- Varias suites e2e crean organizaciones en `beforeAll` y pueden pasar los 10 s de `hookTimeout` bajo carga; las nuevas usan 60 s. Candidato: `hookTimeout` global en `vitest.config.e2e.ts`.
+- Node 22 (no 24); revisión, CI, despliegue y aceptación del PO. UML: clase `CodigoOtp`, caso de uso "Registrarse".
+
+**Archivos afectados:** `backend/` (`prisma/migrations/004_codigos_otp`, `src/autenticacion/{otp,registro}.*`, `yo.controller.ts`, `src/notificaciones`, `src/comun`, `test/`), `mobile/src` (`app/registro.tsx`, `app/codigo.tsx`, `componentes/`, `api/cliente.ts`, `contexto/sesion.tsx`), `.agents/`, `SPECS/`.
+
+---
+
+## 2026-10-25 · HU-03 Aprobación de miembros implementada (SP66–SP68)
+
+**Evento:** implementación de HU-03 según su `plan.md` aprobado. Ramas `feat/HU-03-aprobacion-miembros` en principal, `backend` (sale de la rama de HU-05) y `web` (sale de la de HU-02), sin push.
+
+**Decisiones:**
+- **Aprobar una solicitud no pide confirmación** (confirmado por el integrante el 25/10). `DESIGN_SYSTEM.md` §9 (aprobado el 16-17/10) prevalece sobre la mitigación del plan §7 (14/10). Mitigación: auditoría y `Notificacion` con el resultado. Rechazar sí abre un diálogo con motivo opcional, porque es definitivo.
+- La decisión es un `updateMany` condicional (`estado = 'pendiente'`) dentro de `enOrganizacion`: de dos decisiones simultáneas vale la primera y la otra recibe `MEMBRESIA_YA_DECIDIDA` (409), que se audita como `fallo`. Una membresía de otra organización responde `NO_ENCONTRADO`, igual que una inexistente (A-13). Auditoría y correo van en la misma transacción.
+- El motivo solo se guarda al rechazar. Al aprobar se fija `ultima_organizacion_id` si la persona no tenía una.
+- Web: el menú usa las `membresias` de `GET /yo` (HU-05). "Afiliación" y "Solicitudes" solo se muestran si el rol en la organización activa es `admin_organizacion`, y la barra lateral muestra el nombre de la organización (cierra el pendiente de HU-02). La página de llegada del admin es Solicitudes (`DESIGN_SYSTEM.md`).
+
+**Verificado:** backend 79 unitarias + 95 e2e (CA-1 a CA-7, concurrencia 200+409, A-13), cobertura 90,9 %, lint y build; prueba real con 30 casos, partiendo de un registro real de HU-05. Web 51 pruebas, lint y build; navegador contra el backend local a 360, 768 y 1280 (aprobar, rechazar con motivo, ya decidida, vacío, error de carga, miembro sin rol, rechazado sin acceso, admin de otra organización).
+
+**Sin verificar / pendiente:** correo real por SES; Node 24; revisión, CI, despliegue y aceptación del PO. UML: estados de la membresía, caso de uso "Decidir solicitud". CA-7 ("no puede usar viajes ni billetera") queda probado con los endpoints que hoy protege `OrganizacionGuard`; viajes y billetera llegan en S2.
+
+**Archivos afectados:** `backend/src/membresias/`, `src/notificaciones/plantillas.ts`, `test/membresias/`, `test/ataques/a-13-membresias.e2e-spec.ts`; `web/src/paginas/admin/Solicitudes*`, `src/app/membresia.ts`, `componentes/Estructura*`, `api/cliente.ts`; `.agents/`, `SPECS/`.
+
+---
+
+## 2026-10-26 · HU-07 Varias organizaciones implementada (SP69–SP72)
+
+**Evento:** implementación de HU-07 según su `plan.md` aprobado. Ramas `feat/HU-07-varias-organizaciones` en principal, `backend` (sale de la de HU-03) y `mobile` (sale de la de HU-05), sin push.
+
+**Decisiones de implementación:**
+- `POST /membresias` + `POST /membresias/confirmar` reutilizan `OtpService` con propósito `agregar_organizacion`, con los mismos errores OTP que el registro. La organización sale solo del dominio. `YA_ES_MIEMBRO` (aprobada o pendiente), `MEMBRESIA_RECHAZADA` (rechazo definitivo de HU-03) y `CORREO_EN_USO`.
+- `PUT /yo/organizacion-activa` exige una membresía `aprobada` y emite un token de acceso nuevo. Sin membresía responde el mismo 403 `MEMBRESIA_NO_APROBADA` que pendiente o rechazada.
+- **Riesgo aceptado (lo pide el plan):** `CORREO_EN_USO` permite a una persona con sesión averiguar si un correo institucional ya lo usa otra cuenta. Mitigación posible en S4 (HU de calidad): responder igual que un envío normal y avisar por correo, como CA-7 de HU-05.
+- Mobile: Mis organizaciones (estado, activa, cambiar) y Agregar organización; la pantalla Código de HU-05 se reutiliza. Se entra desde Inicio y desde Estado de membresía.
+
+**Verificado:** backend 96 unitarias + 115 e2e (CA-1 a CA-7, A-13: con A activa, B responde 404 igual que una inexistente aunque la persona sea miembro de B), cobertura 92 %, lint y build; 43 peticiones reales. Mobile 73 pruebas, lint, tipos y bundle; flujo completo con `expo web` a 360/412 contra el backend local.
+
+**Sin verificar / pendiente:** Android real; Node 24; correo real por SES; revisión, CI, despliegue y PO. Para probar la app en web hace falta sustituir `expo-secure-store` (no tiene implementación web); hoy se hace con un `metro.config.js` temporal fuera de git.
+
+**Archivos afectados:** `backend/src/membresias/mis-membresias.*`, `src/autenticacion/{autenticacion,registro}.*`, `test/membresias/varias.e2e-spec.ts`, `test/ataques/a-13-varias-organizaciones.e2e-spec.ts`; `mobile/src/app/{organizaciones,agregar-organizacion,codigo,estado-membresia,index}.tsx`, `contexto/sesion.tsx`; `.agents/`, `SPECS/`.
+
+---
+
+## 2026-10-26 · HU-34 Recuperación de contraseña implementada (SP73–SP76)
+
+**Evento:** implementación de HU-34 según su `plan.md` aprobado. Ramas `feat/HU-34-recuperacion-contrasena` en principal, `backend` (sale de la de HU-07), `web` (sale de la de HU-03) y `mobile` (sale de la de HU-07), sin push.
+
+**Decisiones de implementación:**
+- `recuperar-contrasena` siempre responde 202. Con cuenta, el código va por la cola de correos (plan §3); sin cuenta, se guarda una fila señuelo en `codigos_otp` (propósito `recuperacion`) que no envía nada y nunca valida, para que el límite 429, el bloqueo y los tiempos sean iguales con o sin cuenta (mismo patrón que HU-05 CA-7).
+- `restablecer-contrasena` (204) valida la contraseña antes de gastar el código y hace el bcrypt fuera de la transacción. Dentro de ella: verifica el código, guarda el hash nuevo, levanta el bloqueo de inicio de sesión, revoca **todos** los refresh tokens (RN-3) y deja auditoría y el aviso `contrasena_cambiada`. No toca dispositivos ni billetera (RN-5).
+- `reenviar-codigo` acepta también el propósito `recuperacion`.
+
+**Verificado:** backend 110 unitarias + 124 e2e (CA-1 a CA-6), cobertura 92,6 %, lint y build; peticiones reales con y sin cuenta (misma respuesta, 429 y bloqueo). Web 68 pruebas y mobile 94 pruebas, lint y build en ambas; flujo completo en navegador (web a 360/768/1280, mobile con expo web a 360/412): tras restablecer, las sesiones abiertas y la contraseña vieja dan 401 y la nueva entra.
+
+**Sin verificar / pendiente:** CA-7 (dispositivo) llega con `FirmaDispositivoGuard` en S2; Android real; SES real; Node 24; revisión, CI, despliegue y PO.
+- Defecto previo encontrado: Iniciar sesión (web) muestra la hora del bloqueo con doble punto ("a. m.."). No es de esta HU; corregir aparte.
+- Para el entorno local: dos backends sobre la misma base comparten la cola de correos, así que el worker de uno puede enviar los correos del otro.
+
+**Archivos afectados:** `backend/src/autenticacion/{recuperacion,otp,autenticacion,registro}.*`, `test/`; `web/src/paginas/RecuperarContrasena*`, `IniciarSesion*`; `mobile/src/app/recuperar.tsx`, `iniciar-sesion.tsx`; `.agents/`, `SPECS/`.
+
+---
+
+## 2026-10-27 · HU-11 Registro de vehículo implementada (SP77–SP81) y MinIO del compose
+
+**Evento:** implementación de HU-11 según su `plan.md` aprobado. Ramas `feat/HU-11-registro-vehiculo` en principal, `backend` (sale de la de HU-34) y `mobile` (sale de la de HU-34), sin push. Con ella, las 8 HU del Sprint 1 quedan implementadas.
+
+**Decisiones:**
+- **MinIO del compose pasa a `bitnamilegacy/minio:2025.5.24-debian-12-r5`** (aprobado por el integrante el 27/10): `minio/minio` ya no se publica en Docker Hub ("repository does not exist"). Es solo para desarrollo; los datos van en `/bitnami/minio/data`. Probado: subida y borrado reales con `AlmacenamientoService`.
+- **Variables nuevas `S3_CIFRADO` y `S3_KMS_LLAVE_ID`** (en `.env.example`): `kms` por defecto (SSE-KMS en AWS), `s3` (SSE-S3) y `ninguno` (MinIO sin KMS); el servicio falla si vale `ninguno` en producción. El servicio `backend` del compose usa `S3_CIFRADO: ninguno`. Cada integrante tiene que poner `S3_CIFRADO=ninguno` en su `.env` local.
+- La foto se verifica por sus bytes (JPEG/PNG, 5 MB), se sube con la clave `vehiculos/{uuid}` y se borra si la inserción falla. Ningún `select` de salida incluye la clave (CA-7, D-20) y los errores del SDK solo registran el tipo. La tabla `vehiculos` es dato personal: sin RLS; el rol de la API solo tiene SELECT e INSERT.
+- Mobile: `expo-image-picker` ~57.0.20 (aprobada con el plan). Se entra desde "Mi vehículo" en Inicio; si ya tiene vehículo, ve el resumen sin foto.
+
+**Verificado:** backend 133 unitarias + 140 e2e (CA-1 a CA-4, CA-7, CA-8; misma placa en paralelo sin foto huérfana; 503 con el almacenamiento caído), cobertura 93,9 %, lint y build. Mobile 133 pruebas, lint, tipos y bundle; expo web a 360/412 contra el backend local y MinIO.
+
+**Sin verificar / pendiente:**
+- Cámara, galería y multipart nativo en Android real.
+- SSE-KMS en AWS real (SP13).
+- CA-5 y CA-6 se prueban con HU-17 (publicar viaje, S2).
+- Paridad con el prototipo `m-vehiculo`: el título dice "Mi vehículo" en vez de "Registrar vehículo"; el resumen es una lista de campos en vez de la tarjeta "Marca Modelo · color / placa · asientos"; falta "Volver al perfil". Son diferencias visuales menores.
+- La primera ejecutora del backend se cortó por el límite de uso; el relevo encontró el trabajo completo y lo verificó.
+
+**Archivos afectados:** `backend/prisma/migrations/005_vehiculos`, `src/vehiculos/`, `src/comun/almacenamiento.service.ts`, `test/vehiculos/`, `package.json`; `mobile/src/app/vehiculo.tsx`, `package.json`; `docker-compose.yml`, `.env.example`, `.agents/`, `SPECS/`.
