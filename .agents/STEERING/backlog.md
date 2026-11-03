@@ -129,3 +129,62 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 
 ### Cierre del sprint
 - [ ] SP82 · Sprint Review con el docente, Retrospective, velocidad medida y resumen en MEMORY; tag `sprint-1` — 2h — @[POR DEFINIR]
+
+## Sprint 2 · 28/10 – 03/11/2026 · Identidad, billetera y primeros viajes
+
+### HU-08 · Verificación de identidad (22 h)
+- [ ] SP88 · Modelo Prisma `identidades`, migración `006_identidades` y pruebas de repositorio — 3h — @[POR DEFINIR]
+- [ ] SP89 · `RekognitionService` con soporte para sesiones de vivacidad, comparación facial y colección (con mock `REKOGNITION_SIMULADO`) — 4h — @[POR DEFINIR]
+- [ ] SP90 · Endpoints `/liveness-sesion`, `/verificar`, `/estado` y guard `@RequiereIdentidadVerificada()` — 5h — @[POR DEFINIR]
+- [ ] SP91 · Suite de pruebas automatizadas y pruebas de ataque A-01 y A-02 (cobertura ≥ 70 %) — 4h — @[POR DEFINIR]
+- [ ] SP92 · Mobile: pantallas y flujo de verificación de identidad en Expo (consentimiento, carnet y vivacidad) — 6h — @[POR DEFINIR]
+
+### HU-09 · Vinculación de dispositivo (26 h)
+- [ ] SP93 · Modelo Prisma `dispositivos`, migración `007_dispositivos` y pruebas de repositorio — 3h — @[POR DEFINIR]
+- [ ] SP94 · `PlayIntegrityService` (Google Play Integrity API y mock simulado bloqueado en prod) — 4h — @[POR DEFINIR]
+- [ ] SP95 · Endpoints de desafío de atestación, vinculación y consulta de dispositivo — 4h — @[POR DEFINIR]
+- [ ] SP96 · `FirmaDispositivoGuard` con verificación ECDSA P-256, nonce y ventana de 30s — 5h — @[POR DEFINIR]
+- [ ] SP97 · Suite de pruebas y pruebas de ataque A-03 (no íntegro), A-04 (llave ajena) y A-08 (sin firma) — 4h — @[POR DEFINIR]
+- [ ] SP98 · Mobile: integración con Android Keystore y pantalla de vinculación en Expo — 6h — @[POR DEFINIR]
+
+### HU-12 · Creación de billetera (16 h)
+- [ ] SP99 · Modelo Prisma `billeteras`, migración `008_billeteras` y repositorio — 2h — @[POR DEFINIR]
+- [ ] SP100 · `BlockchainService` (ethers.js, conexión Polygon Amoy/Hardhat y lectura de balance UniCoin) — 4h — @[POR DEFINIR]
+- [ ] SP101 · Endpoints de creación idempotente y consulta de billetera en backend — 3h — @[POR DEFINIR]
+- [ ] SP102 · Suite de pruebas y validación de seguridad A-12 (sin llaves en BD) — 3h — @[POR DEFINIR]
+- [ ] SP103 · Mobile: pantalla de Billetera en Expo (tarjeta de balance URC, dirección y accesos) — 4h — @[POR DEFINIR]
+
+### HU-14 · Saldo e historial (15 h)
+- [ ] SP104 · Modelo Prisma `movimientos_billetera`, migración `009_movimientos_billetera` e índices contables — 2h — @[POR DEFINIR]
+- [ ] SP105 · Lógica de conciliación de saldo (on-chain + escrow en BD) y endpoint `/saldo` — 3h — @[POR DEFINIR]
+- [ ] SP106 · Endpoint paginado `/movimientos` y servicio de registro inmutable — 3h — @[POR DEFINIR]
+- [ ] SP107 · Suite de pruebas automatizadas y prueba de conciliación contable — 3h — @[POR DEFINIR]
+- [ ] SP108 · Mobile: pantalla de Historial de movimientos y componente `TarjetaSaldo` en Expo — 4h — @[POR DEFINIR]
+
+### HU-13 · Recarga de saldo (20 h)
+- [ ] SP109 · Modelo Prisma `ordenes_recarga`, migración `010_ordenes_recarga` y repositorio — 2h — @[POR DEFINIR]
+- [ ] SP110 · Servicio de generación de QR con expiración y cálculo de idempotencia — 3h — @[POR DEFINIR]
+- [ ] SP111 · Método `acunarTokens` en `BlockchainService` e integración con relayer — 3h — @[POR DEFINIR]
+- [ ] SP112 · Endpoint de confirmación de recarga con `FirmaDispositivoGuard` (D-13) — 4h — @[POR DEFINIR]
+- [ ] SP113 · Suite de pruebas automatizadas y prueba de ataque A-09 (doble acreditación) — 3h — @[POR DEFINIR]
+- [ ] SP114 · Mobile: pantalla de recarga en Expo (selector, QR y confirmación biométrica) — 5h — @[POR DEFINIR]
+
+### HU-17 · Publicar viaje (18 h)
+- [ ] SP115 · Modelo Prisma `viajes`, migración `011_viajes` y políticas RLS por organización — 3h — @[POR DEFINIR]
+- [ ] SP116 · Lógica de validación de conductor, vehículo y anti-solapamiento — 3h — @[POR DEFINIR]
+- [ ] SP117 · Endpoints `/viajes`, `/mis-viajes` y consulta de detalle — 4h — @[POR DEFINIR]
+- [ ] SP118 · Suite de pruebas y validación de amenazas A-08 y A-13 — 3h — @[POR DEFINIR]
+- [ ] SP119 · Mobile: pantalla de Publicar viaje con mapa OSM y selección de cupos en Expo — 5h — @[POR DEFINIR]
+
+### HU-18 · Buscar viajes (14 h)
+- [ ] SP120 · Lógica de consulta geoespacial Haversine y filtro de ventana temporal — 3h — @[POR DEFINIR]
+- [ ] SP121 · Endpoint `/viajes/buscar` con DTOs seguros y resolución D-17 — 3h — @[POR DEFINIR]
+- [ ] SP122 · Suite de pruebas automatizadas, prueba de aislamiento A-13 y medición de latencia < 2s — 3h — @[POR DEFINIR]
+- [ ] SP123 · Mobile: pantalla de Búsqueda de viajes y componente `TarjetaViaje` en Expo — 5h — @[POR DEFINIR]
+
+
+
+
+
+
+

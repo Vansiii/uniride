@@ -516,3 +516,120 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 - La primera ejecutora del backend se cortó por el límite de uso; el relevo encontró el trabajo completo y lo verificó.
 
 **Archivos afectados:** `backend/prisma/migrations/005_vehiculos`, `src/vehiculos/`, `src/comun/almacenamiento.service.ts`, `test/vehiculos/`, `package.json`; `mobile/src/app/vehiculo.tsx`, `package.json`; `docker-compose.yml`, `.env.example`, `.agents/`, `SPECS/`.
+
+---
+
+## 2026-11-02 · HU-08 Verificación de identidad: spec y plan técnico aprobados
+
+**Evento:** El PO aprueba la especificación (`spec.md`) y el plan técnico (`plan.md`) de HU-08 (Verificación de identidad). Es la 1.ª HU del Sprint 2 y desbloquea la billetera (HU-12) y la publicación de viajes (HU-17).
+
+**Decisión:**
+1. **Hash irreversible para el carnet (HMAC-SHA256 con salt del servidor):** El número de carnet de identidad nunca se guarda en texto claro ni se cifra con KMS para lectura. Se almacena únicamente su hash ciego (`documento_hash` UNIQUE en la tabla `identidades`), garantizando la regla A-02 (un carnet por persona) y cumpliendo la Ley N.º 164.
+2. **Sin integración con SEGIP:** Confirmado con el PO que la integración estatal está fuera de alcance v1 y no se requiere reversibilidad del carnet.
+3. **Colección facial para A-02:** Los rostros verificados se indexan en una colección de AWS Rekognition (`IndexFaces`) para detectar intentos de registrar cuentas adicionales con diferente número de documento (`SearchFacesByImage`).
+4. **Mock para desarrollo/CI:** Se incluye la bandera `REKOGNITION_SIMULADO=true` para ejecutar pruebas locales y en CI sin costo de AWS.
+
+**Tareas acordadas (Sprint 2):** `SP88` (modelo Prisma y migración `006_identidades`), `SP89` (`RekognitionService` con vivacidad y colección), `SP90` (endpoints y guard), `SP91` (suite de pruebas con ataques A-01 y A-02) y `SP92` (pantalla móvil en Expo).
+
+**Archivos afectados:** `SPECS/features/HU-08-verificacion-identidad/{spec,plan}.md`, `.agents/MEMORY/MEMORY.md`, `.agents/STEERING/backlog.md`, `SPECS/roadmap.md`.
+
+---
+
+## 2026-11-02 · HU-09 Vinculación de dispositivo: spec y plan técnico aprobados
+
+**Evento:** El PO aprueba la especificación (`spec.md`) y el plan técnico (`plan.md`) de HU-09 (Vinculación de dispositivo). Es la 2.ª HU del Sprint 2 y establece la Capa 2 de seguridad (dispositivo atestiguado y firmado criptográficamente).
+
+**Decisión:**
+1. **Algoritmo ECDSA P-256 en hardware:** Las llaves del dispositivo se generan en el chip seguro (StrongBox / TEE de Android Keystore) con curva NIST P-256. Genera firmas compactas de ~64 bytes en Base64 idóneas para encabezados HTTP `X-Firma`.
+2. **Alcance de la firma en `FirmaDispositivoGuard`:** La firma del dispositivo se exige estrictamente en endpoints sensibles (billetera, recarga, publicar viaje, reservar y handshakes). Consultas públicas y login inicial usan JWT estándar para no romper la web.
+3. **Protección contra repetición (Replay):** Firma canónica sobre `METHOD + PATH + TIMESTAMP + NONCE + SHA256(BODY)` con ventana de 30 segundos y caché de nonces de un solo uso.
+4. **Play Integrity y bypass en desarrollo:** Obligatorio nivel `MEETS_DEVICE_INTEGRITY`. En desarrollo local se usa `INTEGRITY_MODO=simulado`; en producción (`NODE_ENV=production`), el bypass está estrictamente prohibido y bloquea el sistema si se intenta encender.
+
+**Tareas acordadas (Sprint 2):** `SP93` (modelo Prisma y migración `007_dispositivos`), `SP94` (`PlayIntegrityService`), `SP95` (endpoints de atestación y vinculación), `SP96` (`FirmaDispositivoGuard`), `SP97` (pruebas de ataque A-03, A-04, A-08) y `SP98` (módulo móvil de Keystore en Expo).
+
+**Archivos afectados:** `SPECS/features/HU-09-vinculacion-dispositivo/{spec,plan}.md`, `.agents/MEMORY/MEMORY.md`, `.agents/STEERING/backlog.md`, `SPECS/roadmap.md`.
+
+---
+
+## 2026-11-02 · HU-12 Creación de billetera: spec y plan técnico aprobados
+
+**Evento:** El PO aprueba la especificación (`spec.md`) y el plan técnico (`plan.md`) de HU-12 (Creación de billetera). Es la 3.ª HU del Sprint 2 y sienta la base de pagos con el token ERC-20 UniCoin en Polygon Amoy.
+
+**Decisión:**
+1. **Custodia de llaves de usuario con costo $0 base (A-12) y advertencia visible:** Para no incurrir en el costo de $1 USD/mes por usuario de AWS KMS, la arquitectura adopta un modo dual:
+   - **Modo estándar ($0 costo):** Cifrado simétrico AES-256-GCM en backend mediante `node:crypto` con la variable secreta `WALLET_ENCRYPTION_KEY`. En la base de datos solo se guardan los datos cifrados (`llave_custodia_ref`).
+   - **Modo AWS KMS opcional:** Si se exige en producción, se utiliza una única Llave Maestra KMS para cifrar las llaves (Envelope Encryption), sin claves dedicadas por alumno.
+   - **Nota de atención (ojo):** Queda explícitamente advertido en el `plan.md` para el equipo implementador por si se decide ajustar este esquema más adelante.
+2. **Sin cobro de gas al usuario:** Transacciones orquestadas por la cuenta relayer del sistema.
+3. **Idempotencia:** Invocaciones repetidas de creación devuelven la billetera existente en vez de crear nuevas direcciones.
+
+**Tareas acordadas (Sprint 2):** `SP99` (modelo Prisma y migración `008_billeteras`), `SP100` (`BlockchainService` y lectura de balance de UniCoin), `SP101` (endpoints de billetera), `SP102` (pruebas de seguridad A-12 sin llaves en BD) y `SP103` (pantalla de billetera en Expo).
+
+**Archivos afectados:** `SPECS/features/HU-12-creacion-billetera/{spec,plan}.md`, `.agents/MEMORY/MEMORY.md`, `.agents/STEERING/backlog.md`, `SPECS/roadmap.md`.
+
+---
+
+## 2026-11-02 · HU-14 Saldo e historial: spec y plan técnico aprobados
+
+**Evento:** El PO aprueba la especificación (`spec.md`) y el plan técnico (`plan.md`) de HU-14 (Saldo e historial). Es la 4.ª HU del Sprint 2 y define el libro mayor inmutable y la conciliación contable.
+
+**Decisión:**
+1. **Libro mayor inmutable (`movimientos_billetera`):** Se registran todas las transacciones de débito y crédito con clave de idempotencia única.
+2. **Desglose de saldo:** Se separa claramente el `saldoDisponible` del `saldoBloqueadoEscrow` (viajes reservados pendientes).
+3. **Resiliencia en consulta on-chain:** Caché de 15 segundos sobre la lectura de `UniCoin.balanceOf(direccion)` para no saturar la testnet, y fallback inmediato al último saldo contable en PostgreSQL (`enLinea: false`) si el nodo RPC tiene latencia o caída temporal.
+
+**Tareas acordadas (Sprint 2):** `SP104` (modelo Prisma y migración `009_movimientos_billetera`), `SP105` (lógica de conciliación y endpoint `/saldo`), `SP106` (endpoint paginado `/movimientos`), `SP107` (pruebas automatizadas) y `SP108` (pantalla de historial y componente `TarjetaSaldo` en Expo).
+
+**Archivos afectados:** `SPECS/features/HU-14-saldo-historial/{spec,plan}.md`, `.agents/MEMORY/MEMORY.md`, `.agents/STEERING/backlog.md`, `SPECS/roadmap.md`.
+
+---
+
+## 2026-11-02 · HU-13 Recarga de saldo: spec y plan técnico aprobados (Resuelve D-13)
+
+**Evento:** El PO aprueba la especificación (`spec.md`) y el plan técnico (`plan.md`) de HU-13 (Recarga de saldo). Es la 5.ª HU del Sprint 2 y define el ingreso legítimo de fondos al sistema (A-10).
+
+**Decisión:**
+1. **Límites de recarga:** Rango estricto de 10 a 500 Bs (URC) por transacción, con código QR simulado y expiración a 15 minutos.
+2. **Resolución de D-13 (Biometría en recarga):** La confirmación de recarga se blinda con `FirmaDispositivoGuard` (HU-09). Como la clave del Android Keystore exige autenticación biométrica en hardware para firmar, la recarga queda asegurada con biometría real desde S2. HU-29 en S3 solo añadirá el diálogo visual para comandos de voz.
+3. **Acuñación idempotente (A-09):** La llamada a `UniCoin.acunar` la realiza el relayer y se asocia a la `clave_idempotencia` de la orden; peticiones repetidas nunca duplican la emisión de tokens.
+
+**Tareas acordadas (Sprint 2):** `SP109` (modelo Prisma `ordenes_recarga`), `SP110` (servicio de QR e idempotencia), `SP111` (método `acunarTokens` con relayer), `SP112` (endpoint de confirmación con firma de dispositivo), `SP113` (pruebas de ataque A-09) y `SP114` (pantalla móvil en Expo).
+
+**Archivos afectados:** `SPECS/features/HU-13-recarga-saldo/{spec,plan}.md`, `.agents/MEMORY/MEMORY.md`, `.agents/STEERING/backlog.md`, `SPECS/roadmap.md`.
+
+---
+
+## 2026-11-02 · HU-17 Publicar viaje: spec y plan técnico aprobados
+
+**Evento:** El PO aprueba la especificación (`spec.md`) y el plan técnico (`plan.md`) de HU-17 (Publicar viaje). Es la 6.ª HU del Sprint 2 y sienta la máquina de estados del viaje y la tabla `viajes` con RLS.
+
+**Decisión:**
+1. **Máquina de estados estricta (`AGENTS.md` §5.9):** Inicia en `publicado` y sigue transiciones controladas por el servidor.
+2. **Capacidad física y aislamiento:** Los cupos ofrecidos tienen tope en la capacidad registrada del vehículo en HU-11 (`vehiculos.capacidad`). Aislamiento multi-organización en PostgreSQL mediante Row-Level Security por `organizacion_id` (A-13).
+3. **Firma de dispositivo (A-08) y anti-solapamiento:** Publicación protegida por `FirmaDispositivoGuard` y validación de margen de 2 horas para evitar conductores con viajes solapados.
+
+**Tareas acordadas (Sprint 2):** `SP115` (modelo Prisma `viajes` y RLS), `SP116` (lógica de validación de conductor y vehículo), `SP117` (endpoints de viajes), `SP118` (pruebas de amenazas A-08 y A-13) y `SP119` (pantalla móvil en Expo con OSM).
+
+**Archivos afectados:** `SPECS/features/HU-17-publicar-viaje/{spec,plan}.md`, `.agents/MEMORY/MEMORY.md`, `.agents/STEERING/backlog.md`, `SPECS/roadmap.md`.
+
+---
+
+## 2026-11-02 · HU-18 Buscar viajes: spec y plan técnico aprobados (Resuelve D-17)
+
+**Evento:** El PO aprueba la especificación (`spec.md`) y el plan técnico (`plan.md`) de HU-18 (Buscar viajes). Es la 7.ª y última HU del Sprint 2; cierra el circuito completo de identidad, billetera y viajes.
+
+**Decisión:**
+1. **Filtro geoespacial y temporal:** Radio de proximidad de $\le$ 1,0 km con fórmula de Haversine y ventana de $\pm$ 30 minutos respecto a la hora solicitada.
+2. **Resolución de D-17 (Calificaciones en búsqueda):** Como HU-21 está en Reserva, el campo `calificacionPromedio` es opcional en la API. Si no hay reseñas, se muestran las insignias «Conductor verificado» y «Nuevo», evitando estrellas ficticias o errores.
+3. **Aislamiento institucional (A-13) y latencia:** Consulta filtrada estrictamente por la organización activa del pasajero en PostgreSQL (RLS). Meta de respuesta en < 2 segundos cumplida mediante índice compuesto `idx_viajes_busqueda`.
+
+**Tareas acordadas (Sprint 2):** `SP120` (consulta geoespacial Haversine y temporal), `SP121` (endpoint `/viajes/buscar`), `SP122` (pruebas automatizadas, A-13 y latencia) y `SP123` (pantalla móvil y componente `TarjetaViaje` en Expo).
+
+**Archivos afectados:** `SPECS/features/HU-18-buscar-viajes/{spec,plan}.md`, `.agents/MEMORY/MEMORY.md`, `.agents/STEERING/backlog.md`, `SPECS/roadmap.md`.
+
+
+
+
+
+
+
