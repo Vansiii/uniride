@@ -1,6 +1,6 @@
 # HU-xx · {Nombre corto} — Especificación
 
-> Fase SDD: **Specify** (Análisis). Qué y por qué, **sin tecnología**. Copiar a `SPECS/features/HU-xx-slug/spec.md`.
+> Fase SDD: **Specify** (Análisis). Qué y por qué, **sin tecnología**. Copiar a `SPECS/features/sprint-N/HU-xx-slug/spec.md`.
 > Estado: `borrador` | `aprobada por PO (fecha)` · Épica: Ex · Prioridad: Must/Should/Could · PHU: x · Sprint: Sx
 > Requisito del docente que cubre: {1 multi-cliente / 2 verificación / 3 billetera / 4 interfaz con voz / ninguno}
 > Amenazas que toca: {A-xx, … / ninguna}

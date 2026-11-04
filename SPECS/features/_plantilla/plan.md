@@ -1,6 +1,6 @@
 # HU-xx · {Nombre corto} — Plan técnico
 
-> Fase SDD: **Plan** (Diseño). Cómo se construye lo que dice `spec.md`. Copiar a `SPECS/features/HU-xx-slug/plan.md`.
+> Fase SDD: **Plan** (Diseño). Cómo se construye lo que dice `spec.md`. Copiar a `SPECS/features/sprint-N/HU-xx-slug/plan.md`.
 > Estado: `borrador` | `aprobado (fecha, revisores)` · Rama: `feat/HU-xx-slug`
 > Solo cuando este plan esté aprobado se cargan sus tareas en `.agents/STEERING/backlog.md`.
 > Si el plan se desvía de `ssd.md`, registrar primero el desvío en `MEMORY.md` y actualizar `ssd.md`.
