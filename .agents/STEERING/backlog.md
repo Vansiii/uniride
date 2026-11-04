@@ -47,14 +47,14 @@
 
 ### Especificación de las HU del Sprint 1 (para que cumplan la DoR el 21/10)
 Borradores listos el 14/10; cada tarea se cierra cuando el PO aprueba la spec.
-- [x] SP24 · Especificar HU-01 (`SPECS/features/HU-01-alta-organizacion/spec.md`) — 2h — @[POR DEFINIR]
-- [x] SP27 · Especificar HU-02 (`SPECS/features/HU-02-reglas-afiliacion/spec.md`) — 2h — @[POR DEFINIR]
-- [x] SP28 · Especificar HU-05 (`SPECS/features/HU-05-registro-correo-institucional/spec.md`) — 2h — @[POR DEFINIR]
-- [x] SP29 · Especificar HU-06 (`SPECS/features/HU-06-inicio-sesion/spec.md`) — 2h — @[POR DEFINIR]
-- [x] SP30 · Especificar HU-03 (`SPECS/features/HU-03-aprobacion-miembros/spec.md`) — 2h — @[POR DEFINIR]
-- [x] SP31 · Especificar HU-07 (`SPECS/features/HU-07-varias-organizaciones/spec.md`) — 2h — @[POR DEFINIR]
-- [x] SP32 · Especificar HU-11 (`SPECS/features/HU-11-registro-vehiculo/spec.md`) — 2h — @[POR DEFINIR]
-- [x] SP35 · Especificar HU-34 (`SPECS/features/HU-34-recuperacion-contrasena/spec.md`) — 2h — @[POR DEFINIR]
+- [x] SP24 · Especificar HU-01 (`SPECS/features/sprint-1/HU-01-alta-organizacion/spec.md`) — 2h — @[POR DEFINIR]
+- [x] SP27 · Especificar HU-02 (`SPECS/features/sprint-1/HU-02-reglas-afiliacion/spec.md`) — 2h — @[POR DEFINIR]
+- [x] SP28 · Especificar HU-05 (`SPECS/features/sprint-1/HU-05-registro-correo-institucional/spec.md`) — 2h — @[POR DEFINIR]
+- [x] SP29 · Especificar HU-06 (`SPECS/features/sprint-1/HU-06-inicio-sesion/spec.md`) — 2h — @[POR DEFINIR]
+- [x] SP30 · Especificar HU-03 (`SPECS/features/sprint-1/HU-03-aprobacion-miembros/spec.md`) — 2h — @[POR DEFINIR]
+- [x] SP31 · Especificar HU-07 (`SPECS/features/sprint-1/HU-07-varias-organizaciones/spec.md`) — 2h — @[POR DEFINIR]
+- [x] SP32 · Especificar HU-11 (`SPECS/features/sprint-1/HU-11-registro-vehiculo/spec.md`) — 2h — @[POR DEFINIR]
+- [x] SP35 · Especificar HU-34 (`SPECS/features/sprint-1/HU-34-recuperacion-contrasena/spec.md`) — 2h — @[POR DEFINIR]
 - [x] SP33 · Resolver con el equipo los valores sin definir de las specs, D-12, D-16, D-20, D-21 y agregar la HU de recuperación de contraseña (HU-34) — 2h — @equipo
 - [x] SP36 · El PO nominal marca como `aprobada` cada spec de S1 (cierra SP24, SP27–SP32 y SP35) — 1h — @PO
 - [x] SP34 · Escribir los `plan.md` de las 8 HU de S1 (borradores listos el 14/10; 142 h estimadas en total) — 4h — @agente

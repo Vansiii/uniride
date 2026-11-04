@@ -406,7 +406,7 @@ Regla (D-19): todo en español, sin tildes ni ñ en identificadores (`contrasena
 | IDs de trabajo | `HU-xx`, `PB-xx`, tareas `SPxx` | `HU-17`, `SP12` |
 | Rama | `feat/HU-xx-slug` | `feat/HU-17-publicar-viaje` |
 | Commit | `HU-xx SPyy: descripción` | `HU-17 SP31: valida cupos contra capacidad` |
-| Carpeta de feature | `SPECS/features/HU-xx-slug/` | `SPECS/features/HU-17-publicar-viaje/` |
+| Carpeta de feature | `SPECS/features/sprint-N/HU-xx-slug/` | `SPECS/features/sprint-2/HU-17-publicar-viaje/` |
 | Archivos TS | kebab-case + sufijo NestJS | `viajes.service.ts`, `crear-viaje.dto.ts` |
 | Clases / componentes | PascalCase | `ViajesService`, `CrearViajeDto`, `TarjetaViaje` |
 | Variables y funciones | camelCase | `cuposDisponibles`, `buscarViajes()` |

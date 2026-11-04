@@ -9,7 +9,7 @@ Argumento: `inicio` (por defecto) o `cierre`. Fuente: `.agents/MEMORY/SOUL.md`.
 
 ## inicio
 1. Leer `.agents/MEMORY/HEARTBEAT.md` (siempre primero), luego `.agents/STEERING/backlog.md`.
-2. Si hay HU en curso: leer su `SPECS/features/HU-xx-slug/spec.md` y `plan.md`.
+2. Si hay HU en curso: leer su `SPECS/features/sprint-N/HU-xx-slug/spec.md` y `plan.md`.
 3. Leer `MEMORY.md`, `AGENTS.md`, `constitution.md` o `ssd.md` solo en lo que la tarea pida.
 4. Informar en ≤ 5 líneas: sprint, HU en curso, bloqueos, próximo paso. Confirmar la rama con `git branch --show-current`.
 

@@ -1,6 +1,6 @@
 ## Qué cambia
 
-<!-- HU-xx / PB-xx y tareas SPxx. Enlace a SPECS/features/HU-xx-slug/ -->
+<!-- HU-xx / PB-xx y tareas SPxx. Enlace a SPECS/features/sprint-N/HU-xx-slug/ -->
 
 - Historia: HU-xx
 - Tareas: SPxx, SPyy
