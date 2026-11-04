@@ -2,42 +2,38 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-10-27
+**Última actualización:** 2026-11-02
 
-**Sprint actual:** Sprint 1 · 21/10 – 27/10/2026 (sprints de 1 semana, miércoles a martes).
+**Sprint actual:** Sprint 2 · 28/10 – 03/11/2026 (sprints de 1 semana, miércoles a martes).
+**Foco:** Fase de especificación del Sprint 2 completada al 100 %. Listo para iniciar implementación.
 
-**HU en curso:** ninguna. Las 8 HU del Sprint 1 están implementadas y probadas en local. HU-06 y HU-01 en `develop`; HU-02 subida con PR por abrir; HU-05, HU-03, HU-07, HU-34 y HU-11 sin push, encadenadas (HU-02 → HU-05 → HU-03 → HU-07 → HU-34 → HU-11). Hoy cierra el S1 (SP82).
+## Estado actual
 
-## Última sesión
-
-- HU-02: `feat/HU-02-reglas-afiliacion` subida en `backend` y `web` (PR por abrir en GitHub; esta PC no tiene `gh`). Documentos del principal en el commit local `1e48d92`.
-- HU-05: `feat/HU-05-registro-correo-institucional` en `backend` (`37f1b8e`, sale de la rama de HU-02), `mobile` (`c7fecb7`) y principal (documentos en `5fc7c63`). OTP, registro, verificación, reenvío, `GET /yo` con `membresias`, pantallas Registro y Código.
-- HU-03: `feat/HU-03-aprobacion-miembros` en `backend` (`798060c`, `8b2cda8`), `web` (`91a26f3`, incluye el menú por rol pendiente de HU-02) y principal (documentos en `b71955a`).
-- HU-07: `feat/HU-07-varias-organizaciones` en `backend` (`8fe57f5`, `8ae62a4`) y `mobile` (`1ef31e6`).
-- HU-34: `feat/HU-34-recuperacion-contrasena` en `backend` (`bedfc07`), `web` (`0d9ba73`) y `mobile` (`79de1be`).
-- HU-11: `feat/HU-11-registro-vehiculo` en `backend` (`737bbd9`, `9bb1751`, `487379c`, `9c1ed43`), `mobile` (`f8ea691`) y principal (MinIO del compose y `.env.example`).
-- Entorno local: PostgreSQL de `docker compose` en el puerto 5434 y MinIO del compose en 9000 (`.env` local con `S3_CIFRADO=ninguno`).
+- **Sprint 1 cerrado:** Las 8 historias de S1 (HU-06, HU-01, HU-02, HU-05, HU-03, HU-07, HU-34, HU-11) y el rediseño UI (PB-03) están en `origin/develop` de los 5 repositorios.
+- **Sprint 2 (100 % especificado y planificado):**
+  - **HU-08 (Verificación de identidad):** Spec y Plan aprobados. Hash HMAC-SHA256 para el carnet (A-02, Ley 164), sin SEGIP, colección Rekognition para evitar caras duplicadas, mock local. Tareas SP88–SP92.
+  - **HU-09 (Vinculación de dispositivo):** Spec y Plan aprobados. ECDSA P-256 en Android Keystore, Play Integrity, firma de peticiones sensibles, prevención de replay (A-03, A-04, A-08). Tareas SP93–SP98.
+  - **HU-12 (Creación de billetera):** Spec y Plan aprobados. Polygon Amoy + Relayer gasless. Custodia en modo dual sin costo base ($0 USD en local y nube con advertencia explícita en plan). Tareas SP99–SP103.
+  - **HU-14 (Saldo e historial):** Spec y Plan aprobados. Libro mayor inmutable `movimientos_billetera`, desglose de saldo disponible vs escrow y conciliación contable. Tareas SP104–SP108.
+  - **HU-13 (Recarga de saldo):** Spec y Plan aprobados. QR simulado (10–500 Bs), acuñación on-chain idempotente (A-09). D-13 resuelta con la firma de dispositivo de HU-09. Tareas SP109–SP114.
+  - **HU-17 (Publicar viaje):** Spec y Plan aprobados. Máquina de estados oficial, cupos limitados por auto de HU-11, anti-solapamiento y RLS multi-organización (A-13). Tareas SP115–SP119.
+  - **HU-18 (Buscar viajes):** Spec y Plan aprobados. Filtro geoespacial Haversine ≤ 1 km y ventana ± 30 min. D-17 resuelta mostrando insignias «Conductor verificado» y «Nuevo». Tareas SP120–SP123.
 
 ## Próximo paso concreto
 
-1. **Abrir los PR de HU-02** (backend, web) a `develop` y pedir revisión. Cuando se fusionen, actualizar la rama de HU-05 del backend contra `develop` y abrir sus PR (backend, mobile).
-2. **Probar HU-05 en Android** (teclado, sesión guardada, estado de membresía) y pedir al PO el texto legal del tratamiento de datos.
-3. **Cierre del S1 (SP82):** Sprint Review con el docente, retrospectiva, velocidad y tag `sprint-1`. Para mostrar en la Review hace falta fusionar la cadena de PR.
-4. Al fusionarse cada HU, actualizar la siguiente rama contra `develop` (orden: HU-02 → HU-05 → HU-03 → HU-07 → HU-34 → HU-11).
-5. Propuesta al equipo: `.gitattributes` con `* text=auto eol=lf`; Node 24 LTS en las máquinas.
+1. **Iniciar implementación del Sprint 2 por orden de dependencia técnica:**
+   - **Paso 1:** HU-08 (SP88–SP92) — Modelo Prisma `006_identidades`, `RekognitionService` y endpoints de verificación.
+   - **Paso 2:** HU-09 (SP93–SP98) — Modelo Prisma `007_dispositivos`, `PlayIntegrityService` y `FirmaDispositivoGuard`.
+   - **Paso 3:** HU-12 (SP99–SP103) y HU-14 (SP104–SP108) — Billetera Polygon Amoy y libro mayor.
+   - **Paso 4:** HU-13 (SP109–SP114) — Recargas QR y acuñación con relayer.
+   - **Paso 5:** HU-17 (SP115–SP119) y HU-18 (SP120–SP123) — Publicación y búsqueda de viajes.
 
 ## Bloqueos activos
 
-- Sin teléfonos Android físicos confirmados (R-02, SP04).
-- Pendientes de S0: SP13 (AWS), SP23 (Amoy), SP15–SP17, SP18, SP01, SP03, SP04, SP26, SP10.
-- Carga del Sprint 1: 142 h. Si no alcanza, HU-07 y HU-34 pasan a S2.
+- Sin teléfonos Android físicos confirmados aún (R-02, SP04): Play Integrity correrá con bypass simulado en desarrollo.
 
-## Decisiones abiertas que bloquean trabajo
+## Decisiones abiertas del Sprint 2
 
-| ID | Bloquea |
-|---|---|
-| D-09 Staging en AWS | SP13 (propuesta: sin staging) |
-| D-13 Biometría en recarga | HU-13 (S2) |
-| D-17 Calificación en búsqueda | HU-18 (S2) |
-
-Abiertas sin bloqueo inmediato: D-08 (voz en web), D-10 (cola on-chain), D-15 (criterio de "invulnerable" con el docente).
+- **D-13 (Biometría en recarga):** RESUELTA en HU-13 mediante la llave biométrica de hardware de HU-09.
+- **D-17 (Calificación en búsqueda):** RESUELTA en HU-18 con campo opcional e insignias sin estrellas ficticias.
+- Abiertas para sprints futuros: D-08 (voz en web), D-10 (cola on-chain), D-15 (criterio de "invulnerable" con el docente).
