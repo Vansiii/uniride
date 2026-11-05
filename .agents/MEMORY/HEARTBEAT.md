@@ -2,41 +2,38 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-10-14 (hora no registrada por el agente)
+**Última actualización:** 2026-11-02
 
-**Sprint actual:** Sprint 0 · 14/10 – 20/10/2026 (sprints de 1 semana, miércoles a martes) · Objetivo: dejar listo el terreno técnico.
+**Sprint actual:** Sprint 2 · 28/10 – 03/11/2026 (sprints de 1 semana, miércoles a martes).
+**Foco:** Fase de especificación del Sprint 2 completada al 100 %. Listo para iniciar implementación.
 
-**HU en curso:** ninguna en implementación. Las 8 HU del Sprint 1 tienen spec y plan aprobados y sus tareas (SP39–SP82) ya están en el backlog. PB-01 y PB-04 en progreso; PB-02 y PB-03 pendientes.
+## Estado actual
 
-## Última sesión
-
-- Repositorio principal `Vansiii/uniride` con cuatro submódulos (`uniride-backend`, `-web`, `-mobile`, `-contracts`), todos públicos y con `main` y `develop` (SP05).
-- CI propio en cada subrepositorio, en verde en ambas ramas (SP11).
-- `main` y `develop` protegidas con rulesets en los cinco repositorios: PR con 1 aprobación, sin borrado ni force-push; en los subrepositorios, además, CI en verde.
-- Desde ahora todo cambio entra por rama `feat/HU-xx-slug` y PR (`AGENTS.md` §8).
+- **Sprint 1 cerrado:** Las 8 historias de S1 (HU-06, HU-01, HU-02, HU-05, HU-03, HU-07, HU-34, HU-11) y el rediseño UI (PB-03) están en `origin/develop` de los 5 repositorios.
+- **Sprint 2 (100 % especificado y planificado):**
+  - **HU-08 (Verificación de identidad):** Spec y Plan aprobados. Hash HMAC-SHA256 para el carnet (A-02, Ley 164), sin SEGIP, colección Rekognition para evitar caras duplicadas, mock local. Tareas SP88–SP92.
+  - **HU-09 (Vinculación de dispositivo):** Spec y Plan aprobados. ECDSA P-256 en Android Keystore, Play Integrity, firma de peticiones sensibles, prevención de replay (A-03, A-04, A-08). Tareas SP93–SP98.
+  - **HU-12 (Creación de billetera):** Spec y Plan aprobados. Polygon Amoy + Relayer gasless. Custodia en modo dual sin costo base ($0 USD en local y nube con advertencia explícita en plan). Tareas SP99–SP103.
+  - **HU-14 (Saldo e historial):** Spec y Plan aprobados. Libro mayor inmutable `movimientos_billetera`, desglose de saldo disponible vs escrow y conciliación contable. Tareas SP104–SP108.
+  - **HU-13 (Recarga de saldo):** Spec y Plan aprobados. QR simulado (10–500 Bs), acuñación on-chain idempotente (A-09). D-13 resuelta con la firma de dispositivo de HU-09. Tareas SP109–SP114.
+  - **HU-17 (Publicar viaje):** Spec y Plan aprobados. Máquina de estados oficial, cupos limitados por auto de HU-11, anti-solapamiento y RLS multi-organización (A-13). Tareas SP115–SP119.
+  - **HU-18 (Buscar viajes):** Spec y Plan aprobados. Filtro geoespacial Haversine ≤ 1 km y ventana ± 30 min. D-17 resuelta mostrando insignias «Conductor verificado» y «Nuevo». Tareas SP120–SP123.
 
 ## Próximo paso concreto
 
-1. **Agregar a los otros cuatro integrantes como colaboradores** de los cinco repositorios. Sin eso nadie puede aprobar PRs.
-2. **Instalar Node 24 LTS** en las máquinas del equipo; la del agente tiene Node 22.18. Clonar con `git clone --recurse-submodules`.
-3. **Levantar `docker compose up --build`** con Docker Desktop encendido (SP10).
-4. **Pendientes de S0:**
-   - SP13 (AWS) y SP23 (desplegar en Amoy: requiere RPC, llave en el keystore y POL de prueba);
-   - SP15–SP16 (modelo y prueba de concepto de RLS con Prisma) y SP17 (UML);
-   - SP18–SP19 (Figma), SP01 (nombres de PO y SM), SP03 (Trello), SP04 (teléfonos) y SP26 (documento técnico, incluye monorepo → submódulos).
+1. **Iniciar implementación del Sprint 2 por orden de dependencia técnica:**
+   - **Paso 1:** HU-08 (SP88–SP92) — Modelo Prisma `006_identidades`, `RekognitionService` y endpoints de verificación.
+   - **Paso 2:** HU-09 (SP93–SP98) — Modelo Prisma `007_dispositivos`, `PlayIntegrityService` y `FirmaDispositivoGuard`.
+   - **Paso 3:** HU-12 (SP99–SP103) y HU-14 (SP104–SP108) — Billetera Polygon Amoy y libro mayor.
+   - **Paso 4:** HU-13 (SP109–SP114) — Recargas QR y acuñación con relayer.
+   - **Paso 5:** HU-17 (SP115–SP119) y HU-18 (SP120–SP123) — Publicación y búsqueda de viajes.
 
 ## Bloqueos activos
 
-- Docker Desktop apagado: `docker compose` sin verificar.
-- Sin teléfonos Android físicos confirmados (R-02, SP04).
-- Carga del Sprint 1: 142 h (unas 28 h por persona). Si no alcanza, HU-07 y HU-34 pasan a S2.
+- Sin teléfonos Android físicos confirmados aún (R-02, SP04): Play Integrity correrá con bypass simulado en desarrollo.
 
-## Decisiones abiertas que bloquean trabajo
+## Decisiones abiertas del Sprint 2
 
-| ID | Bloquea |
-|---|---|
-| D-09 Staging en AWS | SP13 (propuesta: sin staging) |
-| D-13 Biometría en recarga | HU-13 (S2) |
-| D-17 Calificación en búsqueda | HU-18 (S2) |
-
-Abiertas sin bloqueo inmediato: D-08 (voz en web), D-10 (cola on-chain), D-15 (criterio de "invulnerable" con el docente).
+- **D-13 (Biometría en recarga):** RESUELTA en HU-13 mediante la llave biométrica de hardware de HU-09.
+- **D-17 (Calificación en búsqueda):** RESUELTA en HU-18 con campo opcional e insignias sin estrellas ficticias.
+- Abiertas para sprints futuros: D-08 (voz en web), D-10 (cola on-chain), D-15 (criterio de "invulnerable" con el docente).

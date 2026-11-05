@@ -32,7 +32,13 @@
 
 ### PB-03 · Prototipo Figma
 - [ ] SP18 · Prototipo del flujo principal (buscar, reservar, abordar, pagar) en ≤ 4 pasos, con puntos de entrada de voz — 8h — @[POR DEFINIR]
-- [ ] SP19 · Prototipo de paneles web (alta de organización, afiliación, aprobación de miembros) — 4h — @[POR DEFINIR]
+- [x] SP19 · Prototipo de paneles web (alta de organización, afiliación, aprobación de miembros) — 4h — @agente 17/10 · en HTML (`prototipos/sprint-1.html`), no en Figma; confirmar con el equipo
+- [x] SP85 · Prototipo navegable de todas las interfaces de S1: 16 vistas móviles y 10 web, trazadas a los CA, en `prototipos/sprint-1.html` — 4h — @agente 17/10
+- [x] SP124 · Prototipo navegable de las interfaces de S2 (HU-08, 09, 12, 13, 14, 17, 18): 31 vistas móviles trazadas a los CA y 7 decisiones para el PO, en `prototipos/sprint-2.html` — 4h — @agente 04/11
+- [x] SP86 · Aprobación del PO de la identidad más expresiva (`DESIGN_SYSTEM.md` §3.5) — 1h — @PO 17/10 · falta la prueba al sol en un teléfono real (P-07)
+- [x] SP83 · Sistema de diseño `DESIGN_SYSTEM.md` (tokens, navegación, componentes, estados, accesibilidad, microcopia); base para SP18–SP19 — 4h — @agente 16/10
+- [x] SP84 · Marca (isotipo, logotipo, ícono de app) aprobada por el PO y aplicada a `mobile/` y `web/` en `feat/PB-03-marca` — 2h — @agente 16/10 · falta fusionar los PR
+- [x] SP87 · Rediseño de UI de `web/` y `mobile/` sobre `DESIGN_SYSTEM.md` (tokens, componentes, navegación, estados, accesibilidad) — 6h — @agente 23/10 · PR web #6 (sobre #5) y mobile #3; falta revisión y prueba en Android físico
 
 ### PB-04 · Token URC y escrow
 - [x] SP20 · Scaffolding de `contracts/`: Hardhat + OpenZeppelin + TS — 2h — @[POR DEFINIR] · @agente 14/10
@@ -42,14 +48,14 @@
 
 ### Especificación de las HU del Sprint 1 (para que cumplan la DoR el 21/10)
 Borradores listos el 14/10; cada tarea se cierra cuando el PO aprueba la spec.
-- [x] SP24 · Especificar HU-01 (`SPECS/features/HU-01-alta-organizacion/spec.md`) — 2h — @[POR DEFINIR]
-- [x] SP27 · Especificar HU-02 (`SPECS/features/HU-02-reglas-afiliacion/spec.md`) — 2h — @[POR DEFINIR]
-- [x] SP28 · Especificar HU-05 (`SPECS/features/HU-05-registro-correo-institucional/spec.md`) — 2h — @[POR DEFINIR]
-- [x] SP29 · Especificar HU-06 (`SPECS/features/HU-06-inicio-sesion/spec.md`) — 2h — @[POR DEFINIR]
-- [x] SP30 · Especificar HU-03 (`SPECS/features/HU-03-aprobacion-miembros/spec.md`) — 2h — @[POR DEFINIR]
-- [x] SP31 · Especificar HU-07 (`SPECS/features/HU-07-varias-organizaciones/spec.md`) — 2h — @[POR DEFINIR]
-- [x] SP32 · Especificar HU-11 (`SPECS/features/HU-11-registro-vehiculo/spec.md`) — 2h — @[POR DEFINIR]
-- [x] SP35 · Especificar HU-34 (`SPECS/features/HU-34-recuperacion-contrasena/spec.md`) — 2h — @[POR DEFINIR]
+- [x] SP24 · Especificar HU-01 (`SPECS/features/sprint-1/HU-01-alta-organizacion/spec.md`) — 2h — @[POR DEFINIR]
+- [x] SP27 · Especificar HU-02 (`SPECS/features/sprint-1/HU-02-reglas-afiliacion/spec.md`) — 2h — @[POR DEFINIR]
+- [x] SP28 · Especificar HU-05 (`SPECS/features/sprint-1/HU-05-registro-correo-institucional/spec.md`) — 2h — @[POR DEFINIR]
+- [x] SP29 · Especificar HU-06 (`SPECS/features/sprint-1/HU-06-inicio-sesion/spec.md`) — 2h — @[POR DEFINIR]
+- [x] SP30 · Especificar HU-03 (`SPECS/features/sprint-1/HU-03-aprobacion-miembros/spec.md`) — 2h — @[POR DEFINIR]
+- [x] SP31 · Especificar HU-07 (`SPECS/features/sprint-1/HU-07-varias-organizaciones/spec.md`) — 2h — @[POR DEFINIR]
+- [x] SP32 · Especificar HU-11 (`SPECS/features/sprint-1/HU-11-registro-vehiculo/spec.md`) — 2h — @[POR DEFINIR]
+- [x] SP35 · Especificar HU-34 (`SPECS/features/sprint-1/HU-34-recuperacion-contrasena/spec.md`) — 2h — @[POR DEFINIR]
 - [x] SP33 · Resolver con el equipo los valores sin definir de las specs, D-12, D-16, D-20, D-21 y agregar la HU de recuperación de contraseña (HU-34) — 2h — @equipo
 - [x] SP36 · El PO nominal marca como `aprobada` cada spec de S1 (cierra SP24, SP27–SP32 y SP35) — 1h — @PO
 - [x] SP34 · Escribir los `plan.md` de las 8 HU de S1 (borradores listos el 14/10; 142 h estimadas en total) — 4h — @agente
@@ -64,63 +70,122 @@ Borradores listos el 14/10; cada tarea se cierra cuando el PO aprueba la spec.
 Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: HU-06 → HU-01 → HU-02 → HU-05 → HU-03 → HU-07 → HU-34 → HU-11. Total: 142 h. Si a mitad del sprint la velocidad no alcanza, HU-07 y HU-34 pasan a S2.
 
 ### HU-06 · Inicio de sesión (30 h)
-- [ ] SP39 · Infraestructura común backend: `PrismaService`, `ValidationPipe`, filtro de errores con `codigo`, Swagger, `t()` — 4h — @[POR DEFINIR]
-- [ ] SP40 · Migración `001`: usuarios, tokens_refresco, registros_auditoria, roles de BD; semilla del super admin — 3h — @[POR DEFINIR]
-- [ ] SP41 · `AuditoriaService` — 1h — @[POR DEFINIR]
-- [ ] SP42 · Iniciar sesión con bloqueo y respuesta uniforme — 3h — @[POR DEFINIR]
-- [ ] SP43 · Refrescar (rotación, límite absoluto, reuso) y cerrar sesión — 4h — @[POR DEFINIR]
-- [ ] SP44 · `JwtGuard` global, `@Publico`, `@UsuarioActual`, `GET /yo` — 2h — @[POR DEFINIR]
-- [ ] SP45 · Web: shell, router, cliente HTTP con renovación, pantalla de inicio de sesión — 4h — @[POR DEFINIR]
-- [ ] SP46 · Mobile: shell, cliente HTTP, almacenamiento seguro, pantallas de inicio de sesión y estado de membresía — 4h — @[POR DEFINIR]
-- [ ] SP47 · Pruebas HU-06 (CA-1 a CA-10) — 5h — @[POR DEFINIR]
+- [x] SP39 · Infraestructura común backend: `PrismaService`, `ValidationPipe`, filtro de errores con `codigo`, Swagger, `t()` — 4h — @[POR DEFINIR] · @agente 17/10: `PrismaService` (adaptador pg), `ValidationPipe`, filtro con `codigo`, `t()`; se añadieron `@prisma/adapter-pg`, `pg` y `@types/pg` (Prisma 7 los exige; aprobado por el PO)
+- [x] SP40 · Migración `001`: usuarios, tokens_refresco, registros_auditoria, roles de BD; semilla del super admin — 3h — @[POR DEFINIR] · @agente 17/10: migración `001` con RLS en la auditoría y semilla (`npm run prisma:semilla`); rol `uniride_app` lo crea `docker/postgres/01-rol-app.sh`
+- [x] SP41 · `AuditoriaService` — 1h — @[POR DEFINIR] · @agente 17/10
+- [x] SP42 · Iniciar sesión con bloqueo y respuesta uniforme — 3h — @[POR DEFINIR] · @agente 17/10
+- [x] SP43 · Refrescar (rotación, límite absoluto, reuso) y cerrar sesión — 4h — @[POR DEFINIR] · @agente 17/10
+- [x] SP44 · `JwtGuard` global, `@Publico`, `@UsuarioActual`, `GET /yo` — 2h — @[POR DEFINIR] · @agente 17/10: `membresias` de `GET /yo` va vacío hasta HU-05 (tabla `membresias`)
+- [x] SP45 · Web: shell, router, cliente HTTP con renovación, pantalla de inicio de sesión — 4h — @[POR DEFINIR] · @agente 17/10
+- [x] SP46 · Mobile: shell, cliente HTTP, almacenamiento seguro, pantallas de inicio de sesión y estado de membresía — 4h — @[POR DEFINIR] · @agente 17/10: `expo-secure-store`
+- [x] SP47 · Pruebas HU-06 (CA-1 a CA-10) — 5h — @[POR DEFINIR] · @agente 17/10: 11 e2e + 5 unitarias backend, 8 web, 12 mobile; CA-7 del backend se prueba en HU-05 cuando exista `membresias`; CI con PostgreSQL
 
 ### HU-01 · Alta de organización (26 h)
-- [ ] SP48 · `enOrganizacion` / `comoSuperAdmin`, `RolPlataformaGuard`, migración `002` con políticas RLS — 4h — @[POR DEFINIR]
-- [ ] SP49 · Modelo: organizaciones, membresias, invitaciones, correos_salientes — 2h — @[POR DEFINIR]
-- [ ] SP50 · Notificaciones: cola, worker con reintentos, cliente SES, modo consola, plantillas — 4h — @[POR DEFINIR]
-- [ ] SP51 · Alta y listado de organizaciones (servicio, controlador, DTOs, Swagger, auditoría) — 3h — @[POR DEFINIR]
-- [ ] SP52 · Invitaciones: reenviar, consultar, aceptar (cuenta nueva y existente) — 4h — @[POR DEFINIR]
-- [ ] SP53 · Web: Organizaciones, Nueva organización, Aceptar invitación — 5h — @[POR DEFINIR]
-- [ ] SP54 · Pruebas HU-01 (CA-1 a CA-8, ataques A-13 y de rol, worker) — 4h — @[POR DEFINIR]
+- [x] SP48 · `enOrganizacion` / `comoSuperAdmin`, `RolPlataformaGuard`, migración `002` con políticas RLS — 4h — @[POR DEFINIR] · @agente 23/10: `PrismaService.enOrganizacion/comoSuperAdmin`, `RolPlataformaGuard` (rol leído de BD), migración `002`
+- [x] SP49 · Modelo: organizaciones, membresias, invitaciones, correos_salientes — 2h — @[POR DEFINIR] · @agente 23/10: tablas en `002`; `registros_auditoria` ya tenía RLS
+- [x] SP50 · Notificaciones: cola, worker con reintentos, cliente SES, modo consola, plantillas — 4h — @[POR DEFINIR] · @agente 23/10: `CorreosService` + worker cada 30 s, máx. 5 intentos, SES v2 (`@aws-sdk/client-sesv2`), modo consola
+- [x] SP51 · Alta y listado de organizaciones (servicio, controlador, DTOs, Swagger, auditoría) — 3h — @[POR DEFINIR] · @agente 23/10: `/admin/organizaciones`, auditoría en la misma transacción
+- [x] SP52 · Invitaciones: reenviar, consultar, aceptar (cuenta nueva y existente) — 4h — @[POR DEFINIR] · @agente 23/10: consulta y aceptación públicas (410 uniforme), reenvío; token solo como hash
+- [x] SP53 · Web: Organizaciones, Nueva organización, Aceptar invitación — 5h — @[POR DEFINIR] · @agente 23/10: Organizaciones, Nueva organización, Aceptar invitación
+- [x] SP54 · Pruebas HU-01 (CA-1 a CA-8, ataques A-13 y de rol, worker) — 4h — @[POR DEFINIR] · @agente 23/10: 38 e2e backend (alta, invitaciones, A-13 API y SQL, rol, worker), 10 pruebas web nuevas
 
 ### HU-02 · Reglas de afiliación (13 h)
-- [ ] SP55 · Migración `003`: dominios_organizacion y función `organizacion_por_dominio` — 2h — @[POR DEFINIR]
-- [ ] SP56 · `OrganizacionGuard` y `RolOrganizacionGuard` — 2h — @[POR DEFINIR]
-- [ ] SP57 · Servicio y controlador de afiliación con validaciones y auditoría — 3h — @[POR DEFINIR]
-- [ ] SP58 · Web: pantalla Afiliación — 3h — @[POR DEFINIR]
-- [ ] SP59 · Pruebas HU-02 (CA-1 a CA-8, ataque A-13) — 3h — @[POR DEFINIR]
+- [x] SP55 · Migración `003`: dominios_organizacion y función `organizacion_por_dominio` — 2h — @Nannj446 · @agente 24/10: migración `003` con RLS forzado; `organizacion_por_dominio` SECURITY DEFINER (solo el id, solo `activa`); rol de la API con SELECT, INSERT, DELETE en la tabla nueva
+- [x] SP56 · `OrganizacionGuard` y `RolOrganizacionGuard` — 2h — @Nannj446 · @agente 24/10: `OrganizacionGuard` (membresía `aprobada` leída de BD), `RolOrganizacionGuard` + `@RolOrganizacion`, `@OrganizacionActual`
+- [x] SP57 · Servicio y controlador de afiliación con validaciones y auditoría — 3h — @Nannj446 · @agente 24/10: `GET/PUT /organizaciones/{id}/afiliacion`, normalización, `DOMINIOS_PUBLICOS`, auditoría con anterior/nuevo, Swagger
+- [x] SP58 · Web: pantalla Afiliación — 3h — @Nannj446 · @agente 24/10: `/organizacion/afiliacion` con dominios, modo y estados de carga/vacío/error; 14 pruebas nuevas (32 web); probada en navegador contra backend local a 360/768/1280
+- [x] SP59 · Pruebas HU-02 (CA-1 a CA-8, ataque A-13) — 3h — @Nannj446 · @agente 24/10: 26 unitarias + 55 e2e backend (CA-1 a CA-8, A-13 en API y SQL, concurrencia); cobertura 80→86,8 %; CA-4/CA-5 de punta a punta con HU-05
 
 ### HU-05 · Registro con correo institucional (21 h)
-- [ ] SP60 · Migración `004`: codigos_otp — 1h — @[POR DEFINIR]
-- [ ] SP61 · `OtpService` compartido (generar, verificar, bloqueo, límites, invalidación) — 4h — @[POR DEFINIR]
-- [ ] SP62 · Endpoints de registro, verificación y reenvío; alta de usuario y membresía — 4h — @[POR DEFINIR]
-- [ ] SP63 · `enviarAhora()` y plantillas de correo — 1h — @[POR DEFINIR]
-- [ ] SP64 · Mobile: pantallas Registro y Código, y navegación al estado o al inicio — 6h — @[POR DEFINIR]
-- [ ] SP65 · Pruebas HU-05 (CA-1 a CA-9, ataque A-13) — 5h — @[POR DEFINIR]
+- [x] SP60 · Migración `004`: codigos_otp — 1h — @Nannj446 · @agente 24/10: migración `004` (dato personal, sin RLS; rol de la API sin borrado)
+- [x] SP61 · `OtpService` compartido (generar, verificar, bloqueo, límites, invalidación) — 4h — @Nannj446 · @agente 24/10: `OtpService` con HMAC + `timingSafeEqual`, `randomInt`, 10 min, bloqueo 15 min tras 5 errores, 1/min y 5/h, invalidación del anterior
+- [x] SP62 · Endpoints de registro, verificación y reenvío; alta de usuario y membresía — 4h — @Nannj446 · @agente 24/10: `POST /autenticacion/registro`, `verificar-otp`, `reenviar-codigo`; alta de usuario y membresía según el modo; `GET /yo` ahora trae `membresias` (cierra HU-06 CA-7)
+- [x] SP63 · `enviarAhora()` y plantillas de correo — 1h — @Nannj446 · @agente 24/10: `enviarAhora()`, plantillas `otp_registro` y `ya_tienes_cuenta`
+- [x] SP64 · Mobile: pantallas Registro y Código, y navegación al estado o al inicio — 6h — @Nannj446 · @agente 24/10: `registro.tsx`, `codigo.tsx`, `CampoCodigo`, `Casilla`; 27 pruebas nuevas (40 mobile); probado en navegador (expo web) contra backend local a 360/412; falta probar en Android y el texto legal del consentimiento
+- [x] SP65 · Pruebas HU-05 (CA-1 a CA-9, ataque A-13) — 5h — @Nannj446 · @agente 24/10: 70 unitarias + 77 e2e backend (CA-1 a CA-9, A-13 y `/yo`); cobertura 86,8→90,1 %
 
 ### HU-03 · Aprobación de miembros (11 h)
-- [ ] SP66 · Módulo `membresias`: listar y decidir (actualización condicional, auditoría, correo) — 4h — @[POR DEFINIR]
-- [ ] SP67 · Web: pantalla Solicitudes — 4h — @[POR DEFINIR]
-- [ ] SP68 · Pruebas HU-03 (CA-1 a CA-7, ataque A-13, concurrencia) — 3h — @[POR DEFINIR]
+- [x] SP66 · Módulo `membresias`: listar y decidir (actualización condicional, auditoría, correo) — 4h — @Nannj446 · @agente 24/10: `GET /organizaciones/{id}/membresias?estado=pendiente` y `POST /membresias/{id}/decision`; update condicional, auditoría y correo en la misma transacción; motivo solo al rechazar
+- [x] SP67 · Web: pantalla Solicitudes — 4h — @Nannj446 · @agente 25/10: Solicitudes (aprobar directo, rechazar con diálogo y motivo, ya decidida, vacío/error); menú por rol de la organización activa desde `/yo` y nombre de la organización en la barra lateral (pendiente de HU-02); 51 pruebas web; probada en navegador a 360/768/1280
+- [x] SP68 · Pruebas HU-03 (CA-1 a CA-7, ataque A-13, concurrencia) — 3h — @Nannj446 · @agente 24/10: 79 unitarias + 95 e2e backend (CA-1 a CA-7, concurrencia 200+409, A-13 404 idéntico a inexistente); cobertura 90,9 %
 
 ### HU-07 · Varias organizaciones (13 h)
-- [ ] SP69 · Agregar organización (validaciones, código, confirmar) — 3h — @[POR DEFINIR]
-- [ ] SP70 · Cambiar organización activa con token nuevo — 2h — @[POR DEFINIR]
-- [ ] SP71 · Mobile: Mis organizaciones y Agregar organización — 5h — @[POR DEFINIR]
-- [ ] SP72 · Pruebas HU-07 (CA-1 a CA-7, ataque A-13) — 3h — @[POR DEFINIR]
+- [x] SP69 · Agregar organización (validaciones, código, confirmar) — 3h — @Nannj446 · @agente 26/10: `POST /membresias` (202) y `POST /membresias/confirmar`; organización solo por dominio; `YA_ES_MIEMBRO`, `MEMBRESIA_RECHAZADA`, `CORREO_EN_USO`; reenvío con propósito `agregar_organizacion`
+- [x] SP70 · Cambiar organización activa con token nuevo — 2h — @Nannj446 · @agente 26/10: `PUT /yo/organizacion-activa` → token de acceso nuevo; `MEMBRESIA_NO_APROBADA` 403 igual sin membresía, pendiente o rechazada
+- [x] SP71 · Mobile: Mis organizaciones y Agregar organización — 5h — @Nannj446 · @agente 26/10: `organizaciones.tsx`, `agregar-organizacion.tsx`, pantalla Código reutilizada, token nuevo al cambiar la activa; acceso desde inicio y estado de membresía; 73 pruebas mobile; probado con expo web a 360/412 contra backend local
+- [x] SP72 · Pruebas HU-07 (CA-1 a CA-7, ataque A-13) — 3h — @Nannj446 · @agente 26/10: 96 unitarias + 115 e2e backend (CA-1 a CA-7, A-13 entre organizaciones propias); cobertura 92 %
 
 ### HU-34 · Recuperación de contraseña (12 h)
-- [ ] SP73 · Endpoints de recuperar y restablecer (revocación de sesiones, auditoría, correos) — 3h — @[POR DEFINIR]
-- [ ] SP74 · Web: pantallas de recuperación — 3h — @[POR DEFINIR]
-- [ ] SP75 · Mobile: pantalla de recuperación — 3h — @[POR DEFINIR]
-- [ ] SP76 · Pruebas HU-34 (CA-1 a CA-6) — 3h — @[POR DEFINIR]
+- [x] SP73 · Endpoints de recuperar y restablecer (revocación de sesiones, auditoría, correos) — 3h — @Nannj446 · @agente 26/10: `recuperar-contrasena` (202, código por la cola; sin cuenta, fila señuelo que no envía ni valida) y `restablecer-contrasena` (204: hash nuevo, revoca todos los refresh, levanta el bloqueo, auditoría y aviso `contrasena_cambiada`)
+- [x] SP74 · Web: pantallas de recuperación — 3h — @Nannj446 · @agente 26/10: `/recuperar-contrasena` en 2 pasos, enlace "Olvidé mi contraseña" y aviso al volver; 68 pruebas web; probada en navegador a 360/768/1280 (sesiones previas → 401)
+- [x] SP75 · Mobile: pantalla de recuperación — 3h — @Nannj446 · @agente 26/10: `/recuperar` (correo → código + contraseña nueva → listo) y enlace en Iniciar sesión; 94 pruebas mobile; en vivo: sesiones previas y contraseña vieja → 401, la nueva entra
+- [x] SP76 · Pruebas HU-34 (CA-1 a CA-6) — 3h — @Nannj446 · @agente 26/10: 110 unitarias + 124 e2e backend (CA-1 a CA-6; con y sin cuenta: misma respuesta, 429 y bloqueo); cobertura 92,6 %
 
 ### HU-11 · Registro de vehículo (16 h)
-- [ ] SP77 · Migración `005`: vehiculos — 1h — @[POR DEFINIR]
-- [ ] SP78 · `AlmacenamientoService` (S3 + SSE-KMS) y MinIO en `docker compose` — 3h — @[POR DEFINIR]
-- [ ] SP79 · Endpoint de registro con validaciones, normalización y compensación; `GET /vehiculos/mio` — 4h — @[POR DEFINIR]
-- [ ] SP80 · Mobile: pantalla Registrar vehículo — 5h — @[POR DEFINIR]
-- [ ] SP81 · Pruebas HU-11 (CA-1 a CA-8) — 3h — @[POR DEFINIR]
+- [x] SP77 · Migración `005`: vehiculos — 1h — @Nannj446 · @agente 27/10: migración `005` (placa y dueño únicos, CHECK de placa y capacidad 1–6; dato personal sin RLS; rol de la API solo SELECT e INSERT)
+- [x] SP78 · `AlmacenamientoService` (S3 + SSE-KMS) y MinIO en `docker compose` — 3h — @Nannj446 · @agente 27/10: `AlmacenamientoService` con `@aws-sdk/client-s3`; cifrado por `S3_CIFRADO` (kms por defecto, `ninguno` prohibido en producción); MinIO del compose pasa a `bitnamilegacy/minio` (minio/minio ya no se publica)
+- [x] SP79 · Endpoint de registro con validaciones, normalización y compensación; `GET /vehiculos/mio` — 4h — @Nannj446 · @agente 27/10: `POST /vehiculos` (multipart; JPEG/PNG por sus bytes, 5 MB; placa normalizada; borra la foto si falla la inserción) y `GET /vehiculos/mio`; la clave de la foto nunca sale
+- [x] SP80 · Mobile: pantalla Registrar vehículo — 5h — @Nannj446 · @agente 27/10: `/vehiculo` (formulario con foto de cámara o galería y consentimiento; resumen sin foto si ya tiene vehículo), acceso "Mi vehículo" desde Inicio, `expo-image-picker` ~57.0.20; 133 pruebas mobile; probada con expo web a 360/412 contra backend local; falta cámara y galería en Android
+- [x] SP81 · Pruebas HU-11 (CA-1 a CA-8) — 3h — @Nannj446 · @agente 27/10: 133 unitarias + 140 e2e backend (CA-1 a CA-4, CA-7, CA-8; placa en paralelo sin foto huérfana); cobertura 93,9 %; CA-5/CA-6 se prueban con HU-17
 
 ### Cierre del sprint
 - [ ] SP82 · Sprint Review con el docente, Retrospective, velocidad medida y resumen en MEMORY; tag `sprint-1` — 2h — @[POR DEFINIR]
+
+## Sprint 2 · 28/10 – 03/11/2026 · Identidad, billetera y primeros viajes
+
+### HU-08 · Verificación de identidad (22 h)
+- [ ] SP88 · Modelo Prisma `identidades`, migración `006_identidades` y pruebas de repositorio — 3h — @[POR DEFINIR]
+- [ ] SP89 · `RekognitionService` con soporte para sesiones de vivacidad, comparación facial y colección (con mock `REKOGNITION_SIMULADO`) — 4h — @[POR DEFINIR]
+- [ ] SP90 · Endpoints `/liveness-sesion`, `/verificar`, `/estado` y guard `@RequiereIdentidadVerificada()` — 5h — @[POR DEFINIR]
+- [ ] SP91 · Suite de pruebas automatizadas y pruebas de ataque A-01 y A-02 (cobertura ≥ 70 %) — 4h — @[POR DEFINIR]
+- [ ] SP92 · Mobile: pantallas y flujo de verificación de identidad en Expo (consentimiento, carnet y vivacidad) — 6h — @[POR DEFINIR]
+
+### HU-09 · Vinculación de dispositivo (26 h)
+- [ ] SP93 · Modelo Prisma `dispositivos`, migración `007_dispositivos` y pruebas de repositorio — 3h — @[POR DEFINIR]
+- [ ] SP94 · `PlayIntegrityService` (Google Play Integrity API y mock simulado bloqueado en prod) — 4h — @[POR DEFINIR]
+- [ ] SP95 · Endpoints de desafío de atestación, vinculación y consulta de dispositivo — 4h — @[POR DEFINIR]
+- [ ] SP96 · `FirmaDispositivoGuard` con verificación ECDSA P-256, nonce y ventana de 30s — 5h — @[POR DEFINIR]
+- [ ] SP97 · Suite de pruebas y pruebas de ataque A-03 (no íntegro), A-04 (llave ajena) y A-08 (sin firma) — 4h — @[POR DEFINIR]
+- [ ] SP98 · Mobile: integración con Android Keystore y pantalla de vinculación en Expo — 6h — @[POR DEFINIR]
+
+### HU-12 · Creación de billetera (16 h)
+- [ ] SP99 · Modelo Prisma `billeteras`, migración `008_billeteras` y repositorio — 2h — @[POR DEFINIR]
+- [ ] SP100 · `BlockchainService` (ethers.js, conexión Polygon Amoy/Hardhat y lectura de balance UniCoin) — 4h — @[POR DEFINIR]
+- [ ] SP101 · Endpoints de creación idempotente y consulta de billetera en backend — 3h — @[POR DEFINIR]
+- [ ] SP102 · Suite de pruebas y validación de seguridad A-12 (sin llaves en BD) — 3h — @[POR DEFINIR]
+- [ ] SP103 · Mobile: pantalla de Billetera en Expo (tarjeta de balance URC, dirección y accesos) — 4h — @[POR DEFINIR]
+
+### HU-14 · Saldo e historial (15 h)
+- [ ] SP104 · Modelo Prisma `movimientos_billetera`, migración `009_movimientos_billetera` e índices contables — 2h — @[POR DEFINIR]
+- [ ] SP105 · Lógica de conciliación de saldo (on-chain + escrow en BD) y endpoint `/saldo` — 3h — @[POR DEFINIR]
+- [ ] SP106 · Endpoint paginado `/movimientos` y servicio de registro inmutable — 3h — @[POR DEFINIR]
+- [ ] SP107 · Suite de pruebas automatizadas y prueba de conciliación contable — 3h — @[POR DEFINIR]
+- [ ] SP108 · Mobile: pantalla de Historial de movimientos y componente `TarjetaSaldo` en Expo — 4h — @[POR DEFINIR]
+
+### HU-13 · Recarga de saldo (20 h)
+- [ ] SP109 · Modelo Prisma `ordenes_recarga`, migración `010_ordenes_recarga` y repositorio — 2h — @[POR DEFINIR]
+- [ ] SP110 · Servicio de generación de QR con expiración y cálculo de idempotencia — 3h — @[POR DEFINIR]
+- [ ] SP111 · Método `acunarTokens` en `BlockchainService` e integración con relayer — 3h — @[POR DEFINIR]
+- [ ] SP112 · Endpoint de confirmación de recarga con `FirmaDispositivoGuard` (D-13) — 4h — @[POR DEFINIR]
+- [ ] SP113 · Suite de pruebas automatizadas y prueba de ataque A-09 (doble acreditación) — 3h — @[POR DEFINIR]
+- [ ] SP114 · Mobile: pantalla de recarga en Expo (selector, QR y confirmación biométrica) — 5h — @[POR DEFINIR]
+
+### HU-17 · Publicar viaje (18 h)
+- [ ] SP115 · Modelo Prisma `viajes`, migración `011_viajes` y políticas RLS por organización — 3h — @[POR DEFINIR]
+- [ ] SP116 · Lógica de validación de conductor, vehículo y anti-solapamiento — 3h — @[POR DEFINIR]
+- [ ] SP117 · Endpoints `/viajes`, `/mis-viajes` y consulta de detalle — 4h — @[POR DEFINIR]
+- [ ] SP118 · Suite de pruebas y validación de amenazas A-08 y A-13 — 3h — @[POR DEFINIR]
+- [ ] SP119 · Mobile: pantalla de Publicar viaje con mapa OSM y selección de cupos en Expo — 5h — @[POR DEFINIR]
+
+### HU-18 · Buscar viajes (14 h)
+- [ ] SP120 · Lógica de consulta geoespacial Haversine y filtro de ventana temporal — 3h — @[POR DEFINIR]
+- [ ] SP121 · Endpoint `/viajes/buscar` con DTOs seguros y resolución D-17 — 3h — @[POR DEFINIR]
+- [ ] SP122 · Suite de pruebas automatizadas, prueba de aislamiento A-13 y medición de latencia < 2s — 3h — @[POR DEFINIR]
+- [ ] SP123 · Mobile: pantalla de Búsqueda de viajes y componente `TarjetaViaje` en Expo — 5h — @[POR DEFINIR]
+
+
+
+
+
+
+

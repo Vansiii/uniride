@@ -1,0 +1,1057 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>UniRide Prototipo Sprint 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block">
+<style>
+/* Layout: escenario oscuro índigo (una sola apariencia, deliberada) · cabecera con la U de trayecto · visor de 3 columnas: flujos | dispositivo | ficha de HU. Las pantallas internas usan solo los tokens claros de DESIGN_SYSTEM.md. */
+:root {
+  color-scheme: dark;
+  /* Escenario de presentación */
+  --escena: #0D1130;
+  --escena-2: #141A44;
+  --escena-3: #1D2763;
+  --linea: #2B3478;
+  --tinta: #EEF1FF;
+  --tinta-sec: #A9B3E6;
+  --acento: #8B9BFF;
+  --senal: #FBBF24;
+  --display: "Bricolage Grotesque", system-ui, "Segoe UI", Roboto, sans-serif;
+  --fuente: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  /* Interfaz de UniRide: DESIGN_SYSTEM.md §4.1.1, tema claro */
+  --fondo: #FFFFFF; --fondoSutil: #F6F7F9; --superficie: #FFFFFF; --borde: #DDE1E8; --bordeCampo: #7A8396;
+  --texto: #1A1F27; --textoSecundario: #535B6C; --textoPlaceholder: #6B7385; --textoDeshabilitado: #8F98A8; --fondoDeshabilitado: #EEF0F4;
+  --primario: #3447CC; --primarioPresionado: #2A39A6; --sobrePrimario: #FFFFFF; --primarioSuave: #EEF1FF; --primarioTexto: #2A39A6;
+  --exito: #15803D; --exitoSuave: #E9F7EE; --exitoTexto: #166534;
+  --aviso: #B26B00; --avisoSuave: #FFF4DB; --avisoTexto: #8A5300;
+  --peligro: #B42318; --sobrePeligro: #FFFFFF; --peligroSuave: #FDECEA; --peligroTexto: #912018;
+  --superposicion: rgba(15,18,24,0.5);
+  /* Zonas de marca: DESIGN_SYSTEM.md §3.5 y §4.1.1 (propuesta 17/10) */
+  --marcaProfundo: #1D2763; --degradadoMarca: linear-gradient(160deg, #3447CC 0%, #1D2763 100%);
+  --sobreMarca: #FFFFFF; --sobreMarcaSec: #C9D1FF; --marcaBrillante: #8B9BFF; --marcaVelo: rgba(255,255,255,0.14);
+}
+* { box-sizing: border-box; }
+html { background: var(--escena); }
+body { margin: 0; background: var(--escena); color: var(--tinta); font-family: var(--fuente); font-size: 15px; line-height: 1.5; padding-block: 0 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--escena); }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+a { color: var(--acento); }
+:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+button { font: inherit; color: inherit; }
+.ms { font-family: "Material Symbols Outlined"; font-weight: normal; font-style: normal; font-size: 24px; line-height: 1; letter-spacing: normal; text-transform: none; display: inline-block; white-space: nowrap; direction: ltr; -webkit-font-smoothing: antialiased; font-feature-settings: "liga"; user-select: none; flex: none; }
+.ms.s16 { font-size: 16px; } .ms.s20 { font-size: 20px; } .ms.s48 { font-size: 48px; } .fill { font-variation-settings: "FILL" 1; }
+.envoltura { max-width: 1440px; margin: 0 auto; }
+
+/* ——— Cabecera ——— */
+.cabecera { position: relative; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 32px; align-items: center; padding-block: 40px 28px; }
+.eyebrow { display: inline-flex; align-items: center; gap: 10px; font-size: 12.5px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--tinta-sec); }
+.eyebrow i { width: 8px; height: 8px; border-radius: 999px; background: var(--senal); display: block; }
+.cabecera h1 { font-family: var(--display); font-size: clamp(38px, 6vw, 76px); line-height: .98; letter-spacing: -.025em; font-weight: 800; margin-top: 16px; font-variation-settings: "opsz" 96; }
+.cabecera h1 em { font-style: normal; color: var(--acento); }
+.cabecera p.lead { color: var(--tinta-sec); max-width: 58ch; margin: 18px 0 0; font-size: 16px; }
+.cifras { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 26px; }
+.cifra-c { border: 1px solid var(--linea); border-radius: 14px; padding: 10px 16px; display: flex; flex-direction: column; min-width: 104px; background: var(--escena-2); }
+.cifra-c b { font-family: var(--display); font-size: 30px; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.cifra-c span { font-size: 12.5px; color: var(--tinta-sec); }
+.ruta-hero { width: 100%; max-width: 520px; justify-self: end; }
+.ruta-hero svg { width: 100%; height: auto; display: block; overflow: visible; }
+.ruta-hero .trazo { stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: dibujar 1.8s cubic-bezier(0.2, 0, 0, 1) .2s forwards; }
+.ruta-hero .hito { opacity: 0; animation: aparecer .4s ease forwards; }
+.ruta-hero text { font-family: var(--fuente); font-size: 13px; fill: var(--tinta-sec); }
+.ruta-hero text.hu { font-family: var(--display); font-weight: 700; font-size: 15px; fill: var(--tinta); }
+@keyframes dibujar { to { stroke-dashoffset: 0; } }
+@keyframes aparecer { to { opacity: 1; } }
+
+/* ——— Barra de modos ——— */
+.modos { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 6; background: var(--escena); display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding-block: 12px; border-bottom: 1px solid var(--linea); }
+.segmentos { display: inline-flex; background: var(--escena-2); border: 1px solid var(--linea); border-radius: 999px; padding: 4px; gap: 2px; }
+.segmentos button { border: 0; background: transparent; padding: 8px 16px; border-radius: 999px; cursor: pointer; font-weight: 600; font-size: 14px; color: var(--tinta-sec); display: inline-flex; gap: 8px; align-items: center; }
+.segmentos button[aria-pressed="true"] { background: var(--acento); color: var(--escena); }
+.atajos { font-size: 13px; color: var(--tinta-sec); display: flex; gap: 8px; align-items: center; }
+kbd { font-family: var(--mono); font-size: 12px; border: 1px solid var(--linea); border-bottom-width: 2px; border-radius: 6px; padding: 1px 6px; color: var(--tinta); background: var(--escena-2); }
+
+/* ——— Visor ——— */
+.visor { display: grid; grid-template-columns: 260px minmax(0, 1fr) 320px; gap: 24px; padding-top: 24px; align-items: start; }
+.indice { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 76px); display: flex; flex-direction: column; gap: 18px; max-height: calc(100vh - 100px); overflow: auto; padding-right: 4px; }
+.grupo-cli { display: flex; flex-direction: column; gap: 6px; }
+.grupo-cli > .rot { font-family: var(--display); font-weight: 700; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--tinta-sec); display: flex; gap: 8px; align-items: center; }
+.flujo-n { display: flex; flex-direction: column; gap: 2px; }
+.flujo-n .nom { font-size: 12.5px; color: var(--tinta-sec); padding: 8px 10px 4px; display: flex; justify-content: space-between; gap: 8px; }
+.flujo-n .nom span:last-child { font-family: var(--mono); font-size: 11.5px; }
+.paso-n { border: 0; background: transparent; text-align: left; display: grid; grid-template-columns: 22px 1fr; gap: 8px; align-items: center; padding: 7px 10px; border-radius: 10px; cursor: pointer; color: var(--tinta); font-size: 14px; }
+.paso-n .num { font-family: var(--mono); font-size: 11.5px; color: var(--tinta-sec); font-variant-numeric: tabular-nums; }
+.paso-n:hover { background: var(--escena-2); }
+.paso-n[aria-current="true"] { background: var(--escena-3); box-shadow: inset 3px 0 0 var(--acento); }
+.paso-n[aria-current="true"] .num { color: var(--acento); }
+
+.escenario { position: relative; border-radius: 28px; background: radial-gradient(120% 90% at 50% 0%, var(--escena-3) 0%, var(--escena-2) 55%, var(--escena) 100%); border: 1px solid var(--linea); padding: 28px 24px 22px; display: flex; flex-direction: column; align-items: center; gap: 18px; min-width: 0; overflow: hidden; }
+.escenario::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(var(--linea) 1px, transparent 1px); background-size: 22px 22px; opacity: .45; pointer-events: none; mask-image: linear-gradient(to bottom, #000 0%, transparent 70%); -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 70%); }
+.lienzo { position: relative; width: 100%; display: flex; justify-content: center; min-width: 0; }
+.ajuste { position: relative; }
+.ajuste > * { transform-origin: top left; position: absolute; top: 0; left: 0; }
+.entra { animation: entra .28s cubic-bezier(0, 0, 0, 1); }
+@keyframes entra { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.controles { position: relative; display: flex; align-items: center; gap: 14px; }
+.ctl { width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--linea); background: var(--escena-2); display: grid; place-items: center; cursor: pointer; color: var(--tinta); }
+.ctl:hover { border-color: var(--acento); color: var(--acento); }
+.contador { font-family: var(--mono); font-size: 13px; color: var(--tinta-sec); min-width: 64px; text-align: center; font-variant-numeric: tabular-nums; }
+.pista { position: relative; font-size: 13px; color: var(--tinta-sec); display: flex; gap: 6px; align-items: center; }
+
+.ficha { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 76px); display: flex; flex-direction: column; gap: 18px; }
+.ficha .cli { display: inline-flex; gap: 6px; align-items: center; font-size: 12.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--tinta-sec); }
+.ficha h2 { font-family: var(--display); font-size: 30px; line-height: 1.08; letter-spacing: -.015em; font-weight: 800; }
+.ficha code { font-family: var(--mono); font-size: 12.5px; color: var(--acento); background: var(--escena-2); border: 1px solid var(--linea); border-radius: 8px; padding: 4px 8px; align-self: flex-start; overflow-wrap: anywhere; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip-hu { font-family: var(--display); font-weight: 700; font-size: 13px; padding: 3px 10px; border-radius: 999px; background: var(--acento); color: var(--escena); }
+.bloque { display: flex; flex-direction: column; gap: 8px; }
+.bloque h3 { font-size: 12px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--tinta-sec); }
+.cas { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.cas li { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; font-size: 14px; }
+.cas li b { font-family: var(--mono); font-size: 11.5px; font-weight: 600; color: var(--tinta); border: 1px solid var(--linea); border-radius: 6px; padding: 1px 6px; margin-top: 1px; white-space: nowrap; }
+.nota-f { font-size: 14px; color: var(--tinta-sec); border-left: 2px solid var(--senal); padding: 2px 0 2px 12px; }
+.destinos { display: flex; flex-wrap: wrap; gap: 6px; }
+.destinos button { border: 1px solid var(--linea); background: var(--escena-2); border-radius: 999px; padding: 5px 12px; font-size: 13px; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.destinos button:hover { border-color: var(--acento); color: var(--acento); }
+
+/* ——— Mapa ——— */
+.mapa { display: flex; flex-direction: column; gap: 36px; padding-top: 28px; }
+.mapa-flujo { display: flex; flex-direction: column; gap: 14px; }
+.mapa-flujo header { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.mapa-flujo h2 { font-family: var(--display); font-size: 24px; font-weight: 800; letter-spacing: -.01em; }
+.mapa-flujo header span { color: var(--tinta-sec); font-size: 13.5px; }
+.carril { display: flex; gap: 10px; align-items: center; overflow-x: auto; padding: 4px 2px 12px; }
+.mini { border: 0; background: transparent; padding: 0; cursor: pointer; display: flex; flex-direction: column; gap: 8px; flex: none; text-align: left; }
+.mini .ajuste { border-radius: 14px; }
+.mini:hover .ajuste, .mini:focus-visible .ajuste { outline: 2px solid var(--acento); outline-offset: 4px; border-radius: 16px; }
+.mini span { font-size: 13px; color: var(--tinta); max-width: 220px; }
+.mini small { font-family: var(--mono); color: var(--tinta-sec); font-size: 11px; }
+.flecha { color: var(--linea); flex: none; }
+
+/* ——— Decisiones ——— */
+.decis { padding-top: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 16px; }
+.decis article { background: var(--escena-2); border: 1px solid var(--linea); border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+.decis h3 { font-family: var(--display); font-size: 19px; font-weight: 700; line-height: 1.2; }
+.decis p { margin: 0; color: var(--tinta-sec); font-size: 14.5px; }
+.decis .tag { align-self: flex-start; font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--senal); color: var(--senal); }
+.decis .tag.d { border-color: var(--acento); color: var(--acento); }
+.decis code { font-family: var(--mono); font-size: 12.5px; color: var(--tinta); }
+.decis button { align-self: flex-start; border: 0; background: transparent; color: var(--acento); cursor: pointer; padding: 0; font-weight: 600; font-size: 14px; display: inline-flex; gap: 4px; align-items: center; }
+
+/* ================= Interfaz de UniRide (DESIGN_SYSTEM.md) ================= */
+.ui { font-family: var(--fuente); font-size: 16px; line-height: 1.5; color: var(--texto); }
+.ui p { margin: 0; }
+.tel { width: 360px; border: 9px solid #05071A; border-radius: 40px; overflow: hidden; background: var(--fondo); display: flex; flex-direction: column; height: 760px; position: relative; box-shadow: 0 0 0 1px var(--linea), 0 30px 60px -20px rgba(0,0,0,.6); }
+.barra-sis { height: 28px; flex: none; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.enc { height: 56px; flex: none; display: flex; align-items: center; gap: 4px; padding: 0 4px; }
+.enc .t { font-size: 22px; line-height: 28px; font-weight: 600; flex: 1; padding-left: 4px; }
+.bi { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 999px; color: var(--texto); text-decoration: none; }
+.cont { flex: 1; min-height: 0; overflow: hidden; padding: 8px 16px 16px; display: flex; flex-direction: column; gap: 16px; }
+.zona-accion { flex: none; padding: 12px 16px 20px; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--borde); background: var(--fondo); }
+.pestanas { height: 64px; flex: none; display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid var(--borde); }
+.pestanas > * { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; font-weight: 500; color: var(--textoSecundario); text-decoration: none; }
+.pestanas .act { color: var(--primario); }
+.pestanas .act .ms { font-variation-settings: "FILL" 1; background: var(--primarioSuave); border-radius: 999px; padding: 2px 16px; }
+.pantalla { font-size: 28px; line-height: 36px; font-weight: 700; }
+.titulo { font-size: 22px; line-height: 28px; font-weight: 600; }
+.subt { font-size: 18px; line-height: 24px; font-weight: 600; }
+.sec { font-size: 14px; line-height: 20px; color: var(--textoSecundario); }
+.peq { font-size: 12px; line-height: 16px; font-weight: 500; color: var(--textoSecundario); }
+.enf { font-weight: 600; }
+.tab { font-variant-numeric: tabular-nums; }
+.campo { display: flex; flex-direction: column; gap: 8px; }
+.lbl { font-size: 14px; line-height: 20px; font-weight: 500; }
+.caja { min-height: 48px; border: 1px solid var(--bordeCampo); border-radius: 12px; background: var(--superficie); display: flex; align-items: center; gap: 8px; padding: 0 4px 0 14px; }
+.caja .v { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.caja .ph { flex: 1; color: var(--textoPlaceholder); }
+.caja .bi { width: 40px; height: 40px; color: var(--textoSecundario); }
+.caja.foco { border: 2px solid var(--primario); }
+.caja.err { border: 2px solid var(--peligro); }
+.caja.dis { border-color: var(--borde); background: var(--fondoDeshabilitado); color: var(--textoSecundario); }
+.ayuda { font-size: 14px; line-height: 20px; color: var(--textoSecundario); }
+.error { font-size: 14px; line-height: 20px; color: var(--peligro); display: flex; gap: 6px; align-items: flex-start; }
+.error .ms { font-size: 18px; margin-top: 1px; }
+.btn { min-height: 48px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 20px; font-weight: 600; text-decoration: none; border: 0; cursor: pointer; font-size: 16px; }
+.btn.p { background: var(--primario); color: var(--sobrePrimario); }
+.btn.p:hover { background: var(--primarioPresionado); }
+.btn.s { background: transparent; color: var(--primario); border: 1px solid var(--bordeCampo); }
+.btn.tx { background: transparent; color: var(--primario); padding: 0 8px; }
+.btn.pe { background: var(--peligro); color: var(--sobrePeligro); }
+.btn.dis { background: var(--fondoDeshabilitado); color: var(--textoDeshabilitado); cursor: default; }
+.btn.full { width: 100%; }
+.btn.comp { min-height: 32px; padding: 0 12px; font-size: 14px; border-radius: 8px; }
+.btn.w { min-height: 40px; }
+.casilla { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; line-height: 20px; }
+.casilla .cb { width: 22px; height: 22px; border-radius: 4px; border: 2px solid var(--bordeCampo); flex: none; margin-top: 1px; display: grid; place-items: center; }
+.casilla .cb.on { background: var(--primario); border-color: var(--primario); color: var(--sobrePrimario); }
+.casilla a { color: var(--primario); }
+.aviso { border-radius: 12px; padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start; font-size: 14px; line-height: 20px; }
+.aviso .cuerpo { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.aviso .tt { font-size: 16px; line-height: 24px; font-weight: 600; }
+.aviso.info { background: var(--primarioSuave); color: var(--primarioTexto); }
+.aviso.ok { background: var(--exitoSuave); color: var(--exitoTexto); }
+.aviso.av { background: var(--avisoSuave); color: var(--avisoTexto); }
+.aviso.av > .ms { color: var(--aviso); }
+.aviso.pel { background: var(--peligroSuave); color: var(--peligroTexto); }
+.aviso.neu { background: var(--fondoSutil); color: var(--texto); }
+.aviso .btn.tx { align-self: flex-start; padding: 0; min-height: 32px; font-size: 14px; }
+.etq { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 8px; border-radius: 999px; font-size: 12px; font-weight: 500; white-space: nowrap; }
+.etq .ms { font-size: 16px; }
+.etq.ok { background: var(--exitoSuave); color: var(--exitoTexto); }
+.etq.av { background: var(--avisoSuave); color: var(--avisoTexto); }
+.etq.pel { background: var(--peligroSuave); color: var(--peligroTexto); }
+.etq.pri { background: var(--primarioSuave); color: var(--primarioTexto); }
+.etq.neu { background: var(--fondoSutil); color: var(--textoSecundario); border: 1px solid var(--borde); }
+.codigo { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.codigo span { height: 56px; border: 1px solid var(--bordeCampo); border-radius: 8px; display: grid; place-items: center; font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.codigo span.foco { border: 2px solid var(--primario); }
+.codigo span.foco::after { content: ""; width: 2px; height: 26px; background: var(--primario); }
+.codigo.err span { border: 2px solid var(--peligro); color: var(--peligro); }
+.tarjeta { border: 1px solid var(--borde); border-radius: 16px; background: var(--superficie); overflow: hidden; }
+.fila { min-height: 56px; display: flex; align-items: center; gap: 12px; padding: 8px 16px; color: inherit; text-decoration: none; }
+.fila + .fila { border-top: 1px solid var(--borde); }
+.fila .txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.fila .ico { width: 40px; height: 40px; border-radius: 999px; background: var(--fondoSutil); display: grid; place-items: center; color: var(--textoSecundario); flex: none; }
+.fila.sel { background: var(--primarioSuave); }
+.fila.sel .ico { background: var(--primario); color: var(--sobrePrimario); }
+.fila.inactiva .enf { color: var(--textoSecundario); }
+.fila .chev { color: var(--textoSecundario); }
+.pasos { display: flex; flex-direction: column; }
+.paso { display: grid; grid-template-columns: 32px 1fr; gap: 12px; padding-bottom: 14px; position: relative; }
+.paso:not(:last-child)::before { content: ""; position: absolute; left: 15px; top: 34px; bottom: 2px; width: 2px; background: var(--borde); }
+.paso.hecho:not(:last-child)::before { background: var(--exito); }
+.paso .n { width: 32px; height: 32px; border-radius: 999px; display: grid; place-items: center; font-size: 14px; font-weight: 700; border: 2px solid var(--borde); color: var(--textoSecundario); background: var(--fondo); }
+.paso.hecho .n { border: 0; color: var(--exito); }
+.paso.actual .n { border-color: var(--primario); background: var(--primario); color: var(--sobrePrimario); }
+.paso .d { display: flex; flex-direction: column; gap: 2px; padding-top: 4px; }
+.foto { border: 2px dashed var(--bordeCampo); border-radius: 12px; min-height: 104px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--textoSecundario); font-size: 14px; text-align: center; padding: 12px; }
+.foto .acc { display: flex; gap: 8px; margin-top: 6px; }
+.resultado { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 40px 16px 16px; }
+.circ { width: 96px; height: 96px; border-radius: 999px; display: grid; place-items: center; }
+.sep { display: flex; align-items: center; gap: 12px; color: var(--textoSecundario); font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; }
+.sep::before, .sep::after { content: ""; flex: 1; height: 1px; background: var(--borde); }
+.fila2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.capac { display: flex; gap: 6px; }
+.capac span { flex: 1; height: 44px; border-radius: 8px; border: 1px solid var(--bordeCampo); display: grid; place-items: center; font-weight: 600; font-variant-numeric: tabular-nums; }
+.capac span.sel { background: var(--primario); color: var(--sobrePrimario); border-color: var(--primario); }
+.org-chip { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 10px; border-radius: 999px; background: var(--fondoSutil); border: 1px solid var(--borde); font-size: 14px; font-weight: 500; color: var(--texto); text-decoration: none; }
+.avatar { width: 56px; height: 56px; border-radius: 999px; background: var(--primarioSuave); color: var(--primarioTexto); display: grid; place-items: center; font-weight: 700; font-size: 20px; flex: none; }
+.notif-m { background: var(--texto); color: var(--fondo); border-radius: 12px; padding: 12px 14px; display: flex; gap: 10px; align-items: center; font-size: 14px; }
+/* BandaMarca (§8.12) */
+.pantalla, .cifra, .display { font-family: var(--display); letter-spacing: -.01em; }
+.pantalla { font-weight: 800; }
+.banda { background: var(--degradadoMarca); color: var(--sobreMarca); padding: 0 0 28px; border-radius: 0 0 24px 24px; display: flex; flex-direction: column; flex: none; position: relative; overflow: hidden; }
+.banda > * { position: relative; }
+.banda .barra-sis { color: var(--sobreMarca); }
+.banda .marca { padding: 28px 20px 0; display: flex; flex-direction: column; gap: 14px; }
+.banda .lema { font-size: 16px; line-height: 24px; color: var(--sobreMarcaSec); max-width: 24ch; }
+.banda.corta { padding-bottom: 20px; }
+.banda.flotante { padding-bottom: 48px; }
+.banda .u-deco { position: absolute; right: -34px; bottom: -46px; width: 210px; opacity: .13; pointer-events: none; }
+.banda .fila-b { display: flex; align-items: center; justify-content: space-between; padding: 6px 12px 0 16px; }
+.banda .bi { color: var(--sobreMarca); background: var(--marcaVelo); width: 44px; height: 44px; }
+.banda .bi.apag { color: var(--sobreMarcaSec); }
+.banda .chip-b { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 10px; border-radius: 999px; background: var(--marcaVelo); color: var(--sobreMarca); font-size: 14px; font-weight: 600; text-decoration: none; }
+.banda .chip-b .pto { width: 10px; height: 10px; border-radius: 999px; background: var(--marcaBrillante); }
+.banda .hola { padding: 16px 20px 0; display: flex; flex-direction: column; gap: 4px; }
+.banda .hola .pantalla { color: var(--sobreMarca); }
+.banda .hola p.s { color: var(--sobreMarcaSec); font-size: 15px; line-height: 22px; }
+.banda .titulo-b { font-family: var(--display); font-weight: 800; font-size: 28px; line-height: 34px; padding: 12px 20px 0; }
+.banda .enc { color: var(--sobreMarca); }
+.banda .enc .bi { background: transparent; }
+.flota { margin-top: -32px; position: relative; z-index: 1; background: var(--superficie); border-radius: 20px; box-shadow: 0 6px 20px rgba(29,39,99,.14); padding: 16px; }
+.flota.lista { padding: 0; overflow: hidden; }
+.cont.sobre-banda { padding-top: 0; overflow: visible; }
+/* Ilustracion (§8.12) */
+.ilus { position: relative; width: 176px; height: 160px; flex: none; align-self: center; }
+.ilus svg { width: 100%; height: 100%; display: block; }
+.ilus .tz { stroke-dasharray: 320; stroke-dashoffset: 320; animation: trazo .6s cubic-bezier(0, 0, 0, 1) .1s forwards; }
+.ilus .sello { position: absolute; left: 50%; top: 46%; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 999px; display: grid; place-items: center; background: var(--superficie); box-shadow: 0 4px 14px rgba(29,39,99,.16); animation: entradaRes .3s cubic-bezier(0, 0, 0, 1) .45s both; }
+@keyframes trazo { to { stroke-dashoffset: 0; } }
+@keyframes entradaRes { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .ilus .tz { animation: none; stroke-dashoffset: 0; } .ilus .sello { animation: none; } }
+.tarjeta-dest { background: var(--marcaProfundo); color: var(--sobreMarca); border-radius: 20px; padding: 16px; display: flex; gap: 14px; align-items: center; }
+.tarjeta-dest .sec { color: var(--sobreMarcaSec); }
+.tarjeta-dest .ico { width: 44px; height: 44px; border-radius: 12px; background: var(--marcaVelo); display: grid; place-items: center; color: var(--marcaBrillante); flex: none; }
+/* Web */
+.nav { width: 1100px; border-radius: 14px; overflow: hidden; background: var(--fondoSutil); position: relative; box-shadow: 0 0 0 1px var(--linea), 0 30px 60px -20px rgba(0,0,0,.6); }
+.nav-barra { height: 40px; background: #E9ECF3; display: flex; align-items: center; gap: 12px; padding: 0 14px; }
+.nav-barra .pts { display: flex; gap: 6px; } .nav-barra .pts i { width: 11px; height: 11px; border-radius: 999px; background: #C3C9D4; display: block; }
+.nav-barra .url { flex: 1; max-width: 560px; height: 26px; border-radius: 999px; background: var(--fondo); color: var(--textoSecundario); font-size: 12.5px; display: flex; align-items: center; gap: 6px; padding: 0 12px; font-family: var(--mono); }
+.panel { display: grid; grid-template-columns: 240px 1fr; height: 660px; }
+.lateral { background: var(--marcaProfundo); color: var(--sobreMarca); display: flex; flex-direction: column; padding: 22px 12px; gap: 22px; position: relative; overflow: hidden; }
+.lateral > * { position: relative; }
+.lateral .u-deco { position: absolute; left: -40px; bottom: 70px; width: 200px; opacity: .08; pointer-events: none; }
+.lateral .sec { color: var(--sobreMarcaSec); }
+.lateral .org { display: flex; gap: 10px; align-items: center; padding: 10px; border-radius: 14px; background: var(--marcaVelo); }
+.lateral .org .ico { width: 38px; height: 38px; border-radius: 10px; background: var(--marcaBrillante); color: var(--marcaProfundo); display: grid; place-items: center; flex: none; }
+.lateral nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.lateral .grupo { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--sobreMarcaSec); padding: 8px 12px 4px; }
+.lateral .it { display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 12px; border-radius: 10px; font-size: 14px; font-weight: 500; color: var(--sobreMarcaSec); text-decoration: none; }
+.lateral .it.act { background: var(--marcaVelo); color: var(--sobreMarca); box-shadow: inset 3px 0 0 var(--marcaBrillante); }
+.lateral .it.act .ms { font-variation-settings: "FILL" 1; color: var(--marcaBrillante); }
+.lateral .cont-n { margin-left: auto; background: var(--marcaBrillante); color: var(--marcaProfundo); border-radius: 999px; min-width: 22px; height: 22px; display: grid; place-items: center; font-size: 12px; font-weight: 700; padding: 0 6px; }
+.lateral .pie { border-top: 1px solid rgba(255,255,255,.14); padding: 14px 8px 0; display: flex; flex-direction: column; gap: 6px; }
+.lateral .pie .btn.tx { color: var(--sobreMarcaSec); }
+.pag-cab h1 { font-family: var(--display); font-weight: 800; font-size: 28px; line-height: 34px; letter-spacing: -.01em; }
+.pagina { padding: 32px; display: flex; flex-direction: column; gap: 22px; min-width: 0; overflow: hidden; }
+.pag-cab { display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; }
+.pag-cab h1 { font-size: 22px; line-height: 28px; font-weight: 600; }
+.pag-cab p { color: var(--textoSecundario); font-size: 14px; margin: 4px 0 0; }
+.miga { font-size: 14px; color: var(--textoSecundario); display: inline-flex; gap: 6px; align-items: center; text-decoration: none; align-self: flex-start; }
+.form-w { max-width: 560px; display: flex; flex-direction: column; gap: 18px; }
+.form-w .caja { min-height: 40px; }
+.tw { background: var(--superficie); border: 1px solid var(--borde); border-radius: 16px; }
+.tw.pad { padding: 24px; }
+table.ui-t { border-collapse: collapse; width: 100%; font-size: 14px; }
+table.ui-t caption { text-align: left; padding: 16px 16px 12px; font-size: 18px; font-weight: 600; }
+table.ui-t th { text-align: left; font-weight: 500; color: var(--textoSecundario); background: var(--fondoSutil); padding: 0 16px; height: 40px; border-block: 1px solid var(--borde); white-space: nowrap; }
+table.ui-t td { padding: 0 16px; height: 56px; border-bottom: 1px solid var(--borde); vertical-align: middle; }
+table.ui-t tr:last-child td { border-bottom: 0; }
+table.ui-t tr.hover td { background: var(--fondoSutil); }
+table.ui-t .acc { display: flex; gap: 8px; justify-content: flex-end; }
+.tipo { display: inline-flex; gap: 6px; align-items: center; }
+.dividido { display: grid; grid-template-columns: 1fr 1fr; height: 660px; }
+.dividido .marca-w h2 { font-family: var(--display); font-weight: 800; letter-spacing: -.015em; }
+.dividido .marca-w { background: var(--degradadoMarca); color: var(--sobreMarca); padding: 48px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; }
+.dividido .marca-w h2 { font-size: 34px; line-height: 40px; font-weight: 700; max-width: 14ch; margin-top: 40px; }
+.dividido .marca-w ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 14px; font-size: 15px; color: var(--primarioSuave); }
+.dividido .marca-w li { display: flex; gap: 12px; align-items: center; }
+.dividido .marca-w li .ms { width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,.12); display: grid; place-items: center; font-size: 20px; color: var(--sobrePrimario); }
+.dividido .marca-w .u-fondo { position: absolute; right: -60px; bottom: -40px; width: 320px; opacity: .14; }
+.dividido .form-lado { display: flex; align-items: center; justify-content: center; padding: 40px; background: var(--fondo); }
+.dividido .form-lado > div { width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 18px; }
+.dividido .form-lado .caja { min-height: 40px; }
+.publico { height: 660px; display: flex; align-items: center; justify-content: center; padding: 40px 24px; background: var(--fondoSutil); }
+.caja-pub { width: 100%; max-width: 460px; background: var(--superficie); border: 1px solid var(--borde); border-radius: 16px; padding: 32px; display: flex; flex-direction: column; gap: 18px; }
+.caja-pub .caja { min-height: 40px; }
+.opciones { display: flex; flex-direction: column; gap: 8px; }
+.opcion { border: 1px solid var(--bordeCampo); border-radius: 12px; padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start; }
+.opcion .rd { width: 20px; height: 20px; border-radius: 999px; border: 2px solid var(--bordeCampo); flex: none; margin-top: 2px; }
+.opcion.sel { border: 2px solid var(--primario); background: var(--primarioSuave); }
+.opcion.sel .rd { border: 6px solid var(--primario); }
+.opciones.h { flex-direction: row; } .opciones.h .opcion { flex: 1; }
+.dominio { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 4px 0 16px; border-bottom: 1px solid var(--borde); font-family: var(--mono); font-size: 14px; }
+.dominio:last-child { border-bottom: 0; }
+.dominio span:first-child { flex: 1; }
+.dos-col { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: start; }
+.lado-info { display: flex; flex-direction: column; gap: 12px; }
+.notif { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--texto); color: var(--fondo); border-radius: 12px; padding: 12px 16px; display: flex; gap: 12px; align-items: center; font-size: 14px; box-shadow: 0 8px 24px rgba(15,18,24,.16); white-space: nowrap; }
+.capa { position: absolute; inset: 40px 0 0; background: var(--superposicion); display: flex; align-items: center; justify-content: center; padding: 24px; }
+.dialogo { background: var(--superficie); border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 460px; box-shadow: 0 8px 24px rgba(15,18,24,.16); }
+.dialogo .acciones { display: flex; justify-content: flex-end; gap: 8px; }
+
+@media (max-width: 1200px) {
+  .visor { grid-template-columns: 220px minmax(0, 1fr); }
+  .ficha { position: static; grid-column: 2; }
+}
+@media (max-width: 860px) {
+  .cabecera { grid-template-columns: 1fr; padding-top: 28px; }
+  .ruta-hero { justify-self: start; max-width: 420px; }
+  .visor { grid-template-columns: 1fr; }
+  .indice { position: static; max-height: none; flex-direction: row; overflow-x: auto; gap: 16px; padding-bottom: 6px; }
+  .grupo-cli { flex: none; }
+  .flujo-n { flex-direction: row; flex-wrap: nowrap; align-items: center; }
+  .flujo-n .nom { display: none; }
+  .grupo-cli { flex-direction: row; align-items: center; }
+  .paso-n { white-space: nowrap; }
+  .ficha { grid-column: auto; }
+  .escenario { padding: 20px 12px; border-radius: 20px; }
+  .atajos { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ruta-hero .trazo { animation: none; stroke-dashoffset: 0; }
+  .ruta-hero .hito { animation: none; opacity: 1; }
+  .entra { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="envoltura">
+
+<header class="cabecera">
+  <div>
+    <span class="eyebrow"><i></i>PB-03 · Sprint 1 · 21 – 27 oct 2026</span>
+    <h1>Organizaciones y cuentas, <em>pantalla por pantalla.</em></h1>
+    <p class="lead">El recorrido completo que el equipo implementa en el Sprint 1: desde que alguien recibe la invitación para administrar su universidad hasta que un estudiante registra su auto. Toca los botones de cada pantalla para avanzar como lo haría la persona.</p>
+    <div class="cifras">
+      <div class="cifra-c"><b>8</b><span>historias</span></div>
+      <div class="cifra-c"><b>26</b><span>PHU</span></div>
+      <div class="cifra-c"><b id="n-movil">16</b><span>vistas móviles</span></div>
+      <div class="cifra-c"><b id="n-web">10</b><span>vistas web</span></div>
+    </div>
+  </div>
+  <div class="ruta-hero" aria-hidden="true">
+    <svg viewBox="0 0 520 330">
+      <path class="trazo" d="M70 40 V200 a120 120 0 0 0 240 0 V120 a50 50 0 0 1 100 0 V250" fill="none" stroke="var(--acento)" stroke-width="10" stroke-linecap="round"/>
+      <circle cx="70" cy="40" r="17" fill="var(--acento)"/>
+      <circle class="hito" style="animation-delay:1.8s" cx="410" cy="268" r="14" fill="none" stroke="var(--acento)" stroke-width="7"/>
+      <g class="hito" style="animation-delay:.6s"><circle cx="70" cy="140" r="6" fill="var(--escena)" stroke="var(--tinta)" stroke-width="3"/><text class="hu" x="92" y="137">HU-01 · HU-02</text><text x="92" y="155">La organización existe</text></g>
+      <g class="hito" style="animation-delay:.95s"><circle cx="190" cy="320" r="6" fill="var(--escena)" stroke="var(--tinta)" stroke-width="3"/><text class="hu" x="160" y="290">HU-05 · HU-06</text></g>
+      <g class="hito" style="animation-delay:1.25s"><circle cx="310" cy="160" r="6" fill="var(--escena)" stroke="var(--tinta)" stroke-width="3"/><text class="hu" x="210" y="120">HU-03 · HU-07</text><text x="210" y="138">Entra a su comunidad</text></g>
+      <g class="hito" style="animation-delay:1.6s"><text class="hu" x="432" y="225">HU-11</text><text x="432" y="243">Su auto</text></g>
+    </svg>
+  </div>
+</header>
+
+<div class="modos">
+  <div class="segmentos" role="group" aria-label="Vista">
+    <button type="button" data-modo="recorrido" aria-pressed="true"><span class="ms s20">play_circle</span>Recorrido</button>
+    <button type="button" data-modo="mapa" aria-pressed="false"><span class="ms s20">account_tree</span>Mapa de flujos</button>
+    <button type="button" data-modo="decisiones" aria-pressed="false"><span class="ms s20">rule</span>Decisiones <span id="n-dec">7</span></button>
+  </div>
+  <div class="atajos"><kbd>←</kbd><kbd>→</kbd> pantalla anterior o siguiente</div>
+</div>
+
+<section id="v-recorrido" class="visor">
+  <nav class="indice" id="indice" aria-label="Pantallas"></nav>
+  <div class="escenario">
+    <div class="lienzo" id="lienzo"></div>
+    <div class="controles">
+      <button class="ctl" type="button" id="ant" aria-label="Pantalla anterior"><span class="ms">arrow_back</span></button>
+      <span class="contador" id="contador">1 / 26</span>
+      <button class="ctl" type="button" id="sig" aria-label="Pantalla siguiente"><span class="ms">arrow_forward</span></button>
+    </div>
+    <span class="pista"><span class="ms s16">touch_app</span>Los botones de la pantalla también navegan.</span>
+  </div>
+  <aside class="ficha" id="ficha" aria-live="polite"></aside>
+</section>
+
+<section id="v-mapa" class="mapa" hidden></section>
+
+<section id="v-decisiones" class="decis" hidden>
+  <article><span class="tag d">Aprobación del PO · DESIGN_SYSTEM.md</span><h3>Identidad más expresiva: zonas de marca</h3><p>Bandas con degradado índigo en las pantallas raíz y de acceso, ilustraciones de trayecto en resultados y estados, títulos en Bricolage Grotesque y barra lateral oscura en el panel. Formularios de dinero, confirmaciones, diálogos y tablas siguen planos (P10 reformulado, §3.5). Sin dependencias nuevas.</p><button type="button" data-ir="m-inicio">Ver pantalla <span class="ms s16">arrow_forward</span></button></article>
+  <article><span class="tag d">Decisión · HU-05, HU-34</span><h3>Código y contraseña en la misma pantalla al recuperar</h3><p>La pantalla Código se envía sola al sexto dígito (§8.5), pero la recuperación necesita además la contraseña nueva. Propuesta: en recuperación, código y contraseña juntos con el botón "Cambiar contraseña", igual que en web.</p><button type="button" data-ir="m-restablecer">Ver pantalla <span class="ms s16">arrow_forward</span></button></article>
+  <article><span class="tag">Dependencia · HU-11</span><h3>Falta el módulo para la foto del vehículo</h3><p><code>mobile/</code> no tiene <code>expo-image-picker</code> ni <code>expo-camera</code>. Agregar una dependencia requiere aprobación del equipo (AGENTS.md §14) antes de empezar HU-11.</p><button type="button" data-ir="m-vehiculo">Ver pantalla <span class="ms s16">arrow_forward</span></button></article>
+  <article><span class="tag d">Decisión · HU-06</span><h3>Pasos de verificación antes de S2</h3><p>Identidad y teléfono llegan en S2. Propuesta: mostrarlos en el inicio con "Disponible pronto" en lugar de ocultarlos, según la regla de §6.3 (mostrar qué falta). Alternativa: inicio solo con el aviso de vehículo.</p><button type="button" data-ir="m-inicio">Ver pantalla <span class="ms s16">arrow_forward</span></button></article>
+  <article><span class="tag">Detalle · HU-01</span><h3>Estados de la invitación</h3><p>CA-8 pide mostrar el estado de la invitación sin enumerarlo. El prototipo usa Enviada, No enviada, Vencida y Aceptada. Confirmar con el plan y con las claves de <code>es-BO.json</code>.</p><button type="button" data-ir="w-orgs">Ver pantalla <span class="ms s16">arrow_forward</span></button></article>
+  <article><span class="tag">Detalle · HU-03</span><h3>Motivo del rechazo dentro de la app</h3><p>CA-3 envía el motivo por correo. El prototipo también lo muestra en Estado de membresía. Si el PO prefiere que vaya solo por correo, se quita.</p><button type="button" data-ir="m-estado-rech">Ver pantalla <span class="ms s16">arrow_forward</span></button></article>
+  <article><span class="tag">Fuera de S1</span><h3>Voz y pestañas sin contenido</h3><p>El micrófono aparece deshabilitado en su lugar fijo (§8.10); la voz llega en HU-27 y HU-28 (S4). Mis viajes, Publicar y Billetera no se prototipan en este sprint.</p><button type="button" data-ir="m-perfil">Ver pantalla <span class="ms s16">arrow_forward</span></button></article>
+</section>
+
+</div>
+
+<!-- ================= Piezas de marca reutilizadas ================= -->
+<template id="logo-color"><svg width="150" height="28" viewBox="0 0 244 46" role="img" aria-label="UniRide"><g transform="translate(-9.6 -6) scale(1.2)"><g fill="none" stroke="#3447CC"><path d="M14 13.5V27.5a10 10 0 0 0 20 0V18" stroke-width="6"/><circle cx="34" cy="13.5" r="4.5" stroke-width="3"/></g><circle cx="14" cy="13.5" r="6" fill="#3447CC"/></g><g transform="translate(52.4 0)"><g fill="none" stroke="#1A1F27" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6V28a12 12 0 0 0 24 0V6"/><path d="M40 18V40M40 28a10 10 0 0 1 20 0V40"/><path d="M73 18V40"/><path d="M86 40V6H95a9 9 0 0 1 0 18H86M95 24L105 40"/><path d="M118 18V40"/><circle cx="142" cy="29" r="11"/><path d="M153 6V40"/><path d="M166 29H188a11 11 0 1 0-3.22 7.78"/><circle cx="118" cy="8" r="3" stroke-width="2.5"/></g><circle cx="73" cy="8" r="4" fill="#1A1F27"/></g></svg></template>
+<template id="logo-blanco"><svg width="170" height="32" viewBox="0 0 244 46" role="img" aria-label="UniRide"><g transform="translate(-9.6 -6) scale(1.2)"><g fill="none" stroke="#FFFFFF"><path d="M14 13.5V27.5a10 10 0 0 0 20 0V18" stroke-width="6"/><circle cx="34" cy="13.5" r="4.5" stroke-width="3"/></g><circle cx="14" cy="13.5" r="6" fill="#FFFFFF"/></g><g transform="translate(52.4 0)"><g fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6V28a12 12 0 0 0 24 0V6"/><path d="M40 18V40M40 28a10 10 0 0 1 20 0V40"/><path d="M73 18V40"/><path d="M86 40V6H95a9 9 0 0 1 0 18H86M95 24L105 40"/><path d="M118 18V40"/><circle cx="142" cy="29" r="11"/><path d="M153 6V40"/><path d="M166 29H188a11 11 0 1 0-3.22 7.78"/><circle cx="118" cy="8" r="3" stroke-width="2.5"/></g><circle cx="73" cy="8" r="4" fill="#FFFFFF"/></g></svg></template>
+
+<!-- ================= MÓVIL ================= -->
+<template id="t-m-login"><div class="tel ui">
+  <div class="banda" style="padding-bottom:40px">
+    <span data-udeco></span>
+    <div class="barra-sis"><span>07:12</span><span>82 %</span></div>
+    <div class="marca" style="padding-top:36px"><span data-logo="blanco"></span><p class="lema">Viaja con gente de tu comunidad. Paga solo si el viaje ocurre.</p></div>
+  </div>
+  <div class="cont" style="padding-top:24px">
+    <p class="titulo display" style="font-weight:800">Iniciar sesión</p>
+    <div class="campo"><span class="lbl">Correo institucional</span><div class="caja foco"><span class="v">ana.rojas@uagrm.edu.bo</span></div></div>
+    <div class="campo"><span class="lbl">Contraseña</span><div class="caja"><span class="v">••••••••••</span><span class="bi"><span class="ms s20">visibility</span></span></div></div>
+    <a class="btn tx" style="align-self:flex-start" href="#m-recuperar">Olvidé mi contraseña</a>
+  </div>
+  <div class="zona-accion"><a class="btn p full" href="#m-inicio">Iniciar sesión</a><a class="btn s full" href="#m-registro">Crear cuenta</a></div>
+</div></template>
+
+<template id="t-m-login-err"><div class="tel ui">
+  <div class="banda corta">
+    <span data-udeco></span>
+    <div class="barra-sis"><span>07:14</span><span>82 %</span></div>
+    <div class="marca" style="padding-top:16px"><span data-logo="blanco"></span></div>
+  </div>
+  <div class="cont" style="padding-top:20px">
+    <p class="titulo display" style="font-weight:800">Iniciar sesión</p>
+    <div class="aviso pel"><span class="ms s20">error</span><div class="cuerpo"><span>Correo o contraseña incorrectos. Revisa los datos y vuelve a intentar.</span></div></div>
+    <div class="campo"><span class="lbl">Correo institucional</span><div class="caja"><span class="v">ana.rojas@uagrm.edu.bo</span></div></div>
+    <div class="campo"><span class="lbl">Contraseña</span><div class="caja foco"><span class="ph">Tu contraseña</span><span class="bi"><span class="ms s20">visibility</span></span></div></div>
+    <div class="sep">tras 5 intentos</div>
+    <div class="aviso av"><span class="ms s20">lock_clock</span><div class="cuerpo"><span class="tt">Inicio de sesión en pausa</span><span>Por seguridad, espera hasta las 07:29 para volver a intentar.</span></div></div>
+  </div>
+  <div class="zona-accion"><a class="btn p full" href="#m-login">Iniciar sesión</a></div>
+</div></template>
+
+<template id="t-m-registro"><div class="tel ui">
+  <div class="banda corta">
+    <span data-udeco></span>
+    <div class="barra-sis"><span>07:20</span><span>81 %</span></div>
+    <div class="enc"><a class="bi" href="#m-login" aria-label="Volver"><span class="ms">arrow_back</span></a></div>
+    <p class="titulo-b" style="padding-top:0">Crear cuenta</p>
+    <p class="lema" style="padding:4px 20px 0;color:var(--sobreMarcaSec);font-size:15px;line-height:22px;max-width:30ch">Con el correo de tu universidad o empresa. Así sabremos a qué comunidad perteneces.</p>
+  </div>
+  <div class="cont" style="padding-top:18px">
+    <div class="campo"><span class="lbl">Nombre completo</span><div class="caja"><span class="v">Ana Rojas Suárez</span></div></div>
+    <div class="campo"><span class="lbl">Correo institucional</span><div class="caja"><span class="v">ana.rojas@uagrm.edu.bo</span></div></div>
+    <div class="campo"><span class="lbl">Contraseña</span><div class="caja foco"><span class="v">••••••••</span><span class="bi"><span class="ms s20">visibility</span></span></div><span class="ayuda">Mínimo 8 caracteres, con al menos una letra y un número.</span></div>
+    <div class="casilla"><span class="cb on"><span class="ms s16">check</span></span><span>Acepto el <a href="#m-registro">tratamiento de mis datos personales</a> para usar UniRide.</span></div>
+  </div>
+  <div class="zona-accion"><a class="btn p full" href="#m-codigo">Crear cuenta</a><a class="btn tx" href="#m-login">Ya tengo cuenta</a></div>
+</div></template>
+
+<template id="t-m-registro-err"><div class="tel ui">
+  <div class="banda corta">
+    <span data-udeco></span>
+    <div class="barra-sis"><span>07:21</span><span>81 %</span></div>
+    <div class="enc"><a class="bi" href="#m-login" aria-label="Volver"><span class="ms">arrow_back</span></a></div>
+    <p class="titulo-b" style="padding-top:0">Crear cuenta</p>
+  </div>
+  <div class="cont" style="padding-top:18px;gap:14px">
+    <div class="campo"><span class="lbl">Nombre completo</span><div class="caja"><span class="v">Luis Vaca</span></div></div>
+    <div class="campo"><span class="lbl">Correo institucional</span><div class="caja err"><span class="v">luis.vaca@gmail.com</span></div><span class="error"><span class="ms">error</span>Tu organización todavía no está afiliada a UniRide. Usa el correo que te dio tu universidad o empresa.</span></div>
+    <div class="campo"><span class="lbl">Contraseña</span><div class="caja err"><span class="v">••••••</span><span class="bi"><span class="ms s20">visibility</span></span></div><span class="error"><span class="ms">error</span>Necesita al menos 8 caracteres, una letra y un número.</span></div>
+    <div class="casilla"><span class="cb" style="border-color:var(--peligro)"></span><span>Acepto el <a href="#m-registro-err">tratamiento de mis datos personales</a> para usar UniRide.<span class="error" style="margin-top:4px"><span class="ms">error</span>Necesitamos tu consentimiento para crear la cuenta.</span></span></div>
+  </div>
+  <div class="zona-accion"><a class="btn p full" href="#m-registro">Crear cuenta</a></div>
+</div></template>
+
+<template id="t-m-codigo"><div class="tel ui">
+  <div class="barra-sis"><span>07:22</span><span>81 %</span></div>
+  <div class="enc"><a class="bi" href="#m-registro"><span class="ms">arrow_back</span></a><span class="t">Confirma tu correo</span></div>
+  <div class="cont">
+    <span data-ilus="correo"></span>
+    <p style="text-align:center">Te enviamos un código de 6 dígitos a<br><b>ana.rojas@uagrm.edu.bo</b></p>
+    <div class="codigo" aria-label="Código de 6 dígitos"><span>4</span><span>8</span><span>2</span><span>0</span><span class="foco"></span><span></span></div>
+    <p class="sec" style="text-align:center">Vence en 10 minutos. Se envía solo al completar el sexto dígito.</p>
+    <span class="btn dis comp tab" style="align-self:center">Reenviar código en 42 s</span>
+    <div class="sep">solo prototipo · al completar</div>
+    <div style="display:flex;gap:8px"><a class="btn s comp" style="flex:1" href="#m-estado">Aprobación manual</a><a class="btn s comp" style="flex:1" href="#m-inicio">Automática</a></div>
+  </div>
+</div></template>
+
+<template id="t-m-codigo-err"><div class="tel ui">
+  <div class="barra-sis"><span>07:31</span><span>80 %</span></div>
+  <div class="enc"><a class="bi" href="#m-registro"><span class="ms">arrow_back</span></a><span class="t">Confirma tu correo</span></div>
+  <div class="cont">
+    <p>Te enviamos un código de 6 dígitos a <b>ana.rojas@uagrm.edu.bo</b>.</p>
+    <div class="campo"><div class="codigo err"><span>4</span><span>8</span><span>2</span><span>0</span><span>1</span><span>7</span></div><span class="error"><span class="ms">error</span>El código no es correcto. Te quedan 2 intentos.</span></div>
+    <div class="sep">código vencido</div>
+    <div class="aviso av"><span class="ms s20">schedule</span><div class="cuerpo"><span>El código venció. Pide uno nuevo para continuar.</span><a class="btn tx" href="#m-codigo">Enviar código nuevo</a></div></div>
+    <div class="sep">tras 5 intentos</div>
+    <div class="aviso av"><span class="ms s20">lock_clock</span><div class="cuerpo"><span class="tt">Registro en pausa</span><span>Por seguridad, espera hasta las 07:46 para volver a intentar con este correo.</span></div></div>
+  </div>
+</div></template>
+
+<template id="t-m-recuperar"><div class="tel ui">
+  <div class="barra-sis"><span>08:02</span><span>77 %</span></div>
+  <div class="enc"><a class="bi" href="#m-login"><span class="ms">arrow_back</span></a><span class="t">Recuperar contraseña</span></div>
+  <div class="cont">
+    <span data-ilus="llave"></span>
+    <p class="sec">Escribe el correo con el que te registraste. Si tiene una cuenta, te enviaremos un código para crear una contraseña nueva.</p>
+    <div class="campo"><span class="lbl">Correo institucional</span><div class="caja foco"><span class="v">ana.rojas@uagrm.edu.bo</span></div></div>
+  </div>
+  <div class="zona-accion"><a class="btn p full" href="#m-restablecer">Enviar código</a></div>
+</div></template>
+
+<template id="t-m-restablecer"><div class="tel ui">
+  <div class="barra-sis"><span>08:03</span><span>77 %</span></div>
+  <div class="enc"><a class="bi" href="#m-recuperar"><span class="ms">arrow_back</span></a><span class="t">Nueva contraseña</span></div>
+  <div class="cont">
+    <div class="aviso info"><span class="ms s20">mail</span><div class="cuerpo"><span>Si ana.rojas@uagrm.edu.bo tiene una cuenta, te llegará un código en unos minutos.</span></div></div>
+    <div class="campo"><span class="lbl">Código de 6 dígitos</span><div class="codigo"><span>9</span><span>1</span><span>3</span><span>5</span><span>0</span><span>6</span></div></div>
+    <div class="campo"><span class="lbl">Contraseña nueva</span><div class="caja foco"><span class="v">••••••••••</span><span class="bi"><span class="ms s20">visibility</span></span></div><span class="ayuda">Mínimo 8 caracteres, con al menos una letra y un número.</span></div>
+    <div class="aviso av"><span class="ms s20">devices</span><div class="cuerpo"><span>Al cambiarla se cerrará tu sesión en todos tus dispositivos.</span></div></div>
+  </div>
+  <div class="zona-accion"><a class="btn p full" href="#m-login">Cambiar contraseña</a></div>
+</div></template>
+
+<template id="t-m-estado"><div class="tel ui">
+  <div class="barra-sis"><span>07:23</span><span>80 %</span></div>
+  <div class="enc"><span class="t" data-logo="color"></span><a class="bi" href="#m-login" aria-label="Cerrar sesión"><span class="ms">logout</span></a></div>
+  <div class="resultado" style="padding-top:12px">
+    <span data-ilus="espera"></span>
+    <span class="etq av"><span class="ms">hourglass_top</span>Pendiente de aprobación</span>
+    <p class="pantalla">Tu solicitud está en revisión</p>
+    <p class="sec">Un administrador de <b>UAGRM</b> revisará tu ingreso. Te avisaremos por correo cuando lo decida.</p>
+    <div class="tarjeta" style="width:100%;text-align:left"><div class="fila"><span class="ico"><span class="ms">school</span></span><div class="txt"><span class="enf">UAGRM</span><span class="sec">Solicitud enviada hoy, 07:22</span></div></div></div>
+    <p class="peq">Mientras tanto no puedes buscar viajes ni usar la billetera.</p>
+  </div>
+  <div class="zona-accion"><a class="btn s full" href="#m-agregar">Agregar otra organización</a></div>
+</div></template>
+
+<template id="t-m-estado-rech"><div class="tel ui">
+  <div class="barra-sis"><span>09:40</span><span>74 %</span></div>
+  <div class="enc"><span class="t" data-logo="color"></span><a class="bi" href="#m-login"><span class="ms">logout</span></a></div>
+  <div class="resultado" style="padding-top:12px">
+    <span data-ilus="rechazo"></span>
+    <span class="etq pel"><span class="ms">cancel</span>Rechazada</span>
+    <p class="pantalla">No se aprobó tu ingreso</p>
+    <p class="sec">El administrador de <b>Cotas S.A.</b> rechazó tu solicitud.</p>
+    <div class="aviso neu" style="width:100%;text-align:left"><span class="ms s20" style="color:var(--textoSecundario)">chat</span><div class="cuerpo"><span class="peq">Motivo</span><span>El correo no corresponde a personal activo.</span></div></div>
+    <p class="peq">Tienes otra organización aprobada: puedes seguir usando UniRide con ella.</p>
+  </div>
+  <div class="zona-accion"><a class="btn p full" href="#m-orgs">Cambiar a UAGRM</a></div>
+</div></template>
+
+<template id="t-m-inicio"><div class="tel ui">
+  <div class="banda flotante">
+    <span data-udeco></span>
+    <div class="barra-sis"><span>07:24</span><span>80 %</span></div>
+    <div class="fila-b"><a class="chip-b" href="#m-orgs"><span class="pto"></span>UAGRM<span class="ms s20">expand_more</span></a><span class="bi apag" aria-label="Hablar con UniRide (disponible en S4)"><span class="ms">mic</span></span></div>
+    <div class="hola"><p class="pantalla">Hola, Ana</p><p class="s">Te faltan 2 pasos para tu primer viaje.</p></div>
+  </div>
+  <div class="cont sobre-banda" style="gap:14px">
+    <div class="flota">
+    <div class="pasos">
+      <div class="paso hecho"><span class="n"><span class="ms fill">check_circle</span></span><div class="d"><span class="enf">Correo institucional</span><span class="sec">Confirmado</span></div></div>
+      <div class="paso hecho"><span class="n"><span class="ms fill">check_circle</span></span><div class="d"><span class="enf">Membresía en UAGRM</span><span class="sec">Aprobada</span></div></div>
+      <div class="paso actual"><span class="n">3</span><div class="d"><span class="enf">Verifica tu identidad</span><span class="sec">Ten tu carnet a mano y buena luz · 2 min</span><span class="etq neu" style="align-self:flex-start;margin-top:6px"><span class="ms">schedule</span>Disponible pronto</span></div></div>
+      <div class="paso"><span class="n">4</span><div class="d"><span class="enf" style="color:var(--textoSecundario)">Vincula este teléfono</span><span class="sec">Tu cuenta quedará atada a este dispositivo</span></div></div>
+    </div>
+    </div>
+    <a class="tarjeta-dest" href="#m-vehiculo" style="text-decoration:none"><span class="ico"><span class="ms">directions_car</span></span><div style="flex:1"><p class="enf">¿Vas a manejar?</p><p class="sec">Registra tu vehículo desde ya.</p></div><span class="ms" style="color:var(--marcaBrillante)">arrow_forward</span></a>
+  </div>
+  <div class="pestanas">
+    <span class="act"><span class="ms">search</span>Buscar</span><span><span class="ms">route</span>Mis viajes</span><span><span class="ms">add_circle</span>Publicar</span><span><span class="ms">account_balance_wallet</span>Billetera</span><a href="#m-perfil"><span class="ms">person</span>Perfil</a>
+  </div>
+</div></template>
+
+<template id="t-m-perfil"><div class="tel ui">
+  <div class="banda flotante">
+    <span data-udeco></span>
+    <div class="barra-sis"><span>12:05</span><span>66 %</span></div>
+    <div class="fila-b"><span class="titulo display" style="font-weight:800">Perfil</span><span class="bi apag" aria-label="Hablar con UniRide (disponible en S4)"><span class="ms">mic</span></span></div>
+    <div class="hola" style="flex-direction:row;align-items:center;gap:14px"><span class="avatar" style="background:var(--marcaBrillante);color:var(--marcaProfundo)">AR</span><div><p class="subt">Ana Rojas Suárez</p><p class="s">ana.rojas@uagrm.edu.bo</p></div></div>
+  </div>
+  <div class="cont sobre-banda">
+    <div class="flota lista">
+      <a class="fila" href="#m-orgs"><span class="ico"><span class="ms">corporate_fare</span></span><div class="txt"><span class="enf">Mis organizaciones</span><span class="sec">Activa: UAGRM · 3 en total</span></div><span class="ms chev">chevron_right</span></a>
+      <a class="fila" href="#m-vehiculo"><span class="ico"><span class="ms">directions_car</span></span><div class="txt"><span class="enf">Mi vehículo</span><span class="sec">Sin registrar</span></div><span class="ms chev">chevron_right</span></a>
+      <div class="fila inactiva"><span class="ico"><span class="ms">verified_user</span></span><div class="txt"><span class="enf">Verificación</span><span class="sec">Identidad y teléfono · próximamente</span></div></div>
+    </div>
+    <div class="tarjeta"><a class="fila" href="#m-login" style="color:var(--peligro)"><span class="ico" style="color:var(--peligro);background:var(--peligroSuave)"><span class="ms">logout</span></span><div class="txt"><span class="enf">Cerrar sesión</span></div></a></div>
+  </div>
+  <div class="pestanas">
+    <a href="#m-inicio"><span class="ms">search</span>Buscar</a><span><span class="ms">route</span>Mis viajes</span><span><span class="ms">add_circle</span>Publicar</span><span><span class="ms">account_balance_wallet</span>Billetera</span><span class="act"><span class="ms">person</span>Perfil</span>
+  </div>
+</div></template>
+
+<template id="t-m-orgs"><div class="tel ui">
+  <div class="barra-sis"><span>12:06</span><span>66 %</span></div>
+  <div class="enc"><a class="bi" href="#m-perfil"><span class="ms">arrow_back</span></a><span class="t">Mis organizaciones</span></div>
+  <div class="cont">
+    <p class="sec">Ves los viajes de la organización activa. Toca otra aprobada para cambiar.</p>
+    <div class="tarjeta">
+      <div class="fila sel"><span class="ico"><span class="ms">school</span></span><div class="txt"><span class="enf">UAGRM</span><span class="sec">Universidad</span></div><span class="etq pri"><span class="ms">radio_button_checked</span>Activa</span></div>
+      <a class="fila" href="#m-inicio"><span class="ico"><span class="ms">apartment</span></span><div class="txt"><span class="enf">Cotas S.A.</span><span class="sec">Empresa</span></div><span class="etq ok"><span class="ms">check_circle</span>Aprobada</span></a>
+      <div class="fila inactiva"><span class="ico"><span class="ms">school</span></span><div class="txt"><span class="enf">UPSA</span><span class="sec">Aún no puedes activarla</span></div><span class="etq av"><span class="ms">hourglass_top</span>Pendiente</span></div>
+    </div>
+    <div class="sep">al tocar Cotas S.A.</div>
+    <div class="notif-m"><span class="ms s20">check_circle</span>Ahora ves los viajes de Cotas S.A.</div>
+  </div>
+  <div class="zona-accion"><a class="btn p full" href="#m-agregar"><span class="ms s20">add</span>Agregar organización</a></div>
+</div></template>
+
+<template id="t-m-agregar"><div class="tel ui">
+  <div class="barra-sis"><span>12:08</span><span>65 %</span></div>
+  <div class="enc"><a class="bi" href="#m-orgs" aria-label="Cerrar"><span class="ms">close</span></a><span class="t">Agregar organización</span></div>
+  <div class="cont">
+    <p class="sec">Para unirte a otra organización, confirma un correo de esa organización. Te enviaremos un código.</p>
+    <div class="campo"><span class="lbl">Correo de la otra organización</span><div class="caja foco"><span class="v">arojas@cotas.com.bo</span></div><span class="ayuda">Por ejemplo, el correo de tu trabajo.</span></div>
+    <div class="sep">si ya eres miembro</div>
+    <div class="campo"><span class="lbl">Correo de la otra organización</span><div class="caja err"><span class="v">ana.rojas@uagrm.edu.bo</span></div><span class="error"><span class="ms">error</span>Ya eres miembro de UAGRM.</span></div>
+  </div>
+  <div class="zona-accion"><a class="btn p full" href="#m-codigo">Enviar código</a></div>
+</div></template>
+
+<template id="t-m-vehiculo"><div class="tel ui">
+  <div class="barra-sis"><span>12:30</span><span>63 %</span></div>
+  <div class="enc"><a class="bi" href="#m-perfil"><span class="ms">arrow_back</span></a><span class="t">Registrar vehículo</span></div>
+  <div class="cont" style="gap:14px">
+    <div class="campo"><span class="lbl">Placa</span><div class="caja err"><span class="v tab">2856 PHD</span></div><span class="error"><span class="ms">error</span>Esa placa ya está registrada. Revisa los números y letras.</span></div>
+    <div class="fila2"><div class="campo"><span class="lbl">Marca</span><div class="caja"><span class="v">Toyota</span></div></div><div class="campo"><span class="lbl">Modelo</span><div class="caja"><span class="v">Corolla</span></div></div></div>
+    <div class="campo"><span class="lbl">Color</span><div class="caja"><span class="v">Gris</span></div></div>
+    <div class="campo"><span class="lbl">Asientos para pasajeros</span><div class="capac"><span>1</span><span>2</span><span>3</span><span class="sel">4</span><span>5</span><span>6</span></div></div>
+    <div class="foto"><span class="ms">photo_camera</span>Que se vean la placa y el color. JPEG o PNG, hasta 5 MB.<div class="acc"><span class="btn s comp"><span class="ms s20">photo_camera</span>Tomar foto</span><span class="btn s comp"><span class="ms s20">image</span>Elegir</span></div></div>
+    <div class="casilla"><span class="cb on"><span class="ms s16">check</span></span><span>Acepto que UniRide guarde esta foto cifrada y la use solo para verificar mi vehículo. Los pasajeros no la verán.</span></div>
+  </div>
+  <div class="zona-accion"><a class="btn p full" href="#m-vehiculo-ok">Registrar vehículo</a></div>
+</div></template>
+
+<template id="t-m-vehiculo-ok"><div class="tel ui">
+  <div class="barra-sis"><span>12:31</span><span>63 %</span></div>
+  <div class="enc"><a class="bi" href="#m-perfil" aria-label="Cerrar"><span class="ms">close</span></a></div>
+  <div class="resultado" style="padding-top:16px">
+    <span data-ilus="exito"></span>
+    <p class="pantalla">Vehículo registrado</p>
+    <p class="sec">Cuando verifiques tu identidad podrás publicar viajes con él.</p>
+    <div class="tarjeta" style="width:100%;text-align:left"><div class="fila"><span class="ico" style="background:var(--primarioSuave);color:var(--primario)"><span class="ms">directions_car</span></span><div class="txt"><span class="enf">Toyota Corolla · gris</span><span class="sec tab">2856 PHD · 4 asientos</span></div></div></div>
+    <p class="peq">Esto es lo que verán los pasajeros: placa, marca, modelo y color.</p>
+  </div>
+  <div class="zona-accion"><a class="btn p full" href="#m-perfil">Volver al perfil</a></div>
+</div></template>
+
+<!-- ================= WEB ================= -->
+<template id="t-w-login"><div class="nav ui">
+  <div class="nav-barra"><span class="pts"><i></i><i></i><i></i></span><span class="url"><span class="ms s16">lock</span>panel.uniride.bo/iniciar-sesion</span></div>
+  <div class="dividido">
+    <div class="marca-w">
+      <div><span data-logo="blanco"></span><h2>Administra tu comunidad en UniRide</h2></div>
+      <ul>
+        <li><span class="ms">how_to_reg</span>Aprueba quién entra a tu organización</li>
+        <li><span class="ms">alternate_email</span>Define los correos institucionales válidos</li>
+        <li><span class="ms">history</span>Cada decisión queda registrada con autor y fecha</li>
+      </ul>
+      <svg class="u-fondo" viewBox="0 0 48 48" aria-hidden="true"><g fill="none" stroke="#FFFFFF"><path d="M14 13.5V27.5a10 10 0 0 0 20 0V18" stroke-width="6"/><circle cx="34" cy="13.5" r="4.5" stroke-width="3"/></g><circle cx="14" cy="13.5" r="6" fill="#FFFFFF"/></svg>
+    </div>
+    <div class="form-lado"><div>
+      <div><p class="titulo">Iniciar sesión</p><p class="sec">Panel para administradores de organizaciones.</p></div>
+      <div class="aviso info"><span class="ms s20">info</span><div class="cuerpo"><span>Tu sesión venció. Vuelve a ingresar.</span></div></div>
+      <div class="campo"><span class="lbl">Correo</span><div class="caja foco"><span class="v">rmendez@uagrm.edu.bo</span></div></div>
+      <div class="campo"><span class="lbl">Contraseña</span><div class="caja"><span class="v">••••••••••</span><span class="bi"><span class="ms s20">visibility</span></span></div></div>
+      <a class="btn p full w" href="#w-solicitudes">Iniciar sesión</a>
+      <a class="btn tx" style="align-self:center" href="#w-recuperar">Olvidé mi contraseña</a>
+      <p class="peq" style="text-align:center">¿Super administrador? <a href="#w-orgs" style="color:var(--primario)">Entrar como equipo UniRide</a> (solo prototipo)</p>
+    </div></div>
+  </div>
+</div></template>
+
+<template id="t-w-recuperar"><div class="nav ui">
+  <div class="nav-barra"><span class="pts"><i></i><i></i><i></i></span><span class="url"><span class="ms s16">lock</span>panel.uniride.bo/recuperar-contrasena</span></div>
+  <div class="publico"><div class="caja-pub">
+    <a class="miga" href="#w-login"><span class="ms s20">arrow_back</span>Iniciar sesión</a>
+    <div class="circ" style="background:var(--primarioSuave);color:var(--primario);width:64px;height:64px"><span class="ms">key</span></div>
+    <div><p class="titulo">Recuperar contraseña</p><p class="sec">Si el correo tiene una cuenta, te enviaremos un código de 6 dígitos.</p></div>
+    <div class="campo"><span class="lbl">Correo</span><div class="caja foco"><span class="v">rmendez@uagrm.edu.bo</span></div></div>
+    <a class="btn p full w" href="#w-restablecer">Enviar código</a>
+  </div></div>
+</div></template>
+
+<template id="t-w-restablecer"><div class="nav ui">
+  <div class="nav-barra"><span class="pts"><i></i><i></i><i></i></span><span class="url"><span class="ms s16">lock</span>panel.uniride.bo/recuperar-contrasena</span></div>
+  <div class="publico"><div class="caja-pub">
+    <div class="aviso info"><span class="ms s20">mail</span><div class="cuerpo"><span>Si rmendez@uagrm.edu.bo tiene una cuenta, te llegará un código.</span></div></div>
+    <div class="campo"><span class="lbl">Código de 6 dígitos</span><div class="codigo"><span>9</span><span>1</span><span>3</span><span>5</span><span class="foco"></span><span></span></div></div>
+    <div class="campo"><span class="lbl">Contraseña nueva</span><div class="caja"><span class="ph">Mínimo 8 caracteres</span></div><span class="ayuda">Al menos una letra y un número. Se cerrarán todas tus sesiones.</span></div>
+    <a class="btn p full w" href="#w-login">Cambiar contraseña</a>
+    <span class="btn dis comp tab" style="align-self:center">Reenviar código en 51 s</span>
+  </div></div>
+</div></template>
+
+<template id="t-w-orgs"><div class="nav ui">
+  <div class="nav-barra"><span class="pts"><i></i><i></i><i></i></span><span class="url"><span class="ms s16">lock</span>panel.uniride.bo/admin/organizaciones</span></div>
+  <div class="panel">
+    <aside class="lateral"><span data-udeco></span>
+      <span data-logo="blanco" style="padding-left:8px"></span>
+      <nav><span class="grupo">Plataforma</span><span class="it act"><span class="ms">corporate_fare</span>Organizaciones</span></nav>
+      <div class="pie"><span class="enf" style="font-size:14px">Equipo UniRide</span><span class="sec">Super administrador</span><a class="btn tx comp" style="align-self:flex-start;padding:0" href="#w-login"><span class="ms s20">logout</span>Cerrar sesión</a></div>
+    </aside>
+    <main class="pagina">
+      <div class="pag-cab"><div><h1>Organizaciones</h1><p>Universidades y empresas que usan UniRide.</p></div><a class="btn p w" href="#w-nueva"><span class="ms s20">add</span>Nueva organización</a></div>
+      <div class="aviso ok"><span class="ms s20">check_circle</span><div class="cuerpo"><span class="tt">Organización registrada</span><span>Enviamos la invitación a ltorrez@cotas.com.bo. Vence en 72 horas.</span></div></div>
+      <div class="tw" style="overflow:hidden">
+        <table class="ui-t">
+          <caption>3 organizaciones</caption>
+          <thead><tr><th>Nombre</th><th>Tipo</th><th>Estado</th><th>Precio máx.</th><th>Administrador inicial</th><th>Invitación</th><th>Alta</th><th></th></tr></thead>
+          <tbody>
+            <tr><td class="enf">Cotas S.A.</td><td><span class="tipo"><span class="ms s20">apartment</span>Empresa</span></td><td><span class="etq ok"><span class="ms">check_circle</span>Activa</span></td><td class="tab">20,00 URC</td><td>Laura Torrez<br><span class="sec">ltorrez@cotas.com.bo</span></td><td><span class="etq neu"><span class="ms">schedule</span>Enviada</span></td><td class="tab sec">17/10/2026</td><td></td></tr>
+            <tr class="hover"><td class="enf">UPSA</td><td><span class="tipo"><span class="ms s20">school</span>Universidad</span></td><td><span class="etq ok"><span class="ms">check_circle</span>Activa</span></td><td class="tab">12,00 URC</td><td>Marco Paz<br><span class="sec">mpaz@upsa.edu.bo</span></td><td><span class="etq av"><span class="ms">schedule</span>Vencida</span></td><td class="tab sec">15/10/2026</td><td><div class="acc"><a class="btn s comp" href="#w-invitacion">Reenviar invitación</a></div></td></tr>
+            <tr><td class="enf">UAGRM</td><td><span class="tipo"><span class="ms s20">school</span>Universidad</span></td><td><span class="etq ok"><span class="ms">check_circle</span>Activa</span></td><td class="tab">15,00 URC</td><td>Rosa Méndez<br><span class="sec">rmendez@uagrm.edu.bo</span></td><td><span class="etq ok"><span class="ms">check_circle</span>Aceptada</span></td><td class="tab sec">14/10/2026</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div></template>
+
+<template id="t-w-nueva"><div class="nav ui">
+  <div class="nav-barra"><span class="pts"><i></i><i></i><i></i></span><span class="url"><span class="ms s16">lock</span>panel.uniride.bo/admin/organizaciones/nueva</span></div>
+  <div class="panel">
+    <aside class="lateral"><span data-udeco></span>
+      <span data-logo="blanco" style="padding-left:8px"></span>
+      <nav><span class="grupo">Plataforma</span><a class="it act" href="#w-orgs"><span class="ms">corporate_fare</span>Organizaciones</a></nav>
+      <div class="pie"><span class="enf" style="font-size:14px">Equipo UniRide</span><span class="sec">Super administrador</span></div>
+    </aside>
+    <main class="pagina">
+      <a class="miga" href="#w-orgs"><span class="ms s20">arrow_back</span>Organizaciones</a>
+      <div class="dos-col">
+        <div class="tw pad form-w">
+          <div><h1 style="font-size:22px;line-height:28px;font-weight:600">Nueva organización</h1><p class="sec">Queda activa al guardar.</p></div>
+          <div class="campo"><span class="lbl">Nombre de la organización</span><div class="caja err"><span class="v">uagrm </span></div><span class="error"><span class="ms">error</span>Ya existe una organización con ese nombre.</span></div>
+          <div class="campo"><span class="lbl">Tipo</span><div class="opciones h"><div class="opcion sel"><span class="rd"></span><span class="enf">Universidad</span></div><div class="opcion"><span class="rd"></span><span class="enf">Empresa</span></div></div></div>
+          <div class="campo"><span class="lbl">Precio máximo por viaje</span><div class="caja"><span class="v tab">15,00</span><span class="sec" style="padding-right:12px">URC</span></div><span class="ayuda">Ningún viaje de la organización podrá cobrar más. 1 URC = 1 Bs.</span></div>
+          <div class="fila2">
+            <div class="campo"><span class="lbl">Administrador inicial</span><div class="caja"><span class="v">Laura Torrez</span></div></div>
+            <div class="campo"><span class="lbl">Correo</span><div class="caja"><span class="v">ltorrez@cotas.com.bo</span></div></div>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end"><a class="btn tx w" href="#w-orgs">Volver</a><a class="btn p w" href="#w-orgs">Registrar organización</a></div>
+        </div>
+        <div class="lado-info">
+          <div class="aviso info"><span class="ms s20">mail</span><div class="cuerpo"><span class="tt">Qué pasa al guardar</span><span>El administrador recibe una invitación de un solo uso que vence en 72 horas.</span></div></div>
+          <div class="aviso neu"><span class="ms s20" style="color:var(--textoSecundario)">person_add</span><div class="cuerpo"><span>Si ese correo ya tiene cuenta en UniRide, se le suma el rol de administrador; no se crea otra cuenta.</span></div></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div></template>
+
+<template id="t-w-invitacion"><div class="nav ui">
+  <div class="nav-barra"><span class="pts"><i></i><i></i><i></i></span><span class="url"><span class="ms s16">lock</span>panel.uniride.bo/invitaciones/7f3a9c…</span></div>
+  <div class="dividido">
+    <div class="marca-w">
+      <div><span data-logo="blanco"></span><h2>Te invitaron a administrar Cotas S.A.</h2></div>
+      <ul><li><span class="ms">apartment</span>Empresa · precio máximo 20,00 URC</li><li><span class="ms">schedule</span>Invitación válida hasta el 20/10/2026, 14:05</li></ul>
+      <svg class="u-fondo" viewBox="0 0 48 48" aria-hidden="true"><g fill="none" stroke="#FFFFFF"><path d="M14 13.5V27.5a10 10 0 0 0 20 0V18" stroke-width="6"/><circle cx="34" cy="13.5" r="4.5" stroke-width="3"/></g><circle cx="14" cy="13.5" r="6" fill="#FFFFFF"/></svg>
+    </div>
+    <div class="form-lado"><div>
+      <div><p class="titulo">Crea tu cuenta</p><p class="sec">Con ella aprobarás solicitudes y definirás quién puede unirse.</p></div>
+      <div class="campo"><span class="lbl">Correo</span><div class="caja dis"><span class="v">ltorrez@cotas.com.bo</span></div></div>
+      <div class="campo"><span class="lbl">Nombre completo</span><div class="caja"><span class="v">Laura Torrez Aguilera</span></div></div>
+      <div class="campo"><span class="lbl">Contraseña</span><div class="caja foco"><span class="v">••••••••</span></div><span class="ayuda">Mínimo 8 caracteres, con al menos una letra y un número.</span></div>
+      <a class="btn p full w" href="#w-afiliacion">Aceptar y crear cuenta</a>
+      <a class="peq" href="#w-invitacion-vencida" style="text-align:center;color:var(--primario)">Ver invitación vencida (solo prototipo)</a>
+    </div></div>
+  </div>
+</div></template>
+
+<template id="t-w-invitacion-vencida"><div class="nav ui">
+  <div class="nav-barra"><span class="pts"><i></i><i></i><i></i></span><span class="url"><span class="ms s16">lock</span>panel.uniride.bo/invitaciones/c41e02…</span></div>
+  <div class="publico"><div class="caja-pub" style="align-items:center;text-align:center">
+    <span data-ilus="espera"></span>
+    <p class="titulo">Esta invitación ya no es válida</p>
+    <p class="sec">Venció o ya se usó. Pide al equipo de UniRide que te envíe una nueva.</p>
+    <a class="btn s full w" href="#w-login">Ir a iniciar sesión</a>
+  </div></div>
+</div></template>
+
+<template id="t-w-solicitudes"><div class="nav ui">
+  <div class="nav-barra"><span class="pts"><i></i><i></i><i></i></span><span class="url"><span class="ms s16">lock</span>panel.uniride.bo/organizacion/solicitudes</span></div>
+  <div class="panel">
+    <aside class="lateral"><span data-udeco></span>
+      <div class="org"><span class="ico"><span class="ms">school</span></span><div><div class="enf" style="font-size:15px">UAGRM</div><div class="sec">Universidad</div></div></div>
+      <nav><span class="grupo">Mi organización</span><span class="it act"><span class="ms">how_to_reg</span>Solicitudes<span class="cont-n">3</span></span><a class="it" href="#w-afiliacion"><span class="ms">alternate_email</span>Afiliación</a></nav>
+      <div class="pie"><span data-logo="blanco"></span><span class="enf" style="font-size:14px;margin-top:6px">Rosa Méndez</span><a class="btn tx comp" style="align-self:flex-start;padding:0" href="#w-login"><span class="ms s20">logout</span>Cerrar sesión</a></div>
+    </aside>
+    <main class="pagina">
+      <div class="pag-cab"><div><h1>Solicitudes</h1><p>Personas que confirmaron un correo de UAGRM y esperan tu aprobación. La más antigua primero.</p></div></div>
+      <div class="aviso av"><span class="ms s20">info</span><div class="cuerpo"><span>Esta solicitud ya fue decidida por otro administrador. La lista se actualizó.</span></div></div>
+      <div class="tw" style="overflow:hidden">
+        <table class="ui-t">
+          <caption>3 pendientes</caption>
+          <thead><tr><th>Nombre</th><th>Correo institucional</th><th>Fecha de solicitud</th><th style="text-align:right">Acciones</th></tr></thead>
+          <tbody>
+            <tr><td class="enf">Carlos Justiniano</td><td>cjustiniano@uagrm.edu.bo</td><td class="tab sec">15/10/2026 · 18:40</td><td><div class="acc"><a class="btn s comp" href="#w-rechazar">Rechazar</a><span class="btn p comp">Aprobar</span></div></td></tr>
+            <tr class="hover"><td class="enf">Ana Rojas Suárez</td><td>ana.rojas@uagrm.edu.bo</td><td class="tab sec">17/10/2026 · 07:22</td><td><div class="acc"><a class="btn s comp" href="#w-rechazar">Rechazar</a><span class="btn p comp">Aprobar</span></div></td></tr>
+            <tr><td class="enf">Mariela Suárez</td><td>m.suarez@est.uagrm.edu.bo</td><td class="tab sec">17/10/2026 · 09:05</td><td><div class="acc"><a class="btn s comp" href="#w-rechazar">Rechazar</a><span class="btn p comp">Aprobar</span></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+  <div class="notif"><span class="ms s20">check_circle</span>Solicitud de Luis Pérez aprobada. Le avisamos por correo.</div>
+</div></template>
+
+<template id="t-w-rechazar"><div class="nav ui">
+  <div class="nav-barra"><span class="pts"><i></i><i></i><i></i></span><span class="url"><span class="ms s16">lock</span>panel.uniride.bo/organizacion/solicitudes</span></div>
+  <div class="panel">
+    <aside class="lateral"><span data-udeco></span><div class="org"><span class="ico"><span class="ms">school</span></span><div><div class="enf" style="font-size:15px">UAGRM</div><div class="sec">Universidad</div></div></div></aside>
+    <main class="pagina"><div class="pag-cab"><div><h1>Solicitudes</h1><p>3 pendientes</p></div></div><div class="tw" style="height:260px"></div></main>
+  </div>
+  <div class="capa"><div class="dialogo" role="dialog" aria-label="Rechazar solicitud">
+    <p class="subt">¿Rechazar la solicitud de Carlos Justiniano?</p>
+    <p class="sec">No podrá volver a solicitar ingreso a UAGRM. Le avisaremos por correo.</p>
+    <div class="campo"><span class="lbl">Motivo (opcional)</span><div class="caja" style="min-height:76px;align-items:flex-start;padding-top:10px"><span class="v">El correo pertenece a un exalumno.</span></div><span class="ayuda">Se incluye en el correo que recibe la persona.</span></div>
+    <div class="acciones"><a class="btn tx w" href="#w-solicitudes">Volver</a><a class="btn pe w" href="#w-solicitudes">Rechazar solicitud</a></div>
+  </div></div>
+</div></template>
+
+<template id="t-w-afiliacion"><div class="nav ui">
+  <div class="nav-barra"><span class="pts"><i></i><i></i><i></i></span><span class="url"><span class="ms s16">lock</span>panel.uniride.bo/organizacion/afiliacion</span></div>
+  <div class="panel">
+    <aside class="lateral"><span data-udeco></span>
+      <div class="org"><span class="ico"><span class="ms">school</span></span><div><div class="enf" style="font-size:15px">UAGRM</div><div class="sec">Universidad</div></div></div>
+      <nav><span class="grupo">Mi organización</span><a class="it" href="#w-solicitudes"><span class="ms">how_to_reg</span>Solicitudes<span class="cont-n">3</span></a><span class="it act"><span class="ms">alternate_email</span>Afiliación</span></nav>
+      <div class="pie"><span data-logo="blanco"></span><span class="enf" style="font-size:14px;margin-top:6px">Rosa Méndez</span></div>
+    </aside>
+    <main class="pagina">
+      <div class="pag-cab"><div><h1>Afiliación</h1><p>Define quién puede unirse a UAGRM.</p></div><span class="btn p w">Guardar cambios</span></div>
+      <div class="dos-col" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+        <div class="tw pad form-w">
+          <div><p class="subt">Dominios de correo</p><p class="sec">Por ejemplo uagrm.edu.bo. No se aceptan correos públicos como gmail.com.</p></div>
+          <div style="display:flex;gap:8px;align-items:flex-start"><div class="campo" style="flex:1"><div class="caja err"><span class="v">gmail.com</span></div><span class="error"><span class="ms">error</span>No se aceptan dominios de correo públicos.</span></div><span class="btn s w">Agregar</span></div>
+          <div class="tw"><div class="dominio"><span>uagrm.edu.bo</span><span class="bi"><span class="ms s20">close</span></span></div><div class="dominio"><span>est.uagrm.edu.bo</span><span class="bi"><span class="ms s20">close</span></span></div></div>
+          <span class="ayuda">Quitar un dominio no afecta a los miembros ya aprobados. Debe quedar al menos uno.</span>
+        </div>
+        <div class="tw pad form-w">
+          <div><p class="subt">Aprobación de nuevos miembros</p><p class="sec">El cambio solo afecta a registros futuros.</p></div>
+          <div class="opciones">
+            <div class="opcion sel"><span class="rd"></span><div><span class="enf">Manual</span><p class="sec">Revisas cada solicitud en Solicitudes.</p></div></div>
+            <div class="opcion"><span class="rd"></span><div><span class="enf">Automática</span><p class="sec">Quien confirme un correo de estos dominios entra de inmediato.</p></div></div>
+          </div>
+          <div class="aviso neu"><span class="ms s20" style="color:var(--textoSecundario)">history</span><div class="cuerpo"><span>Último cambio: Rosa Méndez, 16/10/2026 · 11:20.</span></div></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div></template>
+
+<script>
+const FLUJOS = [
+  { id: 'ma', cliente: 'Móvil', nombre: 'Acceso', hu: 'HU-06 · 05 · 34' },
+  { id: 'mc', cliente: 'Móvil', nombre: 'Cuenta y organizaciones', hu: 'HU-06 · 07' },
+  { id: 'mv', cliente: 'Móvil', nombre: 'Vehículo', hu: 'HU-11' },
+  { id: 'wa', cliente: 'Web', nombre: 'Acceso', hu: 'HU-06 · 34' },
+  { id: 'ws', cliente: 'Web', nombre: 'Super administrador', hu: 'HU-01' },
+  { id: 'wo', cliente: 'Web', nombre: 'Administrador de organización', hu: 'HU-02 · 03' },
+];
+const P = [
+  { id: 'm-login', f: 'ma', t: 'Iniciar sesión', ruta: '(publico)/iniciar-sesion', hu: ['HU-06'], ca: [['CA-1', 'Correo y contraseña correctos: entra a su organización activa o, si su membresía no está aprobada, a Estado de membresía.']], nota: 'Banda de marca: logotipo blanco sobre primario (§3.4). "Crear cuenta" queda visible sin pantalla de bienvenida (§10.5).' },
+  { id: 'm-login-err', f: 'ma', t: 'Iniciar sesión · errores', ruta: 'autenticacion.sesion.*', hu: ['HU-06'], ca: [['CA-2', 'Mensaje único: no dice si falló el correo o la contraseña.'], ['CA-6', 'Tras 5 intentos, bloqueo de 15 min con la hora exacta de desbloqueo.']], nota: 'Las dos variantes se muestran juntas solo en el prototipo.' },
+  { id: 'm-registro', f: 'ma', t: 'Crear cuenta', ruta: '(publico)/registro', hu: ['HU-05'], ca: [['CA-1', 'Nombre, correo institucional, contraseña y consentimiento → envía código de 6 dígitos.'], ['CA-7', 'Si el correo ya tiene cuenta, la pantalla sigue igual: no revela nada.']], nota: 'El requisito de la contraseña se dice antes de fallar (§8.4).' },
+  { id: 'm-registro-err', f: 'ma', t: 'Crear cuenta · errores', ruta: 'autenticacion.registro.*', hu: ['HU-05'], ca: [['CA-3', 'Dominio no afiliado: error en el campo y no se envía código.'], ['CA-9', 'Sin consentimiento no hay registro.'], ['RN-5', 'Contraseña débil.']], nota: 'El botón primario nunca se deshabilita por formulario incompleto: al tocarlo se marcan los campos (§8.2).' },
+  { id: 'm-codigo', f: 'ma', t: 'Código de 6 dígitos', ruta: '(publico)/codigo', hu: ['HU-05', 'HU-07'], ca: [['CA-2', 'Código correcto: crea la cuenta; membresía aprobada o pendiente según la organización.'], ['CA-6', 'Reenviar anula el código anterior; un reenvío por minuto.']], nota: 'Pantalla compartida con Agregar organización (HU-07). Los dos botones de abajo existen solo en el prototipo para mostrar cada modo de aprobación.' },
+  { id: 'm-codigo-err', f: 'ma', t: 'Código · errores', ruta: 'autenticacion.otp.*', hu: ['HU-05'], ca: [['CA-4', '5 errores: bloqueo de 15 min, aunque el código sea correcto.'], ['CA-5', 'Código vencido: ofrece enviar uno nuevo.']], nota: '' },
+  { id: 'm-recuperar', f: 'ma', t: 'Recuperar contraseña', ruta: '(publico)/recuperar', hu: ['HU-34'], ca: [['CA-1', 'Correo con cuenta: llega un código de 6 dígitos.'], ['CA-2', 'Correo sin cuenta: el mismo mensaje y ningún código.']], nota: '' },
+  { id: 'm-restablecer', f: 'ma', t: 'Nueva contraseña', ruta: '(publico)/recuperar · paso 2', hu: ['HU-34'], ca: [['CA-3', 'Cambia la contraseña y cierra todas las sesiones; se avisa antes.'], ['CA-5', 'Código vencido o usado: mismos errores que Código.'], ['CA-6', 'Contraseña que no cumple: error en el campo.']], nota: 'Propuesta: aquí el código no se envía solo al sexto dígito porque falta la contraseña. Ver Decisiones.' },
+  { id: 'm-estado', f: 'mc', t: 'Membresía pendiente', ruta: '(app)/estado-membresia', hu: ['HU-06', 'HU-02'], ca: [['HU-06 CA-7', 'Entra, pero solo ve el estado de su solicitud, sin pestañas.'], ['HU-02 CA-4', 'Aprobación manual: membresía pendiente.']], nota: '' },
+  { id: 'm-estado-rech', f: 'mc', t: 'Membresía rechazada', ruta: 'membresias.estado.rechazada', hu: ['HU-03', 'HU-06'], ca: [['HU-03 CA-7', 'Rechazada: no accede a viajes ni billetera.'], ['RN-4', 'El rechazo es definitivo en v1.']], nota: 'Si tiene otra organización aprobada, se le ofrece cambiarse (§6.3). Mostrar el motivo aquí es una propuesta.' },
+  { id: 'm-inicio', f: 'mc', t: 'Inicio · sin verificar', ruta: '(app)/(pestanas)/index', hu: ['HU-06'], ca: [['CA-1', 'Destino tras ingresar con membresía aprobada.'], ['N6', 'Chip de organización activa que lleva a Mis organizaciones.']], nota: 'Identidad y teléfono son HU-08 y HU-09 (S2): aparecen como "Disponible pronto". Ver Decisiones.' },
+  { id: 'm-perfil', f: 'mc', t: 'Perfil', ruta: '(app)/(pestanas)/perfil', hu: ['HU-06', 'HU-07', 'HU-11'], ca: [['HU-06 CA-4', 'Cerrar sesión revoca la sesión.']], nota: 'Puerta de entrada a organizaciones y vehículo.' },
+  { id: 'm-orgs', f: 'mc', t: 'Mis organizaciones', ruta: '(app)/organizaciones', hu: ['HU-07'], ca: [['CA-3', 'Cada organización con el estado de su membresía y cuál está activa.'], ['CA-4', 'Cambiar de activa sin cerrar sesión, con notificación.'], ['CA-5', 'Pendientes y rechazadas no se pueden elegir y lo dicen.']], nota: '' },
+  { id: 'm-agregar', f: 'mc', t: 'Agregar organización', ruta: '(app)/agregar-organizacion', hu: ['HU-07'], ca: [['CA-1', 'Correo de la otra organización → mismo código que el registro.'], ['CA-7', 'Si ya es miembro, se le avisa.']], nota: 'Modal con "cerrar" (N3); continúa en la pantalla Código.' },
+  { id: 'm-vehiculo', f: 'mv', t: 'Registrar vehículo', ruta: '(app)/vehiculo', hu: ['HU-11'], ca: [['CA-1', 'Datos, foto y consentimiento del uso de la foto.'], ['CA-2', 'Placa ya registrada en cualquier organización.'], ['CA-3', 'Se escribe libre; se guarda "2856PHD" y se muestra "2856 PHD".'], ['CA-4', 'Capacidad 1–6 como selector: no admite valores inválidos.']], nota: 'Tomar o elegir foto necesita una dependencia que no está instalada. Ver Decisiones.' },
+  { id: 'm-vehiculo-ok', f: 'mv', t: 'Vehículo registrado', ruta: 'resultado · router.replace', hu: ['HU-11'], ca: [['CA-7', 'Resume lo que ven terceros: placa, marca, modelo y color; nunca la foto.'], ['CA-8', 'Con membresía pendiente no se llega aquí.']], nota: '' },
+  { id: 'w-login', f: 'wa', t: 'Iniciar sesión', ruta: '/iniciar-sesion', hu: ['HU-06'], ca: [['CA-1', 'Llega a Solicitudes (admin. de organización) u Organizaciones (super admin.).'], ['CA-10', 'Sesión web de 7 días; al vencer, aviso y vuelta a la ruta original (N10).']], nota: 'Sin "Crear cuenta": al panel se entra por invitación.' },
+  { id: 'w-recuperar', f: 'wa', t: 'Recuperar contraseña', ruta: '/recuperar-contrasena', hu: ['HU-34'], ca: [['CA-1', 'Envía el código si hay cuenta.'], ['CA-2', 'Mismo mensaje si no la hay.']], nota: '' },
+  { id: 'w-restablecer', f: 'wa', t: 'Restablecer', ruta: '/recuperar-contrasena · paso 2', hu: ['HU-34'], ca: [['CA-3', 'Cambia y cierra todas las sesiones.'], ['CA-6', 'Requisitos de la contraseña.']], nota: '' },
+  { id: 'w-orgs', f: 'ws', t: 'Organizaciones', ruta: '/admin/organizaciones', hu: ['HU-01'], ca: [['CA-1', 'Tras guardar aparece en el listado con el aviso de invitación.'], ['CA-5', 'Reenviar una invitación vencida.'], ['CA-8', 'Nombre, tipo, estado, precio máximo, administrador, invitación y fecha.']], nota: 'Estados de invitación propuestos: Enviada, No enviada, Vencida, Aceptada.' },
+  { id: 'w-nueva', f: 'ws', t: 'Nueva organización', ruta: '/admin/organizaciones/nueva', hu: ['HU-01'], ca: [['CA-2', '"uagrm " choca con "UAGRM": ignora mayúsculas y espacios.'], ['CA-3', 'Error por campo: tipo, precio mayor que cero, correo.'], ['RN-7', 'Si el correo ya tiene cuenta, se le suma el rol.']], nota: '' },
+  { id: 'w-invitacion', f: 'ws', t: 'Aceptar invitación', ruta: '/invitaciones/:token', hu: ['HU-01'], ca: [['CA-4', 'Queda como administrador de esa organización, solo de esa, con sesión iniciada.']], nota: 'Si el correo ya tiene cuenta, solo pide la contraseña y el botón dice "Aceptar invitación".' },
+  { id: 'w-invitacion-vencida', f: 'ws', t: 'Invitación vencida', ruta: 'organizaciones.invitacion.vencida', hu: ['HU-01'], ca: [['CA-5', 'Vencida o usada: rechazo; el super administrador reenvía una nueva.']], nota: '' },
+  { id: 'w-solicitudes', f: 'wo', t: 'Solicitudes', ruta: '/organizacion/solicitudes', hu: ['HU-03'], ca: [['CA-1', 'Nombre, correo y fecha, de la más antigua a la más reciente.'], ['CA-2', 'Aprobar sin diálogo, con notificación y correo.'], ['CA-5', 'Aviso si otro administrador decidió antes.']], nota: 'Vacío: "No hay solicitudes pendientes." (§11).' },
+  { id: 'w-rechazar', f: 'wo', t: 'Rechazar solicitud', ruta: '<dialog> nativo', hu: ['HU-03'], ca: [['CA-3', 'Motivo opcional; la persona recibe un correo.'], ['CA-4', 'Queda registrado autor, fecha, decisión y motivo.'], ['RN-4', 'La consecuencia definitiva se dice antes de confirmar.']], nota: '' },
+  { id: 'w-afiliacion', f: 'wo', t: 'Afiliación', ruta: '/organizacion/afiliacion', hu: ['HU-02'], ca: [['CA-1', 'Agregar dominios.'], ['CA-2', 'Dominio de otra organización: "no disponible", sin decir de quién.'], ['CA-3', 'Dominio público o inválido.'], ['CA-6', 'Debe quedar al menos un dominio.'], ['CA-8', 'Cada cambio queda registrado con autor y fecha.']], nota: 'Modo manual por defecto (RN-5). Salir con cambios sin guardar pide confirmación (§9.4).' },
+];
+// Ilustracion (§8.12): solo el motivo de trayecto de la marca + un ícono de estado
+const U_DECO = '<svg class="u-deco" viewBox="0 0 48 48" aria-hidden="true"><g fill="none" stroke="#FFFFFF"><path d="M14 13.5V27.5a10 10 0 0 0 20 0V18" stroke-width="6" stroke-linecap="round"/><circle cx="34" cy="13.5" r="4.5" stroke-width="3"/></g><circle cx="14" cy="13.5" r="6" fill="#FFFFFF"/></svg>';
+const ESCENAS = { correo: ['mark_email_read', 'var(--primario)'], espera: ['hourglass_top', 'var(--aviso)'], rechazo: ['cancel', 'var(--peligro)'], exito: ['check_circle', 'var(--exito)'], llave: ['key', 'var(--primario)'] };
+function escena(tipo) {
+  const [ic, col] = ESCENAS[tipo];
+  return '<svg viewBox="0 0 176 160" aria-hidden="true"><circle cx="88" cy="84" r="72" fill="var(--primarioSuave)"/>' +
+    '<path class="tz" d="M48 40V92a40 40 0 0 0 80 0V62" fill="none" stroke="var(--primario)" stroke-width="14" stroke-linecap="round"/>' +
+    '<circle cx="48" cy="40" r="15" fill="var(--primario)"/><circle cx="128" cy="40" r="11" fill="none" stroke="var(--marcaBrillante)" stroke-width="7"/></svg>' +
+    '<span class="sello" style="top:56%;color:' + col + '"><span class="ms fill" style="font-size:32px">' + ic + '</span></span>';
+}
+const porId = Object.fromEntries(P.map((p, i) => [p.id, Object.assign(p, { i })]));
+const $ = s => document.querySelector(s);
+const lienzo = $('#lienzo');
+let actual = 0;
+
+function construir(id) {
+  const frag = document.getElementById('t-' + id).content.cloneNode(true);
+  frag.querySelectorAll('[data-logo]').forEach(el => el.appendChild(document.getElementById('logo-' + el.dataset.logo).content.cloneNode(true)));
+  frag.querySelectorAll('[data-udeco]').forEach(el => { el.outerHTML = U_DECO; });
+  frag.querySelectorAll('[data-ilus]').forEach(el => { el.className = 'ilus'; el.innerHTML = escena(el.dataset.ilus); });
+  const disp = frag.firstElementChild;
+  const env = document.createElement('div');
+  env.className = 'ajuste';
+  env.appendChild(frag);
+  return { env, disp };
+}
+function encajar(env, ancho) {
+  const d = env.firstElementChild;
+  const s = Math.min(1, ancho / d.offsetWidth);
+  d.style.transform = 'scale(' + s + ')';
+  env.style.width = d.offsetWidth * s + 'px';
+  env.style.height = d.offsetHeight * s + 'px';
+}
+function ajustarActual() {
+  const env = lienzo.firstElementChild;
+  if (env) encajar(env, lienzo.clientWidth);
+}
+function ir(id, desplazar) {
+  const p = porId[id]; if (!p) return;
+  actual = p.i;
+  const { env } = construir(id);
+  lienzo.replaceChildren(env);
+  ajustarActual();
+  env.classList.remove('entra'); void env.offsetWidth; env.classList.add('entra');
+  const f = FLUJOS.find(x => x.id === p.f);
+  const destinos = [...new Set([...env.querySelectorAll('a[href^="#"]')].map(a => a.getAttribute('href').slice(1)))].filter(d => d !== id && porId[d]);
+  $('#ficha').innerHTML =
+    '<span class="cli"><span class="ms s16">' + (f.cliente === 'Móvil' ? 'smartphone' : 'desktop_windows') + '</span>' + f.cliente + ' · ' + f.nombre + '</span>' +
+    '<h2>' + p.t + '</h2><code>' + p.ruta.replace(/</g, '&lt;') + '</code>' +
+    '<div class="chips">' + p.hu.map(h => '<span class="chip-hu">' + h + '</span>').join('') + '</div>' +
+    '<div class="bloque"><h3>Qué demuestra</h3><ul class="cas">' + p.ca.map(c => '<li><b>' + c[0] + '</b><span>' + c[1] + '</span></li>').join('') + '</ul></div>' +
+    (p.nota ? '<p class="nota-f">' + p.nota + '</p>' : '') +
+    (destinos.length ? '<div class="bloque"><h3>Desde aquí se llega a</h3><div class="destinos">' + destinos.map(d => '<button type="button" data-ir="' + d + '">' + porId[d].t + ' <span class="ms s16">arrow_forward</span></button>').join('') + '</div></div>' : '');
+  $('#contador').textContent = (p.i + 1) + ' / ' + P.length;
+  document.querySelectorAll('.paso-n').forEach(b => b.setAttribute('aria-current', b.dataset.ir === id ? 'true' : 'false'));
+  const activo = document.querySelector('.paso-n[aria-current="true"]');
+  if (activo && desplazar !== false) activo.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  try { history.replaceState(null, '', '#' + id); } catch (e) {}
+}
+function modo(m) {
+  document.querySelectorAll('[data-modo]').forEach(b => b.setAttribute('aria-pressed', b.dataset.modo === m ? 'true' : 'false'));
+  $('#v-recorrido').hidden = m !== 'recorrido';
+  $('#v-mapa').hidden = m !== 'mapa';
+  $('#v-decisiones').hidden = m !== 'decisiones';
+  if (m === 'mapa') pintarMapa();
+  if (m === 'recorrido') ajustarActual();
+}
+
+// Índice lateral
+const indice = $('#indice');
+['Móvil', 'Web'].forEach(cli => {
+  const g = document.createElement('div'); g.className = 'grupo-cli';
+  g.innerHTML = '<span class="rot"><span class="ms s20">' + (cli === 'Móvil' ? 'smartphone' : 'desktop_windows') + '</span>' + cli + '</span>';
+  FLUJOS.filter(f => f.cliente === cli).forEach(f => {
+    const b = document.createElement('div'); b.className = 'flujo-n';
+    b.innerHTML = '<span class="nom"><span>' + f.nombre + '</span><span>' + f.hu + '</span></span>' +
+      P.filter(p => p.f === f.id).map(p => '<button type="button" class="paso-n" data-ir="' + p.id + '"><span class="num">' + String(p.i + 1).padStart(2, '0') + '</span><span>' + p.t + '</span></button>').join('');
+    g.appendChild(b);
+  });
+  indice.appendChild(g);
+});
+
+// Mapa
+let mapaListo = false;
+function pintarMapa() {
+  if (mapaListo) return; mapaListo = true;
+  const m = $('#v-mapa');
+  FLUJOS.forEach(f => {
+    const s = document.createElement('section'); s.className = 'mapa-flujo';
+    s.innerHTML = '<header><h2>' + f.cliente + ' · ' + f.nombre + '</h2><span>' + f.hu + '</span></header>';
+    const c = document.createElement('div'); c.className = 'carril';
+    P.filter(p => p.f === f.id).forEach((p, k) => {
+      if (k) c.insertAdjacentHTML('beforeend', '<span class="ms flecha">arrow_forward</span>');
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'mini'; b.dataset.ir = p.id; b.dataset.ver = '1';
+      const { env } = construir(p.id);
+      env.setAttribute('inert', '');
+      b.appendChild(env);
+      b.insertAdjacentHTML('beforeend', '<span>' + p.t + '</span><small>' + p.hu.join(' · ') + '</small>');
+      c.appendChild(b);
+      requestAnimationFrame(() => encajar(env, f.cliente === 'Móvil' ? 160 : 300));
+    });
+    s.appendChild(c); m.appendChild(s);
+  });
+}
+
+// Eventos
+document.addEventListener('click', e => {
+  const enlace = e.target.closest('#lienzo a[href^="#"]');
+  if (enlace) { e.preventDefault(); ir(enlace.getAttribute('href').slice(1)); return; }
+  const b = e.target.closest('[data-ir]');
+  if (b) { if (b.closest('#v-mapa, #v-decisiones')) modo('recorrido'); ir(b.dataset.ir); if (b.closest('#v-mapa, #v-decisiones')) $('.modos').scrollIntoView({ block: 'start' }); return; }
+  const md = e.target.closest('[data-modo]');
+  if (md) modo(md.dataset.modo);
+});
+$('#ant').addEventListener('click', () => ir(P[(actual - 1 + P.length) % P.length].id));
+$('#sig').addEventListener('click', () => ir(P[(actual + 1) % P.length].id));
+document.addEventListener('keydown', e => {
+  if ($('#v-recorrido').hidden || e.target.closest('input, textarea')) return;
+  if (e.key === 'ArrowRight') { e.preventDefault(); $('#sig').click(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); $('#ant').click(); }
+});
+new ResizeObserver(ajustarActual).observe(lienzo);
+if (document.fonts) document.fonts.ready.then(ajustarActual);
+
+$('#n-movil').textContent = P.filter(p => p.id.startsWith('m-')).length;
+$('#n-web').textContent = P.filter(p => p.id.startsWith('w-')).length;
+const inicial = (location.hash || '').slice(1);
+ir(porId[inicial] ? inicial : 'm-login', false);
+</script>
+</body>
+</html>

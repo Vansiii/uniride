@@ -9,8 +9,8 @@
 
    | Fase SDD | Fase de la materia | Artefacto | Aprobación |
    |---|---|---|---|
-   | Specify | Análisis | `SPECS/features/HU-xx-slug/spec.md` | Product Owner |
-   | Plan | Diseño | `SPECS/features/HU-xx-slug/plan.md` | Equipo (revisión en PR) |
+   | Specify | Análisis | `SPECS/features/sprint-N/HU-xx-slug/spec.md` | Product Owner |
+   | Plan | Diseño | `SPECS/features/sprint-N/HU-xx-slug/plan.md` | Equipo (revisión en PR) |
    | Tasks | Sprint Backlog | `.agents/STEERING/backlog.md` | Sprint Planning |
    | Implement | Implementación | Código + commits con ID de HU y tarea | PR revisado |
    | Verify | Prueba | Checklist DoD en el `spec.md` | PO en la Sprint Review |
