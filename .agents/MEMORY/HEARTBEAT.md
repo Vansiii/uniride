@@ -2,7 +2,7 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-11-04
+**Última actualización:** 2026-11-05
 
 **Sprint actual:** Sprint 2 · 28/10 – 03/11/2026 (sprints de 1 semana, miércoles a martes).
 **Foco:** Fase de especificación del Sprint 2 completada al 100 %. Listo para iniciar implementación.
@@ -21,8 +21,8 @@
 
 ## Próximo paso concreto
 
-1. **HU-08 y HU-09 (solo backend) implementadas y verificadas** en ramas locales sin push: `feat/HU-08-verificacion-identidad` (SP88–SP91) y `feat/HU-09-vinculacion-dispositivo` (SP93–SP97) en `backend/`. Integradas en prueba: 288 unitarias + 209 e2e, build y lint verdes. Al fusionar la segunda habrá conflictos aditivos en `schema.prisma`, `aplicacion.module.ts` y `test/ayudas-organizaciones.ts` (conservar ambos lados); luego `npm ci`.
-2. Pendiente: push y PR de ambas (y `.env.example` del principal: `REKOGNITION_SIMULADO`, `IDENTIDAD_SECRETO`), mobile SP92 y SP98, corregir specs HU-09 (`MODO_EMULADOR_DEV` en vez de `INTEGRITY_MODO`).
+1. **HU-08 y HU-09:** backend fusionado en `develop` (PR backend #8 y #9, 288 unitarias + 209 e2e). Móvil con PR abiertos: uniride-mobile#6 (SP92) y #7 (SP98); al fusionar el segundo hay conflictos aditivos en `cliente.ts`, `index.tsx`, `es-BO.json` y `respuestasApi.ts` (conservar ambos lados). Specs corregidas (`MODO_EMULADOR_DEV`).
+2. **Sin verificar (requiere teléfono físico y dev build):** Rekognition y Play Integrity reales; módulos nativos de Face Liveness y Keystore con biometría (HU-09 CA-7) aún no instalados — `liveness.ts` y `keystore.ts` fallan de forma segura. Instalarlos exige confirmación de dependencia (AGENTS.md §14). Actualizar UML: secuencia de vinculación, clases (`Dispositivo`, `FirmaDispositivoGuard`) y despliegue (Play Integrity).
 3. Siguiente: HU-12/HU-14, HU-13, HU-17/HU-18 (usan `@RequiereIdentidadVerificada()` y `@RequiereFirmaDispositivo()`; importar `FirmaDispositivoModule`).
 
 ## Bloqueos activos
