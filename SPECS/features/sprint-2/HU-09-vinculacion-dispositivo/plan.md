@@ -10,9 +10,9 @@
 |---|---|---|
 | backend | `dispositivos` | Nuevo: controlador y servicio para emitir desafíos de atestación, validar tokens de Play Integrity y registrar llaves públicas |
 | backend | `comun` | `PlayIntegrityService` (validación oficial con Google API y mock simulado para desarrollo); `FirmaDispositivoGuard` y decorador `@RequiereFirmaDispositivo()` |
-| mobile | `servicios/dispositivo/` | Módulo para generar par de llaves ECDSA P-256 en Android Keystore, firmar payloads y solicitar token de Play Integrity |
-| mobile | `app/dispositivo/vincular.tsx` | Nuevo: pantalla de comprobación de integridad y vinculación |
-| raíz | `.env.example` | Variables de Google Cloud (`GOOGLE_PLAY_INTEGRITY_KEY_FILE`, `GOOGLE_PACKAGE_NAME`, `INTEGRITY_MODO=desarrollo`) |
+| mobile | `src/dispositivo/` | `keystore.ts` (frontera nativa: llave, firma y token de Play Integrity; sin módulo nativo falla de forma segura), `firma.ts` (mensaje canónico y encabezados) y `sha256.ts`; para generar par de llaves ECDSA P-256 en Android Keystore, firmar payloads y solicitar token de Play Integrity |
+| mobile | `src/app/dispositivo.tsx` | Nuevo: pantalla de comprobación de integridad y vinculación |
+| raíz | `.env.example` | Variables de Google Cloud (`PLAY_INTEGRITY_PAQUETE`, `GOOGLE_APPLICATION_CREDENTIALS`) y bandera `MODO_EMULADOR_DEV=false` (nombres de `SPECS/ssd.md` §13) |
 
 Reutiliza: `AuditoriaService` (HU-06).
 
@@ -106,13 +106,13 @@ sequenceDiagram
 | CA-5 Ataque Replay: timestamp caducado o nonce duplicado | integración | `firma-dispositivo.guard.spec.ts` |
 | CA-6 Doble vinculación simultánea bloqueada | e2e | `vinculacion.e2e-spec.ts` |
 | Bypass prohibido en producción | unitaria | `play-integrity.service.spec.ts` |
-| Móvil: generación de llaves y firma | unitaria | `mobile/test/dispositivo/keystore.test.ts` |
+| Móvil: generación de llaves y firma | unitaria | `mobile/src/__tests__/firma.test.ts` y `dispositivo.test.tsx` |
 
 ## 7. Dependencias y configuración
 
 - **Backend:** `google-auth-library` y `@googleapis/playintegrity` (se agregan a `backend/package.json`).
 - **Móvil:** Módulo nativo o librería de Keystore con soporte de Secure Element / StrongBox.
-- **Ambientes:** Variable `INTEGRITY_MODO=simulado` en local; en producción (`NODE_ENV=production`) la API fuerza verificación real con Google y bloquea el arranque si la configuración es insegura.
+- **Ambientes:** Variable `MODO_EMULADOR_DEV=true` en local; en producción (`NODE_ENV=production`) la API fuerza verificación real con Google y bloquea el arranque si la configuración es insegura.
 
 ## 8. Tareas propuestas (para backlog.md al aprobar)
 

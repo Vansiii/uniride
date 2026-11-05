@@ -29,7 +29,7 @@
 - RN-2: **Criptografía de hardware:** El par de llaves debe ser asimétrico, generado dentro del Keystore seguro del dispositivo (StrongBox o TEE), no exportable y con requerimiento de autenticación biométrica del usuario.
 - RN-3: **Unicidad de dispositivo activo:** Una cuenta solo puede tener **un único dispositivo activo vinculado a la vez** (A-02).
 - RN-4: **Payload de firma de petición:** Cada petición sensible debe firmar: `METODO + RUTA + TIMESTAMP + NONCE + SHA256(CUERPO)`. La ventana de tolerancia de tiempo es de **30 segundos**.
-- RN-5: **Bypass de desarrollo restringido:** Para pruebas en emuladores y CI local se permite un modo simulado (`INTEGRITY_MODO=simulado`), pero está estrictamente prohibido y bloqueado por arquitectura si el entorno es producción (`NODE_ENV=production`) (`AGENTS.md` §6).
+- RN-5: **Bypass de desarrollo restringido:** Para pruebas en emuladores y CI local se permite un modo simulado (`MODO_EMULADOR_DEV=true`), pero está estrictamente prohibido y bloqueado por arquitectura si el entorno es producción (`NODE_ENV=production`) (`AGENTS.md` §6).
 
 ## 4. Casos borde y errores
 
