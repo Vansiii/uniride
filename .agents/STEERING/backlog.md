@@ -134,18 +134,18 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 ## Sprint 2 · 28/10 – 03/11/2026 · Identidad, billetera y primeros viajes
 
 ### HU-08 · Verificación de identidad (22 h)
-- [ ] SP88 · Modelo Prisma `identidades`, migración `006_identidades` y pruebas de repositorio — 3h — @[POR DEFINIR]
-- [ ] SP89 · `RekognitionService` con soporte para sesiones de vivacidad, comparación facial y colección (con mock `REKOGNITION_SIMULADO`) — 4h — @[POR DEFINIR]
-- [ ] SP90 · Endpoints `/liveness-sesion`, `/verificar`, `/estado` y guard `@RequiereIdentidadVerificada()` — 5h — @[POR DEFINIR]
-- [ ] SP91 · Suite de pruebas automatizadas y pruebas de ataque A-01 y A-02 (cobertura ≥ 70 %) — 4h — @[POR DEFINIR]
+- [x] SP88 · Modelo Prisma `identidades`, migración `006_identidades` y pruebas de repositorio — 3h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
+- [x] SP89 · `RekognitionService` con soporte para sesiones de vivacidad, comparación facial y colección (con mock `REKOGNITION_SIMULADO`) — 4h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
+- [x] SP90 · Endpoints `/liveness-sesion`, `/verificar`, `/estado` y guard `@RequiereIdentidadVerificada()` — 5h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
+- [x] SP91 · Suite de pruebas automatizadas y pruebas de ataque A-01 y A-02 (cobertura ≥ 70 %) — 4h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
 - [ ] SP92 · Mobile: pantallas y flujo de verificación de identidad en Expo (consentimiento, carnet y vivacidad) — 6h — @[POR DEFINIR]
 
 ### HU-09 · Vinculación de dispositivo (26 h)
-- [ ] SP93 · Modelo Prisma `dispositivos`, migración `007_dispositivos` y pruebas de repositorio — 3h — @[POR DEFINIR]
-- [ ] SP94 · `PlayIntegrityService` (Google Play Integrity API y mock simulado bloqueado en prod) — 4h — @[POR DEFINIR]
-- [ ] SP95 · Endpoints de desafío de atestación, vinculación y consulta de dispositivo — 4h — @[POR DEFINIR]
-- [ ] SP96 · `FirmaDispositivoGuard` con verificación ECDSA P-256, nonce y ventana de 30s — 5h — @[POR DEFINIR]
-- [ ] SP97 · Suite de pruebas y pruebas de ataque A-03 (no íntegro), A-04 (llave ajena) y A-08 (sin firma) — 4h — @[POR DEFINIR]
+- [x] SP93 · Modelo Prisma `dispositivos`, migración `007_dispositivos` y pruebas de repositorio — 3h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
+- [x] SP94 · `PlayIntegrityService` (Google Play Integrity API y mock simulado bloqueado en prod) — 4h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
+- [x] SP95 · Endpoints de desafío de atestación, vinculación y consulta de dispositivo — 4h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
+- [x] SP96 · `FirmaDispositivoGuard` con verificación ECDSA P-256, nonce y ventana de 30s — 5h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
+- [x] SP97 · Suite de pruebas y pruebas de ataque A-03 (no íntegro), A-04 (llave ajena) y A-08 (sin firma) — 4h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
 - [ ] SP98 · Mobile: integración con Android Keystore y pantalla de vinculación en Expo — 6h — @[POR DEFINIR]
 
 ### HU-12 · Creación de billetera (16 h)

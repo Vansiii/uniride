@@ -2,7 +2,7 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-11-02
+**Última actualización:** 2026-11-04
 
 **Sprint actual:** Sprint 2 · 28/10 – 03/11/2026 (sprints de 1 semana, miércoles a martes).
 **Foco:** Fase de especificación del Sprint 2 completada al 100 %. Listo para iniciar implementación.
@@ -21,12 +21,9 @@
 
 ## Próximo paso concreto
 
-1. **Iniciar implementación del Sprint 2 por orden de dependencia técnica:**
-   - **Paso 1:** HU-08 (SP88–SP92) — Modelo Prisma `006_identidades`, `RekognitionService` y endpoints de verificación.
-   - **Paso 2:** HU-09 (SP93–SP98) — Modelo Prisma `007_dispositivos`, `PlayIntegrityService` y `FirmaDispositivoGuard`.
-   - **Paso 3:** HU-12 (SP99–SP103) y HU-14 (SP104–SP108) — Billetera Polygon Amoy y libro mayor.
-   - **Paso 4:** HU-13 (SP109–SP114) — Recargas QR y acuñación con relayer.
-   - **Paso 5:** HU-17 (SP115–SP119) y HU-18 (SP120–SP123) — Publicación y búsqueda de viajes.
+1. **HU-08 y HU-09 (solo backend) implementadas y verificadas** en ramas locales sin push: `feat/HU-08-verificacion-identidad` (SP88–SP91) y `feat/HU-09-vinculacion-dispositivo` (SP93–SP97) en `backend/`. Integradas en prueba: 288 unitarias + 209 e2e, build y lint verdes. Al fusionar la segunda habrá conflictos aditivos en `schema.prisma`, `aplicacion.module.ts` y `test/ayudas-organizaciones.ts` (conservar ambos lados); luego `npm ci`.
+2. Pendiente: push y PR de ambas (y `.env.example` del principal: `REKOGNITION_SIMULADO`, `IDENTIDAD_SECRETO`), mobile SP92 y SP98, corregir specs HU-09 (`MODO_EMULADOR_DEV` en vez de `INTEGRITY_MODO`).
+3. Siguiente: HU-12/HU-14, HU-13, HU-17/HU-18 (usan `@RequiereIdentidadVerificada()` y `@RequiereFirmaDispositivo()`; importar `FirmaDispositivoModule`).
 
 ## Bloqueos activos
 
