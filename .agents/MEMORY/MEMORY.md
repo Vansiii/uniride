@@ -543,7 +543,7 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 1. **Algoritmo ECDSA P-256 en hardware:** Las llaves del dispositivo se generan en el chip seguro (StrongBox / TEE de Android Keystore) con curva NIST P-256. Genera firmas compactas de ~64 bytes en Base64 idóneas para encabezados HTTP `X-Firma`.
 2. **Alcance de la firma en `FirmaDispositivoGuard`:** La firma del dispositivo se exige estrictamente en endpoints sensibles (billetera, recarga, publicar viaje, reservar y handshakes). Consultas públicas y login inicial usan JWT estándar para no romper la web.
 3. **Protección contra repetición (Replay):** Firma canónica sobre `METHOD + PATH + TIMESTAMP + NONCE + SHA256(BODY)` con ventana de 30 segundos y caché de nonces de un solo uso.
-4. **Play Integrity y bypass en desarrollo:** Obligatorio nivel `MEETS_DEVICE_INTEGRITY`. En desarrollo local se usa `INTEGRITY_MODO=simulado`; en producción (`NODE_ENV=production`), el bypass está estrictamente prohibido y bloquea el sistema si se intenta encender.
+4. **Play Integrity y bypass en desarrollo:** Obligatorio nivel `MEETS_DEVICE_INTEGRITY`. En desarrollo local se usa `MODO_EMULADOR_DEV=true` (corregido el 2026-11-05; antes figuraba `INTEGRITY_MODO`); en producción (`NODE_ENV=production`), el bypass está estrictamente prohibido y bloquea el sistema si se intenta encender.
 
 **Tareas acordadas (Sprint 2):** `SP93` (modelo Prisma y migración `007_dispositivos`), `SP94` (`PlayIntegrityService`), `SP95` (endpoints de atestación y vinculación), `SP96` (`FirmaDispositivoGuard`), `SP97` (pruebas de ataque A-03, A-04, A-08) y `SP98` (módulo móvil de Keystore en Expo).
 

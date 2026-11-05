@@ -138,7 +138,7 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP89 · `RekognitionService` con soporte para sesiones de vivacidad, comparación facial y colección (con mock `REKOGNITION_SIMULADO`) — 4h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
 - [x] SP90 · Endpoints `/liveness-sesion`, `/verificar`, `/estado` y guard `@RequiereIdentidadVerificada()` — 5h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
 - [x] SP91 · Suite de pruebas automatizadas y pruebas de ataque A-01 y A-02 (cobertura ≥ 70 %) — 4h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
-- [ ] SP92 · Mobile: pantallas y flujo de verificación de identidad en Expo (consentimiento, carnet y vivacidad) — 6h — @[POR DEFINIR]
+- [x] SP92 · Mobile: pantallas y flujo de verificación de identidad en Expo (consentimiento, carnet y vivacidad) — 6h — @[POR DEFINIR] · mobile @agente 05/11 (PR uniride-mobile#6; la prueba de vida real queda tras `ejecutarLiveness`, sin módulo nativo)
 
 ### HU-09 · Vinculación de dispositivo (26 h)
 - [x] SP93 · Modelo Prisma `dispositivos`, migración `007_dispositivos` y pruebas de repositorio — 3h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
@@ -146,7 +146,7 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP95 · Endpoints de desafío de atestación, vinculación y consulta de dispositivo — 4h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
 - [x] SP96 · `FirmaDispositivoGuard` con verificación ECDSA P-256, nonce y ventana de 30s — 5h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
 - [x] SP97 · Suite de pruebas y pruebas de ataque A-03 (no íntegro), A-04 (llave ajena) y A-08 (sin firma) — 4h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
-- [ ] SP98 · Mobile: integración con Android Keystore y pantalla de vinculación en Expo — 6h — @[POR DEFINIR]
+- [x] SP98 · Mobile: integración con Android Keystore y pantalla de vinculación en Expo — 6h — @[POR DEFINIR] · mobile @agente 05/11 (PR uniride-mobile#7; pantalla, firma canónica y pruebas; Keystore/Play Integrity nativos pendientes de dev build)
 
 ### HU-12 · Creación de billetera (16 h)
 - [ ] SP99 · Modelo Prisma `billeteras`, migración `008_billeteras` y repositorio — 2h — @[POR DEFINIR]
