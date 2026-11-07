@@ -5,7 +5,7 @@
 **Última actualización:** 2026-11-07
 
 **Sprint actual:** Sprint 2 · 28/10 – 03/11/2026 (sprints de 1 semana, miércoles a martes). Las fechas ya vencieron con HU-13, HU-17 y HU-18 pendientes.
-**Foco:** HU-12 y HU-14 con PR abiertos y CI en verde, esperando revisión. HU-13 sigue apilada sobre HU-14, sin esperar el merge (decisión del integrante, 07/11): backend, contrato y móvil hechos y verificados, también con huella en el teléfono, revisada y corregida, sin subir; falta push y PR. El despliegue va después.
+**Foco:** HU-12, HU-14 y HU-13 con PR abiertos, esperando revisión. HU-13 está apilada sobre HU-14, sin esperar el merge (decisión del integrante, 07/11): backend, contrato y móvil hechos, verificados también con huella en el teléfono, revisados y subidos. El despliegue va después.
 
 ## Estado actual
 
@@ -14,8 +14,8 @@
 - **SP125 (Keystore nativo, HU-09):** `mobile`, `feat/HU-09-keystore-nativo`, en origin, sin fusionar en `develop` (comprobado el 07/11).
 - **HU-12:** implementada, en origin, sin fusionar en `develop` en `backend` ni en `mobile` (comprobado el 07/11).
 - **HU-14:** implementada, verificada y revisada, apilada sobre HU-12, en origin con la rama `feat/HU-14-saldo-historial` en `backend` (`a53df7c`), `mobile` (`db42801`) y raíz. CI en verde en `backend` y `mobile`.
-- **HU-13:** rama `feat/HU-13-recarga-saldo` en `backend` y `mobile` (apiladas sobre HU-14) y `contracts` (desde `develop`), implementada y verificada en sesión limpia y en el teléfono físico, sin subir (`backend` `b15640a`, `mobile` `5cb8227`, `contracts` `cc01cbb`). Revisión hecha. Falta SP129 (firmante KMS, al desplegar). Ajuste de spec y plan aprobado el 07/11.
-- **PR a `develop`, en orden de fusión:** `mobile` #8 (SP125), #9 (HU-12), #10 (HU-14); `backend` #10 (HU-12), #11 (HU-14); raíz #19 (documentos).
+- **HU-13:** rama `feat/HU-13-recarga-saldo` en `backend` y `mobile` (apiladas sobre HU-14) y `contracts` (desde `develop`), implementada, verificada en sesión limpia y en el teléfono físico, y con PR abiertos (`backend` `b15640a`, `mobile` `5cb8227`, `contracts` `cc01cbb`). Revisión hecha. Falta SP129 (firmante KMS, al desplegar). Ajuste de spec y plan aprobado el 07/11.
+- **PR a `develop`, en orden de fusión:** `mobile` #8 (SP125), #9 (HU-12), #10 (HU-14), #11 (HU-13); `backend` #10 (HU-12), #11 (HU-14), #12 (HU-13); `contracts` #1 (HU-13); raíz #19 (HU-12 y HU-14), #20 (HU-13).
 
 ## Última sesión (07/11)
 
@@ -23,9 +23,9 @@
 
 ## Próximo paso concreto
 
-1. **HU-13, punto exacto:** revisión de código y pruebas hechas; sigue push y PR cuando el integrante lo diga, con `contracts` antes que `backend`. Grado 5: dinero.
+1. **HU-13, punto exacto:** subida, con PR abiertos; solo falta revisarlos y fusionarlos en orden, con `contracts` antes que `backend`.
 2. En paralelo, otro integrante revisa y fusiona los PR en el orden de arriba. Tras el merge: confirmar con `git merge-base --is-ancestor`, actualizar punteros y marcar lo que corresponda.
-3. Después de HU-13: HU-17 y HU-18.
+3. Sigue HU-17 y luego HU-18, apiladas si dependen de ramas sin fusionar.
 
 ## Sin verificar
 
