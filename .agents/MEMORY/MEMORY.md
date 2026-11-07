@@ -802,3 +802,17 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 **Archivos afectados:** `backend/src/blockchain/blockchain.service.ts`, `backend/src/blockchain/blockchain.service.spec.ts`, `backend/src/billetera/recargas.controller.ts`; `mobile/src/app/recargar.tsx`, `mobile/src/i18n/es-BO.json`, `mobile/src/__tests__/`; `SPECS/features/sprint-2/HU-13-recarga-saldo/spec.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
 
 ---
+
+## 2026-11-07 · HU-13: huella real en el teléfono
+
+**Evento:** Se prueba la recarga en el teléfono físico (Infinix X669, Android 12, TEE) contra `UniCoin` en un nodo Hardhat, con la huella del integrante y un proxy que cuenta las peticiones firmadas. Sin cambios de código.
+
+**Verificado:** Una firma por confirmación: el integrante vio 2 huellas (abrir Billetera y pagar) y el registro muestra 2 firmadas. Crear la orden, consultarla y volver a Billetera no firman. Recargar 50 Bs acredita: contrato, libro y app coinciden. Cancelar la huella no llama a `confirmar`, no cobra y deja reintentar la misma orden, que acredita 20 Bs (contrato, libro y app en 70, 2 eventos). Cerrar un QR sin pagar no crea movimiento. Billetera, monto y QR sin desbordes a 412 dp.
+
+**TalkBack, montos rápidos:** el elegido dice "Seleccionado, 20 Bs, botón de selección, tocar 2 veces para seleccionar"; los demás no dicen "Seleccionado". Se distinguen. El elegido repite la pista de tocar 2 veces, igual que en Movimientos; queda sin corregir.
+
+**Sin verificar:** dedo no registrado en esta pantalla (probado con el mismo módulo en SP125, sin firma). "Recarga en camino" en el teléfono: Hardhat acuña antes de la consulta de 3 s; vista en web con el nodo caído. Invalidación al registrar una huella nueva, StrongBox, Play Integrity real y Amoy.
+
+**Archivos afectados:** `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+---
