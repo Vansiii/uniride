@@ -633,3 +633,32 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 
 
 
+
+## 2026-11-06 · HU-12: se alinean los documentos con la custodia cifrada
+
+**Decisión:** el integrante confirma la custodia aprobada por el PO el 02/11: llaves de billetera de usuario cifradas con AES-256-GCM en `billeteras.llave_custodia_ref`, con la clave en `WALLET_ENCRYPTION_KEY`. Relayer y verificador siguen en KMS. Solo se añade `ethers` ^6.17 al backend (`AGENTS.md` §14); `@aws-sdk/client-kms` no, porque el modo KMS opcional no se implementa. Se usan las variables que ya existían (`CADENA_RPC_URL`, `DIRECCION_TOKEN_URC`) en vez de las del plan.
+
+**Razón:** el plan aprobado contradecía `AGENTS.md` §6 y §11, `constitution.md` Art. 6, `ssd.md` §10 y la RN-3 de la spec, que decían "solo en KMS, nunca en la BD". Riesgo aceptado: quien obtenga a la vez la base de datos y esa variable descifra las llaves; el token no tiene valor real.
+
+**Archivos afectados:** `AGENTS.md`, `SPECS/constitution.md`, `SPECS/ssd.md`, `SPECS/features/sprint-2/HU-12-creacion-billetera/{spec,plan}.md`, `SPECS/roadmap.md`, `.env.example`.
+
+---
+
+## 2026-11-06 · HU-12 Creación de billetera y SP125 Keystore nativo: implementadas
+
+**Decisiones:**
+1. Se agrega SP125 (HU-09): la firma de dispositivo no podía funcionar en un teléfono real porque el Keystore nativo no estaba instalado, y los endpoints de billetera la exigen. Módulo local de Expo en `mobile/modules/llave-dispositivo` (Kotlin, ECDSA P-256 no exportable, huella en cada firma con `BiometricPrompt` y `CryptoObject`); única dependencia nativa nueva: `androidx.biometric`. Sin paquetes npm de terceros en la firma.
+2. `usuarios.suspendida_en` (`TIMESTAMPTZ NULL`) para el caso "cuenta suspendida" de la spec §4: POST y GET responden 403 `CUENTA_SUSPENDIDA`. Nada la escribe hasta una HU de administración.
+3. La billetera se crea al aprobarse la identidad; si falla no revierte la verificación, queda auditado y `POST /billetera` reintenta. La cadena se comprueba antes de insertar. `exploradorUrl` es `null` fuera de Amoy.
+4. `GET /billetera/mia` también va firmado (`ssd.md` §8), así que leer el saldo pide huella: la pantalla lee una vez al entrar y con un botón de actualizar, no en cada foco. Solo la vista sin billetera relee al recuperar el foco, porque esa consulta no pide firma.
+5. El saldo se muestra en formato es-BO sobre el texto de la API, sin pasar por `Number` (`src/formato.ts`). Se añade `expo-clipboard` y la barra de pestañas `src/app/(pestanas)/`. Recargar y Movimientos llegan con HU-13 y HU-14.
+
+**Verificado:** backend 360 unitarias y 241 e2e, cobertura 95,9 %, peticiones reales contra Hardhat local. Móvil 209 pruebas. En teléfono físico (Infinix X669, Android 12, TEE): firma real aceptada por el backend; firma repetida o ajena, 401; cancelar y dedo rechazado no firman; billetera creada; saldo acuñado visto como 1.234,56 URC; nodo apagado da 503 y el reintento funciona.
+
+**Sin verificar:** Polygon Amoy y SP23 (despliegue), enlace a Polygonscan en el teléfono, vista con datos a 412 dp, CI real, Play Integrity real (simulado en desarrollo; en producción la vinculación falla a propósito), StrongBox, invalidación al registrar una huella nueva.
+
+**Pendientes sin bloquear:** pedir huella al vincular (prototipo `m-biometria`); alias de llave por cuenta (hoy, una segunda cuenta en el mismo teléfono deja sin firma a la primera; con HU-10); el texto "Actualiza la app" de `keystore_no_disponible` confunde; UML de despliegue, paquetes y secuencia de creación; prueba `afiliacion CA-8` falló una vez por timeout de 5 s y no se repitió.
+
+**Archivos afectados:** `backend/src/{billetera,blockchain,identidad}`, `backend/prisma/migrations/008_billeteras`, `mobile/modules/llave-dispositivo`, `mobile/src/app/(pestanas)`, `mobile/src/dispositivo`, `mobile/src/formato.ts`, `SPECS/features/sprint-2/HU-12-creacion-billetera/plan.md`.
+
+---

@@ -148,12 +148,14 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP97 · Suite de pruebas y pruebas de ataque A-03 (no íntegro), A-04 (llave ajena) y A-08 (sin firma) — 4h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
 - [x] SP98 · Mobile: integración con Android Keystore y pantalla de vinculación en Expo — 6h — @[POR DEFINIR] · mobile @agente 05/11 (PR uniride-mobile#7; pantalla, firma canónica y pruebas; Keystore/Play Integrity nativos pendientes de dev build)
 
+- [x] SP125 · Mobile: módulo nativo local de Expo para Android Keystore (ECDSA P-256 no exportable, huella en cada firma con `BiometricPrompt` y `CryptoObject`), detrás de `keystore.ts`; prueba en teléfono físico. Requisito de SP103 y SP114 — 6h — @[POR DEFINIR] · mobile @agente 06/11: probado en Infinix X669 (TEE, sin StrongBox): el backend acepta la firma real; repetida, ajena y cancelada no pasan. Play Integrity sigue simulado
+
 ### HU-12 · Creación de billetera (16 h)
-- [ ] SP99 · Modelo Prisma `billeteras`, migración `008_billeteras` y repositorio — 2h — @[POR DEFINIR]
-- [ ] SP100 · `BlockchainService` (ethers.js, conexión Polygon Amoy/Hardhat y lectura de balance UniCoin) — 4h — @[POR DEFINIR]
-- [ ] SP101 · Endpoints de creación idempotente y consulta de billetera en backend — 3h — @[POR DEFINIR]
-- [ ] SP102 · Suite de pruebas y validación de seguridad A-12 (sin llaves en BD) — 3h — @[POR DEFINIR]
-- [ ] SP103 · Mobile: pantalla de Billetera en Expo (tarjeta de balance URC, dirección y accesos) — 4h — @[POR DEFINIR]
+- [x] SP99 · Modelo Prisma `billeteras`, migración `008_billeteras` y repositorio — 2h — @[POR DEFINIR] · backend @agente 06/11: también `usuarios.suspendida_en` (spec §4); la API solo tiene SELECT e INSERT sobre `billeteras`
+- [x] SP100 · `BlockchainService` (ethers.js, conexión Polygon Amoy/Hardhat y lectura de balance UniCoin) — 4h — @[POR DEFINIR] · backend @agente 06/11: solo redes 31337 y 80002, tope de 5 s; probado contra Hardhat, Amoy sin probar
+- [x] SP101 · Endpoints de creación idempotente y consulta de billetera en backend — 3h — @[POR DEFINIR] · backend @agente 06/11: creación automática al aprobar la identidad y firma de dispositivo en ambos endpoints
+- [x] SP102 · Suite de pruebas y validación de seguridad A-12 (sin llaves en BD) — 3h — @[POR DEFINIR] · backend @agente 06/11: 360 unitarias y 241 e2e en verde, cobertura 95,9 %, ataques A-02, A-08 y A-12
+- [x] SP103 · Mobile: pantalla de Billetera en Expo (tarjeta de balance URC, dirección y accesos) — 4h — @[POR DEFINIR] · mobile @agente 06/11: pestaña Billetera probada en teléfono físico contra Hardhat; Recargar y Movimientos llegan con HU-13 y HU-14
 
 ### HU-14 · Saldo e historial (15 h)
 - [ ] SP104 · Modelo Prisma `movimientos_billetera`, migración `009_movimientos_billetera` e índices contables — 2h — @[POR DEFINIR]

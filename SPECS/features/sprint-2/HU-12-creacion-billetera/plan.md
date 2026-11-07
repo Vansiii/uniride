@@ -19,8 +19,8 @@
 |---|---|---|
 | backend | `billetera` | Nuevo: controlador y servicio para crear billetera, consultar dirección y balance on-chain |
 | backend | `blockchain` | Nuevo: servicio relayer, conexión JSON-RPC con Polygon Amoy / Hardhat local, contrato `UniCoin` y firma segura |
-| mobile | `app/billetera/index.tsx` | Nuevo: pantalla de billetera con tarjeta de saldo URC, dirección pública y accesos a recarga |
-| raíz | `.env.example` | Variables de blockchain: `BLOCKCHAIN_RPC_URL`, `UNICON_CONTRATO_DIRECCION`, `KMS_LLAVE_RELAYER_ID`, `BLOCKCHAIN_SIMULADA=true` |
+| mobile | `src/app/(pestanas)/billetera.tsx` y `src/app/(pestanas)/_layout.tsx` | Nuevo: barra de pestañas (`DESIGN_SYSTEM.md` §6.1) y pantalla de billetera con saldo URC y dirección pública; los accesos a recarga y movimientos llegan con HU-13 y HU-14 |
+| raíz | `.env.example` | Variables de blockchain: `CADENA_RPC_URL`, `CADENA_ID` y `DIRECCION_TOKEN_URC` (ya existen), `WALLET_ENCRYPTION_KEY` y `BLOCKCHAIN_SIMULADA` (nuevas) |
 
 Reutiliza: `@RequiereIdentidadVerificada()` (HU-08), `FirmaDispositivoGuard` (HU-09).
 
@@ -30,18 +30,20 @@ Reutiliza: `@RequiereIdentidadVerificada()` (HU-08), `FirmaDispositivoGuard` (HU
 |---|---|---|---|
 | `billeteras` | Nueva: `id`, `usuario_id`, `direccion`, `llave_custodia_ref`, `creado_en`, `actualizado_en` | `UNIQUE(usuario_id)`, `UNIQUE(direccion)`, `CHECK (direccion ~ '^0x[0-9a-fA-F]{40}$')` | No: dato personal (Art. 2.6 y D-07); protegido por dueño |
 
+| `usuarios` | Nueva columna `suspendida_en` (`TIMESTAMPTZ NULL`), para el caso "cuenta suspendida" de la spec §4 | Sin efecto sobre filas existentes; nada la escribe hasta que una HU de administración lo necesite | No aplica |
+
 Migración: `008_billeteras`.
 
 Nota de seguridad (A-12):
 - La base de datos relacional **nunca** guarda la clave privada en texto claro ni expone frases semilla.
-- `llave_custodia_ref`: En AWS KMS, almacena el ciphertext cifrado mediante Envelope Encryption con la llave maestra de KMS (o el Key ID de KMS); en desarrollo local, un hash o referencia del mock.
+- `llave_custodia_ref`: almacena la llave privada cifrada con AES-256-GCM (IV, etiqueta y texto cifrado) con `WALLET_ENCRYPTION_KEY`. El modo KMS opcional queda sin implementar hasta que alguien lo exija.
 
 ## 3. Endpoints
 
 | Método | Ruta | Rol | Request → Response | Errores (`codigo`) |
 |---|---|---|---|---|
-| POST | `/api/v1/billetera` | verificado | — → 201 `{ id, direccion, saldoUrc: "0.0", exploradorUrl }` | `IDENTIDAD_NO_VERIFICADA` 403, `SERVICIO_BLOCKCHAIN_NO_DISPONIBLE` 503 |
-| GET | `/api/v1/billetera/mia` | verificado | — → 200 `{ id, direccion, saldoUrc, exploradorUrl }` | `BILLETERA_NO_ENCONTRADA` 404, `IDENTIDAD_NO_VERIFICADA` 403 |
+| POST | `/api/v1/billetera` | verificado + firma de dispositivo | — → 201 (o 200 si ya existía) `{ id, direccion, saldoUrc: "0.00", exploradorUrl }` | `CUENTA_SUSPENDIDA` 403, `IDENTIDAD_NO_VERIFICADA` 403, `FIRMA_DISPOSITIVO_INVALIDA` 401, `PETICION_EXPIRADA` 401, `SERVICIO_BLOCKCHAIN_NO_DISPONIBLE` 503 |
+| GET | `/api/v1/billetera/mia` | verificado + firma de dispositivo | — → 200 `{ id, direccion, saldoUrc, exploradorUrl }` (`exploradorUrl` es `null` fuera de Amoy) | los mismos, más `BILLETERA_NO_ENCONTRADA` 404 |
 
 Reglas de implementación:
 - **Idempotencia:** Si el usuario ya posee una billetera activa en `billeteras`, el endpoint `POST /api/v1/billetera` devuelve 200 con la billetera existente en lugar de fallar o generar duplicados.
@@ -61,7 +63,6 @@ sequenceDiagram
   autonumber
   participant App as App Móvil
   participant API as API NestJS
-  participant KMS as AWS KMS
   participant BD as PostgreSQL
   participant BC as Polygon Amoy (RPC)
 
@@ -74,12 +75,11 @@ sequenceDiagram
     alt Billetera ya existente
       API-->>App: 200 { direccion, saldoUrc }
     else Billetera nueva
-      API->>KMS: Genera o custodia credencial criptográfica
-      KMS-->>API: { direccionPublica, llaveCustodiaRef }
-      API->>BD: Inserta registro en 'billeteras'
+      API->>API: Genera la llave y la cifra con AES-256-GCM
       API->>BC: Consulta balanceOf(direccionPublica) en UniCoin
       BC-->>API: 0 URC
-      API-->>App: 201 { direccionPublica, saldoUrc: "0.0" }
+      API->>BD: Inserta registro en 'billeteras'
+      API-->>App: 201 { direccionPublica, saldoUrc: "0.00" }
     end
   end
 ```
@@ -94,11 +94,11 @@ sequenceDiagram
 | CA-4 Rechazo 403 a usuarios no verificados | integración | `billetera.guard.spec.ts` |
 | CA-5 Consulta de dirección pública y saldo | e2e | `creacion.e2e-spec.ts` |
 | CA-6 Resiliencia ante falla de conexión RPC / KMS | e2e | `creacion.e2e-spec.ts` |
-| Móvil: renderizado de tarjeta y dirección | Jest (preset Expo) | `mobile/test/billetera/billetera.test.tsx` |
+| Móvil: renderizado de tarjeta y dirección | Jest (preset Expo) | `mobile/src/__tests__/billetera.test.tsx` |
 
 ## 7. Dependencias y requerimientos
 
-- **Backend:** `ethers` ^6.17 (ya instalado en contratos/backend) y `@aws-sdk/client-kms`.
+- **Backend:** `ethers` ^6.17 (nueva en backend, confirmada el 06/11). `@aws-sdk/client-kms` no se añade: el modo KMS es opcional y no se implementa aquí.
 - **Contratos:** Despliegue de `UniCoin.sol` en Amoy (o nodo Hardhat local).
 - **Ambientes:** Variable `BLOCKCHAIN_SIMULADA=true` para ejecutar la suite de pruebas sin llamadas remotas a Amoy.
 
