@@ -20,7 +20,7 @@
 
 ## Última sesión (07/11)
 
-- HU-17, teléfono físico: huella y Keystore reales, cancelar, Nominatim, teselas, TalkBack y 412 dp, con firmas contadas en un registro. Se corrigieron 4 defectos que solo salían en el teléfono: el aviso quedaba fuera de la vista, salían dos huellas si se tardaba más de 30 s, un hueco sobre las pestañas y nombres largos sin su comienzo. La corrección de la huella vale para toda petición firmada y cambió el módulo nativo: **hay que recompilar el APK**. Regresión en verde en `backend`, `mobile` y `contracts`. Detalle en `MEMORY.md`.
+- HU-17, teléfono físico: huella y Keystore reales, cancelar, Nominatim, teselas, TalkBack y 412 dp, con firmas contadas en un registro. Se corrigieron 4 defectos que solo salían en el teléfono: el aviso quedaba fuera de la vista, salían dos huellas si se tardaba más de 30 s, un hueco sobre las pestañas y nombres largos sin su comienzo. También: recarga completa, firma vencida, dedo no registrado, y una huella nueva que anula la llave. La corrección de la huella vale para toda petición firmada y cambió el módulo nativo: **hay que recompilar el APK**. Regresión en verde en `backend`, `mobile` y `contracts`. Detalle en `MEMORY.md`.
 
 ## Próximo paso concreto
 
@@ -30,7 +30,7 @@
 
 ## Sin verificar
 
-- HU-17: con el teléfono no se probó el dedo no registrado al publicar (sí en la recarga de HU-13, con el mismo diálogo) ni el reloj del teléfono desfasado más de 30 s (solo en Jest).
+- HU-17 y firma: la recarga con la firma nueva se probó en el teléfono contra cadena simulada; contra contrato real, al desplegar en Amoy (decisión del integrante). La voz de TalkBack solo la confirma una persona.
 - Polygon Amoy y SP23: billetera, saldo y escrow solo se probaron contra Hardhat local.
 - El enlace a Polygonscan se vio y se abrió con la URL de Amoy agregada por un proxy de prueba, con un hash que no existe en esa red.
 - HU-13 en Polygon Amoy: acuñar allí (contrato sin desplegar, sin relayer con fondos). Solo se comprobó contra su RPC público que la ventana de 1000 bloques pasa y el rango completo no.
@@ -47,6 +47,8 @@
 
 ## Decisiones abiertas
 
+- **Accesibilidad, para después (decisión del integrante, 07/11):** TalkBack no lee los avisos que aparecen: al cancelar la huella dice el título y salta al botón. Afecta a todos los `Aviso`. Región viva y anuncio explícito no bastaron; falta probar mover el foco al aviso. Decidir en qué historia va.
+- **HU-10 (reserva):** tras registrar una huella nueva la llave queda anulada y no hay salida: el aviso dice falsamente "Actualiza la app" y "Mi teléfono" no deja volver a vincular. Quien agregue una huella pierde firmar, billetera y publicar. Decidir si HU-10 debe adelantarse antes de producción.
 - **Para HU-18 o HU-19, viajes de una cuenta suspendida:** ya no puede publicar, pero lo publicado antes sigue activo. Cambiarlo toca la máquina de estados (`AGENTS.md` §14). Decidir qué pasa con esos viajes.
 - **Para HU-18, `GET /viajes/{id}`:** `ssd.md` pide miembro verificado con firma; el plan de HU-17, aprobado después, pide solo miembro de la organización, y así quedó. Confirmar o corregir `ssd.md`.
 - **Para HU-18, nombre del conductor:** `GET /viajes/{id}` da el nombre completo a cualquier miembro, como dice el plan; `DESIGN_SYSTEM.md` P-09 propone nombre e inicial del apellido. Decidir antes de mostrarlo.

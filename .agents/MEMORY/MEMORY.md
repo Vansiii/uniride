@@ -944,3 +944,7 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 **Comprobado tras el cambio:** aviso abierto 44 s: 1 firma y 201. Token vencido de verdad: 401, renovación y 201 con 1 solo aviso. Billetera: 1 huella.
 
 **Pruebas:** la animación de `Ilustracion` dejaba un temporizador que rompía otra suite al azar; `publicar.test.tsx` activa "reducir movimiento".
+
+**Segunda pasada en el teléfono:** recarga con la firma nueva (cadena simulada), firma vencida con un proxy que retiene la petición, dedo no registrado, hora con teclas de dígitos, cambio de selección en TalkBack y huella nueva que anula la llave.
+
+**Defectos abiertos:** TalkBack no lee los `Aviso` que aparecen (región viva y `announceForAccessibility` no bastaron, y se revirtió). Tras una huella nueva no hay cómo volver a vincular, y el aviso dice "Actualiza la app" (HU-10).
