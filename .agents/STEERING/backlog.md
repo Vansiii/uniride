@@ -183,6 +183,11 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [ ] SP122 · Suite de pruebas automatizadas, prueba de aislamiento A-13 y medición de latencia < 2s — 3h — @[POR DEFINIR]
 - [ ] SP123 · Mobile: pantalla de Búsqueda de viajes y componente `TarjetaViaje` en Expo — 5h — @[POR DEFINIR]
 
+### PB-01 · Vulnerabilidades de dependencias (`npm audit`)
+- [x] SP131 · `npm audit fix` sin `--force` en `backend` y `mobile`, rama `fix/dependencias-audit` desde `develop` — 1h — @[POR DEFINIR] · @agente 07/11: autorizado por el integrante (AGENTS.md §14). Las vulnerabilidades ya estaban en `develop`; las HU no agregaron ninguna. Backend de 14 (7 altas) a 3 moderadas: body-parser, multer, deepmerge-ts, mysql2, fast-uri, qs; Prisma 7.10.0 → 7.10.1 y `allowScripts` aprueba esa versión. Mobile de 31 (6 altas) a 23 (3 altas): zod, node-forge, uuid y parches de Expo dentro del SDK 57; sin cambios en `package.json`. Regresión completa en verde en los dos (backend con e2e, mobile con build Android)
+- [x] SP132 · Lo que `audit fix` no corrige y no pide `--force`: `vitest` y `@vitest/coverage-v8` 4.1.11 → 4.1.12 en `backend` (`@vitest/mocker`, moderada, solo desarrollo) — 0,5h — @[POR DEFINIR] · @agente 07/11: pedido por el integrante; `backend` queda con 0 vulnerabilidades y regresión completa en verde. En `mobile` no hay nada más sin versión mayor
+- [ ] SP133 · Actualizar el SDK de Expo: lo que pide `npm audit fix --force` en `mobile` (expo-router 58 por decode-uri-component y query-string, altas; glob, minimatch, deepmerge, @typescript-eslint, jest y jest-expo). npm propone versiones mayores que bajan de versión (expo 52, jest 25, eslint-config-expo 6): no sirven, hay que subir de SDK — sin estimar — @[POR DEFINIR] · cambio de versión mayor: requiere confirmación (AGENTS.md §14)
+
 
 
 

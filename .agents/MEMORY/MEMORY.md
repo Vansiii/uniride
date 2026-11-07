@@ -633,3 +633,20 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 
 
 
+
+---
+
+## 2026-11-07 · Vulnerabilidades de dependencias: `npm audit fix` sin `--force` (SP131, SP132)
+
+**Evento:** El integrante autoriza cambiar dependencias (AGENTS.md §14) solo con `npm audit fix` sin `--force` en `backend` y `mobile`, en ramas `fix/dependencias-audit` creadas desde `develop`, no apiladas sobre HU-18.
+
+**Hallazgo:** Las vulnerabilidades ya estaban en `develop`: el audit del lockfile de `develop` y el de `feat/HU-18-buscar-viajes` da lo mismo en `backend` (14, 7 altas). En `mobile`, HU-18 suma una moderada en `@maplibre/maplibre-react-native` (SP130), que hereda del `expo` del que depende; se va con SP133. Las dependencias que agregaron las HU no tienen avisos propios.
+
+**Decisión:**
+1. **Backend:** body-parser, multer, deepmerge-ts, mysql2, fast-uri y qs corregidos; de 14 a 3 moderadas. Prisma sube de 7.10.0 a 7.10.1 dentro del arreglo, y `allowScripts` pasa a aprobar esa versión (mismos paquetes ya aprobados).
+2. **Mobile:** zod, node-forge, uuid y parches de Expo dentro del SDK 57, sin tocar `package.json`; de 31 (6 altas) a 23 (3 altas). Lo que queda solo sale con `--force`, y npm propone versiones mayores que en varios casos bajan de versión (expo 52, jest 25, eslint-config-expo 6): no se aplica.
+3. **Backend, después (SP132, pedido por el integrante):** `vitest` y `@vitest/coverage-v8` a 4.1.12 (`audit fix` no los subía); `backend` queda con 0 vulnerabilidades.
+4. **Verificación:** regresión completa en verde en los dos repositorios tras cada cambio (backend con e2e, mobile con build Android).
+5. **Pendiente:** SP133 (actualizar el SDK de Expo para lo que pide `--force`; versión mayor, requiere confirmación).
+
+**Archivos afectados:** `backend/package.json`, `backend/package-lock.json`, `mobile/package-lock.json`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.

@@ -2,7 +2,7 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-11-05
+**Última actualización:** 2026-11-07
 
 **Sprint actual:** Sprint 2 · 28/10 – 03/11/2026 (sprints de 1 semana, miércoles a martes).
 **Foco:** Fase de especificación del Sprint 2 completada al 100 %. Listo para iniciar implementación.
@@ -19,7 +19,11 @@
   - **HU-17 (Publicar viaje):** Spec y Plan aprobados. Máquina de estados oficial, cupos limitados por auto de HU-11, anti-solapamiento y RLS multi-organización (A-13). Tareas SP115–SP119.
   - **HU-18 (Buscar viajes):** Spec y Plan aprobados. Filtro geoespacial Haversine ≤ 1 km y ventana ± 30 min. D-17 resuelta mostrando insignias «Conductor verificado» y «Nuevo». Tareas SP120–SP123.
 
+- **Dependencias (PB-01, SP131 y SP132):** rama `fix/dependencias-audit` desde `develop` en `backend`, `mobile` y raíz, sin push. `npm audit fix` sin `--force` y `vitest` 4.1.12: `backend` con 0 vulnerabilidades, `mobile` de 31 (6 altas) a 23 (3 altas). Regresión completa en verde en los dos. Esta rama no tiene el estado de HU-12 a HU-18: está en sus ramas y en sus PR.
+
 ## Próximo paso concreto
+
+0. **Dependencias:** push y PR de `fix/dependencias-audit` en `backend`, `mobile` y raíz cuando el integrante lo diga. Después, SP133: actualizar el SDK de Expo (lo que pide `--force`; requiere confirmación, AGENTS.md §14). Al fusionar el PR de raíz con #19 a #22, conservar el HEARTBEAT más reciente y agregar esta línea.
 
 1. **HU-08 y HU-09:** backend fusionado en `develop` (PR backend #8 y #9, 288 unitarias + 209 e2e). Móvil con PR abiertos: uniride-mobile#6 (SP92) y #7 (SP98); al fusionar el segundo hay conflictos aditivos en `cliente.ts`, `index.tsx`, `es-BO.json` y `respuestasApi.ts` (conservar ambos lados). Specs corregidas (`MODO_EMULADOR_DEV`).
 2. **Sin verificar (requiere teléfono físico y dev build):** Rekognition y Play Integrity reales; módulos nativos de Face Liveness y Keystore con biometría (HU-09 CA-7) aún no instalados — `liveness.ts` y `keystore.ts` fallan de forma segura. Instalarlos exige confirmación de dependencia (AGENTS.md §14). Actualizar UML: secuencia de vinculación, clases (`Dispositivo`, `FirmaDispositivoGuard`) y despliegue (Play Integrity).
