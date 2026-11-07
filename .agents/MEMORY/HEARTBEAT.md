@@ -5,7 +5,7 @@
 **Última actualización:** 2026-11-07
 
 **Sprint actual:** Sprint 2 · 28/10 – 03/11/2026 (sprints de 1 semana, miércoles a martes). Las fechas ya vencieron con HU-13, HU-17 y HU-18 pendientes.
-**Foco:** HU-14 lista para subir: faltan el push, sus PR y que se fusionen. Una HU pasa a la siguiente cuando llega a `develop`; el despliegue va después.
+**Foco:** HU-14 en origin: faltan sus PR y que se fusionen. Una HU pasa a la siguiente cuando llega a `develop`; el despliegue va después.
 
 ## Estado actual
 
@@ -13,7 +13,7 @@
 - **HU-08 y HU-09:** fusionadas en `develop`. Falta en HU-09 lo real de Play Integrity (simulado en desarrollo) y la prueba de vida nativa de HU-08.
 - **SP125 (Keystore nativo, HU-09):** `mobile`, `feat/HU-09-keystore-nativo`, en origin, sin fusionar en `develop` (comprobado el 07/11).
 - **HU-12:** implementada, en origin, sin fusionar en `develop` en `backend` ni en `mobile` (comprobado el 07/11).
-- **HU-14:** implementada, verificada y revisada, apilada sobre HU-12, con commit local en la rama `feat/HU-14-saldo-historial` de `backend` (`a53df7c`), `mobile` (`db42801`) y raíz. Sin push: desde la sesión del agente Git no puede pedir credenciales. Sin PR: `gh` no está instalado en esta PC.
+- **HU-14:** implementada, verificada y revisada, apilada sobre HU-12, en origin con la rama `feat/HU-14-saldo-historial` en `backend` (`a53df7c`), `mobile` (`db42801`) y raíz. Sin PR: `gh` no está instalado en esta PC.
 
 ## Última sesión (07/11, modo estándar)
 
@@ -22,7 +22,7 @@
 
 ## Próximo paso concreto
 
-1. El integrante hace push de las tres ramas y abre los PR de HU-14 a `develop`, después de los de SP125 y HU-12 de los que depende.
+1. El integrante abre los PR de HU-14 a `develop`, después de los de SP125 y HU-12 de los que depende.
 2. Otro integrante revisa y fusiona en orden: en `mobile`, SP125, HU-12 y HU-14; en `backend`, HU-12 y HU-14.
 3. Tras el merge: confirmar con `git merge-base --is-ancestor`, actualizar punteros y marcar lo que corresponda.
 4. Siguiente, en orden (decisión del integrante, 07/11): **HU-13**, que depende de HU-12, SP125 y el libro de HU-14, y antes de implementarla alinear su plan (lista abajo); después HU-17 y HU-18.
