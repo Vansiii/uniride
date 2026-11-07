@@ -12,7 +12,7 @@ Fuente: `AGENTS.md` §5–§6, `SPECS/constitution.md` Art. 2–4, `SPECS/ssd.md
 3. **El teléfono nunca decide**: ninguna validación movida al cliente; ningún dato del cliente (`verified`, estado, monto, GPS sin firma) se acepta sin verificar en servidor.
 4. **Dinero**: idempotencia, ledger append-only, atomicidad, los viajes no crean saldo, escrow solo por el verificador, una vez por viaje en estado `Verificado`, solo testnet.
 5. **Estados del viaje**: sin transiciones nuevas ni saltos (`AGENTS.md` §5.9).
-6. **Secretos/datos sensibles**: nada en código, logs, errores ni respuestas; llaves solo en KMS; sin bypass fuera del modo emulador (apagado por defecto, bloqueado en producción).
+6. **Secretos/datos sensibles**: nada en código, logs, errores ni respuestas; llaves del relayer y del verificador solo en KMS, las de usuario solo cifradas (`AGENTS.md` §11); sin bypass fuera del modo emulador (apagado por defecto, bloqueado en producción).
 7. **Confirmación humana** (`AGENTS.md` §14): marcar si el cambio exige una; detenerse y preguntar.
 
 Salida: lista breve por hallazgo `archivo:línea · amenaza · riesgo · arreglo/prueba faltante`, o "sin hallazgos" con qué se revisó. No debilitar ninguna capa "temporalmente".
