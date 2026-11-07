@@ -843,3 +843,27 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 **Archivos afectados:** `backend/src/blockchain/`, `backend/src/billetera/movimientos.service.ts`; `mobile/src/app/recargar.tsx`, `mobile/src/app/movimientos.tsx`, `mobile/src/app/(pestanas)/billetera.tsx`, `mobile/src/__tests__/`; `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
 
 ---
+
+## 2026-11-07 · HU-17: contrato del backend y ajustes al plan
+
+**Evento:** Se implementan SP115 a SP118 en `backend`, rama `feat/HU-17-publicar-viaje`, apilada sobre HU-13: tabla `viajes` con RLS, validaciones, `POST /viajes`, `GET /viajes/mis-viajes` y `GET /viajes/:id`.
+
+**Ajustes al plan aprobado** (la spec y `ssd.md` los responden; no cambia ningún criterio):
+1. **Precio:** el plan fijaba `CHECK (precio_por_asiento BETWEEN 1.00 AND 20.00)`, pero CA-3 da 20 URC solo como ejemplo del tope de cada organización y `organizaciones.precio_maximo_urc` admite otros valores. Con el CHECK fijo, una organización con tope 50 respondería 500 al publicar a 30. Queda `CHECK (>= 1)` y la API valida contra el tope de la organización.
+2. **Solape entre organizaciones:** el conductor es la misma persona en todas sus organizaciones (HU-07), y RLS le escondería un viaje suyo de otra. Dentro de la transacción, el contexto de plataforma se abre solo para leer sus propios viajes y se cierra antes del INSERT, que sigue sujeto a RLS. No cambia ninguna política. Un candado por conductor evita que dos publicaciones simultáneas pasen juntas la comprobación.
+3. **`mis-viajes`:** el plan pide solo sesión; devuelve los viajes de la persona en todas sus organizaciones, siempre filtrados por conductor. Tiene un tope de 100, sin paginar.
+4. **Detalle:** el plan omitía `fechaHoraSalida`; se agrega.
+
+**Interpretaciones de la spec:** un viaje ocupa al conductor en `publicado`, `reservado` y `en_curso`; con exactamente 2 horas entre salidas no hay solape. `verificado` y `pagado` ya no ocupan.
+
+**Permisos:** el rol de la API solo tiene SELECT e INSERT sobre `viajes`. Las historias que cambien estado o cupos deben otorgar UPDATE de esas columnas.
+
+**Verificado:** regresión de `backend` en verde (lint, formato, pruebas con cobertura, e2e y build). Prueba real por HTTP contra un backend en marcha, con firma ECDSA de una llave de prueba: CA-1 a CA-7, repetir una petición capturada, el tope de otra organización, el solape entre organizaciones y las 3 rutas en Swagger. En PostgreSQL, con el rol de la API: otra organización no ve ni inserta, sin contexto no se ve nada, no puede actualizar ni borrar, y los CHECK rechazan cupos, precio y coordenadas fuera de rango.
+
+**Sin verificar:** verificación en sesión limpia, móvil y teléfono real.
+
+**Sin decidir:** si una cuenta suspendida puede publicar, y qué rol exige `GET /viajes/{id}` (`ssd.md` pide miembro verificado con firma; el plan, solo miembro). Están en `HEARTBEAT.md`.
+
+**Archivos afectados:** `backend/prisma/schema.prisma`, `backend/prisma/migrations/011_viajes/`, `backend/src/viajes/`, `backend/src/aplicacion.module.ts`, `backend/src/i18n/es-BO.json`, `backend/test/viajes/`, `backend/test/ataques/a-08-publicar-viaje.e2e-spec.ts`, `backend/test/ataques/a-13-viajes.e2e-spec.ts`, `backend/test/ayudas-organizaciones.ts`, `backend/test/billetera/ayudas-billetera.ts`; `SPECS/features/sprint-2/HU-17-publicar-viaje/{spec,plan}.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/HEARTBEAT.md`.
+
+---

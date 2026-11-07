@@ -19,7 +19,7 @@ Reutiliza: `OrganizacionGuard` (HU-02), `@RequiereIdentidadVerificada()` (HU-08)
 
 | Tabla | Cambio | Restricciones | ¿`organizacion_id` + RLS? |
 |---|---|---|---|
-| `viajes` | Nueva: `id`, `organizacion_id`, `conductor_id`, `vehiculo_id`, `origen_nombre`, `origen_lat`, `origen_lng`, `destino_nombre`, `destino_lat`, `destino_lng`, `fecha_hora_salida`, `cupos_totales`, `cupos_disponibles`, `precio_por_asiento`, `estado`, `creado_en` | `CHECK (cupos_totales BETWEEN 1 AND 6)`, `CHECK (cupos_disponibles <= cupos_totales)`, `CHECK (precio_por_asiento BETWEEN 1.00 AND 20.00)`, `INDEX(organizacion_id, estado, fecha_hora_salida)` | **Sí**: dato institucional con RLS estricto (`A-13`) |
+| `viajes` | Nueva: `id`, `organizacion_id`, `conductor_id`, `vehiculo_id`, `origen_nombre`, `origen_lat`, `origen_lng`, `destino_nombre`, `destino_lat`, `destino_lng`, `fecha_hora_salida`, `cupos_totales`, `cupos_disponibles`, `precio_por_asiento`, `estado`, `creado_en` | `CHECK (cupos_totales BETWEEN 1 AND 6)`, `CHECK (cupos_disponibles <= cupos_totales)`, `CHECK (precio_por_asiento >= 1)` (el máximo es `organizaciones.precio_maximo_urc`, por organización: lo valida la API; ver MEMORY 2026-11-07), `INDEX(organizacion_id, estado, fecha_hora_salida)` | **Sí**: dato institucional con RLS estricto (`A-13`) |
 
 Migración: `011_viajes`.
 
@@ -37,13 +37,13 @@ Estados de viaje (`estado_viaje` ENUM):
 | Método | Ruta | Rol | Request → Response | Errores (`codigo`) |
 |---|---|---|---|---|
 | POST | `/api/v1/viajes` | miembro aprobado + verificado + firma dispositivo | `{ origenNombre, origenLat, origenLng, destinoNombre, destinoLat, destinoLng, fechaHoraSalida, cuposTotales, precioPorAsiento }` → 201 `{ id, estado: "publicado", cuposDisponibles }` | `CONDUCTOR_SIN_VEHICULO` 403, `CUPOS_EXCEDEN_CAPACIDAD` 400, `PRECIO_FUERA_DE_RANGO` 400, `HORARIO_INVALIDO` 400, `VIAJE_SOLAPADO` 409, `IDENTIDAD_NO_VERIFICADA` 403 |
-| GET | `/api/v1/viajes/mis-viajes` | autenticado | — → 200 `[ { id, origenNombre, destinoNombre, fechaHoraSalida, cuposDisponibles, precioPorAsiento, estado } ]` | — |
-| GET | `/api/v1/viajes/:id` | miembro de la organización | — → 200 `{ id, origen, destino, conductor: { nombre }, vehiculo: { placa, marca, modelo, color }, cuposDisponibles, precioPorAsiento, estado }` | `VIAJE_NO_ENCONTRADO` 404 |
+| GET | `/api/v1/viajes/mis-viajes` | autenticado | — → 200 `[ { id, origenNombre, destinoNombre, fechaHoraSalida, cuposDisponibles, precioPorAsiento, estado } ]`, de todas las organizaciones de la persona | — |
+| GET | `/api/v1/viajes/:id` | miembro de la organización | — → 200 `{ id, origen, destino, fechaHoraSalida, conductor: { nombre }, vehiculo: { placa, marca, modelo, color }, cuposDisponibles, precioPorAsiento, estado }` | `VIAJE_NO_ENCONTRADO` 404 |
 
 Reglas de validación:
 - **Capacidad física:** Verifica que `cuposTotales <= vehiculo.capacidad` del conductor.
 - **Anticipación:** `fechaHoraSalida >= NOW() + INTERVAL '15 minutes'`.
-- **Anti-solapamiento:** Verifica que el conductor no tenga otro viaje activo en un margen de $\pm$ 2 horas.
+- **Anti-solapamiento:** Verifica que el conductor no tenga otro viaje activo (`publicado`, `reservado` o `en_curso`) en un margen de $\pm$ 2 horas, en cualquiera de sus organizaciones; con exactamente 2 horas ya no se solapa.
 
 ## 4. Pantallas y flujo móvil
 

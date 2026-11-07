@@ -72,4 +72,5 @@ Marcar al cerrar la fase **Verify**. Referencia: `SPECS/constitution.md` Art. 12
 |---|---|---|
 | 2026-11-02 | Creación (borrador) | — |
 | 2026-11-02 | Aprobación de spec y plan; máquina de estados, tope de cupos por auto y RLS | 2026-11-02 · HU-17 Publicar viaje: spec y plan técnico aprobados |
+| 2026-11-07 | Sin cambio de criterios; el plan se ajusta al tope por organización y al solape entre organizaciones | 2026-11-07 · HU-17: contrato del backend y ajustes al plan |
 
