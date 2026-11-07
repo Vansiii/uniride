@@ -74,4 +74,5 @@ Marcar al cerrar la fase **Verify**. Referencia: `SPECS/constitution.md` Art. 12
 | 2026-11-07 | Sin cambios de criterios. Pantallas móviles con `expo-location` autorizado por el integrante | 2026-11-07 · HU-18: pantallas móviles |
 | 2026-11-07 | Sin cambios de criterios. Mapa con funciones habituales y tipos de mapa, con MapLibre autorizado por el integrante (`SP130`) | 2026-11-07 · HU-18: teléfono físico y decisión del mapa |
 | 2026-11-07 | Sin cambios de criterios. Verificación en sesión limpia: CA-1 a CA-6 cumplidos, cobertura 92,4 %, CA-6 en 25 ms con 40 500 viajes | 2026-11-07 · HU-18: verificación en sesión limpia |
+| 2026-11-07 | Sin cambios de criterios. Igual al prototipo: nombre de pila en el saludo, voz desactivada, una fila a 360 y «2 de 4» con `cuposTotales` en el detalle (decisión del integrante) | 2026-11-07 · HU-18: verificación en sesión limpia |
 

@@ -1070,3 +1070,5 @@ Los dos se vieron en el teléfono físico.
 
 **Teléfono:** `dumpsys` lista una ventana «Application Not Responding» de la app, con superficie de 0 × 0, que retiene el foco. No hay `am_anr` en esta sesión; el único archivo de `/data/anr` es de las 16:56. No impide tocar la app y «atrás» no la cierra.
 
+**Ajustes al prototipo (decisión del integrante, 07/11):** el saludo usa el nombre de pila y el subtítulo «¿A dónde vas hoy?». En la banda hay un micrófono desactivado («Hablar con UniRide, disponible pronto»; la voz es de HU-27). «Mi ubicación» y «En el mapa» quedan en una fila a 360: el relleno de los botones de texto sale del borde de la tarjeta. El detalle muestra «2 de 4» asientos, porque `GET /viajes/:id` ahora da `cuposTotales` (backend `7b61c44`, con prueba e2e). Se aceptan sin «Hacia», el título genérico, el nombre de pila sin inicial del apellido (RN-4) y las fechas en chips. Todo verificado en navegador y en el teléfono a 360 dp; regresión completa en verde (459 unitarias, 510 e2e, 361 de móvil).
+

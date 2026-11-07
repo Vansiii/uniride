@@ -12,6 +12,7 @@
 | backend | `viajes` | Índice `idx_viajes_busqueda`. Sin utilidad `GeoDistance`: la distancia se calcula solo en SQL |
 | mobile | `app/(pestanas)/index.tsx`, `componentes/FormularioBusqueda.tsx` | La pestaña Buscar: origen por GPS, buscador o mapa, fecha y hora, sin destino (spec §5), y saldo disponible |
 | mobile | `app/viajes/buscar.tsx`, `app/viajes/[id].tsx` | Nuevo: resultados en lista y detalle del viaje, con Reservar deshabilitado hasta HU-19 |
+| backend | `viajes` | `GET /viajes/:id` agrega `cuposTotales` para mostrar «2 de 4» (07/11) |
 | mobile | `componentes/SelectorMapa.tsx`, `servicios/ubicacion.ts` | Nuevo: elegir el punto moviendo el mapa bajo un pin, y leer la ubicación con tope de 15 s |
 | mobile | `componentes/TarjetaViaje.tsx` | Nuevo: tarjeta de viaje con datos del conductor, vehículo, precio, cupos y distancia |
 
