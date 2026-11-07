@@ -5,7 +5,7 @@
 **Última actualización:** 2026-11-07
 
 **Sprint actual:** Sprint 2 · 28/10 – 03/11/2026 (sprints de 1 semana, miércoles a martes). Las fechas ya vencieron con HU-13, HU-17 y HU-18 pendientes.
-**Foco:** HU-18 implementada, verificada en sesión limpia y en el teléfono, y revisada; falta subir ramas y PR cuando lo diga el integrante. HU-12, HU-14, HU-13 y HU-17 con PR abiertos; todos esperan revisión. Cada historia se apila sobre la anterior, sin esperar el merge (decisión del integrante, 07/11). El despliegue va después.
+**Foco:** HU-18 implementada, verificada en sesión limpia y en el teléfono, y revisada; PR abiertos (07/11). HU-12, HU-14, HU-13 y HU-17 con PR abiertos; todos esperan revisión. Cada historia se apila sobre la anterior, sin esperar el merge (decisión del integrante, 07/11). El despliegue va después.
 
 ## Estado actual
 
@@ -16,8 +16,8 @@
 - **HU-14:** implementada, verificada y revisada, apilada sobre HU-12, en origin con la rama `feat/HU-14-saldo-historial` en `backend` (`a53df7c`), `mobile` (`db42801`) y raíz. CI en verde en `backend` y `mobile`.
 - **HU-13:** rama `feat/HU-13-recarga-saldo` en `backend` y `mobile` (apiladas sobre HU-14) y `contracts` (desde `develop`), implementada, verificada en sesión limpia y en el teléfono físico, y con PR abiertos (`backend` `b15640a`, `mobile` `5cb8227`, `contracts` `cc01cbb`). Revisión hecha. Falta SP129 (firmante KMS, al desplegar). Ajuste de spec y plan aprobado el 07/11.
 - **HU-17:** rama `feat/HU-17-publicar-viaje` en `backend` (`2585a7b`) y `mobile` (`e31b086`), apiladas sobre HU-13, y raíz, en origin. SP115-SP119 hechas, verificadas en sesión limpia y en el teléfono físico, y revisadas. PR abiertos, que van después de los de HU-13.
-- **HU-18:** rama `feat/HU-18-buscar-viajes` en `backend` (`7b61c44`) y `mobile` (`a71e3db`), apiladas sobre HU-17, y raíz, solo local. SP120-SP123 y SP130 hechas, verificadas en sesión limpia (07/11), probadas en el teléfono físico y revisadas. Se fusiona después de los PR de HU-17.
-- **PR a `develop`, en orden de fusión:** `mobile` #8 (SP125), #9 (HU-12), #10 (HU-14), #11 (HU-13), #12 (HU-17); `backend` #10 (HU-12), #11 (HU-14), #12 (HU-13), #13 (HU-17); `contracts` #1 (HU-13); raíz #19 (HU-12 y HU-14), #20 (HU-13), #21 (HU-17).
+- **HU-18:** rama `feat/HU-18-buscar-viajes` en `backend` (`7b61c44`) y `mobile` (`a71e3db`), apiladas sobre HU-17, y raíz, en origin, con PR abiertos. SP120-SP123 y SP130 hechas, verificadas en sesión limpia (07/11), probadas en el teléfono físico y revisadas. Se fusiona después de los PR de HU-17.
+- **PR a `develop`, en orden de fusión:** `mobile` #8 (SP125), #9 (HU-12), #10 (HU-14), #11 (HU-13), #12 (HU-17), #13 (HU-18); `backend` #10 (HU-12), #11 (HU-14), #12 (HU-13), #13 (HU-17), #14 (HU-18); `contracts` #1 (HU-13); raíz #19 (HU-12 y HU-14), #20 (HU-13), #21 (HU-17), #22 (HU-18).
 
 ## Última sesión (07/11)
 
@@ -25,7 +25,7 @@
 
 ## Próximo paso concreto
 
-1. **HU-18, punto exacto:** revisión hecha y corregida (`mobile` `a71e3db`). Falta push de `backend`, `mobile` y raíz y abrir los PR cuando lo diga el integrante (van después de los de HU-17).
+1. **HU-18, punto exacto:** PR abiertos (`backend` #14, `mobile` #13, raíz #22), van después de los de HU-17. Siguiente historia: se apila sobre HU-18.
 4. En paralelo, otro integrante revisa y fusiona los PR en el orden de arriba, con `contracts` antes que `backend`. Tras el merge: confirmar con `git merge-base --is-ancestor`, actualizar punteros y marcar lo que corresponda. El cambio de firma de `mobile` exige recompilar el APK.
 
 ## Sin verificar
