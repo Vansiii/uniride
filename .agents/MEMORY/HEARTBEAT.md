@@ -5,7 +5,7 @@
 **Última actualización:** 2026-11-07
 
 **Sprint actual:** Sprint 2 · 28/10 – 03/11/2026 (sprints de 1 semana, miércoles a martes). Las fechas ya vencieron con HU-13, HU-17 y HU-18 pendientes.
-**Foco:** HU-12 y HU-14 con PR abiertos y CI en verde, esperando revisión. HU-13 sigue apilada sobre HU-14, sin esperar el merge (decisión del integrante, 07/11): backend y contrato hechos, falta móvil. El despliegue va después.
+**Foco:** HU-12 y HU-14 con PR abiertos y CI en verde, esperando revisión. HU-13 sigue apilada sobre HU-14, sin esperar el merge (decisión del integrante, 07/11): backend, contrato y móvil hechos, sin subir; falta verificarla. El despliegue va después.
 
 ## Estado actual
 
@@ -14,16 +14,16 @@
 - **SP125 (Keystore nativo, HU-09):** `mobile`, `feat/HU-09-keystore-nativo`, en origin, sin fusionar en `develop` (comprobado el 07/11).
 - **HU-12:** implementada, en origin, sin fusionar en `develop` en `backend` ni en `mobile` (comprobado el 07/11).
 - **HU-14:** implementada, verificada y revisada, apilada sobre HU-12, en origin con la rama `feat/HU-14-saldo-historial` en `backend` (`a53df7c`), `mobile` (`db42801`) y raíz. CI en verde en `backend` y `mobile`.
-- **HU-13:** `backend` (rama `feat/HU-13-recarga-saldo`, apilada sobre HU-14) y `contracts` (misma rama, desde `develop`) implementados, verificados y sin subir. Falta SP114 (móvil) y SP129 (firmante KMS, al desplegar). Ajuste de spec y plan aprobado el 07/11.
+- **HU-13:** rama `feat/HU-13-recarga-saldo` en `backend` y `mobile` (apiladas sobre HU-14) y `contracts` (desde `develop`), implementada y sin subir. Falta la verificación en sesión limpia, la huella en el teléfono y SP129 (firmante KMS, al desplegar). Ajuste de spec y plan aprobado el 07/11.
 - **PR a `develop`, en orden de fusión:** `mobile` #8 (SP125), #9 (HU-12), #10 (HU-14); `backend` #10 (HU-12), #11 (HU-14); raíz #19 (documentos).
 
 ## Última sesión (07/11)
 
-- HU-13: aprobado el ajuste de spec y plan; implementados SP109–SP113 y SP126–SP128. Probado contra `UniCoin` en Hardhat con el backend en su proceso. Detalle en `MEMORY.md`.
+- HU-13: implementado SP114 (`mobile`, `b384295`): pantalla de recarga, botón Recargar en Billetera y en el historial vacío, y aviso de pendiente. Lint, tipos y 282 pruebas en verde; recorrido en navegador contra el backend con firma real de una llave de prueba. Detalle en `MEMORY.md`.
 
 ## Próximo paso concreto
 
-1. **HU-13, punto exacto:** contrato de la API listo. Sigue SP114 en `mobile`: rama `feat/HU-13-recarga-saldo` apilada sobre `feat/HU-14-saldo-historial` (aún sin crear), pantalla `src/app/recargar.tsx`, botón Recargar en Billetera y en el historial vacío, y aviso de pendiente. El QR llega como `qrImagenBase64` (PNG sin prefijo `data:`); `monto` se envía como número; la firma va solo en `confirmar`. Después, la verificación en sesión limpia y el teléfono. Grado 5: dinero.
+1. **HU-13, punto exacto:** implementación completa. Sigue la verificación en sesión limpia: criterios CA-1 a CA-6, ataques A-08 a A-11, regresión de `backend`, `contracts` y `mobile` con build, paridad con el prototipo (ver diferencias en `MEMORY.md`) y contra `UniCoin` en Hardhat. Después, la huella en el teléfono. Grado 5: dinero.
 2. En paralelo, otro integrante revisa y fusiona los PR en el orden de arriba. Tras el merge: confirmar con `git merge-base --is-ancestor`, actualizar punteros y marcar lo que corresponda.
 3. Después de HU-13: HU-17 y HU-18.
 
@@ -31,10 +31,10 @@
 
 - Polygon Amoy y SP23: billetera, saldo y escrow solo se probaron contra Hardhat local.
 - El enlace a Polygonscan se vio y se abrió con la URL de Amoy agregada por un proxy de prueba, con un hash que no existe en esa red.
-- HU-13 en Polygon Amoy: `queryFilter` sin `fromBlock` puede chocar con el límite de rango de un RPC público. La confirmación con huella real, que llega con el móvil. El arreglo de nonce del proveedor solo tiene la prueba real, sin prueba automatizada.
+- HU-13 en Polygon Amoy: `queryFilter` sin `fromBlock` puede chocar con el límite de rango de un RPC público. La confirmación con huella real en el teléfono y la app contra `UniCoin` en Hardhat. El arreglo de nonce del proveedor solo tiene la prueba real, sin prueba automatizada.
 - CI real, Play Integrity real, StrongBox, invalidación al registrar una huella nueva.
 - Escrow desde el backend: la prueba llamó al contrato y escribió los asientos por su cuenta. El flujo real llega con HU-19.
-- La pestaña Billetera con datos en web: sin Keystore no hay firma, muestra "vincula este teléfono". Con datos solo se vio en el teléfono, a 360 y 412 dp.
+- HU-13 en el móvil, solo con Jest: falla de red al confirmar y QR que llega a cero.
 
 ## Bloqueos activos
 

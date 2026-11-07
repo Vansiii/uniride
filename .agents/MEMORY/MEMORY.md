@@ -764,3 +764,19 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 **Archivos afectados:** `contracts/contracts/UniCoin.sol`, `contracts/test/UniCoin.ts`; `backend/prisma/`, `backend/src/billetera/`, `backend/src/blockchain/`, `backend/src/i18n/es-BO.json`, `backend/test/`; `.env.example`; `SPECS/features/sprint-2/HU-13-recarga-saldo/{spec,plan}.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
 
 ---
+
+## 2026-11-07 · HU-13: pantalla de recarga en el móvil (SP114)
+
+**Decisión:** `src/app/recargar.tsx` es una sola ruta con pasos en memoria (monto, QR, en camino, acreditada, vencida), así "atrás" nunca vuelve a un QR ya pagado. El QR es la imagen del servidor con `Image`, sin dependencias nuevas. Al llegar a cero, la pantalla consulta `GET /billetera/recargas/:id` antes de decir "no se cobró nada". Billetera muestra un aviso por cada recarga pendiente de la primera página de movimientos, sin sumarlas, y relee saldo y pendientes al recuperar el foco, sin firma.
+
+**Razón:** una confirmación cuya respuesta se perdió ya no vence en el servidor, así que el reloj del teléfono no puede afirmar que no hubo cobro. Sumar montos obligaría a pasar por `Number`. Releer sin firma actualiza el saldo sin gastar una huella (CA-1).
+
+**Verificado:** `mobile` lint, tipos y 282 pruebas. En navegador contra el backend con cadena simulada, a 360 y 412 dp, con una llave P-256 de prueba inyectada como módulo nativo, de modo que el servidor validó firmas reales: monto, errores de rango y decimales, QR, una sola firma al confirmar, en camino, acreditada, saldo actualizado sin otra firma, movimiento en el historial, orden vencida (410), pago repetido (CA-3) y sin identidad (CA-6). El aviso de pendiente se vio con un movimiento insertado por SQL, y el pago repetido y el vencimiento se forzaron por SQL.
+
+**Sin verificar:** huella real en el teléfono y contra `UniCoin` en Hardhat desde la app. Falla de red al confirmar y QR que llega a cero: solo con Jest. Build de `mobile` sin correr en esta parte.
+
+**Diferencia con el prototipo:** "Recarga en camino" no lleva la tarjeta con la fila del movimiento y Billetera no agrega "1 URC = 1 Bs". Decidir en la verificación.
+
+**Archivos afectados:** `mobile/src/app/recargar.tsx`, `mobile/src/app/(pestanas)/billetera.tsx`, `mobile/src/app/movimientos.tsx`, `mobile/src/api/cliente.ts`, `mobile/src/i18n/es-BO.json`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/`.
+
+---

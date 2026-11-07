@@ -170,7 +170,7 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP111 · Método `acunarRecarga` en `BlockchainService` e integración con relayer — 3h — @[POR DEFINIR] · backend @agente 07/11: probado contra UniCoin en Hardhat; producción no arranca sin SP129
 - [x] SP112 · Endpoint de confirmación de recarga con `FirmaDispositivoGuard` (D-13) — 4h — @[POR DEFINIR] · backend @agente 07/11: confirmar con firma, 202 o 200 idempotente
 - [x] SP113 · Suite de pruebas automatizadas y prueba de ataque A-09 (doble acreditación) — 3h — @[POR DEFINIR] · backend @agente 07/11: e2e de recarga y ataques A-08, A-09, A-10 y A-11
-- [ ] SP114 · Mobile: pantalla de recarga en Expo (selector, QR y confirmación biométrica), botón Recargar y aviso de pendiente — 5h — @[POR DEFINIR]
+- [x] SP114 · Mobile: pantalla de recarga en Expo (selector, QR y confirmación biométrica), botón Recargar y aviso de pendiente — 5h — @[POR DEFINIR] · mobile @agente 07/11: probada con Jest y en navegador contra el backend, con firma real de una llave de prueba; falta la huella en el teléfono
 - [x] SP126 · `UniCoin.acunarRecarga` idempotente con evento, y sus pruebas — 2h — @[POR DEFINIR] · contracts @agente 07/11: `acunarRecarga`, `ordenAcunada` y evento; contrato sin desplegar en Amoy
 - [x] SP127 · Worker de `trabajos_onchain` con reintentos y alerta en auditoría (D-10) — 4h — @[POR DEFINIR] · backend @agente 07/11: reintentos hasta 1 h entre intentos y alerta única al quinto
 - [x] SP128 · Libro mayor: clave en conflicto, decimales y `fallido` final — 2h — @[POR DEFINIR] · backend @agente 07/11: clave en conflicto, decimales y `fallido` final
