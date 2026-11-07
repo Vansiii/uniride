@@ -889,3 +889,16 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 
 ---
 
+## 2026-11-07 · HU-17: una cuenta suspendida no publica
+
+**Decisión del integrante:** una cuenta suspendida no puede publicar viajes. Con la billetera bloqueada no podría cobrarlos, y los pasajeros verían una oferta de alguien sancionado.
+
+**Cómo queda:** `POST /viajes` y `GET /viajes/limites` responden 403 `CUENTA_SUSPENDIDA`, con el `CuentaActivaGuard` de la billetera, después de la membresía y antes de identidad y firma. Se exige también en `limites` porque firmar pide la huella antes de enviar: así la app lo sabe al abrir la pestaña y no muestra el formulario. El texto del backend deja de nombrar la billetera, porque ya no es exclusivo de ella.
+
+**Sin decidir:** qué pasa con los viajes ya publicados por alguien que luego es suspendido; siguen activos. Toca la máquina de estados (`AGENTS.md` §14). Está en `HEARTBEAT.md`.
+
+**Verificado:** e2e de `backend` y pruebas de `mobile`. Sin mirar todavía en navegador: entra en la verificación en sesión limpia.
+
+**Archivos afectados:** `backend/src/viajes/viajes.{controller,module}.ts`, `backend/src/i18n/es-BO.json`, `backend/test/viajes/publicar.e2e-spec.ts`, `mobile/src/app/(pestanas)/publicar.tsx`, `mobile/src/i18n/es-BO.json`, `mobile/src/__tests__/publicar.test.tsx`; `SPECS/features/sprint-2/HU-17-publicar-viaje/{spec,plan}.md`, `.agents/MEMORY/HEARTBEAT.md`.
+
+---

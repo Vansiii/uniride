@@ -15,16 +15,17 @@
 - **HU-12:** implementada, en origin, sin fusionar en `develop` en `backend` ni en `mobile` (comprobado el 07/11).
 - **HU-14:** implementada, verificada y revisada, apilada sobre HU-12, en origin con la rama `feat/HU-14-saldo-historial` en `backend` (`a53df7c`), `mobile` (`db42801`) y raíz. CI en verde en `backend` y `mobile`.
 - **HU-13:** rama `feat/HU-13-recarga-saldo` en `backend` y `mobile` (apiladas sobre HU-14) y `contracts` (desde `develop`), implementada, verificada en sesión limpia y en el teléfono físico, y con PR abiertos (`backend` `b15640a`, `mobile` `5cb8227`, `contracts` `cc01cbb`). Revisión hecha. Falta SP129 (firmante KMS, al desplegar). Ajuste de spec y plan aprobado el 07/11.
-- **HU-17:** rama `feat/HU-17-publicar-viaje` en `backend` (`879afb8`) y `mobile` (`ab44397`), apiladas sobre HU-13, y raíz, sin subir. SP115-SP119 hechas; faltan verificación en sesión limpia, teléfono físico y PR. Su PR va después de los de HU-13.
+- **HU-17:** rama `feat/HU-17-publicar-viaje` en `backend` (`c3a542c`) y `mobile` (`c15706e`), apiladas sobre HU-13, y raíz, sin subir. SP115-SP119 hechas; faltan verificación en sesión limpia, teléfono físico y PR. Su PR va después de los de HU-13.
 - **PR a `develop`, en orden de fusión:** `mobile` #8 (SP125), #9 (HU-12), #10 (HU-14), #11 (HU-13); `backend` #10 (HU-12), #11 (HU-14), #12 (HU-13); `contracts` #1 (HU-13); raíz #19 (HU-12 y HU-14), #20 (HU-13).
 
 ## Última sesión (07/11)
 
 - HU-17, móvil (SP119): pestaña Publicar con requisitos, formulario firmado, búsqueda en OpenStreetMap, mapa fijo y resultado, más `GET /viajes/limites` en `backend`. Pruebas de `mobile` y regresión de `backend` en verde; mirada en navegador con backend real, firma con llave inyectada y Nominatim real, a 360 y 412 dp. Ajustes al plan en `MEMORY.md`.
+- HU-17, decisión del integrante: una cuenta suspendida no publica. `POST /viajes` y `GET /viajes/limites` responden 403 y la pestaña lo dice sin formulario. Probado en e2e y Jest; falta mirarlo en navegador.
 
 ## Próximo paso concreto
 
-1. **HU-17, punto exacto:** SP119 commiteada. Sigue la verificación en sesión limpia de CA-1 a CA-7, A-08 y A-13, con paridad contra `prototipos/sprint-2.html` (`m-publicar*`): fecha en chips y hora escrita son diferencias con el prototipo, y falta el micrófono apagado. Luego, el teléfono físico.
+1. **HU-17, punto exacto:** SP119 commiteada. Sigue la verificación en sesión limpia de CA-1 a CA-7, A-08, A-13 y la cuenta suspendida, con los rechazos de CA-2, CA-3 y CA-4 contra el backend real, con paridad contra `prototipos/sprint-2.html` (`m-publicar*`): fecha en chips y hora escrita son diferencias con el prototipo, y falta el micrófono apagado. Luego, el teléfono físico.
 2. En paralelo, otro integrante revisa y fusiona los PR en el orden de arriba, con `contracts` antes que `backend`. Tras el merge: confirmar con `git merge-base --is-ancestor`, actualizar punteros y marcar lo que corresponda.
 3. Después, HU-18, apilada si depende de ramas sin fusionar.
 
@@ -48,7 +49,7 @@
 
 ## Decisiones abiertas
 
-- **Para HU-17, cuenta suspendida:** la spec no dice si puede publicar y hoy puede, porque `CUENTA_SUSPENDIDA` solo se exige en la billetera. Decidir si se bloquea.
+- **Para HU-18 o HU-19, viajes de una cuenta suspendida:** ya no puede publicar, pero lo publicado antes sigue activo. Cambiarlo toca la máquina de estados (`AGENTS.md` §14). Decidir qué pasa con esos viajes.
 - **Para HU-18, `GET /viajes/{id}`:** `ssd.md` pide miembro verificado con firma; el plan de HU-17, aprobado después, pide solo miembro de la organización, y así quedó. Confirmar o corregir `ssd.md`.
 - **Vulnerabilidades en dependencias de producción (`npm audit`, 07/11), anteriores a HU-14, sin corregir:** `backend` 7 altas, con `@nestjs/platform-express` y `prisma` como directas; `mobile` 6 altas, con `expo-router` como directa. Cambiar dependencias requiere autorización (`AGENTS.md` §14). Decidir si se atienden antes de desplegar.
 - **Para HU-19, reembolso 50/50 de un monto con centavos impares:** `reembolsar` reparte 6,175 URC de 12,35 y el libro solo guarda 2 decimales. La diferencia con la cadena queda permanente y agrega filas de auditoría en cada lectura real. Decidir antes de HU-19: redondear en el contrato o limitar los montos. Cambiar el contrato requiere autorización (`AGENTS.md` §14).

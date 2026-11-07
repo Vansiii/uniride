@@ -40,6 +40,7 @@
 | Horario inválido o pasado (CA-4) | Rechazo exigiendo horario futuro | `viajes.publicar.horario_invalido` |
 | Solapamiento con otro viaje del conductor (CA-5) | Rechazo por conflicto de horario | `viajes.publicar.viaje_solapado` |
 | Conductor sin vehículo o no verificado (CA-6) | Rechazo 403 con redirección | `viajes.publicar.requisito_incompleto` |
+| Cuenta suspendida | Rechazo 403; la app lo dice al abrir la pestaña, sin formulario ni huella | `viajes.publicar.cuenta_suspendida` |
 
 ## 5. Fuera de alcance de esta HU
 
@@ -74,4 +75,5 @@ Marcar al cerrar la fase **Verify**. Referencia: `SPECS/constitution.md` Art. 12
 | 2026-11-02 | Aprobación de spec y plan; máquina de estados, tope de cupos por auto y RLS | 2026-11-02 · HU-17 Publicar viaje: spec y plan técnico aprobados |
 | 2026-11-07 | Sin cambio de criterios; el plan se ajusta al tope por organización y al solape entre organizaciones | 2026-11-07 · HU-17: contrato del backend y ajustes al plan |
 | 2026-11-07 | Sin cambio de criterios; el plan agrega `GET /viajes/limites` y fija la pantalla como pestaña | 2026-11-07 · HU-17: pantalla móvil |
+| 2026-11-07 | Caso borde nuevo: una cuenta suspendida no puede publicar (decisión del integrante) | 2026-11-07 · HU-17: una cuenta suspendida no publica |
 
