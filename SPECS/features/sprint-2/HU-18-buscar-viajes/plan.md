@@ -10,7 +10,9 @@
 |---|---|---|
 | backend | `viajes` | Nuevo: endpoint `GET /viajes/buscar` con consulta geoespacial Haversine y filtro de ventana temporal |
 | backend | `viajes` | Índice `idx_viajes_busqueda`. Sin utilidad `GeoDistance`: la distancia se calcula solo en SQL |
-| mobile | `app/viajes/buscar.tsx` | Nuevo: pantalla con mapa o lista de viajes disponibles, filtros de horario y selector de destino |
+| mobile | `app/(pestanas)/index.tsx`, `componentes/FormularioBusqueda.tsx` | La pestaña Buscar: origen por GPS, buscador o mapa, fecha y hora, sin destino (spec §5), y saldo disponible |
+| mobile | `app/viajes/buscar.tsx`, `app/viajes/[id].tsx` | Nuevo: resultados en lista y detalle del viaje, con Reservar deshabilitado hasta HU-19 |
+| mobile | `componentes/SelectorMapa.tsx`, `servicios/ubicacion.ts` | Nuevo: elegir el punto moviendo el mapa bajo un pin, y leer la ubicación con tope de 15 s |
 | mobile | `componentes/TarjetaViaje.tsx` | Nuevo: tarjeta de viaje con datos del conductor, vehículo, precio, cupos y distancia |
 
 Reutiliza: `OrganizacionGuard` (HU-02), `viajes` (HU-17), `VehiculoPublico` (HU-11).
@@ -85,11 +87,12 @@ sequenceDiagram
 | CA-5 Conductor sin calificación muestra badge 'Nuevo' (D-17) | e2e | `buscar.e2e-spec.ts` |
 | CA-6 Rendimiento: respuesta en < 2 segundos con 50 viajes | e2e / carga | `buscar.e2e-spec.ts` |
 | Ataque A-13 por la API y en PostgreSQL | e2e | `backend/test/ataques/a-13-viajes.e2e-spec.ts` |
-| Móvil: lista de resultados y tarjeta de viaje | Jest (preset Expo) | `mobile/test/viajes/buscar.test.tsx` |
+| Móvil: formulario, resultados, tarjeta y detalle | Jest (preset Expo) | `mobile/src/__tests__/buscar.test.tsx` |
 
 ## 7. Dependencias y requerimientos
 
 - Reutiliza módulo `viajes` (HU-17) y OpenStreetMap.
+- `expo-location` en `mobile` (autorizado por el integrante el 07/11, `AGENTS.md` §14). Es un módulo nativo: hay que recompilar la app. El mapa no agrega librería: usa las teselas de `MapaRuta`, sin pellizco para acercar.
 
 ## 8. Tareas propuestas (para backlog.md al aprobar)
 

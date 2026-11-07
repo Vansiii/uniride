@@ -187,7 +187,7 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP120 · Lógica de consulta geoespacial Haversine y filtro de ventana temporal — 3h — @[POR DEFINIR] · backend @agente 07/11: índice `idx_viajes_busqueda`; el `acos` del plan fallaba en PostgreSQL por redondeo y quedó acotado; verificado con 40 500 viajes (26 ms como máximo)
 - [x] SP121 · Endpoint `/viajes/buscar` con DTOs seguros y resolución D-17 — 3h — @[POR DEFINIR] · backend @agente 07/11: documentado en Swagger; membresía sin firma, nombre de pila también en el detalle y sin cuentas suspendidas (decisiones del integrante)
 - [x] SP122 · Suite de pruebas automatizadas, prueba de aislamiento A-13 y medición de latencia < 2s — 3h — @[POR DEFINIR] · backend @agente 07/11: CA-1 a CA-6 y A-13 en API y en PostgreSQL; prueba real por HTTP sin diferencias; falta verificación en sesión limpia
-- [ ] SP123 · Mobile: pantalla de Búsqueda de viajes y componente `TarjetaViaje` en Expo — 5h — @[POR DEFINIR]
+- [x] SP123 · Mobile: pantalla de Búsqueda de viajes y componente `TarjetaViaje` en Expo — 5h — @[POR DEFINIR] · mobile @agente 07/11: formulario en la pestaña Buscar, resultados y detalle; origen por GPS (`expo-location`, autorizado por el integrante), buscador o mapa; saldo a la vista. Probado en navegador contra el backend real; falta verificación en sesión limpia y en teléfono físico (hay que recompilar).
 
 
 

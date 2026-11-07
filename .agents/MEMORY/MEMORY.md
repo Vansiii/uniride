@@ -997,3 +997,28 @@ Revisión de `backend` y `mobile` contra HU-13, con el cambio de firma como grad
 
 **Verificado:** `verificar.py backend` en verde con e2e completas, y prueba real por HTTP (`.harness` local): 13 casos y CA-6 con 40 500 viajes, 26 ms como máximo, usando el índice.
 
+---
+
+## 2026-11-07 · HU-18: pantallas móviles
+
+**Evento:** SP123 en `mobile`, `feat/HU-18-buscar-viajes`, apilada sobre HU-17.
+
+**Decisión del integrante:** se agrega `expo-location` (`AGENTS.md` §14) y se permite mejorar el mapa. Es un módulo nativo: la app se recompila.
+
+**Cómo quedó:**
+1. La pestaña Inicio pasa a llamarse Buscar, como en el prototipo. «Tu cuenta» y Cerrar sesión siguen debajo hasta que exista Perfil.
+2. Sin campo «Hacia»: la búsqueda no filtra por destino. El título de resultados es «Viajes cerca de ti», no «A UAGRM».
+3. El diálogo de ubicación sale solo al tocar «Mi ubicación». Con permiso ya dado, el origen se llena solo sin pisar lo elegido. Negado para siempre: «Abrir ajustes».
+4. Mapa propio con las teselas de `MapaRuta`, sin librería nueva: se mueve bajo un pin fijo, con botones de zoom y «Mi ubicación». Sin pellizco; agregarlo pide una librería de mapas (HU-23).
+5. Placa en la tarjeta: la spec CA-2 manda sobre `DESIGN_SYSTEM.md` §8.7, como en el prototipo.
+6. Nombre de pila tal como llega («María»), no «Carlos J.». «Conductor verificado» en vez de «Verificada»: la app no conoce el género.
+7. Saldo: fila con «Saldo disponible» que lleva a Billetera, sin huella, como en el prototipo; sin saldo legible no se muestra. `TarjetaSaldo` sigue solo en Billetera: es para la banda de marca.
+8. Membresía: la API responde `NO_AUTORIZADO`; la pantalla muestra «Pendiente de aprobación» si la activa lo está, con aviso y «Elegir organización».
+9. Distancia e insignias no vienen en `GET /viajes/{id}`: el detalle las toma de lo último encontrado en memoria, no de la ruta, para que un enlace no pueda inventar una insignia. Entrando por enlace no se muestran.
+
+**Limitaciones:** los resultados no traen coordenadas, así que no hay mapa de resultados sin cambiar el contrato. El saldo de la fila no avisa si el nodo está caído (`enLinea: false`); Billetera sí.
+
+**Defectos hallados al mirarlo:** al entrar por enlace la búsqueda salía antes de restaurar la sesión y mostraba un error genérico; el botón de cerrar el mapa usaba una clave de texto inexistente.
+
+**Verificado:** en navegador contra el backend real, a 360 y 412, con GPS fijado: 42 comprobaciones de la búsqueda y 6 de lo afectado (Publicar, cerrar el mapa, entrada a Billetera, salir). Falta el teléfono físico.
+
