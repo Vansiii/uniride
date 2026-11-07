@@ -77,4 +77,5 @@ Marcar al cerrar la fase **Verify**. Referencia: `SPECS/constitution.md` Art. 12
 | 2026-11-07 | Sin cambio de criterios; el plan agrega `GET /viajes/limites` y fija la pantalla como pestaña | 2026-11-07 · HU-17: pantalla móvil |
 | 2026-11-07 | Caso borde nuevo: una cuenta suspendida no puede publicar (decisión del integrante) | 2026-11-07 · HU-17: una cuenta suspendida no publica |
 | 2026-11-07 | Sin cambio de criterios; el rechazo por solape dice con qué viaje choca | 2026-11-07 · HU-17: verificación en sesión limpia |
+| 2026-11-07 | Sin cambio de criterios; una huella por publicación aunque se tarde o venza la sesión | 2026-11-07 · HU-17: prueba en teléfono físico |
 

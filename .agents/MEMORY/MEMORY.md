@@ -928,3 +928,19 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 **Archivos afectados:** `backend/src/viajes/viajes.{controller,service,service.spec}.ts`, `backend/test/viajes/publicar.e2e-spec.ts`, `mobile/src/app/(pestanas)/publicar.tsx`, `mobile/src/componentes/{Campo,SelectorLugar}.tsx`, `mobile/src/i18n/es-BO.json`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/publicar.test.tsx`; `SPECS/features/sprint-2/HU-17-publicar-viaje/{spec,plan}.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/HEARTBEAT.md`.
 
 ---
+
+## 2026-11-07 · HU-17: prueba en teléfono físico
+
+**Evento:** Se prueba en un Infinix X669 (Android 12, TEE) publicar con huella y Keystore reales, cancelar, solape, error de hora, Nominatim y teselas reales, TalkBack en chips y asientos, y 412 dp, contando las firmas en un registro.
+
+**Defectos corregidos, que no se veían en navegador:**
+1. Con un campo con foco, Android devolvía el desplazamiento a ese campo y el aviso de arriba quedaba fuera de la vista. Ahora se suelta el foco.
+2. Dos huellas. La hora se firmaba antes de abrir el aviso: tardar más de 30 s daba 401, y el cliente reintentaba cualquier 401 con otra huella.
+3. Hueco de 48 dp sobre las pestañas en Publicar e Inicio: `ZonaAccion` contaba otra vez el margen del sistema. Nueva propiedad `enPestanas`.
+4. Un nombre de lugar largo se veía sin su comienzo.
+
+**Decisión técnica (firma, a pedido del integrante):** el módulo nativo recibe el mensaje en dos partes y toma la hora tras la huella, con lo que `firmar` devuelve firma y marca. El mensaje canónico, la ventana de 30 s y el servidor no cambian. Un 401 solo se reintenta si es `NO_AUTENTICADO`, y con la misma firma: `JwtGuard` rechaza antes de que `FirmaDispositivoGuard` gaste el nonce (prueba de ataque en `a-08-publicar-viaje.e2e-spec.ts`). `PETICION_EXPIRADA` y `FIRMA_DISPOSITIVO_INVALIDA` van a la pantalla sin otra huella. Vale para toda petición firmada, también billetera y recargas. Exige recompilar el APK.
+
+**Comprobado tras el cambio:** aviso abierto 44 s: 1 firma y 201. Token vencido de verdad: 401, renovación y 201 con 1 solo aviso. Billetera: 1 huella.
+
+**Pruebas:** la animación de `Ilustracion` dejaba un temporizador que rompía otra suite al azar; `publicar.test.tsx` activa "reducir movimiento".

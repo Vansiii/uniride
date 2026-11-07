@@ -52,7 +52,7 @@ Tareas concretas: `/.agents/STEERING/backlog.md`.
 | HU-34 | Recuperación de contraseña | Como usuario quiero recuperar el acceso si olvido mi contraseña para no perder mi cuenta | Media (Should) | 3 | S1 | implementada | HU-05, HU-06 |
 | HU-11 | Registro de vehículo | Como conductor quiero registrar mi vehículo para que los pasajeros me identifiquen | Alta (Must) | 3 | S1 | implementada | HU-06 |
 | HU-08 | Verificación de identidad | Como usuario quiero verificar mi identidad con carnet y prueba de vida para que confíen en mí | Alta (Must) | 8 | S2 | plan aprobado | HU-06 |
-| HU-17 | Publicar viaje | Como conductor quiero publicar un viaje para compartir mi trayecto | Alta (Must) | 5 | S2 | backend y móvil implementados y verificados en sesión limpia (07/11), apilados sobre HU-13; falta teléfono y PR | HU-11, HU-08 |
+| HU-17 | Publicar viaje | Como conductor quiero publicar un viaje para compartir mi trayecto | Alta (Must) | 5 | S2 | backend y móvil implementados y verificados en sesión limpia y en teléfono físico (07/11), apilados sobre HU-13; falta PR | HU-11, HU-08 |
 | HU-09 | Vinculación de dispositivo | Como usuario quiero mi cuenta atada a mi teléfono para que nadie la use desde otro | Alta (Must) | 8 | S2 | plan aprobado | HU-06 |
 | HU-12 | Creación de billetera | Como usuario verificado quiero una billetera automática para pagar y cobrar sin configurar nada | Alta (Must) | 5 | S2 | implementada | HU-08, PB-04 |
 | HU-13 | Recarga de saldo | Como pasajero quiero recargar saldo para pagar mis viajes | Alta (Must) | 5 | S2 | backend, contrato y móvil implementados y verificados, también con huella en teléfono físico, y revisados (07/11); falta PR y SP129 al desplegar | HU-12, HU-09 (biometría, ver D-13) |

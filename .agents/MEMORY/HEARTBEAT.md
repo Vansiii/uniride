@@ -5,7 +5,7 @@
 **Última actualización:** 2026-11-07
 
 **Sprint actual:** Sprint 2 · 28/10 – 03/11/2026 (sprints de 1 semana, miércoles a martes). Las fechas ya vencieron con HU-13, HU-17 y HU-18 pendientes.
-**Foco:** HU-17 en curso: backend y móvil verificados en sesión limpia, sigue el teléfono físico. HU-12, HU-14 y HU-13 con PR abiertos y CI en verde, esperando revisión. Cada historia se apila sobre la anterior, sin esperar el merge (decisión del integrante, 07/11). El despliegue va después.
+**Foco:** HU-17 en curso: backend y móvil verificados en sesión limpia y en el teléfono físico, sigue la revisión y el PR. HU-12, HU-14 y HU-13 con PR abiertos y CI en verde, esperando revisión. Cada historia se apila sobre la anterior, sin esperar el merge (decisión del integrante, 07/11). El despliegue va después.
 
 ## Estado actual
 
@@ -15,23 +15,22 @@
 - **HU-12:** implementada, en origin, sin fusionar en `develop` en `backend` ni en `mobile` (comprobado el 07/11).
 - **HU-14:** implementada, verificada y revisada, apilada sobre HU-12, en origin con la rama `feat/HU-14-saldo-historial` en `backend` (`a53df7c`), `mobile` (`db42801`) y raíz. CI en verde en `backend` y `mobile`.
 - **HU-13:** rama `feat/HU-13-recarga-saldo` en `backend` y `mobile` (apiladas sobre HU-14) y `contracts` (desde `develop`), implementada, verificada en sesión limpia y en el teléfono físico, y con PR abiertos (`backend` `b15640a`, `mobile` `5cb8227`, `contracts` `cc01cbb`). Revisión hecha. Falta SP129 (firmante KMS, al desplegar). Ajuste de spec y plan aprobado el 07/11.
-- **HU-17:** rama `feat/HU-17-publicar-viaje` en `backend` (`2d90ba6`) y `mobile` (`81296a9`), apiladas sobre HU-13, y raíz, sin subir. SP115-SP119 hechas y verificadas en sesión limpia; faltan teléfono físico y PR. Su PR va después de los de HU-13.
+- **HU-17:** rama `feat/HU-17-publicar-viaje` en `backend` (`fc188b0`) y `mobile` (`b8614a3`), apiladas sobre HU-13, y raíz, sin subir. SP115-SP119 hechas y verificadas en sesión limpia y en el teléfono físico; falta revisión y PR. Su PR va después de los de HU-13.
 - **PR a `develop`, en orden de fusión:** `mobile` #8 (SP125), #9 (HU-12), #10 (HU-14), #11 (HU-13); `backend` #10 (HU-12), #11 (HU-14), #12 (HU-13); `contracts` #1 (HU-13); raíz #19 (HU-12 y HU-14), #20 (HU-13).
 
 ## Última sesión (07/11)
 
-- HU-17, verificación en sesión limpia: CA-1 a CA-7, A-08, A-13 y cuenta suspendida contra el backend real y en la app a 360 y 412 dp. Se corrigieron 6 defectos de la pantalla y lo que faltaba de paridad; el rechazo por solape ahora dice con qué viaje choca (`salidaExistente`). Regresión en verde en `backend`, `mobile` y `contracts`. Detalle en `MEMORY.md`.
+- HU-17, teléfono físico: huella y Keystore reales, cancelar, Nominatim, teselas, TalkBack y 412 dp, con firmas contadas en un registro. Se corrigieron 4 defectos que solo salían en el teléfono: el aviso quedaba fuera de la vista, salían dos huellas si se tardaba más de 30 s, un hueco sobre las pestañas y nombres largos sin su comienzo. La corrección de la huella vale para toda petición firmada y cambió el módulo nativo: **hay que recompilar el APK**. Regresión en verde en `backend`, `mobile` y `contracts`. Detalle en `MEMORY.md`.
 
 ## Próximo paso concreto
 
-1. **HU-17, punto exacto:** verificación en sesión limpia cerrada. Sigue el teléfono físico: publicar con huella y Keystore reales, cancelar la huella, Nominatim y teselas desde Android, y oír en TalkBack los chips y asientos elegidos. Luego, revisión y PR, cuando el integrante lo diga.
+1. **HU-17, punto exacto:** teléfono físico cerrado. Sigue la revisión y el PR, cuando el integrante lo diga. Incluye el cambio de firma de `mobile` (toca HU-09, billetera y recargas): revisarlo como grado 5.
 2. En paralelo, otro integrante revisa y fusiona los PR en el orden de arriba, con `contracts` antes que `backend`. Tras el merge: confirmar con `git merge-base --is-ancestor`, actualizar punteros y marcar lo que corresponda.
 3. Después, HU-18, apilada si depende de ramas sin fusionar.
 
 ## Sin verificar
 
-- HU-17: `POST /viajes` solo se probó con firma de una llave P-256 de prueba, en navegador. Falta en teléfono físico: huella y Keystore reales, Nominatim y teselas desde Android, y TalkBack.
-
+- HU-17: con el teléfono no se probó el dedo no registrado al publicar (sí en la recarga de HU-13, con el mismo diálogo) ni el reloj del teléfono desfasado más de 30 s (solo en Jest).
 - Polygon Amoy y SP23: billetera, saldo y escrow solo se probaron contra Hardhat local.
 - El enlace a Polygonscan se vio y se abrió con la URL de Amoy agregada por un proxy de prueba, con un hash que no existe en esa red.
 - HU-13 en Polygon Amoy: acuñar allí (contrato sin desplegar, sin relayer con fondos). Solo se comprobó contra su RPC público que la ventana de 1000 bloques pasa y el rango completo no.
