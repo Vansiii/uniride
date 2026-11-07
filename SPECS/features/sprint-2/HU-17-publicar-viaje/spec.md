@@ -61,10 +61,10 @@
 Marcar al cerrar la fase **Verify**. Referencia: `SPECS/constitution.md` Art. 12.
 
 - [ ] Criterios CA-1 a CA-7 cumplidos.
-- [ ] Pruebas automatizadas del `plan.md` en verde; cobertura en backend ≥ 70 %.
-- [ ] Pruebas de ataque A-08 (sin firma) y A-13 (filtro estricto por organización) en verde.
+- [x] Pruebas automatizadas del `plan.md` en verde; cobertura en backend ≥ 70 %.
+- [x] Pruebas de ataque A-08 (sin firma) y A-13 (filtro estricto por organización) en verde.
 - [ ] PR revisado · CI en verde.
-- [ ] Documentado en Swagger.
+- [x] Documentado en Swagger.
 - [ ] Aceptada por el PO en la Sprint Review.
 
 ## 8. Historial de cambios
@@ -76,4 +76,5 @@ Marcar al cerrar la fase **Verify**. Referencia: `SPECS/constitution.md` Art. 12
 | 2026-11-07 | Sin cambio de criterios; el plan se ajusta al tope por organización y al solape entre organizaciones | 2026-11-07 · HU-17: contrato del backend y ajustes al plan |
 | 2026-11-07 | Sin cambio de criterios; el plan agrega `GET /viajes/limites` y fija la pantalla como pestaña | 2026-11-07 · HU-17: pantalla móvil |
 | 2026-11-07 | Caso borde nuevo: una cuenta suspendida no puede publicar (decisión del integrante) | 2026-11-07 · HU-17: una cuenta suspendida no publica |
+| 2026-11-07 | Sin cambio de criterios; el rechazo por solape dice con qué viaje choca | 2026-11-07 · HU-17: verificación en sesión limpia |
 

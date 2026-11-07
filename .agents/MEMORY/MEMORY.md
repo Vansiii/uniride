@@ -902,3 +902,29 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 **Archivos afectados:** `backend/src/viajes/viajes.{controller,module}.ts`, `backend/src/i18n/es-BO.json`, `backend/test/viajes/publicar.e2e-spec.ts`, `mobile/src/app/(pestanas)/publicar.tsx`, `mobile/src/i18n/es-BO.json`, `mobile/src/__tests__/publicar.test.tsx`; `SPECS/features/sprint-2/HU-17-publicar-viaje/{spec,plan}.md`, `.agents/MEMORY/HEARTBEAT.md`.
 
 ---
+
+## 2026-11-07 · HU-17: verificación en sesión limpia
+
+**Evento:** Se verifican CA-1 a CA-7, A-08, A-13 y la cuenta suspendida por criterio y por riesgo, contra el backend real y en la app a 360 y 412 dp.
+
+**Defectos corregidos en `mobile`:**
+1. Tras tocar Publicar sin lugar, el error genérico tapaba lo que respondía la búsqueda.
+2. Al fallar, la pantalla subía al principio y un error de precio u hora quedaba fuera de la vista. Ahora lleva al primer campo con error, con foco, y avisa arriba si hay más de dos (`DESIGN_SYSTEM.md` §9.2.4).
+3. Con la membresía revocada en la organización activa y aprobada en otra decía "No hay conexión". Ahora lo dice y deja elegir otra.
+4. Al intercambiar quedaba el error sobre el lugar ya lleno.
+5. Al volver de resolver un requisito quedaba el aviso viejo.
+6. "Tu vehículo tiene 1 asientos".
+
+**Paridad con el prototipo:** el vehículo hecho muestra la placa, el resultado lleva los puntos del trayecto, y el error de hora dice desde cuándo se puede salir. El rechazo por solape dice con qué viaje choca, para lo que `VIAJE_SOLAPADO` agrega `salidaExistente`: es un viaje del propio conductor y es un agregado compatible.
+
+**Diferencias que quedan:** el micrófono apagado llega con `BotonVoz` (HU-27, HU-28), y "Te avisaremos cuando alguien reserve" no se promete mientras no haya esa notificación. La X del resultado y ocultar las pestañas no cambian el flujo. Fecha en chips con hora escrita, y origen y destino fuera de la tarjeta del mapa, están en `HEARTBEAT.md` para que decida el integrante.
+
+**Verificado:** peticiones reales de cada error del plan, datos forzados, 8 publicaciones simultáneas (entra 1), la misma firma 5 veces a la vez (entra 1), RLS con el rol de la API, Swagger y esquema de Prisma sin diferencias con la base. En la app, cada rechazo del servidor con el formulario abierto, huella cancelada simulada, sin red, cuenta suspendida, datos largos, teclado y foco. Regresión en verde: `backend` 452 unitarias, 455 e2e y cobertura de 92 %; `mobile` 321 pruebas y build.
+
+**Sin verificar:** teléfono físico: huella y Keystore reales, Nominatim y teselas desde Android, TalkBack.
+
+**Sin decidir:** están en `HEARTBEAT.md`.
+
+**Archivos afectados:** `backend/src/viajes/viajes.{controller,service,service.spec}.ts`, `backend/test/viajes/publicar.e2e-spec.ts`, `mobile/src/app/(pestanas)/publicar.tsx`, `mobile/src/componentes/{Campo,SelectorLugar}.tsx`, `mobile/src/i18n/es-BO.json`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/publicar.test.tsx`; `SPECS/features/sprint-2/HU-17-publicar-viaje/{spec,plan}.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/HEARTBEAT.md`.
+
+---
