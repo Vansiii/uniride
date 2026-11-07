@@ -5,7 +5,7 @@
 **Última actualización:** 2026-11-07
 
 **Sprint actual:** Sprint 2 · 28/10 – 03/11/2026 (sprints de 1 semana, miércoles a martes). Las fechas ya vencieron con HU-13, HU-17 y HU-18 pendientes.
-**Foco:** HU-14 verificada, sin commit del último arreglo y sin subir. Una HU pasa a la siguiente cuando llega a `develop`; el despliegue va después.
+**Foco:** HU-14 lista para subir: faltan el push, sus PR y que se fusionen. Una HU pasa a la siguiente cuando llega a `develop`; el despliegue va después.
 
 ## Estado actual
 
@@ -13,27 +13,23 @@
 - **HU-08 y HU-09:** fusionadas en `develop`. Falta en HU-09 lo real de Play Integrity (simulado en desarrollo) y la prueba de vida nativa de HU-08.
 - **SP125 (Keystore nativo, HU-09):** `mobile`, `feat/HU-09-keystore-nativo`, en origin, sin fusionar en `develop` (comprobado el 07/11).
 - **HU-12:** implementada, en origin, sin fusionar en `develop` en `backend` ni en `mobile` (comprobado el 07/11).
-- **HU-14:** implementada y verificada, apilada sobre HU-12, sin push.
-  - `backend`, `feat/HU-14-saldo-historial`: `a94e23e`, `64e527b`, `00e41b1`, `4c12609` y **cambios sin commit** (el caché de `/saldo` se invalida con un movimiento confirmado, con pruebas).
-  - `mobile`, `feat/HU-14-saldo-historial`: `6fe9dfa`, `8638ea0`. Sin cambios en esta sesión.
-  - Raíz, `feat/HU-14-saldo-historial`: documentos sin commit.
+- **HU-14:** implementada, verificada y revisada, apilada sobre HU-12, con commit local en la rama `feat/HU-14-saldo-historial` de `backend` (`a53df7c`), `mobile` (`db42801`) y raíz. Sin push: desde la sesión del agente Git no puede pedir credenciales. Sin PR: `gh` no está instalado en esta PC.
 
 ## Última sesión (07/11, modo estándar)
 
-- Pruebas pendientes hechas: escrow real en Hardhat, web a 360 y 412, huellas con el integrante. Resultados en `MEMORY.md`.
-- Defecto hallado y corregido: tras bloquear, `/saldo` daba total 165 y disponible 150 durante 15 s, en vez de 150 y 135.
-- Hallazgo para HU-19, sin corregir: ver "Decisiones abiertas".
+- `/code-review` de la rama: 10 hallazgos. Dos corregidos en `mobile`; el resto ya estaba decidido o queda abajo para HU-13. Detalle en `MEMORY.md`.
+- Suites repetidas en Node 24: backend 395 unitarias y 318 e2e; mobile 247.
 
 ## Próximo paso concreto
 
-1. Con confirmación del integrante: commit del arreglo en `backend` y de los documentos en la raíz.
-2. `/code-review` en una sesión nueva, antes de subir.
-3. Push de las ramas de HU-14 y PR a `develop`.
-4. Otro integrante revisa y fusiona en orden: en `mobile`, SP125, HU-12 y HU-14; en `backend`, HU-12 y HU-14.
-5. Tras el merge: confirmar con `git merge-base --is-ancestor`, actualizar punteros y marcar lo que corresponda.
-6. Siguiente, en orden (decisión del integrante, 07/11): primero subir y fusionar HU-14 en una sesión nueva; luego **HU-13**, que depende de HU-12, SP125 y el libro de HU-14, y antes de implementarla alinear su plan (lista abajo); después HU-17 y HU-18.
+1. El integrante hace push de las tres ramas y abre los PR de HU-14 a `develop`, después de los de SP125 y HU-12 de los que depende.
+2. Otro integrante revisa y fusiona en orden: en `mobile`, SP125, HU-12 y HU-14; en `backend`, HU-12 y HU-14.
+3. Tras el merge: confirmar con `git merge-base --is-ancestor`, actualizar punteros y marcar lo que corresponda.
+4. Siguiente, en orden (decisión del integrante, 07/11): **HU-13**, que depende de HU-12, SP125 y el libro de HU-14, y antes de implementarla alinear su plan (lista abajo); después HU-17 y HU-18.
 
 ## Antes de implementar HU-13
+
+- Libro mayor, primer uso (revisión de HU-14): definir si una clave repetida con otra billetera, tipo o monto debe fallar en vez de devolver el original (hoy `a-09-libro-mayor.e2e-spec.ts` exige lo segundo); rechazar `monto` con más de 2 decimales; definir si `fallido` es final; y qué pasa con la conciliación si un `pendiente` se atasca.
 
 - `ssd.md` §8 dice `POST /billetera/recargas` con firma y `/simular-pago` para el rol simulador; el plan dice `POST /recargas` sin firma y `/confirmar` con firma. Definir cuál queda.
 - `ssd.md` §10 pide `trabajos_onchain` y un worker; el plan acuña dentro de la petición. Definir cuál queda (D-10).
@@ -52,7 +48,7 @@
 
 ## Bloqueos activos
 
-- Ninguno para subir HU-14. Esta PC tiene Node 22 y npm 10: usar Node 24 portable, solo en el PATH del proceso y con un PATH corto (con el largo, npm no encuentra `prisma`).
+- HU-13 no puede fusionarse antes que HU-12 y HU-14: esos PR dependen de otro integrante. Esta PC tiene Node 22 y npm 10: usar Node 24 portable, solo en el PATH del proceso y con un PATH corto (con el largo, npm no encuentra `prisma`).
 - `.env` local sin `WALLET_ENCRYPTION_KEY` ni `IDENTIDAD_SECRETO`: el backend no arranca hasta añadirlas.
 
 ## Decisiones abiertas

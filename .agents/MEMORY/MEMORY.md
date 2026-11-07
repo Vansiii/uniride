@@ -706,3 +706,21 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 **Archivos afectados:** `backend/src/billetera/{conciliacion,movimientos}.service.ts`, `backend/src/blockchain/blockchain.service.ts`, sus pruebas y `backend/test/billetera/saldo.e2e-spec.ts`; `SPECS/features/sprint-2/HU-14-saldo-historial/{spec,plan}.md`.
 
 ---
+
+## 2026-11-07 · HU-14: revisión de código antes de subir
+
+**Evento:** `/code-review` de la rama de HU-14 en `backend` y `mobile`, con 10 hallazgos contrastados contra el código y las decisiones ya tomadas.
+
+**Decisión:**
+1. **Corregidos en `mobile`:** reintentar en Movimientos vuelve a crear la billetera si la creación falló (`yaCreo` se marcaba antes de terminar), y recargar Billetera limpia el aviso rojo de refresco.
+2. **Se mantienen, ya decididos:** `/saldo` y `/movimientos` sin firma (riesgo aceptado). Una diferencia persistente agrega hasta 4 filas de auditoría por minuto; la revisión añade que cualquiera puede provocarla enviando una fracción de URC a una dirección pública, porque `UniCoin` admite transferencias.
+3. **Para definir en HU-13, primer uso del libro:** una clave repetida con otros datos devuelve el original (`a-09-libro-mayor.e2e-spec.ts` lo exige, también de otra billetera); `monto` con más de 2 decimales se redondea en silencio; `fallido` puede pasar a `confirmado`, y un reintento con otra clave contaría doble; con un movimiento `pendiente` atascado la billetera deja de conciliarse.
+4. **Sin corregir, no bloquean:** con el nodo caído, `/mia` pide huella y da 503, porque lee la cadena para devolver datos de la BD; el aviso de sincronización sigue tras un refresco en línea si la dirección no cargó; el caché de saldo no guarda fallas ni lecturas en curso; `formatearHoraLocal` y `fallaDe` duplican lógica de `@/i18n` y `billetera.tsx`.
+
+**Verificado:** backend lint, build, 395 unitarias y 318 e2e en Node 24, antes de los arreglos de `mobile`, que no lo tocan; mobile lint, tipos y 247 pruebas en Node 24. Prettier marca 114 archivos de `backend` en Windows: solo difieren los finales de línea (con `--end-of-line auto` pasa).
+
+**Sin verificar:** CI real. Los arreglos de `mobile` no se probaron en el teléfono ni en web; la prueba nueva cubre el reintento y el aviso rojo no tiene prueba propia.
+
+**Archivos afectados:** `mobile/src/app/movimientos.tsx`, `mobile/src/app/(pestanas)/billetera.tsx`, `mobile/src/__tests__/movimientos.test.tsx`.
+
+---
