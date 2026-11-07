@@ -948,3 +948,28 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 **Segunda pasada en el teléfono:** recarga con la firma nueva (cadena simulada), firma vencida con un proxy que retiene la petición, dedo no registrado, hora con teclas de dígitos, cambio de selección en TalkBack y huella nueva que anula la llave.
 
 **Defectos abiertos:** TalkBack no lee los `Aviso` que aparecen (región viva y `announceForAccessibility` no bastaron, y se revirtió). Tras una huella nueva no hay cómo volver a vincular, y el aviso dice "Actualiza la app" (HU-10).
+
+## 2026-11-07 · HU-17: revisión del código
+
+Revisión de `backend` y `mobile` contra HU-13, con el cambio de firma como grado 5: 25 hallazgos. En la firma no salió ningún defecto: la hora tras la huella y el reenvío solo con `NO_AUTENTICADO` se sostienen.
+
+**Decisiones del integrante:** origen y destino con las mismas coordenadas se rechazan (`LUGARES_IGUALES` 400; la app lo dice antes de la huella). Un viaje en `publicado` cuya salida ya pasó no cuenta para el solape; `reservado` y `en_curso` sí. La billetera no es requisito para publicar: importa al cobrar. Organización suspendida: se resuelve en la historia que implemente la suspensión, porque hoy ningún código pone ese estado.
+
+**Corregido:**
+1. El lugar elegido tenía el cursor fijo en 0: Backspace no borraba y no se podía mover. Ahora se fija solo sin foco, y elegir cierra el teclado.
+2. Asientos por encima de la capacidad tras cambiar de vehículo: se gastaba una huella en un rechazo seguro.
+3. Tras un rechazo por precio o asientos, la pantalla vuelve a leer los datos, para no quedarse con el tope viejo.
+4. La fecha por omisión de otro día ya no queda sin chip elegido.
+5. Búsqueda: no se repite si hay una en camino, y su respuesta se descarta si cambió el texto.
+6. Al intercambiar lugares no quedan el aviso ni los resultados de la búsqueda anterior.
+7. `730` queda `07:30`.
+8. La hora sugerida lleva un minuto de holgura.
+9. "Listo" a la misma altura que el botón del formulario.
+10. El carácter NUL en un texto daba 500: `recortar()` lo quita, y vale para todos los DTO que lo usan.
+11. Comentario de la barra de pestañas que ya no era cierto.
+
+**Descartado:** `selected` en los radios, porque el integrante oyó "seleccionado" en TalkBack. Huella nueva que anula la llave: ya es defecto abierto de HU-10.
+
+**Sin cambiar, por ser limpieza:** `BilleteraModule` importado solo por el guard de cuenta; tres booleanos de bloqueo en Publicar; `con` frente a `.replace`; consulta del tope duplicada; cuatro lecturas al volver a la pestaña; `mensajeCanonico` usado solo en pruebas; condición de reintento en línea. **Sin cambiar, por tocar más que esta historia:** `app.super_admin` en viajes y sesión muerta en la app (ver `HEARTBEAT.md`).
+
+**Probado en el teléfono (solo JS, sin recompilar):** Backspace y cursor en un lugar elegido, nombre largo desde el inicio, mismo lugar sin huella ni petición, hora tecleada 7-3-0, hora sugerida con holgura, intercambiar con aviso a la vista, capacidad bajada de 4 a 2, tope bajado de 20 a 15 con el formulario abierto (400 y aviso con 15), y publicar con 1 firma. Al intercambiar, el campo que queda vacío vuelve a mostrar lo que se había escrito en él; no impide nada y se dejó así.
