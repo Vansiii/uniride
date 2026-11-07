@@ -5,7 +5,7 @@
 **Última actualización:** 2026-11-07
 
 **Sprint actual:** Sprint 2 · 28/10 – 03/11/2026 (sprints de 1 semana, miércoles a martes). Las fechas ya vencieron con HU-13, HU-17 y HU-18 pendientes.
-**Foco:** HU-12, HU-14 y HU-13 con PR abiertos, esperando revisión. HU-13 está apilada sobre HU-14, sin esperar el merge (decisión del integrante, 07/11): backend, contrato y móvil hechos, verificados también con huella en el teléfono, revisados y subidos. El despliegue va después.
+**Foco:** HU-12, HU-14 y HU-13 con PR abiertos y CI en verde, esperando revisión. HU-13 está apilada sobre HU-14, sin esperar el merge (decisión del integrante, 07/11): backend, contrato y móvil hechos, verificados también con huella en el teléfono, revisados y subidos. El despliegue va después.
 
 ## Estado actual
 
@@ -33,7 +33,7 @@
 - El enlace a Polygonscan se vio y se abrió con la URL de Amoy agregada por un proxy de prueba, con un hash que no existe en esa red.
 - HU-13 en Polygon Amoy: acuñar allí (contrato sin desplegar, sin relayer con fondos). Solo se comprobó contra su RPC público que la ventana de 1000 bloques pasa y el rango completo no.
 - HU-13: una confirmación por transacción y sin reemplazar una atascada, aceptable con el relayer de desarrollo; se resuelve en SP129.
-- CI real, Play Integrity real, StrongBox, invalidación al registrar una huella nueva.
+- Play Integrity real, StrongBox, invalidación al registrar una huella nueva.
 - Escrow desde el backend: la prueba llamó al contrato y escribió los asientos por su cuenta. El flujo real llega con HU-19.
 
 ## Bloqueos activos
