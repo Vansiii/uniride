@@ -184,9 +184,9 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP119 · Mobile: pantalla de Publicar viaje con mapa OSM y selección de cupos en Expo — 5h — @[POR DEFINIR] · mobile y backend (`GET /viajes/limites`) @agente 07/11: requisitos, formulario, resultado y errores con pruebas y firma real en navegador; verificación en sesión limpia (6 defectos corregidos) y en teléfono físico (4 corregidos) hechas; revisión del código hecha (10 corregidos, probados en el teléfono); TalkBack no lee los avisos que aparecen y queda abierto; falta PR
 
 ### HU-18 · Buscar viajes (14 h)
-- [ ] SP120 · Lógica de consulta geoespacial Haversine y filtro de ventana temporal — 3h — @[POR DEFINIR]
-- [ ] SP121 · Endpoint `/viajes/buscar` con DTOs seguros y resolución D-17 — 3h — @[POR DEFINIR]
-- [ ] SP122 · Suite de pruebas automatizadas, prueba de aislamiento A-13 y medición de latencia < 2s — 3h — @[POR DEFINIR]
+- [x] SP120 · Lógica de consulta geoespacial Haversine y filtro de ventana temporal — 3h — @[POR DEFINIR] · backend @agente 07/11: índice `idx_viajes_busqueda`; el `acos` del plan fallaba en PostgreSQL por redondeo y quedó acotado; verificado con 40 500 viajes (26 ms como máximo)
+- [x] SP121 · Endpoint `/viajes/buscar` con DTOs seguros y resolución D-17 — 3h — @[POR DEFINIR] · backend @agente 07/11: documentado en Swagger; membresía sin firma, nombre de pila también en el detalle y sin cuentas suspendidas (decisiones del integrante)
+- [x] SP122 · Suite de pruebas automatizadas, prueba de aislamiento A-13 y medición de latencia < 2s — 3h — @[POR DEFINIR] · backend @agente 07/11: CA-1 a CA-6 y A-13 en API y en PostgreSQL; prueba real por HTTP sin diferencias; falta verificación en sesión limpia
 - [ ] SP123 · Mobile: pantalla de Búsqueda de viajes y componente `TarjetaViaje` en Expo — 5h — @[POR DEFINIR]
 
 

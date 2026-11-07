@@ -973,3 +973,27 @@ Revisión de `backend` y `mobile` contra HU-13, con el cambio de firma como grad
 **Sin cambiar, por ser limpieza:** `BilleteraModule` importado solo por el guard de cuenta; tres booleanos de bloqueo en Publicar; `con` frente a `.replace`; consulta del tope duplicada; cuatro lecturas al volver a la pestaña; `mensajeCanonico` usado solo en pruebas; condición de reintento en línea. **Sin cambiar, por tocar más que esta historia:** `app.super_admin` en viajes y sesión muerta en la app (ver `HEARTBEAT.md`).
 
 **Probado en el teléfono (solo JS, sin recompilar):** Backspace y cursor en un lugar elegido, nombre largo desde el inicio, mismo lugar sin huella ni petición, hora tecleada 7-3-0, hora sugerida con holgura, intercambiar con aviso a la vista, capacidad bajada de 4 a 2, tope bajado de 20 a 15 con el formulario abierto (400 y aviso con 15), y publicar con 1 firma. Al intercambiar, el campo que queda vacío vuelve a mostrar lo que se había escrito en él; no impide nada y se dejó así.
+
+---
+
+## 2026-11-07 · HU-18: contrato de búsqueda
+
+**Evento:** `GET /viajes/buscar` implementado en `backend`, en `feat/HU-18-buscar-viajes`, apilada sobre HU-17 (SP120-SP122).
+
+**Decisiones del integrante:**
+1. `GET /viajes/buscar` y `GET /viajes/{id}` piden membresía aprobada, sin firma: buscar no pide huella. Se corrigió `ssd.md`.
+2. El pasajero ve el nombre de pila, también en el detalle, que antes daba el nombre completo. Resuelve P-09: la base solo guarda `nombre_completo` y no distingue un nombre compuesto del apellido.
+3. Los viajes de un conductor con la cuenta suspendida no aparecen en la búsqueda. El viaje no cambia de estado; qué pasa con quien ya reservó se decide en HU-19.
+4. La búsqueda no filtra por destino, como dice la spec. Agregarlo después no rompe el contrato.
+
+**Diferencias con el plan:**
+1. El `acos` del plan daba `input is out of range` en PostgreSQL con coordenadas reales, por redondeo: ocurre al buscar desde el punto exacto de salida (-17.698356) y desde el punto opuesto del planeta. El argumento quedó acotado a [-1, 1], con prueba de cada caso.
+2. Sin utilidad `GeoDistance`: la distancia se calcula solo en SQL.
+3. `idx_viajes_busqueda` reemplaza al índice de HU-17, que empezaba por las mismas columnas.
+4. Se agregó `conductor.miembroDesde`, porque RN-5 pide exponer la antigüedad. El plan no lo tenía.
+5. Tope de 50 resultados, por hora de salida.
+
+**Comportamiento:** una coordenada vacía en la URL es inválida, no 0. Una hora que Date no entiende o del año 0000 da `VALIDACION_FALLIDA`. Una hora pasada o más allá de lo publicable da lista vacía sin consultar la base.
+
+**Verificado:** `verificar.py backend` en verde con e2e completas, y prueba real por HTTP (`.harness` local): 13 casos y CA-6 con 40 500 viajes, 26 ms como máximo, usando el índice.
+

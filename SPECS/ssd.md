@@ -212,8 +212,8 @@ Prefijo `/api/v1`. **F** = exige firma de dispositivo + atestación (`FirmaDispo
 | POST | `/dispositivos/desafio-vinculacion` | miembro | | HU-09 |
 | POST | `/dispositivos/vincular` | miembro | | HU-09 |
 | POST | `/viajes` | conductor verificado | F | HU-17 |
-| GET | `/viajes/buscar` | pasajero verificado | F | HU-18 |
-| GET | `/viajes/{id}` | miembro verificado | F | HU-18 |
+| GET | `/viajes/buscar` | miembro aprobado | | HU-18 |
+| GET | `/viajes/{id}` | miembro aprobado | | HU-17, HU-18 |
 | POST | `/billetera` | miembro verificado | F | HU-12 |
 | GET | `/billetera/mia` | miembro verificado | F | HU-12, HU-14 |
 | GET | `/billetera/saldo` | miembro verificado | | HU-14 |

@@ -5,7 +5,7 @@
 **Última actualización:** 2026-11-07
 
 **Sprint actual:** Sprint 2 · 28/10 – 03/11/2026 (sprints de 1 semana, miércoles a martes). Las fechas ya vencieron con HU-13, HU-17 y HU-18 pendientes.
-**Foco:** HU-17 en curso: backend y móvil verificados en sesión limpia y en el teléfono físico, y revisados, con PR abiertos. HU-12, HU-14 y HU-13 con PR abiertos y CI en verde; todos esperan revisión. Cada historia se apila sobre la anterior, sin esperar el merge (decisión del integrante, 07/11). El despliegue va después.
+**Foco:** HU-18 en curso: contrato hecho en `backend`, falta la pantalla móvil. HU-12, HU-14, HU-13 y HU-17 con PR abiertos; todos esperan revisión. Cada historia se apila sobre la anterior, sin esperar el merge (decisión del integrante, 07/11). El despliegue va después.
 
 ## Estado actual
 
@@ -16,19 +16,18 @@
 - **HU-14:** implementada, verificada y revisada, apilada sobre HU-12, en origin con la rama `feat/HU-14-saldo-historial` en `backend` (`a53df7c`), `mobile` (`db42801`) y raíz. CI en verde en `backend` y `mobile`.
 - **HU-13:** rama `feat/HU-13-recarga-saldo` en `backend` y `mobile` (apiladas sobre HU-14) y `contracts` (desde `develop`), implementada, verificada en sesión limpia y en el teléfono físico, y con PR abiertos (`backend` `b15640a`, `mobile` `5cb8227`, `contracts` `cc01cbb`). Revisión hecha. Falta SP129 (firmante KMS, al desplegar). Ajuste de spec y plan aprobado el 07/11.
 - **HU-17:** rama `feat/HU-17-publicar-viaje` en `backend` (`2585a7b`) y `mobile` (`e31b086`), apiladas sobre HU-13, y raíz, en origin. SP115-SP119 hechas, verificadas en sesión limpia y en el teléfono físico, y revisadas. PR abiertos, que van después de los de HU-13.
+- **HU-18:** rama `feat/HU-18-buscar-viajes` en `backend` (`f281a2e`), apilada sobre HU-17, y raíz, solo local. SP120-SP122 hechas. Falta SP123 (móvil). Se fusiona después de los PR de HU-17.
 - **PR a `develop`, en orden de fusión:** `mobile` #8 (SP125), #9 (HU-12), #10 (HU-14), #11 (HU-13), #12 (HU-17); `backend` #10 (HU-12), #11 (HU-14), #12 (HU-13), #13 (HU-17); `contracts` #1 (HU-13); raíz #19 (HU-12 y HU-14), #20 (HU-13), #21 (HU-17).
 
 ## Última sesión (07/11)
 
-- HU-17, teléfono físico: huella y Keystore reales, cancelar, Nominatim, teselas, TalkBack y 412 dp, con firmas contadas en un registro. Se corrigieron 4 defectos que solo salían en el teléfono: el aviso quedaba fuera de la vista, salían dos huellas si se tardaba más de 30 s, un hueco sobre las pestañas y nombres largos sin su comienzo. También: recarga completa, firma vencida, dedo no registrado, y una huella nueva que anula la llave. La corrección de la huella vale para toda petición firmada y cambió el módulo nativo: **hay que recompilar el APK**. Regresión en verde en `backend`, `mobile` y `contracts`. Detalle en `MEMORY.md`.
-
-- HU-17, revisión del código (grado 5, con el cambio de firma): 25 hallazgos. Se corrigieron 10, entre ellos el cursor fijo que impedía editar un lugar elegido. Por decisión del integrante, origen y destino iguales se rechazan y un viaje publicado ya pasado no solapa. Probado en el teléfono. Detalle en `MEMORY.md`.
+- HU-18, contrato: `GET /viajes/buscar` con las pruebas de CA-1 a CA-6 y A-13, y prueba real por HTTP: 13 casos sin diferencias y 26 ms como máximo con 40 500 viajes. El `acos` del plan fallaba en PostgreSQL y quedó acotado. El integrante decidió: membresía sin firma, nombre de pila también en el detalle, sin cuentas suspendidas y sin filtro de destino. Detalle en `MEMORY.md`.
 
 ## Próximo paso concreto
 
-1. **HU-17, punto exacto:** PR abiertos (`backend` #13, `mobile` #12, raíz #21). Falta que otro integrante los revise y fusione; tras el merge, punteros. El cambio de firma de `mobile` exige recompilar el APK.
-2. En paralelo, otro integrante revisa y fusiona los PR en el orden de arriba, con `contracts` antes que `backend`. Tras el merge: confirmar con `git merge-base --is-ancestor`, actualizar punteros y marcar lo que corresponda.
-3. Después, HU-18, apilada si depende de ramas sin fusionar.
+1. **HU-18, punto exacto:** parte 2, SP123. Pantalla de búsqueda y `TarjetaViaje` en `mobile`, con rama `feat/HU-18-buscar-viajes` desde la de HU-17. Debe resolver: el campo «Hacia» del prototipo (la búsqueda no filtra por destino), el nombre de pila donde el prototipo dice «Carlos J.», `TarjetaSaldo` en Inicio (quedó para esta historia desde HU-14) y el aviso de membresía pendiente: la API responde `NO_AUTORIZADO` genérico y `membresias.estado.pendiente` está en la pantalla `estado-membresia`.
+2. Después, parte 3: verificación en sesión limpia.
+3. En paralelo, otro integrante revisa y fusiona los PR en el orden de arriba, con `contracts` antes que `backend`. Tras el merge: confirmar con `git merge-base --is-ancestor`, actualizar punteros y marcar lo que corresponda. El cambio de firma de `mobile` exige recompilar el APK.
 
 ## Sin verificar
 
@@ -52,9 +51,8 @@
 
 - **Accesibilidad, para después (decisión del integrante, 07/11):** TalkBack no lee los avisos que aparecen: al cancelar la huella dice el título y salta al botón. Afecta a todos los `Aviso`. Región viva y anuncio explícito no bastaron; falta probar mover el foco al aviso. Decidir en qué historia va.
 - **HU-10 (reserva):** tras registrar una huella nueva la llave queda anulada y no hay salida: el aviso dice falsamente "Actualiza la app" y "Mi teléfono" no deja volver a vincular. Quien agregue una huella pierde firmar, billetera y publicar. Decidir si HU-10 debe adelantarse antes de producción.
-- **Para HU-18 o HU-19, viajes de una cuenta suspendida:** ya no puede publicar, pero lo publicado antes sigue activo. Cambiarlo toca la máquina de estados (`AGENTS.md` §14). Decidir qué pasa con esos viajes.
-- **Para HU-18, `GET /viajes/{id}`:** `ssd.md` pide miembro verificado con firma; el plan de HU-17, aprobado después, pide solo miembro de la organización, y así quedó. Confirmar o corregir `ssd.md`.
-- **Para HU-18, nombre del conductor:** `GET /viajes/{id}` da el nombre completo a cualquier miembro, como dice el plan; `DESIGN_SYSTEM.md` P-09 propone nombre e inicial del apellido. Decidir antes de mostrarlo.
+- **Para HU-19, viajes de una cuenta suspendida:** ya no aparecen en la búsqueda (decisión del integrante, 07/11), pero siguen en `publicado` y quien ya reservó sigue con su reserva. Cambiarlo toca la máquina de estados (`AGENTS.md` §14). Decidir qué pasa con esos viajes y sus reservas.
+- **Para HU-19, el conductor se encuentra a sí mismo:** la búsqueda incluye sus propios viajes, porque la spec no los excluye. Decidir si se ocultan; reservar el propio debe rechazarse en cualquier caso.
 - **Viajes que nunca salieron:** ninguna historia pasa un viaje a `expirado`. Uno que ya debió salir sigue en `publicado` para siempre, aunque ya no ocupa al conductor (decisión del integrante, 07/11), y `mis-viajes` y el detalle lo muestran así. Decidir qué historia lo hace; toca la máquina de estados (`AGENTS.md` §14).
 - **Organización suspendida:** ningún código pone una organización en ese estado y `POST /viajes` no lo mira. Decisión del integrante (07/11): se resuelve en la historia que implemente la suspensión.
 - **`app.super_admin` en viajes:** `publicar` y `mis-viajes` abren RLS para leer los viajes del propio conductor, siempre con filtro por `conductorId`. Una política por `conductor_id` sería más estrecha; toca el diseño de RLS (`AGENTS.md` §14).
