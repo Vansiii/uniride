@@ -780,3 +780,25 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 **Archivos afectados:** `mobile/src/app/recargar.tsx`, `mobile/src/app/(pestanas)/billetera.tsx`, `mobile/src/app/movimientos.tsx`, `mobile/src/api/cliente.ts`, `mobile/src/i18n/es-BO.json`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/`.
 
 ---
+
+## 2026-11-07 · HU-13: verificación en sesión limpia
+
+**Evento:** Se verifican CA-1 a CA-6 y las amenazas A-08 a A-13 contra `UniCoin` en un nodo Hardhat, con el worker real y un proxy RPC que apaga el nodo y pierde respuestas, por API y desde la app con una llave P-256 de prueba.
+
+**Defectos corregidos:**
+1. **Orden atascada en Amoy (`backend`, `c608dff`):** el RPC público de Amoy rechaza `eth_getLogs` desde el bloque 0 con `exceed maximum block range: 10000`. Con una respuesta perdida, los tokens quedaban acuñados y la orden en `procesando` sin salida. Ahora el hash se busca hacia atrás por ventanas de 1000 bloques, hasta 500 ventanas (unos 11 días en Amoy). Más allá, el worker sigue reintentando con su alerta.
+2. **Swagger:** el 401 de `confirmar` no nombraba `FIRMA_DISPOSITIVO_INVALIDA` ni `PETICION_EXPIRADA`.
+3. **Nonce:** el arreglo de la caché del proveedor ya tiene prueba automatizada; se comprobó que falla sin el arreglo.
+4. **Paridad (`mobile`, `8f51fb3`):** "Recarga en camino" lleva la fila del movimiento y Billetera agrega "1 URC = 1 Bs".
+
+**Verificado:** `backend` lint, formato, 436 unitarias (cobertura 92,98 %), 375 e2e y build; `mobile` lint, formato, tipos, 282 pruebas y build; `contracts` lint, 18 pruebas y build. Contra el contrato: contrato, API y libro mayor coinciden en cada paso; 8 confirmaciones simultáneas dejan un movimiento y un evento; respuesta perdida de verdad sin doble acuñación; con el nodo caído la orden sigue en `procesando`, alerta una vez al quinto intento y termina acreditada al volver el nodo. Desde la app: falla de red al confirmar, QR que llega a cero (pagado y sin pagar), pago repetido sin tocar la base, huella cancelada, sin identidad e historial vacío, a 360 y 412 dp. Con eso sale de "sin verificar" lo que había quedado solo con Jest.
+
+**Diferencias con el prototipo que quedan:** el diálogo de huella es el nativo genérico, sin el monto; el aviso "Tu pago quedó registrado" se ve siempre, porque la API no distingue un nodo caído de una espera normal; "Otro monto" no lleva el sufijo Bs; la etiqueta Pendiente usa reloj de arena (viene de HU-14).
+
+**Sin verificar:** huella y Keystore reales, en el teléfono. Acuñar en Amoy: contrato sin desplegar y relayer sin fondos (SP23, SP129); del RPC solo se comprobó la ventana de bloques. Montos rápidos con TalkBack: usan `selected` sobre `radio`, igual que Movimientos.
+
+**Dependencias:** altas en `backend` 7 y `mobile` 6, sin cambio por esta historia. `contracts` reportó 14 en la implementación, sin revisar. No se tocó ninguna dependencia.
+
+**Archivos afectados:** `backend/src/blockchain/blockchain.service.ts`, `backend/src/blockchain/blockchain.service.spec.ts`, `backend/src/billetera/recargas.controller.ts`; `mobile/src/app/recargar.tsx`, `mobile/src/i18n/es-BO.json`, `mobile/src/__tests__/`; `SPECS/features/sprint-2/HU-13-recarga-saldo/spec.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+---

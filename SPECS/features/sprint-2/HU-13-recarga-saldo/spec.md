@@ -58,10 +58,10 @@
 Marcar al cerrar la fase **Verify**. Referencia: `SPECS/constitution.md` Art. 12.
 
 - [ ] Criterios CA-1 a CA-6 cumplidos.
-- [ ] Pruebas automatizadas del `plan.md` en verde; cobertura en backend ≥ 70 %.
-- [ ] Pruebas de ataque A-09 (doble acreditación) y A-08 (sin firma de dispositivo) en verde.
+- [x] Pruebas automatizadas del `plan.md` en verde; cobertura en backend ≥ 70 %.
+- [x] Pruebas de ataque A-09 (doble acreditación) y A-08 (sin firma de dispositivo) en verde.
 - [ ] PR revisado · CI en verde.
-- [ ] Documentado en Swagger.
+- [x] Documentado en Swagger.
 - [ ] Aceptada por el PO en la Sprint Review.
 
 ## 8. Historial de cambios
