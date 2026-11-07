@@ -181,7 +181,7 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP116 · Lógica de validación de conductor, vehículo y anti-solapamiento — 3h — @[POR DEFINIR] · backend @agente 07/11: el solape cruza las organizaciones de la persona y es atómico por conductor
 - [x] SP117 · Endpoints `/viajes`, `/mis-viajes` y consulta de detalle — 4h — @[POR DEFINIR] · backend @agente 07/11: documentados en Swagger; falta verificación en sesión limpia
 - [x] SP118 · Suite de pruebas y validación de amenazas A-08 y A-13 — 3h — @[POR DEFINIR] · backend @agente 07/11: CA-1 a CA-7, A-08 y A-13 en API y en PostgreSQL con el rol de la API; prueba real por HTTP sin diferencias
-- [ ] SP119 · Mobile: pantalla de Publicar viaje con mapa OSM y selección de cupos en Expo — 5h — @[POR DEFINIR]
+- [x] SP119 · Mobile: pantalla de Publicar viaje con mapa OSM y selección de cupos en Expo — 5h — @[POR DEFINIR] · mobile y backend (`GET /viajes/limites`) @agente 07/11: requisitos, formulario, resultado y errores con pruebas y firma real en navegador; falta verificación en sesión limpia y teléfono físico
 
 ### HU-18 · Buscar viajes (14 h)
 - [ ] SP120 · Lógica de consulta geoespacial Haversine y filtro de ventana temporal — 3h — @[POR DEFINIR]

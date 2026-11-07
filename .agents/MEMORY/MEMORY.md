@@ -867,3 +867,25 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 **Archivos afectados:** `backend/prisma/schema.prisma`, `backend/prisma/migrations/011_viajes/`, `backend/src/viajes/`, `backend/src/aplicacion.module.ts`, `backend/src/i18n/es-BO.json`, `backend/test/viajes/`, `backend/test/ataques/a-08-publicar-viaje.e2e-spec.ts`, `backend/test/ataques/a-13-viajes.e2e-spec.ts`, `backend/test/ayudas-organizaciones.ts`, `backend/test/billetera/ayudas-billetera.ts`; `SPECS/features/sprint-2/HU-17-publicar-viaje/{spec,plan}.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/HEARTBEAT.md`.
 
 ---
+## 2026-11-07 · HU-17: pantalla móvil
+
+**Evento:** Se implementa SP119 en `mobile`, rama `feat/HU-17-publicar-viaje`, apilada sobre HU-13: pestaña Publicar con los requisitos que faltan (CA-6), formulario firmado con la huella (CA-7) y pantalla de resultado.
+
+**Ajustes al plan aprobado** (no cambia ningún criterio):
+1. **`GET /viajes/limites`:** `DESIGN_SYSTEM.md` §9.2 y el prototipo piden mostrar el tope de la organización antes de fallar, y ningún endpoint de miembro lo daba. Es un agregado compatible; no se amplió `GET /yo`, que se limita a sus campos por HU-06 CA-7.
+2. **Ruta:** la pantalla es la pestaña `app/(pestanas)/publicar.tsx`, como pide el prototipo, no `app/viajes/publicar.tsx`.
+3. **Mapa sin librería:** agregar una requiere autorización (`AGENTS.md` §14). Es un mapa fijo con teselas de OpenStreetMap y su atribución, que no se puede mover.
+4. **Búsqueda de lugar:** la política de Nominatim prohíbe autocompletar, así que se busca al pedirlo. Solo vale un lugar elegido de la lista, que trae coordenadas.
+5. **Fecha y hora:** en vez de los dos campos del prototipo, un chip por cada fecha posible (hoy y 7 días) y la hora escrita con teclado numérico. No hace falta un diálogo nativo, y una fecha fuera de rango no se puede elegir. Es diferencia con el prototipo, a revisar en la paridad.
+6. **Validar antes de firmar:** horario y precio se revisan también en la app para no gastar una huella en algo que el servidor rechazará. Decide el servidor.
+
+**Limitaciones:** el aviso de solape no dice con qué viaje choca, porque la API solo devuelve `margenHoras`. La búsqueda cubre toda Bolivia, sin priorizar la ciudad de la organización: un nombre común trae lugares de otros pueblos y se distinguen por la dirección completa.
+
+**Verificado:** pruebas de `mobile` en verde (lint, formato, tipos, Jest y build) y regresión de `backend` con e2e. En navegador, contra un backend real con una llave P-256 inyectada: requisitos, límites, errores, Nominatim y teselas reales, CA-1 con fila en la base, una firma por publicación y CA-5, a 360 y 412 dp.
+
+**Sin verificar:** verificación en sesión limpia y teléfono físico: huella real, Keystore, y Nominatim y teselas desde Android, donde el `User-Agent` sí se envía.
+
+**Archivos afectados:** `mobile/src/app/(pestanas)/{publicar,_layout,index}.tsx`, `mobile/src/componentes/{SelectorLugar,MapaRuta,Mensajes}.tsx`, `mobile/src/servicios/geocoding.ts`, `mobile/src/api/cliente.ts`, `mobile/src/i18n/es-BO.json`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/publicar.test.tsx`; `backend/src/viajes/`, `backend/test/viajes/publicar.e2e-spec.ts`; `SPECS/features/sprint-2/HU-17-publicar-viaje/{spec,plan}.md`, `SPECS/roadmap.md`, `DESIGN_SYSTEM.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/HEARTBEAT.md`.
+
+---
+

@@ -10,7 +10,7 @@
 |---|---|---|
 | backend | `viajes` | Nuevo: módulo completo de viajes (controlador, servicio, DTOs y validaciones de conductor y capacidad) |
 | backend | `comun` | Políticas RLS por organización en SQL para la tabla `viajes` |
-| mobile | `app/viajes/publicar.tsx` | Nuevo: pantalla con selección de origen/destino (OSM), selector de horario, cupos y precio |
+| mobile | `app/(pestanas)/publicar.tsx` | Nuevo: pestaña con los requisitos que faltan o el formulario: selección de origen/destino (OSM), fecha y hora, cupos y precio (ver MEMORY 2026-11-07) |
 | mobile | `servicios/geocoding.ts` | Servicio ligero de sugerencia de direcciones usando OpenStreetMap (Nominatim) |
 
 Reutiliza: `OrganizacionGuard` (HU-02), `@RequiereIdentidadVerificada()` (HU-08), `@RequiereFirmaDispositivo()` (HU-09), `VehiculoPublico` (HU-11).
@@ -37,6 +37,7 @@ Estados de viaje (`estado_viaje` ENUM):
 | Método | Ruta | Rol | Request → Response | Errores (`codigo`) |
 |---|---|---|---|---|
 | POST | `/api/v1/viajes` | miembro aprobado + verificado + firma dispositivo | `{ origenNombre, origenLat, origenLng, destinoNombre, destinoLat, destinoLng, fechaHoraSalida, cuposTotales, precioPorAsiento }` → 201 `{ id, estado: "publicado", cuposDisponibles }` | `CONDUCTOR_SIN_VEHICULO` 403, `CUPOS_EXCEDEN_CAPACIDAD` 400, `PRECIO_FUERA_DE_RANGO` 400, `HORARIO_INVALIDO` 400, `VIAJE_SOLAPADO` 409, `IDENTIDAD_NO_VERIFICADA` 403 |
+| GET | `/api/v1/viajes/limites` | miembro aprobado | — → 200 `{ precioMinimo, precioMaximo }` de la organización activa, para mostrarlos como ayuda | `NO_AUTORIZADO` 403 |
 | GET | `/api/v1/viajes/mis-viajes` | autenticado | — → 200 `[ { id, origenNombre, destinoNombre, fechaHoraSalida, cuposDisponibles, precioPorAsiento, estado } ]`, de todas las organizaciones de la persona | — |
 | GET | `/api/v1/viajes/:id` | miembro de la organización | — → 200 `{ id, origen, destino, fechaHoraSalida, conductor: { nombre }, vehiculo: { placa, marca, modelo, color }, cuposDisponibles, precioPorAsiento, estado }` | `VIAJE_NO_ENCONTRADO` 404 |
 
@@ -84,7 +85,7 @@ sequenceDiagram
 | CA-6 Conductor sin vehículo o no verificado | e2e | `publicar.e2e-spec.ts` |
 | CA-7 Ataque A-08: publicación sin firma de dispositivo | integración | `firma-dispositivo.guard.spec.ts` |
 | Ataque A-13: aislamiento multi-organización (RLS) | e2e | `publicar.e2e-spec.ts` |
-| Móvil: formulario de publicación | Jest (preset Expo) | `mobile/test/viajes/publicar.test.tsx` |
+| Móvil: formulario de publicación | Jest (preset Expo) | `mobile/src/__tests__/publicar.test.tsx` |
 
 ## 7. Dependencias y requerimientos
 

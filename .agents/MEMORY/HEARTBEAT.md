@@ -5,7 +5,7 @@
 **Última actualización:** 2026-11-07
 
 **Sprint actual:** Sprint 2 · 28/10 – 03/11/2026 (sprints de 1 semana, miércoles a martes). Las fechas ya vencieron con HU-13, HU-17 y HU-18 pendientes.
-**Foco:** HU-17 en curso: backend hecho, sigue el móvil. HU-12, HU-14 y HU-13 con PR abiertos y CI en verde, esperando revisión. Cada historia se apila sobre la anterior, sin esperar el merge (decisión del integrante, 07/11). El despliegue va después.
+**Foco:** HU-17 en curso: backend y móvil hechos, sigue la verificación. HU-12, HU-14 y HU-13 con PR abiertos y CI en verde, esperando revisión. Cada historia se apila sobre la anterior, sin esperar el merge (decisión del integrante, 07/11). El despliegue va después.
 
 ## Estado actual
 
@@ -15,22 +15,22 @@
 - **HU-12:** implementada, en origin, sin fusionar en `develop` en `backend` ni en `mobile` (comprobado el 07/11).
 - **HU-14:** implementada, verificada y revisada, apilada sobre HU-12, en origin con la rama `feat/HU-14-saldo-historial` en `backend` (`a53df7c`), `mobile` (`db42801`) y raíz. CI en verde en `backend` y `mobile`.
 - **HU-13:** rama `feat/HU-13-recarga-saldo` en `backend` y `mobile` (apiladas sobre HU-14) y `contracts` (desde `develop`), implementada, verificada en sesión limpia y en el teléfono físico, y con PR abiertos (`backend` `b15640a`, `mobile` `5cb8227`, `contracts` `cc01cbb`). Revisión hecha. Falta SP129 (firmante KMS, al desplegar). Ajuste de spec y plan aprobado el 07/11.
-- **HU-17:** rama `feat/HU-17-publicar-viaje` en `backend` (`90d1caa`, apilada sobre HU-13) y raíz, sin subir. SP115-SP118 hechas; faltan SP119 (móvil), verificación en sesión limpia y PR. Su PR va después de los de HU-13.
+- **HU-17:** rama `feat/HU-17-publicar-viaje` en `backend` (`879afb8`) y `mobile` (`ab44397`), apiladas sobre HU-13, y raíz, sin subir. SP115-SP119 hechas; faltan verificación en sesión limpia, teléfono físico y PR. Su PR va después de los de HU-13.
 - **PR a `develop`, en orden de fusión:** `mobile` #8 (SP125), #9 (HU-12), #10 (HU-14), #11 (HU-13); `backend` #10 (HU-12), #11 (HU-14), #12 (HU-13); `contracts` #1 (HU-13); raíz #19 (HU-12 y HU-14), #20 (HU-13).
 
 ## Última sesión (07/11)
 
-- HU-17, backend: modelo, migración `011_viajes` con RLS, validaciones, `POST /viajes`, `GET /viajes/mis-viajes` y `GET /viajes/:id`, con pruebas de CA-1 a CA-7 y de A-08 y A-13. Regresión de `backend` en verde; prueba real por HTTP sin diferencias. Ajustes al plan en `MEMORY.md`.
+- HU-17, móvil (SP119): pestaña Publicar con requisitos, formulario firmado, búsqueda en OpenStreetMap, mapa fijo y resultado, más `GET /viajes/limites` en `backend`. Pruebas de `mobile` y regresión de `backend` en verde; mirada en navegador con backend real, firma con llave inyectada y Nominatim real, a 360 y 412 dp. Ajustes al plan en `MEMORY.md`.
 
 ## Próximo paso concreto
 
-1. **HU-17, punto exacto:** contrato listo y commiteado. Sigue SP119: pantalla móvil de Publicar viaje, en `mobile` con rama `feat/HU-17-publicar-viaje` apilada sobre HU-13. La firma del `POST` cubre el cuerpo exacto que se envía.
+1. **HU-17, punto exacto:** SP119 commiteada. Sigue la verificación en sesión limpia de CA-1 a CA-7, A-08 y A-13, con paridad contra `prototipos/sprint-2.html` (`m-publicar*`): fecha en chips y hora escrita son diferencias con el prototipo, y falta el micrófono apagado. Luego, el teléfono físico.
 2. En paralelo, otro integrante revisa y fusiona los PR en el orden de arriba, con `contracts` antes que `backend`. Tras el merge: confirmar con `git merge-base --is-ancestor`, actualizar punteros y marcar lo que corresponda.
 3. Después, HU-18, apilada si depende de ramas sin fusionar.
 
 ## Sin verificar
 
-- HU-17: `POST /viajes` solo se probó con firma de una llave P-256 de prueba; con el teléfono llega al probar el móvil.
+- HU-17: `POST /viajes` solo se probó con firma de una llave P-256 de prueba, en navegador. Falta en teléfono físico: huella y Keystore reales, y Nominatim y teselas desde Android.
 
 - Polygon Amoy y SP23: billetera, saldo y escrow solo se probaron contra Hardhat local.
 - El enlace a Polygonscan se vio y se abrió con la URL de Amoy agregada por un proxy de prueba, con un hash que no existe en esa red.
