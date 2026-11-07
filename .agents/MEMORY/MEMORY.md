@@ -816,3 +816,30 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 **Archivos afectados:** `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
 
 ---
+
+## 2026-11-07 · HU-13: revisión de código y últimas pruebas en el teléfono
+
+**Evento:** Revisión de todo el cambio de HU-13 en `backend`, `mobile` y `contracts`, antes de subirlo. 10 hallazgos, comprobados contra el código.
+
+**Corregidos:**
+1. Una falla de la BD después de acuñar detenía el lote y nunca sumaba intentos, así que la alerta no salía (`backend` `c6a67e8`).
+2. La misma clave de idempotencia con otra reserva pasaba como la misma operación (`backend` `b15640a`, A-09).
+3. Billetera no se actualizaba sola con una recarga pendiente: ahora consulta cada 5 s mientras la pantalla está a la vista y hay pendientes, sin huella (`mobile` `5cb8227`, también lo siguiente).
+4. Movimientos no recargaba al volver de recargar y seguía invitando a recargar.
+5. Consultar una orden aún pendiente borraba el error a la vista.
+6. Un rechazo del servidor al consultar se reintentaba sin fin y sin aviso: ahora se muestra y deja de consultar.
+7. "Seguimos intentando" salía en toda recarga: ahora solo si tarda más de 30 s (RN-6).
+
+**Pasan a SP129:** esperar N confirmaciones antes de dar por acuñada una recarga, y reemplazar con más gas una transacción atascada. Solo importan con el firmante real.
+
+**Sin cambio:** producción no arranca sin SP129, aprobado el 07/11. La revisión propone una opción más estrecha: arrancar sin relayer y dejar que las recargas reintenten. Queda a decisión del integrante.
+
+**Verificado en el teléfono** (Infinix X669, `UniCoin` en Hardhat, sin compilar el APK): un dedo no registrado dice "no reconocido", y al cancelar no hay petición a `confirmar`, ni evento, ni cambio en el contrato. Con el nodo cortado por un proxy RPC: "Recarga en camino" con su fila, el aviso de reintento a los 30 s y Billetera con la recarga pendiente. Al devolver el nodo, Billetera pasa a 50,00 URC y quita el aviso sin tocar nada y sin otra huella: contrato, libro y app coinciden, 1 evento; después deja de consultar. Desde el historial vacío, recargar y cerrar muestra el movimiento nuevo.
+
+**Regresión:** `backend`, `mobile` y `contracts`: lint, formato, pruebas, e2e y build en verde.
+
+**Sin verificar:** invalidación al registrar una huella nueva, StrongBox, Play Integrity real, Amoy y CI real.
+
+**Archivos afectados:** `backend/src/blockchain/`, `backend/src/billetera/movimientos.service.ts`; `mobile/src/app/recargar.tsx`, `mobile/src/app/movimientos.tsx`, `mobile/src/app/(pestanas)/billetera.tsx`, `mobile/src/__tests__/`; `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+---
