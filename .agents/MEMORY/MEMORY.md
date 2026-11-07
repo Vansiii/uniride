@@ -1035,3 +1035,21 @@ Revisión de `backend` y `mobile` contra HU-13, con el cambio de firma como grad
 **Verificado:** informe de la parte en teléfono; regresión de `mobile` en verde. TalkBack confirmado de oído por el integrante en búsqueda, resultados y detalle («Reservar» se oye inhabilitado). El tope de 15 s se midió en el teléfono con la llamada de Android forzada a no responder; no se vio ocurrir bajo techo.
 
 **Sin verificar:** verificación en sesión limpia de la historia y el mapa nuevo.
+
+## 2026-11-07 · HU-18: mapa con MapLibre (SP130)
+
+**Evento:** `@maplibre/maplibre-react-native` 11.5.1 en `mobile`, sin scripts de instalación; APK de debug recompilado.
+
+**Cómo quedó:**
+1. Teselas vectoriales de OpenFreeMap (datos de OpenStreetMap, sin clave) con un estilo propio hecho con `tokens.ts`. El servidor de teselas de OSM no se usa con MapLibre: su política prohíbe el User-Agent por defecto de una librería.
+2. Tipos de mapa: calles y relieve (sombreado de Terrain Tiles de AWS, sin clave). Satélite no: no hay proveedor gratuito que lo permita sin clave ni cuenta; si se quiere, decide el integrante.
+3. Elegir punto: tocar deja el pin ahí; mover, rotar o acercar no lo mueve, y queda de pie al rotar. «Mi ubicación» mueve pin y cámara. Pin dibujado en SVG (`assets/images/pin-mapa.svg`) que muestra `expo-image`. Forma pedida por el integrante: cabeza de 34 y punta larga, sin borde blanco, con un solo contorno.
+4. Trayecto (detalle y Publicar): recuadro fijo dentro de la pantalla, que se reencuadra al cambiar un lugar; al tocarlo se abre a pantalla completa con los gestos.
+5. Créditos: visibles al abrir, a los 5 s se pliegan en una «i» que los vuelve a mostrar, como permiten las pautas de atribución de OSM. Al cambiar de tipo se muestran de nuevo.
+6. Navegador: MapLibre para React Native no dibuja en web; `MapaRuta.web.tsx` y `SelectorMapa.web.tsx` conservan las teselas anteriores. `web/` no muestra mapas.
+
+**Verificado:** en el teléfono, arrastre y zoom medidos por el proxy (187 m, 94 m y 748 m frente a ≈195, 97 y 780), relieve, atrás de Android, trayecto en detalle, pantalla completa, Publicar al cambiar destino, pin al tocar y créditos plegables. En navegador, las 42 comprobaciones de búsqueda y las 6 de lo afectado. Lint, tipos y pruebas de `mobile` en verde.
+
+Rotar, pellizco, doble toque, «Mi ubicación» y TalkBack sobre el mapa los probó el integrante en el teléfono (07/11, sin detalle por punto).
+
+**Sin verificar:** OpenFreeMap y las teselas de relieve no dan garantía de servicio.

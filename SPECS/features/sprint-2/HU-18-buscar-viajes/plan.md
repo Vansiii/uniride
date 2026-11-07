@@ -96,7 +96,7 @@ sequenceDiagram
 
 ## 8. Tareas propuestas (para backlog.md al aprobar)
 
-- `SP130`: Mapa con MapLibre: pellizco, doble toque, rotar y brújula, punto de mi ubicación y tipos de mapa, con estilo propio; revisar navegador — 6h.
+- `SP130`: Mapa con MapLibre: pellizco, doble toque, rotar y brújula, punto de mi ubicación y tipos de mapa, con estilo propio; revisar navegador — 6h. Hecho el 07/11: teselas de OpenFreeMap con estilo propio, calles y relieve, pin que se coloca al tocar; la web conserva las teselas.
 - `SP120`: Lógica de consulta geoespacial Haversine y filtro de ventana temporal — 3h.
 - `SP121`: Endpoint `/viajes/buscar` con DTOs seguros y resolución D-17 — 3h.
 - `SP122`: Suite de pruebas automatizadas, prueba de aislamiento A-13 y medición de latencia < 2s — 3h.

@@ -5,7 +5,7 @@
 **Última actualización:** 2026-11-07
 
 **Sprint actual:** Sprint 2 · 28/10 – 03/11/2026 (sprints de 1 semana, miércoles a martes). Las fechas ya vencieron con HU-13, HU-17 y HU-18 pendientes.
-**Foco:** HU-18 en curso: contrato y pantallas móviles hechos, probada en el teléfono; falta el mapa nuevo (SP130) y verificar. HU-12, HU-14, HU-13 y HU-17 con PR abiertos; todos esperan revisión. Cada historia se apila sobre la anterior, sin esperar el merge (decisión del integrante, 07/11). El despliegue va después.
+**Foco:** HU-18 en curso: contrato, pantallas móviles y mapa con MapLibre (SP130) hechos; falta la verificación en sesión limpia y la última pasada de teléfono. HU-12, HU-14, HU-13 y HU-17 con PR abiertos; todos esperan revisión. Cada historia se apila sobre la anterior, sin esperar el merge (decisión del integrante, 07/11). El despliegue va después.
 
 ## Estado actual
 
@@ -16,23 +16,22 @@
 - **HU-14:** implementada, verificada y revisada, apilada sobre HU-12, en origin con la rama `feat/HU-14-saldo-historial` en `backend` (`a53df7c`), `mobile` (`db42801`) y raíz. CI en verde en `backend` y `mobile`.
 - **HU-13:** rama `feat/HU-13-recarga-saldo` en `backend` y `mobile` (apiladas sobre HU-14) y `contracts` (desde `develop`), implementada, verificada en sesión limpia y en el teléfono físico, y con PR abiertos (`backend` `b15640a`, `mobile` `5cb8227`, `contracts` `cc01cbb`). Revisión hecha. Falta SP129 (firmante KMS, al desplegar). Ajuste de spec y plan aprobado el 07/11.
 - **HU-17:** rama `feat/HU-17-publicar-viaje` en `backend` (`2585a7b`) y `mobile` (`e31b086`), apiladas sobre HU-13, y raíz, en origin. SP115-SP119 hechas, verificadas en sesión limpia y en el teléfono físico, y revisadas. PR abiertos, que van después de los de HU-13.
-- **HU-18:** rama `feat/HU-18-buscar-viajes` en `backend` (`f281a2e`) y `mobile` (`8db8a8b`), apiladas sobre HU-17, y raíz, solo local. SP120-SP123 hechas y probadas en el teléfono físico, sin verificación en sesión limpia. SP130 pendiente. Se fusiona después de los PR de HU-17.
+- **HU-18:** rama `feat/HU-18-buscar-viajes` en `backend` (`f281a2e`) y `mobile` (`815467d`), apiladas sobre HU-17, y raíz, solo local. SP120-SP123 y SP130 hechas y probadas en el teléfono físico, sin verificación en sesión limpia. Se fusiona después de los PR de HU-17.
 - **PR a `develop`, en orden de fusión:** `mobile` #8 (SP125), #9 (HU-12), #10 (HU-14), #11 (HU-13), #12 (HU-17); `backend` #10 (HU-12), #11 (HU-14), #12 (HU-13), #13 (HU-17); `contracts` #1 (HU-13); raíz #19 (HU-12 y HU-14), #20 (HU-13), #21 (HU-17).
 
 ## Última sesión (07/11)
 
-- HU-18 en el teléfono físico: permiso, GPS real, avisos, arrastre con el dedo, zoom y atrás funcionan. Se corrigió la ventana de Google que salía sola al abrir con la ubicación apagada. El integrante decidió cambiar el mapa por uno con MapLibre. Detalle en `MEMORY.md`.
+- HU-18 SP130: mapa con MapLibre en el teléfono, con estilo propio, calles y relieve, pin que se coloca al tocar y créditos plegables. La web conserva las teselas. Detalle en `MEMORY.md`.
 
 ## Próximo paso concreto
 
-1. **HU-18, punto exacto:** `SP130`. Comprobar si `web/` muestra algún mapa (revisión sin terminar) y qué se ve en navegador. Instalar `@maplibre/maplibre-react-native`, autorizada; reemplazar `SelectorMapa` y `MapaRuta` con pellizco, doble toque, rotar y brújula, punto de mi ubicación y tipos de mapa, con estilo propio. Recompilar y probar también Publicar.
-2. Después, verificación en sesión limpia de toda la historia: cada CA, paridad con el prototipo y `verificar` completo.
-3. Última pasada de teléfono: el mapa nuevo con el dedo, pin, atrás de Android, «Mi ubicación» dentro del mapa y su voz en TalkBack. Lo de permiso y avisos vale mientras no cambie `ubicacion.ts`.
+1. **HU-18, punto exacto:** verificación en sesión limpia de toda la historia: cada CA, paridad con el prototipo y `verificar` completo de `backend` y `mobile`.
+2. Pasada de teléfono solo si la verificación cambia algo de lo móvil: el mapa ya lo probó el integrante (rotar, pellizco, doble toque, «Mi ubicación» y TalkBack). El APK de debug ya incluye MapLibre.
 4. En paralelo, otro integrante revisa y fusiona los PR en el orden de arriba, con `contracts` antes que `backend`. Tras el merge: confirmar con `git merge-base --is-ancestor`, actualizar punteros y marcar lo que corresponda. El cambio de firma de `mobile` exige recompilar el APK.
 
 ## Sin verificar
 
-- HU-18 en el teléfono: el mapa nuevo (SP130). El tope de 15 s se midió forzando que Android no responda; no se vio ocurrir bajo techo.
+- HU-18: OpenFreeMap y las teselas de relieve no dan garantía de servicio. El tope de 15 s se midió forzando que Android no responda; no se vio ocurrir bajo techo.
 - HU-17, fecha vieja al volver otro día: solo con prueba de Jest, que adelanta el reloj; en el teléfono exigiría cambiar su fecha.
 - HU-17 y firma: la recarga con la firma nueva se probó en el teléfono contra cadena simulada; contra contrato real, al desplegar en Amoy (decisión del integrante). La voz de TalkBack solo la confirma una persona.
 - Polygon Amoy y SP23: billetera, saldo y escrow solo se probaron contra Hardhat local.
