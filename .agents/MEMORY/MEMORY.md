@@ -1022,3 +1022,16 @@ Revisión de `backend` y `mobile` contra HU-13, con el cambio de firma como grad
 
 **Verificado:** en navegador contra el backend real, a 360 y 412, con GPS fijado: 42 comprobaciones de la búsqueda y 6 de lo afectado (Publicar, cerrar el mapa, entrada a Billetera, salir). Falta el teléfono físico.
 
+## 2026-11-07 · HU-18: teléfono físico y decisión del mapa
+
+**Evento:** Se prueba en un Infinix X669 (Android 12) con GPS real, permiso, avisos, arrastre con el dedo, zoom, atrás de Android, teclado de la hora, Nominatim y 412 dp.
+
+**Defecto corregido:** con la ubicación apagada, abrir la pantalla pedía la posición y salía sola la ventana de Google para activarla. `obtenerUbicacion` ya no lo hace si la persona no tocó el botón (`mobile` `8db8a8b`, con prueba).
+
+**Decisión del integrante:** el mapa se queda corto. Pide las funciones habituales de un mapa, con estilo propio y sin copiar otra app: pellizco, doble toque, rotar y brújula, punto de mi ubicación y tipos de mapa si hacen falta. Autoriza `@maplibre/maplibre-react-native` (`AGENTS.md` §14) y pide revisar que quede bien tanto en móvil como en web, si la web muestra mapa. Queda como `SP130`.
+
+**Razón:** con teselas propias, rotar y pellizcar habría que escribirlo y mantenerlo a mano. MapLibre es MIT y npm declara compatibilidad con Expo 57 y React Native 0.86; falta probarlo aquí. Es nativa: hay que recompilar y resolver qué se ve en navegador. `MapaRuta` y Publicar (HU-17) comparten estas teselas: entran en la prueba. Antes de usar satélite o relieve se revisan las condiciones de uso de esos servicios.
+
+**Verificado:** informe de la parte en teléfono; regresión de `mobile` en verde. El tope de 15 s se midió en el teléfono con la llamada de Android forzada a no responder; no se vio ocurrir bajo techo.
+
+**Sin verificar:** verificación en sesión limpia de la historia, voz de TalkBack en estas pantallas y el mapa nuevo.

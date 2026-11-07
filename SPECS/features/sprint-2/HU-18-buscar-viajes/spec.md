@@ -72,4 +72,5 @@ Marcar al cerrar la fase **Verify**. Referencia: `SPECS/constitution.md` Art. 12
 | 2026-11-02 | Aprobación de spec y plan; Haversine <= 1 km, ventana +/- 30 min y resolución D-17 | 2026-11-02 · HU-18 Buscar viajes: spec y plan técnico aprobados (Resuelve D-17) |
 | 2026-11-07 | RN-6 y RN-7, sin filtro de destino, y nombre de pila también en el detalle (decisiones del integrante) | 2026-11-07 · HU-18: contrato de búsqueda |
 | 2026-11-07 | Sin cambios de criterios. Pantallas móviles con `expo-location` autorizado por el integrante | 2026-11-07 · HU-18: pantallas móviles |
+| 2026-11-07 | Sin cambios de criterios. Mapa con funciones habituales y tipos de mapa, con MapLibre autorizado por el integrante (`SP130`) | 2026-11-07 · HU-18: teléfono físico y decisión del mapa |
 

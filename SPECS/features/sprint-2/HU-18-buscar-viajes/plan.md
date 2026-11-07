@@ -92,10 +92,11 @@ sequenceDiagram
 ## 7. Dependencias y requerimientos
 
 - Reutiliza módulo `viajes` (HU-17) y OpenStreetMap.
-- `expo-location` en `mobile` (autorizado por el integrante el 07/11, `AGENTS.md` §14). Es un módulo nativo: hay que recompilar la app. El mapa no agrega librería: usa las teselas de `MapaRuta`, sin pellizco para acercar.
+- `expo-location` en `mobile` (autorizado por el integrante el 07/11, `AGENTS.md` §14). Es un módulo nativo: hay que recompilar la app. El mapa nació sin librería, con las teselas de `MapaRuta`. Tras probarlo en el teléfono, el integrante autorizó el 07/11 `@maplibre/maplibre-react-native` (`AGENTS.md` §14), también nativa: ver `SP130`.
 
 ## 8. Tareas propuestas (para backlog.md al aprobar)
 
+- `SP130`: Mapa con MapLibre: pellizco, doble toque, rotar y brújula, punto de mi ubicación y tipos de mapa, con estilo propio; revisar navegador — 6h.
 - `SP120`: Lógica de consulta geoespacial Haversine y filtro de ventana temporal — 3h.
 - `SP121`: Endpoint `/viajes/buscar` con DTOs seguros y resolución D-17 — 3h.
 - `SP122`: Suite de pruebas automatizadas, prueba de aislamiento A-13 y medición de latencia < 2s — 3h.
