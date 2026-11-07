@@ -5,7 +5,7 @@
 **Última actualización:** 2026-11-07
 
 **Sprint actual:** Sprint 2 · 28/10 – 03/11/2026 (sprints de 1 semana, miércoles a martes). Las fechas ya vencieron con HU-13, HU-17 y HU-18 pendientes.
-**Foco:** HU-18 en curso: contrato, pantallas móviles y mapa con MapLibre (SP130) hechos; falta la verificación en sesión limpia y la última pasada de teléfono. HU-12, HU-14, HU-13 y HU-17 con PR abiertos; todos esperan revisión. Cada historia se apila sobre la anterior, sin esperar el merge (decisión del integrante, 07/11). El despliegue va después.
+**Foco:** HU-18 implementada y verificada en sesión limpia, también en el teléfono; falta la revisión de código, documentar y subir. HU-12, HU-14, HU-13 y HU-17 con PR abiertos; todos esperan revisión. Cada historia se apila sobre la anterior, sin esperar el merge (decisión del integrante, 07/11). El despliegue va después.
 
 ## Estado actual
 
@@ -16,17 +16,17 @@
 - **HU-14:** implementada, verificada y revisada, apilada sobre HU-12, en origin con la rama `feat/HU-14-saldo-historial` en `backend` (`a53df7c`), `mobile` (`db42801`) y raíz. CI en verde en `backend` y `mobile`.
 - **HU-13:** rama `feat/HU-13-recarga-saldo` en `backend` y `mobile` (apiladas sobre HU-14) y `contracts` (desde `develop`), implementada, verificada en sesión limpia y en el teléfono físico, y con PR abiertos (`backend` `b15640a`, `mobile` `5cb8227`, `contracts` `cc01cbb`). Revisión hecha. Falta SP129 (firmante KMS, al desplegar). Ajuste de spec y plan aprobado el 07/11.
 - **HU-17:** rama `feat/HU-17-publicar-viaje` en `backend` (`2585a7b`) y `mobile` (`e31b086`), apiladas sobre HU-13, y raíz, en origin. SP115-SP119 hechas, verificadas en sesión limpia y en el teléfono físico, y revisadas. PR abiertos, que van después de los de HU-13.
-- **HU-18:** rama `feat/HU-18-buscar-viajes` en `backend` (`f281a2e`) y `mobile` (`815467d`), apiladas sobre HU-17, y raíz, solo local. SP120-SP123 y SP130 hechas y probadas en el teléfono físico, sin verificación en sesión limpia. Se fusiona después de los PR de HU-17.
+- **HU-18:** rama `feat/HU-18-buscar-viajes` en `backend` (`f281a2e`) y `mobile` (`a42d564`), apiladas sobre HU-17, y raíz, solo local. SP120-SP123 y SP130 hechas, verificadas en sesión limpia (07/11) y probadas en el teléfono físico. Se fusiona después de los PR de HU-17.
 - **PR a `develop`, en orden de fusión:** `mobile` #8 (SP125), #9 (HU-12), #10 (HU-14), #11 (HU-13), #12 (HU-17); `backend` #10 (HU-12), #11 (HU-14), #12 (HU-13), #13 (HU-17); `contracts` #1 (HU-13); raíz #19 (HU-12 y HU-14), #20 (HU-13), #21 (HU-17).
 
 ## Última sesión (07/11)
 
-- HU-18 SP130: mapa con MapLibre en el teléfono, con estilo propio, calles y relieve, pin que se coloca al tocar y créditos plegables. La web conserva las teselas. Detalle en `MEMORY.md`.
+- HU-18, verificación en sesión limpia: regresión completa en verde, CA-1 a CA-6 y A-13 contra la API real, amenazas sin hallazgos, pantallas a 360 y 412, teclado y paridad. Corregidos el ícono de «Nuevo» (se veía igual que el de verificado) y el ícono del auto en el detalle, vistos también en el teléfono. Detalle en `MEMORY.md`.
 
 ## Próximo paso concreto
 
-1. **HU-18, punto exacto:** verificación en sesión limpia de toda la historia: cada CA, paridad con el prototipo y `verificar` completo de `backend` y `mobile`.
-2. Pasada de teléfono solo si la verificación cambia algo de lo móvil: el mapa ya lo probó el integrante (rotar, pellizco, doble toque, «Mi ubicación» y TalkBack). El APK de debug ya incluye MapLibre.
+1. **HU-18, punto exacto:** revisión de código del diff de `backend` y `mobile` contra HU-17, corregir lo que salga, documentar y subir ramas y PR cuando lo diga el integrante (van después de los de HU-17).
+2. Decidir las diferencias con el prototipo de HU-18 (Decisiones abiertas).
 4. En paralelo, otro integrante revisa y fusiona los PR en el orden de arriba, con `contracts` antes que `backend`. Tras el merge: confirmar con `git merge-base --is-ancestor`, actualizar punteros y marcar lo que corresponda. El cambio de firma de `mobile` exige recompilar el APK.
 
 ## Sin verificar
@@ -58,7 +58,7 @@
 - **Organización suspendida:** ningún código pone una organización en ese estado y `POST /viajes` no lo mira. Decisión del integrante (07/11): se resuelve en la historia que implemente la suspensión.
 - **`app.super_admin` en viajes:** `publicar` y `mis-viajes` abren RLS para leer los viajes del propio conductor, siempre con filtro por `conductorId`. Una política por `conductor_id` sería más estrecha; toca el diseño de RLS (`AGENTS.md` §14).
 - **Sesión muerta en la app:** si el refresco falla, ninguna pantalla lleva a iniciar sesión, y Publicar lo muestra como falta de conexión. Afecta a toda la app.
-- **HU-18, diferencias con el prototipo:** sin «Hacia», título de resultados genérico, sin «2 de 3» asientos (la API solo da los disponibles), saludo con el nombre completo y «Mi ubicación» y «En el mapa» en dos filas a 360 en navegador. Decidir si se aceptan.
+- **HU-18, diferencias con el prototipo:** sin «Hacia», título de resultados genérico, sin «2 de 3» asientos (la API solo da los disponibles), saludo con el nombre completo «Mi ubicación» y «En el mapa» en dos filas a 360 en navegador, subtítulo del saludo distinto y nombre sin la inicial del apellido (RN-4). Decidir si se aceptan. El botón de voz de la banda es de HU-27.
 - **HU-17, diferencias con el prototipo:** fecha en chips con hora escrita (P-08 de `DESIGN_SYSTEM.md`), y origen y destino en campos fuera de la tarjeta del mapa. Decidir si se aceptan.
 - **Vulnerabilidades en dependencias de producción (`npm audit`, 07/11), anteriores a HU-14, sin corregir:** `backend` 7 altas, con `@nestjs/platform-express` y `prisma` como directas; `mobile` 6 altas, con `expo-router` como directa. Cambiar dependencias requiere autorización (`AGENTS.md` §14). Decidir si se atienden antes de desplegar.
 - **Para HU-19, reembolso 50/50 de un monto con centavos impares:** `reembolsar` reparte 6,175 URC de 12,35 y el libro solo guarda 2 decimales. La diferencia con la cadena queda permanente y agrega filas de auditoría en cada lectura real. Decidir antes de HU-19: redondear en el contrato o limitar los montos. Cambiar el contrato requiere autorización (`AGENTS.md` §14).

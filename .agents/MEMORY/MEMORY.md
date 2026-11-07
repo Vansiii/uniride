@@ -1053,3 +1053,20 @@ Revisión de `backend` y `mobile` contra HU-13, con el cambio de firma como grad
 Rotar, pellizco, doble toque, «Mi ubicación» y TalkBack sobre el mapa los probó el integrante en el teléfono (07/11, sin detalle por punto).
 
 **Sin verificar:** OpenFreeMap y las teselas de relieve no dan garantía de servicio.
+
+## 2026-11-07 · HU-18: verificación en sesión limpia
+
+**Evento:** verificación de toda la historia sobre `backend` `f281a2e` y `mobile` `a42d564`.
+
+**Verificado:** regresión completa de `backend`, `mobile` y `contracts` en verde (459 unitarias, 509 e2e, cobertura de backend 92,4 %; 360 pruebas de `mobile`). CA-1 a CA-6 contra la API real, incluido CA-6 con 40 500 viajes (máximo 25 ms, con `idx_viajes_busqueda`). Errores de spec §4: coordenadas repetidas, vacías o `Infinity` dan `COORDENADAS_INVALIDAS`, y una hora sin zona da `VALIDACION_FALLIDA`. A-13: el detalle de otra organización responde 404, igual que uno inexistente. Swagger con 200, 400, 401 y 403. Amenazas sin hallazgos. En navegador, pantallas a 360 y 412, lo afectado de HU-17 y recorrido con teclado (foco visible, nombres, Enter abre el detalle). Paridad con el prototipo, punto por punto.
+
+**Corregido:**
+1. «Nuevo» llevaba el mismo sello con visto que «Conductor verificado» (`new_releases` se dibuja igual que `verified`) y parecía otra verificación. Ahora usa `auto_awesome`.
+2. El auto del detalle no tenía el ícono del prototipo. Ahora lleva `directions_car`.
+
+Los dos se vieron en el teléfono físico.
+
+**Diferencias nuevas con el prototipo, para decidir:** el subtítulo del saludo («Busca viajes de tu comunidad cerca de ti» en lugar de «¿A dónde vas hoy?», coherente sin destino) y el nombre sin la inicial del apellido («María» frente a «Carlos J.»; RN-4 pide nombre de pila). El botón de voz desactivado de la banda es de HU-27.
+
+**Teléfono:** `dumpsys` lista una ventana «Application Not Responding» de la app, con superficie de 0 × 0, que retiene el foco. No hay `am_anr` en esta sesión; el único archivo de `/data/anr` es de las 16:56. No impide tocar la app y «atrás» no la cierra.
+

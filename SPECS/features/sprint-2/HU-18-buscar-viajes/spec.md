@@ -56,12 +56,12 @@
 
 Marcar al cerrar la fase **Verify**. Referencia: `SPECS/constitution.md` Art. 12.
 
-- [ ] Criterios CA-1 a CA-6 cumplidos.
-- [ ] Pruebas automatizadas del `plan.md` en verde; cobertura en backend ≥ 70 %.
-- [ ] Prueba de aislamiento multi-organización A-13 en verde.
-- [ ] Tiempo de respuesta verificado < 2 segundos.
+- [x] Criterios CA-1 a CA-6 cumplidos.
+- [x] Pruebas automatizadas del `plan.md` en verde; cobertura en backend ≥ 70 %.
+- [x] Prueba de aislamiento multi-organización A-13 en verde.
+- [x] Tiempo de respuesta verificado < 2 segundos.
 - [ ] PR revisado · CI en verde.
-- [ ] Documentado en Swagger.
+- [x] Documentado en Swagger.
 - [ ] Aceptada por el PO en la Sprint Review.
 
 ## 8. Historial de cambios
@@ -73,4 +73,5 @@ Marcar al cerrar la fase **Verify**. Referencia: `SPECS/constitution.md` Art. 12
 | 2026-11-07 | RN-6 y RN-7, sin filtro de destino, y nombre de pila también en el detalle (decisiones del integrante) | 2026-11-07 · HU-18: contrato de búsqueda |
 | 2026-11-07 | Sin cambios de criterios. Pantallas móviles con `expo-location` autorizado por el integrante | 2026-11-07 · HU-18: pantallas móviles |
 | 2026-11-07 | Sin cambios de criterios. Mapa con funciones habituales y tipos de mapa, con MapLibre autorizado por el integrante (`SP130`) | 2026-11-07 · HU-18: teléfono físico y decisión del mapa |
+| 2026-11-07 | Sin cambios de criterios. Verificación en sesión limpia: CA-1 a CA-6 cumplidos, cobertura 92,4 %, CA-6 en 25 ms con 40 500 viajes | 2026-11-07 · HU-18: verificación en sesión limpia |
 
