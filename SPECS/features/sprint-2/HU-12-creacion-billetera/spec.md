@@ -26,7 +26,7 @@
 
 - RN-1: **Automatismo y requisito previo:** La billetera se crea de forma inmediata y obligatoria tras completar la verificación de identidad (HU-08). Sin identidad aprobada no existe billetera.
 - RN-2: **Unicidad:** Exactamente **una sola billetera por usuario** en toda la plataforma UniRide (A-02).
-- RN-3: **Custodia no exportable (A-12):** Las llaves privadas se gestionan en hardware seguro de AWS KMS (o nodo local en desarrollo); nunca residen en código ni en la base de datos relacional.
+- RN-3: **Custodia cifrada (A-12):** Las llaves privadas se guardan solo cifradas con AES-256-GCM, con una clave que vive en una variable de entorno; nunca residen en código ni son legibles en la base de datos, logs o respuestas de la API (ver `plan.md`).
 - RN-4: **Red y moneda:** Opera exclusivamente en la red de pruebas **Polygon Amoy** (Chain ID 80002). El token oficial es **UniCoin (URC)**. Nunca se conecta a mainnet (`AGENTS.md` §11).
 - RN-5: **Gasless (Relayer):** El usuario no necesita tener moneda nativa (MATIC/POL) para gas. Todas las transacciones las orquesta y subsidia la cuenta relayer del sistema.
 
@@ -68,4 +68,5 @@ Marcar al cerrar la fase **Verify**. Referencia: `SPECS/constitution.md` Art. 12
 |---|---|---|
 | 2026-11-02 | Creación (borrador) | — |
 | 2026-11-02 | Aprobación de spec y plan; custodia dual sin costo base y relayer gasless | 2026-11-02 · HU-12 Creación de billetera: spec y plan técnico aprobados |
+| 2026-11-06 | RN-3 alineada con la custodia cifrada que aprobó el plan | 2026-11-06 · HU-12: se alinean los documentos con la custodia cifrada |
 

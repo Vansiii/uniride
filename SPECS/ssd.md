@@ -43,7 +43,7 @@ flowchart LR
     end
     DB[(PostgreSQL RDS<br/>RLS por organización)]
     S3[(S3 cifrado<br/>carnets y vehículos)]
-    KMS[KMS<br/>llaves billeteras y verificador]
+    KMS[KMS<br/>llaves relayer y verificador]
     REK[Rekognition<br/>Face Liveness]
     SES[SES<br/>OTP e invitaciones]
   end
@@ -144,9 +144,9 @@ Claves primarias UUID. Todas las tablas tienen `creado_en`. En Prisma, cada `mod
 | `desafios_handshake` | organizacion_id, reserva_id, tipo (`abordaje`/`bajada`), nonce, vence_en, usado_en | `UNIQUE(nonce)`; vence 30 s; un solo uso | sí |
 | `pruebas_presencia` | organizacion_id, reserva_id, tipo, firma_conductor, firma_pasajero, posicion_conductor, posicion_pasajero, distancia_m, resultado, hash_prueba | `distancia_m ≤ 50` para aceptar | sí |
 | `puntos_gps` | organizacion_id, reserva_id, usuario_id, lat, lng, registrado_en, firma, ubicacion_simulada | | sí |
-| `billeteras` | usuario_id, direccion, id_llave_kms | `UNIQUE(usuario_id)`, `UNIQUE(direccion)`; nunca la llave privada | persona |
+| `billeteras` | usuario_id, direccion, llave_custodia_ref | `UNIQUE(usuario_id)`, `UNIQUE(direccion)`; la llave privada solo cifrada, nunca legible | persona |
 | `recargas` | usuario_id, monto_bs, estado, referencia_pago | `monto_bs BETWEEN 10 AND 500` | persona |
-| `movimientos` | billetera_id, tipo (`recarga`/`bloqueo`/`liberacion`/`reembolso`/`retiro`/`subsidio`), monto_urc, reserva_id, clave_idempotencia, estado (`pendiente`/`confirmado`/`fallido`), hash_tx | `UNIQUE(clave_idempotencia)`; solo inserción (un trigger permite cambiar únicamente `estado` y `hash_tx`) | persona |
+| `movimientos_billetera` | billetera_id, tipo (`recarga`/`bloqueo_reserva`/`liberacion_viaje`/`reembolso_reserva`; `retiro` y `subsidio` se agregan con HU-16 y HU-24), monto, reserva_id, clave_idempotencia, estado (`pendiente`/`confirmado`/`fallido`), hash_tx | `UNIQUE(clave_idempotencia)`; solo inserción (un trigger permite cambiar únicamente `estado` y `hash_tx`) | persona |
 | `invitaciones` | organizacion_id, correo, nombre, hash_token, vence_en (72 h), usada_en, reemplazada_en, creado_por | `UNIQUE(hash_token)` | sí |
 | `correos_salientes` | destinatario, plantilla, datos JSONB, estado (`pendiente`/`enviado`/`fallido`), intentos, proximo_intento_en, ultimo_error, referencia_tipo, referencia_id | — | interna |
 | `trabajos_onchain` | movimiento_id, operacion, intentos, proximo_intento_en, ultimo_error, estado | `UNIQUE(movimiento_id)` | — |
@@ -214,8 +214,10 @@ Prefijo `/api/v1`. **F** = exige firma de dispositivo + atestación (`FirmaDispo
 | POST | `/viajes` | conductor verificado | F | HU-17 |
 | GET | `/viajes/buscar` | pasajero verificado | F | HU-18 |
 | GET | `/viajes/{id}` | miembro verificado | F | HU-18 |
-| GET | `/billetera` | miembro verificado | F | HU-12, HU-14 |
-| GET | `/billetera/movimientos` | miembro verificado | F | HU-14 |
+| POST | `/billetera` | miembro verificado | F | HU-12 |
+| GET | `/billetera/mia` | miembro verificado | F | HU-12, HU-14 |
+| GET | `/billetera/saldo` | miembro verificado | | HU-14 |
+| GET | `/billetera/movimientos` | miembro verificado | | HU-14 |
 | POST | `/billetera/recargas` | miembro verificado | F B | HU-13 |
 | POST | `/billetera/recargas/{id}/simular-pago` | simulador (solo red de prueba) | | HU-13 |
 | POST | `/viajes/{id}/reservas` | pasajero verificado | F B | HU-19 |
@@ -281,7 +283,7 @@ sequenceDiagram
 | Máquina de estados solo en el servidor; el cliente no puede fijar estados | A-08 |
 | `liberar` solo con `ROL_VERIFICADOR`, solo para `idReserva` bloqueada y no resuelta | A-09 |
 | Los viajes no crean saldo; patrones repetitivos → alerta | A-10 |
-| Llaves en KMS; el backend solo pide firmas | A-12 |
+| Relayer y verificador en KMS (el backend solo pide firmas); llaves de usuario cifradas con AES-256-GCM | A-12 |
 | `organizacion_id` + RLS + `OrganizacionGuard` | A-13 |
 
 El modo emulador de desarrollo (`MODO_EMULADOR_DEV`) solo omite la atestación, está en `false` por defecto y el arranque falla si vale `true` con `NODE_ENV=production`.
@@ -300,7 +302,8 @@ Criterio medible de "invulnerable" propuesto al docente (documento técnico §3.
 - 1 URC = 1 Bs simulado. Montos en BD como `NUMERIC(12,2)`; conversión con `parseUnits` (18 decimales estándar de OpenZeppelin).
 
 **Llaves (A-12)**
-- Una llave KMS `ECC_SECG_P256K1` por billetera de usuario, una para el relayer (`ROL_ACUNADOR` en URC y `ROL_OPERADOR` en el escrow; paga el gas) y una para la cuenta verificadora (`ROL_VERIFICADOR`). Ninguna llave privada sale de KMS.
+- Llaves de usuario: generadas en el backend y guardadas solo cifradas con AES-256-GCM en `billeteras.llave_custodia_ref`, con la clave de la variable `WALLET_ENCRYPTION_KEY` (decisión del PO en HU-12 por costo: una llave KMS por usuario cuesta ~1 USD/mes). Riesgo aceptado: quien obtenga a la vez la base de datos y esa variable descifra las llaves; el token no tiene valor real.
+- Una llave KMS `ECC_SECG_P256K1` para el relayer (`ROL_ACUNADOR` en URC y `ROL_OPERADOR` en el escrow; paga el gas) y una para la cuenta verificadora (`ROL_VERIFICADOR`). Esas llaves no salen de KMS.
 
 **Qué se registra on-chain**: recargas (acuñación), bloqueos en escrow, liberaciones con `hashPrueba`, reembolsos, retiros (quema) y subsidios.
 

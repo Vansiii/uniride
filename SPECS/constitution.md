@@ -58,7 +58,7 @@
 1. Autenticación JWT con roles; token de acceso de 15 min y refresh token revocable al cerrar sesión.
 2. Contraseñas con hash (bcrypt o argon2), nunca en texto plano.
 3. HTTPS obligatorio en toda comunicación.
-4. Secretos solo en variables de entorno o en AWS KMS (llaves de billeteras y del verificador). Nunca en el repo, commits, logs, pruebas ni base de datos.
+4. Secretos solo en variables de entorno o en AWS KMS (llaves del relayer y del verificador). Nunca en el repo, commits, logs, pruebas ni base de datos. Excepción aprobada por el PO (HU-12, por costo): la llave de cada billetera de usuario va en la base de datos solo cifrada con AES-256-GCM; su clave de cifrado vive en una variable de entorno.
 5. Datos personales y biométricos (carnet, rostro, fotos de vehículo): consentimiento explícito, cifrados en S3, uso exclusivo para verificación, nunca en respuestas de API, logs ni mensajes de error. Tratamiento conforme a la Constitución Política del Estado (derecho a la protección de datos, Art. 21 y 130) y a la Ley N.º 164.
 6. Licencias de dependencias compatibles con la Ley N.º 1322.
 
