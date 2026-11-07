@@ -146,7 +146,7 @@ Claves primarias UUID. Todas las tablas tienen `creado_en`. En Prisma, cada `mod
 | `puntos_gps` | organizacion_id, reserva_id, usuario_id, lat, lng, registrado_en, firma, ubicacion_simulada | | sí |
 | `billeteras` | usuario_id, direccion, llave_custodia_ref | `UNIQUE(usuario_id)`, `UNIQUE(direccion)`; la llave privada solo cifrada, nunca legible | persona |
 | `recargas` | usuario_id, monto_bs, estado, referencia_pago | `monto_bs BETWEEN 10 AND 500` | persona |
-| `movimientos` | billetera_id, tipo (`recarga`/`bloqueo`/`liberacion`/`reembolso`/`retiro`/`subsidio`), monto_urc, reserva_id, clave_idempotencia, estado (`pendiente`/`confirmado`/`fallido`), hash_tx | `UNIQUE(clave_idempotencia)`; solo inserción (un trigger permite cambiar únicamente `estado` y `hash_tx`) | persona |
+| `movimientos_billetera` | billetera_id, tipo (`recarga`/`bloqueo_reserva`/`liberacion_viaje`/`reembolso_reserva`; `retiro` y `subsidio` se agregan con HU-16 y HU-24), monto, reserva_id, clave_idempotencia, estado (`pendiente`/`confirmado`/`fallido`), hash_tx | `UNIQUE(clave_idempotencia)`; solo inserción (un trigger permite cambiar únicamente `estado` y `hash_tx`) | persona |
 | `invitaciones` | organizacion_id, correo, nombre, hash_token, vence_en (72 h), usada_en, reemplazada_en, creado_por | `UNIQUE(hash_token)` | sí |
 | `correos_salientes` | destinatario, plantilla, datos JSONB, estado (`pendiente`/`enviado`/`fallido`), intentos, proximo_intento_en, ultimo_error, referencia_tipo, referencia_id | — | interna |
 | `trabajos_onchain` | movimiento_id, operacion, intentos, proximo_intento_en, ultimo_error, estado | `UNIQUE(movimiento_id)` | — |
@@ -216,7 +216,8 @@ Prefijo `/api/v1`. **F** = exige firma de dispositivo + atestación (`FirmaDispo
 | GET | `/viajes/{id}` | miembro verificado | F | HU-18 |
 | POST | `/billetera` | miembro verificado | F | HU-12 |
 | GET | `/billetera/mia` | miembro verificado | F | HU-12, HU-14 |
-| GET | `/billetera/movimientos` | miembro verificado | F | HU-14 |
+| GET | `/billetera/saldo` | miembro verificado | | HU-14 |
+| GET | `/billetera/movimientos` | miembro verificado | | HU-14 |
 | POST | `/billetera/recargas` | miembro verificado | F B | HU-13 |
 | POST | `/billetera/recargas/{id}/simular-pago` | simulador (solo red de prueba) | | HU-13 |
 | POST | `/viajes/{id}/reservas` | pasajero verificado | F B | HU-19 |

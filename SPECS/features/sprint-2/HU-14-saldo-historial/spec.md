@@ -51,11 +51,11 @@
 
 Marcar al cerrar la fase **Verify**. Referencia: `SPECS/constitution.md` Art. 12.
 
-- [ ] Criterios CA-1 a CA-6 cumplidos.
-- [ ] Pruebas automatizadas del `plan.md` en verde; cobertura en backend ≥ 70 %.
-- [ ] Verificación de conciliación BD ↔ Blockchain (CA-4) probada.
+- [x] Criterios CA-1 a CA-6 cumplidos.
+- [x] Pruebas automatizadas del `plan.md` en verde; cobertura en backend ≥ 70 %.
+- [x] Verificación de conciliación BD ↔ Blockchain (CA-4) probada. Contra `UniCoin` y `EscrowUniRide` reales en Hardhat; Polygon Amoy pendiente de SP23.
 - [ ] PR revisado · CI en verde.
-- [ ] Documentado en Swagger.
+- [x] Documentado en Swagger.
 - [ ] Aceptada por el PO en la Sprint Review.
 
 ## 8. Historial de cambios
@@ -64,4 +64,5 @@ Marcar al cerrar la fase **Verify**. Referencia: `SPECS/constitution.md` Art. 12
 |---|---|---|
 | 2026-11-02 | Creación (borrador) | — |
 | 2026-11-02 | Aprobación de spec y plan; libro mayor inmutable y desglose de escrow | 2026-11-02 · HU-14 Saldo e historial: spec y plan técnico aprobados |
+| 2026-11-07 | Verificación con escrow real, web y huellas | 2026-11-07 · HU-14: verificación con escrow real, web y huellas |
 

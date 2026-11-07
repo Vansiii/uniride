@@ -662,3 +662,47 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 **Archivos afectados:** `backend/src/{billetera,blockchain,identidad}`, `backend/prisma/migrations/008_billeteras`, `mobile/modules/llave-dispositivo`, `mobile/src/app/(pestanas)`, `mobile/src/dispositivo`, `mobile/src/formato.ts`, `SPECS/features/sprint-2/HU-12-creacion-billetera/plan.md`.
 
 ---
+
+## 2026-11-06 · HU-14 Saldo e historial: implementada
+
+**Evento:** Backend y móvil implementados, apilados sobre HU-12, que aún no está en `develop` (autorizado por el integrante). Pendientes: PR, revisión, CI y aceptación del PO.
+
+**Decisión:**
+1. **`/billetera/saldo` y `/billetera/movimientos` van sin firma de dispositivo** (decisión del integrante): token, cuenta activa e identidad verificada. Cada firma pide huella, y el refresco y el scroll infinito (CA-5) no pueden pedirla en cada lectura. Riesgo aceptado: un token robado puede leer saldo e historial, sin mover dinero. `POST /billetera` y `GET /billetera/mia` conservan la firma, así que abrir la pestaña Billetera pide una huella. Corrige `ssd.md` §8.
+2. **Fórmula del saldo:** disponible = `balanceOf` y total = `balanceOf` + bloqueado. Corrige el plan, que restaba el escrow: `EscrowUniRide.bloquear` ya saca los tokens de la billetera (`ssd.md` §10).
+3. **Libro mayor:** sin `saldo_posterior`, porque el trigger de solo inserción no deja actualizarlo; el saldo contable se calcula sobre los movimientos confirmados. El trigger y el GRANT dejan cambiar solo `estado` y `hash_tx`, y un movimiento `confirmado` ya no cambia: una corrección es un movimiento nuevo.
+4. **Conciliación:** en cada lectura real de la cadena sin movimientos pendientes; una diferencia va a `registros_auditoria` y al log, sin cambiar la respuesta. El proceso periódico de `ssd.md` §10 y la alerta quedan fuera de esta HU. Una diferencia persistente agrega hasta 4 filas por minuto por billetera consultada.
+5. **Bloqueado:** bloqueos confirmados cuya `reserva_id` no tiene liberación ni reembolso confirmados, en cualquier billetera. `reserva_id` es obligatoria salvo en `recarga`; su llave foránea llega con HU-19.
+6. **Desvíos menores:** `tipo` y `estado` son `TEXT` + `CHECK`, como el resto del esquema, no ENUM; CHECK de formato de hash y de hash obligatorio al confirmar; filtro `?tipo=` por los chips del prototipo; `limite` máximo 100. HU-16 y HU-24 deben ampliar los CHECK al agregar `retiro` y `subsidio`.
+7. **Móvil:** "Actualizar" relee solo `/saldo`. Con `/mia` en 503 se ve el saldo con el aviso y sin dirección. Etiqueta Pendiente neutra y fecha "mié 21 oct", según `DESIGN_SYSTEM.md`. Sin fila "Billetera creada": no existe ese tipo de movimiento. Sin aviso de recarga pendiente en Billetera ni botón Recargar: llegan con HU-13. Saldo en Inicio: con HU-18.
+
+**Verificado:** backend 394 unitarias y 316 e2e, cobertura 95,7 %, ataques A-09 y A-10, peticiones reales contra Hardhat con nodo caído, colgado y con error (200 y `enLinea: false`). Móvil 246 pruebas y `expo export` de Android. En teléfono físico (Infinix X669): 46 movimientos, filtros, scroll, sin verificar, historial vacío y nodo caído.
+
+**Sin verificar:** Polygon Amoy y SP23, enlace a Polygonscan en pantalla, vistas a 412 dp y web de la billetera, bloqueo real del escrow (HU-19), CI real. El diálogo de huella no sale en el volcado de pantalla: que refrescar y paginar no firman está probado por Jest, no contando diálogos.
+
+**Pendientes sin bloquear:** UML de clases (`MovimientoBilletera`), secuencia de saldo y componentes de mobile. `fallido` → `confirmado` directo sigue permitido. Timeouts de 5 s que no se repitieron: 2 e2e de HU-34 y 2 unitarias de billetera y blockchain en una corrida temprana; causa no demostrada. Otras pantallas sin banda de marca podrían tener la barra de estado blanca sobre blanco.
+
+**Archivos afectados:** `backend/prisma/migrations/009_movimientos_billetera`, `backend/src/{billetera,blockchain}`, `mobile/src/app/movimientos.tsx`, `mobile/src/app/(pestanas)/billetera.tsx`, `mobile/src/componentes/{TarjetaSaldo,FilaMovimiento,Mensajes}.tsx`, `mobile/src/{formato,enlaces}.ts`, `SPECS/ssd.md`, `SPECS/features/sprint-2/HU-14-saldo-historial/plan.md`.
+
+---
+
+## 2026-11-07 · HU-14: verificación con escrow real, web y huellas
+
+**Evento:** Se hicieron las pruebas que la entrada del 06/11 dejó sin verificar. Sin push; pendientes: `/code-review`, PR, revisión, CI y aceptación del PO.
+
+**Decisión:**
+1. **Un movimiento confirmado invalida el caché de `/saldo`.** La prueba real mostró que, tras bloquear 15 URC de 150, `/saldo` daba total 165 y disponible 150 durante 15 s: el bloqueado salía de la BD y el `balanceOf` del caché. El caché ahora guarda cuántos movimientos confirmados tenía la billetera y se relee si ese número cambia. Funciona con varias instancias y no agrega lecturas mientras nada cambie. Un movimiento pendiente no gasta otra lectura.
+2. **El resumen del libro se lee antes que la cadena.** Así, un movimiento que se confirma entre las dos lecturas sigue contando como pendiente y no genera una diferencia falsa.
+3. **Queda abierto para HU-19, sin corregir:** `reembolsar` al 50 % sobre 12,35 URC reparte 6,175 en la cadena y `monto` es `NUMERIC(12,2)`. La diferencia es permanente, en pasajero y conductor, y agrega una fila de auditoría en cada lectura real. Hay que decidir antes de HU-19 si se redondea en el contrato o se limitan los montos.
+
+**Verificado:**
+- **Escrow real en Hardhat:** `UniCoin` y `EscrowUniRide` desplegados, `bloquear` con permit firmado, `liberar`, `reembolsar` al 100 % y al 50 %. En cada paso `/saldo` coincidió con `balanceOf`, sin diferencias auditadas salvo el caso impar de arriba. Los hash del historial existen en la cadena con estado exitoso y el escrow terminó en 0 tras los casos resueltos. El backend real leyó la cadena; la prueba llamó al contrato y escribió los asientos por su cuenta, porque ese flujo llega con HU-19.
+- **Web a 360 y 412 (Edge headless):** Movimientos sin desborde, 4 chips en una fila, Pendiente y No se completó, 46 de 46 montos únicos al bajar, filtros, historial vacío y CA-6. 26 lecturas de `/saldo` y `/movimientos`, ninguna con firma.
+- **Teléfono físico (Infinix X669):** el integrante vio una sola huella al abrir Billetera, y el registro de peticiones muestra una sola firmada (`/mia`). Refrescar, paginar hasta la página 3 y volver no firmaron. Billetera y Movimientos correctas a 412 dp. El enlace abre Chrome en `amoy.polygonscan.com/tx/<hash>`, con la URL agregada por un proxy de prueba.
+- **Suites sobre el código final:** backend lint, build, 395 unitarias y 318 e2e, cobertura 95,7 %; mobile lint, build y 246 pruebas.
+
+**Sin verificar:** Polygon Amoy y SP23, explorador con una transacción real, CI real, Billetera con datos en web (sin Keystore no hay firma).
+
+**Archivos afectados:** `backend/src/billetera/{conciliacion,movimientos}.service.ts`, `backend/src/blockchain/blockchain.service.ts`, sus pruebas y `backend/test/billetera/saldo.e2e-spec.ts`; `SPECS/features/sprint-2/HU-14-saldo-historial/{spec,plan}.md`.
+
+---

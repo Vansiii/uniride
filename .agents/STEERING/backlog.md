@@ -158,11 +158,11 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP103 · Mobile: pantalla de Billetera en Expo (tarjeta de balance URC, dirección y accesos) — 4h — @[POR DEFINIR] · mobile @agente 06/11: pestaña Billetera probada en teléfono físico contra Hardhat; Recargar y Movimientos llegan con HU-13 y HU-14
 
 ### HU-14 · Saldo e historial (15 h)
-- [ ] SP104 · Modelo Prisma `movimientos_billetera`, migración `009_movimientos_billetera` e índices contables — 2h — @[POR DEFINIR]
-- [ ] SP105 · Lógica de conciliación de saldo (on-chain + escrow en BD) y endpoint `/saldo` — 3h — @[POR DEFINIR]
-- [ ] SP106 · Endpoint paginado `/movimientos` y servicio de registro inmutable — 3h — @[POR DEFINIR]
-- [ ] SP107 · Suite de pruebas automatizadas y prueba de conciliación contable — 3h — @[POR DEFINIR]
-- [ ] SP108 · Mobile: pantalla de Historial de movimientos y componente `TarjetaSaldo` en Expo — 4h — @[POR DEFINIR]
+- [x] SP104 · Modelo Prisma `movimientos_billetera`, migración `009_movimientos_billetera` e índices contables — 2h — @[POR DEFINIR] · backend @agente 06/11: solo inserción; el trigger congela lo confirmado y la API no tiene DELETE
+- [x] SP105 · Lógica de conciliación de saldo (on-chain + escrow en BD) y endpoint `/saldo` — 3h — @[POR DEFINIR] · backend @agente 06/11: caché de 15 s; nodo caído o colgado da 200 con `enLinea: false`; las diferencias van a auditoría; sin firma de dispositivo. Probado contra Hardhat con `EscrowUniRide` real, Amoy sin probar · 07/11: un movimiento confirmado invalida el caché
+- [x] SP106 · Endpoint paginado `/movimientos` y servicio de registro inmutable — 3h — @[POR DEFINIR] · backend @agente 06/11: filtro `?tipo=`, sin firma de dispositivo; el registro se usará desde HU-13
+- [x] SP107 · Suite de pruebas automatizadas y prueba de conciliación contable — 3h — @[POR DEFINIR] · backend @agente 06/11: 395 unitarias y 318 e2e en verde (07/11), cobertura 95,7 %, ataques A-09 y A-10
+- [x] SP108 · Mobile: pantalla de Historial de movimientos y componente `TarjetaSaldo` en Expo — 4h — @[POR DEFINIR] · mobile @agente 06/11: 246 pruebas en verde; probado en teléfono físico contra Hardhat con 46 movimientos, sin verificar, vacío y nodo caído. 07/11: web a 360 y 412, teléfono a 412 dp, enlace a Polygonscan en pantalla y una sola huella al abrir Billetera. Saldo en Inicio queda para HU-18
 
 ### HU-13 · Recarga de saldo (20 h)
 - [ ] SP109 · Modelo Prisma `ordenes_recarga`, migración `010_ordenes_recarga` y repositorio — 2h — @[POR DEFINIR]
