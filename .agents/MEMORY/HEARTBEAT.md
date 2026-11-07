@@ -27,12 +27,12 @@
 
 1. **HU-18, punto exacto:** `SP130`. Comprobar si `web/` muestra algún mapa (revisión sin terminar) y qué se ve en navegador. Instalar `@maplibre/maplibre-react-native`, autorizada; reemplazar `SelectorMapa` y `MapaRuta` con pellizco, doble toque, rotar y brújula, punto de mi ubicación y tipos de mapa, con estilo propio. Recompilar y probar también Publicar.
 2. Después, verificación en sesión limpia de toda la historia: cada CA, paridad con el prototipo y `verificar` completo.
-3. Última pasada de teléfono: el mapa nuevo con el dedo, pin, atrás de Android y voz de TalkBack. Lo de permiso y avisos vale mientras no cambie `ubicacion.ts`.
+3. Última pasada de teléfono: el mapa nuevo con el dedo, pin, atrás de Android, «Mi ubicación» dentro del mapa y su voz en TalkBack. Lo de permiso y avisos vale mientras no cambie `ubicacion.ts`.
 4. En paralelo, otro integrante revisa y fusiona los PR en el orden de arriba, con `contracts` antes que `backend`. Tras el merge: confirmar con `git merge-base --is-ancestor`, actualizar punteros y marcar lo que corresponda. El cambio de firma de `mobile` exige recompilar el APK.
 
 ## Sin verificar
 
-- HU-18 en el teléfono: el mapa nuevo (SP130) y la voz de TalkBack. El tope de 15 s se midió forzando que Android no responda; no se vio ocurrir bajo techo.
+- HU-18 en el teléfono: el mapa nuevo (SP130). El tope de 15 s se midió forzando que Android no responda; no se vio ocurrir bajo techo.
 - HU-17, fecha vieja al volver otro día: solo con prueba de Jest, que adelanta el reloj; en el teléfono exigiría cambiar su fecha.
 - HU-17 y firma: la recarga con la firma nueva se probó en el teléfono contra cadena simulada; contra contrato real, al desplegar en Amoy (decisión del integrante). La voz de TalkBack solo la confirma una persona.
 - Polygon Amoy y SP23: billetera, saldo y escrow solo se probaron contra Hardhat local.

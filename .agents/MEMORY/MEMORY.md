@@ -1032,6 +1032,6 @@ Revisión de `backend` y `mobile` contra HU-13, con el cambio de firma como grad
 
 **Razón:** con teselas propias, rotar y pellizcar habría que escribirlo y mantenerlo a mano. MapLibre es MIT y npm declara compatibilidad con Expo 57 y React Native 0.86; falta probarlo aquí. Es nativa: hay que recompilar y resolver qué se ve en navegador. `MapaRuta` y Publicar (HU-17) comparten estas teselas: entran en la prueba. Antes de usar satélite o relieve se revisan las condiciones de uso de esos servicios.
 
-**Verificado:** informe de la parte en teléfono; regresión de `mobile` en verde. El tope de 15 s se midió en el teléfono con la llamada de Android forzada a no responder; no se vio ocurrir bajo techo.
+**Verificado:** informe de la parte en teléfono; regresión de `mobile` en verde. TalkBack confirmado de oído por el integrante en búsqueda, resultados y detalle («Reservar» se oye inhabilitado). El tope de 15 s se midió en el teléfono con la llamada de Android forzada a no responder; no se vio ocurrir bajo techo.
 
-**Sin verificar:** verificación en sesión limpia de la historia, voz de TalkBack en estas pantallas y el mapa nuevo.
+**Sin verificar:** verificación en sesión limpia de la historia y el mapa nuevo.
