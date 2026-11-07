@@ -5,7 +5,7 @@
 **Última actualización:** 2026-11-07
 
 **Sprint actual:** Sprint 2 · 28/10 – 03/11/2026 (sprints de 1 semana, miércoles a martes). Las fechas ya vencieron con HU-13, HU-17 y HU-18 pendientes.
-**Foco:** HU-18 implementada y verificada en sesión limpia, también en el teléfono; falta la revisión de código, documentar y subir. HU-12, HU-14, HU-13 y HU-17 con PR abiertos; todos esperan revisión. Cada historia se apila sobre la anterior, sin esperar el merge (decisión del integrante, 07/11). El despliegue va después.
+**Foco:** HU-18 implementada, verificada en sesión limpia y en el teléfono, y revisada; falta subir ramas y PR cuando lo diga el integrante. HU-12, HU-14, HU-13 y HU-17 con PR abiertos; todos esperan revisión. Cada historia se apila sobre la anterior, sin esperar el merge (decisión del integrante, 07/11). El despliegue va después.
 
 ## Estado actual
 
@@ -16,16 +16,16 @@
 - **HU-14:** implementada, verificada y revisada, apilada sobre HU-12, en origin con la rama `feat/HU-14-saldo-historial` en `backend` (`a53df7c`), `mobile` (`db42801`) y raíz. CI en verde en `backend` y `mobile`.
 - **HU-13:** rama `feat/HU-13-recarga-saldo` en `backend` y `mobile` (apiladas sobre HU-14) y `contracts` (desde `develop`), implementada, verificada en sesión limpia y en el teléfono físico, y con PR abiertos (`backend` `b15640a`, `mobile` `5cb8227`, `contracts` `cc01cbb`). Revisión hecha. Falta SP129 (firmante KMS, al desplegar). Ajuste de spec y plan aprobado el 07/11.
 - **HU-17:** rama `feat/HU-17-publicar-viaje` en `backend` (`2585a7b`) y `mobile` (`e31b086`), apiladas sobre HU-13, y raíz, en origin. SP115-SP119 hechas, verificadas en sesión limpia y en el teléfono físico, y revisadas. PR abiertos, que van después de los de HU-13.
-- **HU-18:** rama `feat/HU-18-buscar-viajes` en `backend` (`f281a2e`) y `mobile` (`ec85362`), apiladas sobre HU-17, y raíz, solo local; backend `7b61c44`. SP120-SP123 y SP130 hechas, verificadas en sesión limpia (07/11) y probadas en el teléfono físico. Se fusiona después de los PR de HU-17.
+- **HU-18:** rama `feat/HU-18-buscar-viajes` en `backend` (`7b61c44`) y `mobile` (`a71e3db`), apiladas sobre HU-17, y raíz, solo local. SP120-SP123 y SP130 hechas, verificadas en sesión limpia (07/11), probadas en el teléfono físico y revisadas. Se fusiona después de los PR de HU-17.
 - **PR a `develop`, en orden de fusión:** `mobile` #8 (SP125), #9 (HU-12), #10 (HU-14), #11 (HU-13), #12 (HU-17); `backend` #10 (HU-12), #11 (HU-14), #12 (HU-13), #13 (HU-17); `contracts` #1 (HU-13); raíz #19 (HU-12 y HU-14), #20 (HU-13), #21 (HU-17).
 
 ## Última sesión (07/11)
 
-- HU-18, verificación en sesión limpia: regresión completa en verde, CA-1 a CA-6 y A-13 contra la API real, amenazas sin hallazgos, pantallas a 360 y 412, teclado y paridad. Corregidos el ícono de «Nuevo» (se veía igual que el de verificado) y el ícono del auto en el detalle. Por decisión del integrante, igual al prototipo: saludo con nombre de pila, «¿A dónde vas hoy?», micrófono desactivado, «Mi ubicación» y «En el mapa» en una fila a 360 y «2 de 4» asientos (`cuposTotales` en el detalle). Todo visto en navegador y en el teléfono a 360 dp. Detalle en `MEMORY.md`.
+- HU-18, revisión de código del diff contra HU-17. Corregido en `mobile` `a71e3db`, con pruebas: pantalla de resultados que se caía con un enlace incompleto, hora ya pasada que decía «Sin resultados», aviso en el detalle de un viaje que ya no está, insignias de otra sesión, temporizador del GPS y «1000 m». `verificar.py mobile --rapido` en verde; los textos nuevos no se vieron en el navegador. Detalle en `MEMORY.md`.
 
 ## Próximo paso concreto
 
-1. **HU-18, punto exacto:** revisión de código del diff de `backend` y `mobile` contra HU-17, corregir lo que salga, documentar y subir ramas y PR cuando lo diga el integrante (van después de los de HU-17).
+1. **HU-18, punto exacto:** revisión hecha y corregida (`mobile` `a71e3db`). Falta push de `backend`, `mobile` y raíz y abrir los PR cuando lo diga el integrante (van después de los de HU-17).
 4. En paralelo, otro integrante revisa y fusiona los PR en el orden de arriba, con `contracts` antes que `backend`. Tras el merge: confirmar con `git merge-base --is-ancestor`, actualizar punteros y marcar lo que corresponda. El cambio de firma de `mobile` exige recompilar el APK.
 
 ## Sin verificar
@@ -52,6 +52,7 @@
 - **Accesibilidad, para después (decisión del integrante, 07/11):** TalkBack no lee los avisos que aparecen: al cancelar la huella dice el título y salta al botón. Afecta a todos los `Aviso`. Región viva y anuncio explícito no bastaron; falta probar mover el foco al aviso. Decidir en qué historia va.
 - **HU-10 (reserva):** tras registrar una huella nueva la llave queda anulada y no hay salida: el aviso dice falsamente "Actualiza la app" y "Mi teléfono" no deja volver a vincular. Quien agregue una huella pierde firmar, billetera y publicar. Decidir si HU-10 debe adelantarse antes de producción.
 - **Para HU-19, viajes de una cuenta suspendida:** ya no aparecen en la búsqueda (decisión del integrante, 07/11), pero siguen en `publicado` y quien ya reservó sigue con su reserva. Cambiarlo toca la máquina de estados (`AGENTS.md` §14). Decidir qué pasa con esos viajes y sus reservas.
+- **HU-18, «Elegir en el mapa» sin ubicación:** el pin empieza en el centro de Santa Cruz y «Usar este punto» se puede tocar sin moverlo. Decidir si se exige mover el pin primero.
 - **Para HU-19, el conductor se encuentra a sí mismo:** la búsqueda incluye sus propios viajes, porque la spec no los excluye. Decidir si se ocultan; reservar el propio debe rechazarse en cualquier caso.
 - **Viajes que nunca salieron:** ninguna historia pasa un viaje a `expirado`. Uno que ya debió salir sigue en `publicado` para siempre, aunque ya no ocupa al conductor (decisión del integrante, 07/11), y `mis-viajes` y el detalle lo muestran así. Decidir qué historia lo hace; toca la máquina de estados (`AGENTS.md` §14).
 - **Organización suspendida:** ningún código pone una organización en ese estado y `POST /viajes` no lo mira. Decisión del integrante (07/11): se resuelve en la historia que implemente la suspensión.

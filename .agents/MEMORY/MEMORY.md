@@ -1072,3 +1072,18 @@ Los dos se vieron en el teléfono físico.
 
 **Ajustes al prototipo (decisión del integrante, 07/11):** el saludo usa el nombre de pila y el subtítulo «¿A dónde vas hoy?». En la banda hay un micrófono desactivado («Hablar con UniRide, disponible pronto»; la voz es de HU-27). «Mi ubicación» y «En el mapa» quedan en una fila a 360: el relleno de los botones de texto sale del borde de la tarjeta. El detalle muestra «2 de 4» asientos, porque `GET /viajes/:id` ahora da `cuposTotales` (backend `7b61c44`, con prueba e2e). Se aceptan sin «Hacia», el título genérico, el nombre de pila sin inicial del apellido (RN-4) y las fechas en chips. Todo verificado en navegador y en el teléfono a 360 dp; regresión completa en verde (459 unitarias, 510 e2e, 361 de móvil).
 
+## 2026-11-07 · HU-18: revisión de código
+
+**Evento:** revisión del diff de `backend` y `mobile` contra HU-17. Correcciones en `mobile` `a71e3db`; `backend` sin cambios.
+
+**Corregido, con pruebas de Jest:**
+1. Resultados por un enlace sin hora o sin coordenadas: la pantalla se caía (`RangeError`). Ahora dice «No pudimos leer ese punto de salida» y no consulta.
+2. Una hora de hoy con toda su ventana en el pasado decía «Sin resultados». Ahora el formulario dice «Esa hora ya pasó. Elige una más tarde.», y al volver a la pestaña una salida vencida vuelve a la próxima media hora.
+3. El detalle de un viaje cancelado, en curso o que ya salió se veía como disponible. Ahora avisa «Este viaje ya no está disponible.».
+4. Las insignias y la distancia de la última búsqueda se borran al cerrar sesión y al cambiar de organización.
+5. El tope de 15 s del GPS limpia su temporizador; 999,6 m ya no se lee «1000 m»; la ventana de ± 30 min sale de una sola función (`ventanaDe`).
+
+**No se cambió:** el conductor que se encuentra a sí mismo y el detalle de un conductor suspendido (decisiones abiertas para HU-19). El índice `idx_viajes_busqueda` con `cupos_disponibles` al final: filtra en el índice sin leer la tabla; quitarlo no compensa (se midió con 40 500 viajes). En «Elegir en el mapa», sin ubicación, el pin empieza en el centro de Santa Cruz y se puede confirmar sin moverlo: queda para decidir.
+
+**Verificado:** `verificar.py mobile --rapido` en verde (lint, tipos, pruebas). Los textos nuevos se comprobaron con Jest y no se vieron en el navegador.
+
