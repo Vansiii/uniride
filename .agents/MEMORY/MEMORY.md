@@ -741,3 +741,26 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 **Archivos afectados:** `SPECS/features/sprint-2/HU-13-recarga-saldo/{spec,plan}.md`, `SPECS/ssd.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
 
 ---
+
+## 2026-11-07 · HU-13: backend y contrato implementados (SP109–SP113, SP126–SP128)
+
+**Evento:** El integrante aprueba el ajuste de spec y plan, y se implementan el contrato y el backend. Rama `feat/HU-13-recarga-saldo` en `contracts` (desde `develop`) y en `backend` (apilada sobre HU-14). Falta móvil (SP114).
+
+**Decisión:**
+1. **Respuesta perdida:** el worker consulta `ordenAcunada` antes de enviar y, si ya está acuñada, toma el hash del evento. Es más simple que interpretar el error del envío, porque ethers no decodifica un error propio al estimar gas. El contrato sigue revirtiendo con `OrdenYaAcunada` si dos intentos se cruzan. Se agregó el getter público `ordenAcunada`.
+2. **Sin transacción abierta durante la cadena:** a diferencia de la cola de correos, tomar un trabajo lo reserva 5 min en un solo `UPDATE` con `SKIP LOCKED`. Un corte se retoma solo; `idOrden` evita acuñar dos veces.
+3. **Caché del proveedor apagada:** con los 250 ms de ethers, dos acuñaciones seguidas leían el mismo nonce y la segunda daba `NONCE_EXPIRED`. Lo encontró la prueba real, no las pruebas con cadena simulada; esta corrección no tiene prueba automatizada.
+4. **`monto` no numérico:** responde `VALIDACION_FALLIDA`. `MONTO_INVALIDO` queda para más de 2 decimales.
+5. **`@types/qrcode`** se agrega como dependencia de desarrollo junto con `qrcode`, autorizada el 07/11.
+
+**Verificado:** `backend` lint, formato, 434 unitarias (cobertura 92,79 %), 375 e2e y build; `contracts` lint, 18 pruebas y build; `prisma migrate diff` sin diferencias. Prueba real con el backend en su proceso, `UniCoin` en un nodo Hardhat y firmas P-256: montos rechazados, confirmar sin firma da 401, acuñación con `balanceOf` y evento, repetir da 200 con el mismo hash, respuesta perdida sin doble acuñación, dos órdenes seguidas sin reintentos, orden vencida da 410 y nodo caído deja la orden en `procesando`. Tras caer el nodo no se comprobó que la orden termine acreditada contra Hardhat: esa recuperación está probada con la cadena simulada.
+
+**Sin verificar:** Polygon Amoy (`queryFilter` sin `fromBlock` puede chocar con el límite de rango de un RPC público; si pasa, el worker reintenta y alerta). El firmante KMS no existe: **con HU-13 fusionada, producción no arranca hasta SP129**. La firma real con huella se prueba con el móvil.
+
+**Observado:** `test/membresias/decision.e2e-spec.ts` (HU-03) falló una vez con un timeout de 10 s en `beforeAll`, tras colgarse 135 s. Pasó sola y en las dos corridas completas siguientes; no se encontró la causa y no toca código de HU-13. `npm audit` de `backend` sigue en 7 altas, igual que antes de `qrcode`; `contracts` reporta 14 altas, sin revisar. Un `npm audit fix` no se aplicó.
+
+**Diagramas a actualizar:** secuencia de recarga (ya en `plan.md` §5); clases, con `OrdenRecarga` y `TrabajoOnchain`.
+
+**Archivos afectados:** `contracts/contracts/UniCoin.sol`, `contracts/test/UniCoin.ts`; `backend/prisma/`, `backend/src/billetera/`, `backend/src/blockchain/`, `backend/src/i18n/es-BO.json`, `backend/test/`; `.env.example`; `SPECS/features/sprint-2/HU-13-recarga-saldo/{spec,plan}.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+---

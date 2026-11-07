@@ -1,7 +1,7 @@
 # HU-13 · Recarga de saldo — Plan técnico
 
 > Fase SDD: **Plan** (Diseño). Cómo se construye lo que dice `spec.md`.
-> Estado: `aprobado (2026-11-02)`; **ajuste del 2026-11-07 con las decisiones del integrante, pendiente de aprobación** · Rama: `feat/HU-13-recarga-saldo` (apilada sobre `feat/HU-14-saldo-historial`)
+> Estado: `aprobado (2026-11-02)`; ajuste con las decisiones del integrante aprobado (2026-11-07) · Rama: `feat/HU-13-recarga-saldo` (apilada sobre `feat/HU-14-saldo-historial`)
 > **Orden en S2: 5.ª.** Requiere billetera (HU-12) y dispositivo vinculado (HU-09); alimenta el saldo para reservas (HU-19).
 > **Requieren confirmación humana (`AGENTS.md` §14), dada el 07/11:** lógica de recarga, función nueva en `UniCoin`, dependencia `qrcode`. Se fusiona después de HU-12 y HU-14.
 
@@ -43,7 +43,7 @@ La clave de idempotencia no se guarda en la orden: es `recarga:<ordenId>` en `mo
 | Método | Ruta | Rol | Request → Response | Errores (`codigo`) |
 |---|---|---|---|---|
 | POST | `/api/v1/billetera/recargas` | verificado | `{ monto: 50.00 }` → 201 `{ ordenId, monto, estado, expiraEn, qrTexto, qrImagenBase64 }` | `MONTO_FUERA_DE_RANGO` 400, `MONTO_INVALIDO` 400, `IDENTIDAD_NO_VERIFICADA` 403, `BILLETERA_NO_ENCONTRADA` 404 |
-| POST | `/api/v1/billetera/recargas/:id/confirmar` | verificado + firma dispositivo | — (Headers `X-Dispositivo-Id`, `X-Firma`, `X-Timestamp`, `X-Nonce`) → 202 `{ ordenId, estado: "procesando", monto }`. Repetida: 202 si sigue procesando; 200 `{ ordenId, estado: "completada", monto, hashTx }` si ya se acreditó | `ORDEN_EXPIRADA` 410, `FIRMA_DISPOSITIVO_INVALIDA` 401, `NO_ENCONTRADO` 404 |
+| POST | `/api/v1/billetera/recargas/:id/confirmar` | verificado + firma dispositivo | — (Headers `X-Dispositivo-Id`, `X-Firma`, `X-Timestamp`, `X-Nonce`) → 202 `{ ordenId, monto, estado: "procesando", expiraEn, hashTx: null }`. Repetida: 202 si sigue procesando; 200 con `estado: "completada"` y `hashTx` si ya se acreditó | `ORDEN_EXPIRADA` 410, `FIRMA_DISPOSITIVO_INVALIDA` 401, `NO_ENCONTRADO` 404 |
 | GET | `/api/v1/billetera/recargas/:id` | verificado | — → 200 `{ ordenId, monto, estado, expiraEn, hashTx }` | `NO_ENCONTRADO` 404, también si la orden es de otra persona |
 
 `qrTexto` es `uniride://recarga/<ordenId>` y no lleva secretos: el pago es simulado (spec §5). La orden vencida pasa a `expirada` al consultarla o al intentar confirmarla, y una en `procesando` ya no vence. El saldo nuevo se lee de `GET /billetera/saldo`: un movimiento confirmado invalida su caché.
@@ -52,7 +52,7 @@ La clave de idempotencia no se guarda en la orden: es `recarga:<ordenId>` en `mo
 
 1. En una sola transacción de BD: `UPDATE` condicional de la orden (`pendiente` y sin vencer) a `procesando`, movimiento `pendiente` con clave `recarga:<ordenId>` y su trabajo en `trabajos_onchain`. Dos confirmaciones simultáneas: solo una gana y la otra responde el estado actual.
 2. El worker envía `acunarRecarga`. Con el recibo, marca en una sola transacción: movimiento `confirmado` con `hash_tx`, orden `completada` y trabajo terminado.
-3. Si el contrato revierte con `OrdenYaAcunada` (respuesta perdida en un intento anterior), el hash se recupera del evento `RecargaAcunada` filtrando por `idOrden` y se sigue por el paso 2.
+3. Antes de enviar, el worker consulta `ordenAcunada(idOrden)`. Si ya está acuñada (respuesta perdida en un intento anterior), el hash se recupera del evento `RecargaAcunada` filtrando por `idOrden` y se sigue por el paso 2. Si dos intentos se cruzan, el contrato revierte con `OrdenYaAcunada` y el siguiente reintento pasa por esta consulta. Tomar un trabajo lo reserva 5 min, sin dejar una transacción abierta durante la espera a la cadena.
 4. Cualquier otra falla suma un intento y reprograma con espera creciente (§2.1).
 
 ### Firmante del relayer
@@ -106,7 +106,7 @@ sequenceDiagram
 
 | Criterio | Tipo | Archivo de prueba |
 |---|---|---|
-| CA-1 Recarga exitosa con acuñación | e2e (cadena simulada) + una con `UniCoin` real en Hardhat | `backend/test/billetera/recarga.e2e-spec.ts` |
+| CA-1 Recarga exitosa con acuñación | e2e (cadena simulada) en el repositorio; con `UniCoin` real en Hardhat como prueba manual registrada en MEMORY, porque el artefacto del contrato no está en `backend` | `backend/test/billetera/recarga.e2e-spec.ts` |
 | CA-2 Rechazo de monto fuera de rango (< 10 o > 500) y con más de 2 decimales | unitaria + e2e | `recarga.e2e-spec.ts` |
 | CA-3 Ataque A-09: confirmaciones repetidas y simultáneas son idempotentes; reintento tras respuesta perdida no acuña dos veces | e2e + contrato | `backend/test/ataques/a-09-recarga.e2e-spec.ts`, `contracts/test/UniCoin.ts` |
 | CA-4 Ataque A-08 y A-11: confirmación sin firma de dispositivo da 401 | e2e | `backend/test/ataques/a-08-recarga.e2e-spec.ts` |

@@ -1,7 +1,7 @@
 # HU-13 · Recarga de saldo — Especificación
 
 > Fase SDD: **Specify** (Análisis). Qué y por qué, sin tecnología.
-> Estado: `aprobada por el PO (2026-11-02)`; ajuste del 2026-11-07 pendiente de aprobación · Épica: E4 Billetera y Pagos · Prioridad: Must · PHU: 5 · Sprint: S2
+> Estado: `aprobada por el PO (2026-11-02)`; ajuste aprobado por el integrante (2026-11-07) · Épica: E4 Billetera y Pagos · Prioridad: Must · PHU: 5 · Sprint: S2
 > Requisito del docente que cubre: **3 — Billetera blockchain propia que acredita y descuenta saldo**
 > Amenazas que toca: **A-09** (Cobro indebido o doble acreditación), **A-10** (Colusión: el saldo solo entra por recarga), **A-11** (Voz sin biometría)
 
@@ -70,5 +70,5 @@ Marcar al cerrar la fase **Verify**. Referencia: `SPECS/constitution.md` Art. 12
 |---|---|---|
 | 2026-11-02 | Creación (borrador) | — |
 | 2026-11-02 | Aprobación de spec y plan; QR 10-500 Bs, acuñación idempotente y resolución D-13 | 2026-11-02 · HU-13 Recarga de saldo: spec y plan técnico aprobados (Resuelve D-13) |
-| 2026-11-07 | RN-6, RN-7 y caso de monto con más de 2 decimales; los criterios no cambian. Pendiente de aprobación | 2026-11-07 · HU-13: alineación de spec, plan y ssd antes de implementar (Resuelve D-10) |
+| 2026-11-07 | RN-6, RN-7 y caso de monto con más de 2 decimales; los criterios no cambian. Aprobado | 2026-11-07 · HU-13: alineación de spec, plan y ssd antes de implementar (Resuelve D-10) |
 
