@@ -86,7 +86,7 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 | D-07 | Registros de alcance plataforma | `AGENTS.md` §5.3 dice "todo registro lleva organization_id", pero usuario, dispositivo, identidad, billetera y vehículo son únicos por persona (un CI, un rostro, una placa) y la persona puede estar en varias organizaciones (HU-07) | SP10 (PB-02) | Tensión `AGENTS.md` ↔ documento técnico |
 | D-08 | Voz en el panel web | El documento solo define voz en la app móvil (Android). ¿Los paneles admin también llevan voz (p. ej. Web Speech API) o el requisito 4 se cumple solo en móvil? | HU de web | Requisito 4 del docente |
 | D-09 | Entornos AWS | ¿Solo un entorno de demo o también staging? ¿Panel web en S3 o junto al backend? Impacta costos (R-03) | SP08 | No definido |
-| D-10 | Cola de reintentos on-chain | Propuesta: tabla PostgreSQL + worker. Alternativa: SQS | HU-12 | No definido |
+| D-10 | Cola de reintentos on-chain | **Resuelta el 07/11:** tabla PostgreSQL + worker (entrada "HU-13: alineación") | HU-13 | `ssd.md` §10 |
 | D-11 | HU-17 (S1) antes que HU-08 (S2) | HU-08 y la constitución exigen verificación para publicar, pero publicar viaje está en S1 y la verificación en S2. Opciones: mover HU-17 a S2; o implementarla en S1 con el `VerifiedMemberGuard` activado desde S2 (no se despliega a usuarios reales antes) | HU-17 | Documento técnico §4–§6 |
 | D-12 | Tope de precio en HU-17 | HU-17 exige "precio ≤ tope de la organización", pero las tarifas se configuran en HU-04 (S4). Propuesta: campo `price_cap_urc` cargado en el alta (HU-01) | HU-17 | Documento técnico §6 |
 | D-13 | Biometría en recarga (HU-13, S2) | HU-29 (S3) pide biometría para recargar. Propuesta: la firma con la llave biométrica de HU-09 ya cubre la recarga; HU-29 completa la UI y la regla para voz | HU-13 | Documento técnico §6 |
@@ -722,5 +722,22 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 **Sin verificar:** CI real. Los arreglos de `mobile` no se probaron en el teléfono ni en web; la prueba nueva cubre el reintento y el aviso rojo no tiene prueba propia.
 
 **Archivos afectados:** `mobile/src/app/movimientos.tsx`, `mobile/src/app/(pestanas)/billetera.tsx`, `mobile/src/__tests__/movimientos.test.tsx`.
+
+---
+
+## 2026-11-07 · HU-13: alineación de spec, plan y ssd antes de implementar (Resuelve D-10)
+
+**Evento:** El plan aprobado el 02/11 contradecía a su propia spec y a `ssd.md`. El integrante toma las decisiones pendientes. El ajuste de spec y plan queda por aprobar antes de escribir código.
+
+**Decisión:**
+1. **D-10, cola:** tabla `trabajos_onchain` y worker. Confirmar responde 202 "procesando" y la app consulta `GET /recargas/:id`. Se descarta acuñar dentro de la petición: un corte dejaría el movimiento pendiente sin nadie que lo retome, y `spec.md` §4 pide reintento automático.
+2. **Doble acuñación (A-09):** `UniCoin.acunar` no tiene id, así que reintentar tras una respuesta perdida acuñaría dos veces. Se agrega `acunarRecarga(destino, monto, idOrden)`, que revierte si el id ya se usó (autorizado, `AGENTS.md` §14). `acunar` queda para subsidios.
+3. **Relayer:** `RELAYER_LLAVE_PRIVADA` solo en Hardhat y desarrollo. En producción el arranque falla mientras no exista el firmante KMS, que queda en SP129, al desplegar. Se autoriza `qrcode` en backend.
+4. **Libro mayor:** una clave repetida con otros datos falla; un monto con más de 2 decimales se rechaza; `fallido` es final; un `pendiente` atascado se sigue reintentando y alerta en auditoría a los 5 intentos; la conciliación no cambia. Cambian a propósito dos pruebas de `a-09-libro-mayor.e2e-spec.ts`.
+5. **Endpoints (lo responde CA-4):** `POST /recargas` sin firma y `POST /recargas/:id/confirmar` con firma. `/simular-pago` sale de `ssd.md`.
+
+**Tareas nuevas:** SP126 (contrato), SP127 (worker), SP128 (libro mayor), SP129 (firmante KMS, al desplegar).
+
+**Archivos afectados:** `SPECS/features/sprint-2/HU-13-recarga-saldo/{spec,plan}.md`, `SPECS/ssd.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
 
 ---
