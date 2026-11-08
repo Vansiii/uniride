@@ -804,6 +804,18 @@ Patrones de pantalla:
 - **Pantallas secundarias**: botón de volver y debajo el título grande (`pantalla`), sobre fondo `fondoSutil` para que las tarjetas blancas destaquen.
 - **Listas de elección** (organizaciones): una tarjeta por elemento; la activa lleva borde `primario` de 2 dp.
 
+- **Elegir un lugar** (Inicio): una fila tocable abre el mapa a pantalla completa con pin fijo al centro, buscador, «Mi ubicación» y la dirección que se actualiza sola al soltar el mapa. Escribir sigue disponible donde hay más contexto (Publicar).
+- **Hora de salida**: además del campo, botones de −15 / +15 min (`AjusteHora`) para no abrir el teclado numérico.
+- **Monto de recarga** (`Recargar`): montos rápidos en baldosas de 68 dp con respuesta física y, debajo, una tarjeta de marca con lo que se recibe (cifra de 40 dp) y lo que se paga. El código QR va en tarjeta blanca elevada.
+- **Vehículo registrado**: la placa se muestra como banda de marca con la matrícula en 26 dp y espaciado de 4; mientras consulta, esqueletos con la forma de las tarjetas.
+- **Estado del perfil**: tarjeta de progreso («N de 3 pasos listos») y una etiqueta por fila (Registrado, Vinculado, Verificada o Pendiente); se recarga al volver a la pestaña.
+
+#### Respuesta háptica
+- `Toque` emite una vibración de selección (`expo-haptics`) al presionar: toda acción tocable la tiene sin código adicional.
+- Una recarga acreditada emite la vibración de éxito.
+- Los fallos de vibración se ignoran: es un refuerzo, nunca un requisito (no sustituye al mensaje visual).
+- En Jest `expo-haptics` está simulado en `jest.setup.js`.
+
 La web no cambia de tokens: la dirección visual (índigo, neutros fríos) es la misma en los dos clientes.
 
 ---
