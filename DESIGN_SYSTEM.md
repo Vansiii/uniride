@@ -375,7 +375,18 @@ Capas (`z-index`, web): contenido 0 · encabezado fijo 10 · menú desplegable 2
 
 Animaciones con nombre [Propuesta 17/10]: **`entradaResultado`** (el ícono de una pantalla de resultado escala de 0,6 a 1 con `curva.entrada` en `duracion.larga`, una sola vez) y **`trazoIlustracion`** (la línea de trayecto de una `Ilustracion` se dibuja de origen a destino en 600 ms, una sola vez). En móvil se hacen con `react-native-reanimated` [Existe, instalado].
 
-Reglas: la animación explica un cambio de estado o de lugar; nunca decora. Prohibido: bucles decorativos, parallax, confeti, rebotes. Si el sistema pide reducir el movimiento (`AccessibilityInfo.isReduceMotionEnabled()` / `prefers-reduced-motion`), las duraciones pasan a 0, salvo los indicadores de progreso.
+**Revisión del 08/11/2026 (PB-03, móvil).** El movimiento pasa a ser parte de la identidad de la app móvil, con estas reglas:
+
+- **Resorte común** (`resorte`: `damping 16, stiffness 240, mass 0.7`): todo lo que responde al toque o entra a pantalla usa el mismo, para que la interfaz se sienta de una sola pieza.
+- **`Toque`**: todo control táctil (botones, chips, filas, tarjetas, pestañas) se hunde a 0,86–0,98 al presionarse y vuelve con el resorte.
+- **`Entra`**: los bloques de una pantalla suben y aparecen en cascada (60 ms entre hermanos, máximo 7).
+- **`Esqueleto`**: la carga de listas, tarjetas y detalle usa marcadores que respiran (opacidad 0,55–1) en lugar de un indicador giratorio.
+- **`useConteo`**: las cifras de saldo suben hasta su valor en 900 ms, una sola vez por lectura.
+- **Cabecera de marca**: dos esferas de baja opacidad flotan despacio (4–6 s por ciclo) detrás del contenido; son decorativas y nunca compiten con el texto.
+- **Barra de pestañas flotante** (`BarraPestanas`): píldora con sombra elevada; el indicador de la pestaña activa se desliza con el resorte.
+- **Transiciones de pantalla**: `slide_from_right` en la pila; `fade` entre pestañas.
+
+Reglas: la animación comunica respuesta, jerarquía o continuidad; nunca bloquea una acción ni retrasa un dato. Prohibido: parallax, confeti y animaciones que se repitan sobre contenido que se está leyendo (las esferas de la cabecera son la única excepción). Si el sistema pide reducir el movimiento (`AccessibilityInfo.isReduceMotionEnabled()` / `prefers-reduced-motion`), `Entra` respeta `ReduceMotion.System` y las duraciones pasan a 0, salvo los indicadores de progreso.
 
 ### 4.8 Iconografía [Propuesta]
 
@@ -776,6 +787,24 @@ Lista completa de comandos: `ssd.md` §11 y pantalla `ayuda`.
 | `vacio` | Listas sin elementos | ícono de la sección |
 
 Implementación: un SVG por escena en `mobile/assets/ilustraciones/` y `web/src/iconos/`, dibujado desde los trazos de `marca/`. En móvil se muestra con `expo-image` [Existe, instalado; soporta SVG], sin dependencia nueva.
+
+### 8.13 Composición móvil [Propuesta — PB-03, 08/11/2026]
+
+| Componente | Archivo | Qué resuelve |
+|---|---|---|
+| `Toque`, `Entra`, `Esqueleto`, `useConteo` | `componentes/Animado.tsx` | Respuesta física, entrada escalonada, carga y conteo de cifras |
+| `BarraPestanas` | `componentes/BarraPestanas.tsx` | Barra flotante con indicador deslizante |
+| `Boton` | `componentes/Boton.tsx` | Primario con degradado y sombra de color; `suave`, `secundario`, `texto` |
+| `Campo` | `componentes/Campo.tsx` | Relleno sin contorno en reposo; borde y fondo transicionan con el foco |
+| `Baldosa` / `Atajo` | `billetera.tsx`, `index.tsx` | Acción grande con ícono en círculo y rótulo |
+
+Patrones de pantalla:
+- **Formularios de acceso** (iniciar sesión, registro): banda de marca arriba y el formulario como tarjeta que sube 28 dp sobre ella.
+- **Detalle con mapa**: mapa de portada de 300 dp, botón de volver y título flotantes sobre él, y una hoja con esquinas superiores `radio.xl` que sube sobre el mapa.
+- **Pantallas secundarias**: botón de volver y debajo el título grande (`pantalla`), sobre fondo `fondoSutil` para que las tarjetas blancas destaquen.
+- **Listas de elección** (organizaciones): una tarjeta por elemento; la activa lleva borde `primario` de 2 dp.
+
+La web no cambia de tokens: la dirección visual (índigo, neutros fríos) es la misma en los dos clientes.
 
 ---
 
