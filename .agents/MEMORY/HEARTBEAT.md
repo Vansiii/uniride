@@ -4,37 +4,66 @@
 
 **Última actualización:** 2026-11-07
 
-**Sprint actual:** Sprint 2 · 28/10 – 03/11/2026 (sprints de 1 semana, miércoles a martes).
-**Foco:** Fase de especificación del Sprint 2 completada al 100 %. Listo para iniciar implementación.
+**Sprint actual:** Sprint 2 · 28/10 – 03/11/2026 (sprints de 1 semana, miércoles a martes). Las fechas ya vencieron con HU-13, HU-17 y HU-18 pendientes.
+**Foco:** HU-18 implementada, verificada en sesión limpia y en el teléfono, y revisada; PR abiertos (07/11). HU-12, HU-14, HU-13 y HU-17 con PR abiertos; todos esperan revisión. Cada historia se apila sobre la anterior, sin esperar el merge (decisión del integrante, 07/11). El despliegue va después.
 
 ## Estado actual
 
-- **Sprint 1 cerrado:** Las 8 historias de S1 (HU-06, HU-01, HU-02, HU-05, HU-03, HU-07, HU-34, HU-11) y el rediseño UI (PB-03) están en `origin/develop` de los 5 repositorios.
-- **Sprint 2 (100 % especificado y planificado):**
-  - **HU-08 (Verificación de identidad):** Spec y Plan aprobados. Hash HMAC-SHA256 para el carnet (A-02, Ley 164), sin SEGIP, colección Rekognition para evitar caras duplicadas, mock local. Tareas SP88–SP92.
-  - **HU-09 (Vinculación de dispositivo):** Spec y Plan aprobados. ECDSA P-256 en Android Keystore, Play Integrity, firma de peticiones sensibles, prevención de replay (A-03, A-04, A-08). Tareas SP93–SP98.
-  - **HU-12 (Creación de billetera):** Spec y Plan aprobados. Polygon Amoy + Relayer gasless. Custodia en modo dual sin costo base ($0 USD en local y nube con advertencia explícita en plan). Tareas SP99–SP103.
-  - **HU-14 (Saldo e historial):** Spec y Plan aprobados. Libro mayor inmutable `movimientos_billetera`, desglose de saldo disponible vs escrow y conciliación contable. Tareas SP104–SP108.
-  - **HU-13 (Recarga de saldo):** Spec y Plan aprobados. QR simulado (10–500 Bs), acuñación on-chain idempotente (A-09). D-13 resuelta con la firma de dispositivo de HU-09. Tareas SP109–SP114.
-  - **HU-17 (Publicar viaje):** Spec y Plan aprobados. Máquina de estados oficial, cupos limitados por auto de HU-11, anti-solapamiento y RLS multi-organización (A-13). Tareas SP115–SP119.
-  - **HU-18 (Buscar viajes):** Spec y Plan aprobados. Filtro geoespacial Haversine ≤ 1 km y ventana ± 30 min. D-17 resuelta mostrando insignias «Conductor verificado» y «Nuevo». Tareas SP120–SP123.
+- **Sprint 1 cerrado:** en `origin/develop` de los 5 repositorios.
+- **HU-08 y HU-09:** fusionadas en `develop`. Falta en HU-09 lo real de Play Integrity (simulado en desarrollo) y la prueba de vida nativa de HU-08.
+- **SP125 (Keystore nativo, HU-09):** `mobile`, `feat/HU-09-keystore-nativo`, en origin, sin fusionar en `develop` (comprobado el 07/11).
+- **HU-12:** implementada, en origin, sin fusionar en `develop` en `backend` ni en `mobile` (comprobado el 07/11).
+- **HU-14:** implementada, verificada y revisada, apilada sobre HU-12, en origin con la rama `feat/HU-14-saldo-historial` en `backend` (`a53df7c`), `mobile` (`db42801`) y raíz. CI en verde en `backend` y `mobile`.
+- **HU-13:** rama `feat/HU-13-recarga-saldo` en `backend` y `mobile` (apiladas sobre HU-14) y `contracts` (desde `develop`), implementada, verificada en sesión limpia y en el teléfono físico, y con PR abiertos (`backend` `b15640a`, `mobile` `5cb8227`, `contracts` `cc01cbb`). Revisión hecha. Falta SP129 (firmante KMS, al desplegar). Ajuste de spec y plan aprobado el 07/11.
+- **HU-17:** rama `feat/HU-17-publicar-viaje` en `backend` (`2585a7b`) y `mobile` (`e31b086`), apiladas sobre HU-13, y raíz, en origin. SP115-SP119 hechas, verificadas en sesión limpia y en el teléfono físico, y revisadas. PR abiertos, que van después de los de HU-13.
+- **HU-18:** rama `feat/HU-18-buscar-viajes` en `backend` (`7b61c44`) y `mobile` (`a71e3db`), apiladas sobre HU-17, y raíz, en origin, con PR abiertos. SP120-SP123 y SP130 hechas, verificadas en sesión limpia (07/11), probadas en el teléfono físico y revisadas. Se fusiona después de los PR de HU-17.
+- **PR a `develop`, en orden de fusión:** `mobile` #8 (SP125), #9 (HU-12), #10 (HU-14), #11 (HU-13), #12 (HU-17), #13 (HU-18); `backend` #10 (HU-12), #11 (HU-14), #12 (HU-13), #13 (HU-17), #14 (HU-18); `contracts` #1 (HU-13); raíz #19 (HU-12 y HU-14), #20 (HU-13), #21 (HU-17), #22 (HU-18).
+
+## Última sesión (07/11)
+
+- HU-18, revisión de código del diff contra HU-17. Corregido en `mobile` `a71e3db`, con pruebas: pantalla de resultados que se caía con un enlace incompleto, hora ya pasada que decía «Sin resultados», aviso en el detalle de un viaje que ya no está, insignias de otra sesión, temporizador del GPS y «1000 m». `verificar.py mobile --rapido` en verde; los textos nuevos no se vieron en el navegador. Detalle en `MEMORY.md`.
 
 - **Dependencias (PB-01, SP131 a SP133):** rama `fix/dependencias-audit` desde `develop` en `backend`, `mobile` y raíz, con PR abiertos (uniride-backend#15, uniride-mobile#14, uniride#23). `backend` con 0 vulnerabilidades. `mobile` en Expo SDK 58 (React Native 0.88.1): de 31 (6 altas) a 22 moderadas y 1 baja, dentro del propio `expo`. Regresión completa y APK de debug en verde; sin probar en teléfono. En Windows, compilar en nativo necesita rutas largas y CMake 3.31.6 (MEMORY, SP133). Esta rama no tiene el estado de HU-12 a HU-18: está en sus ramas y en sus PR.
 
 ## Próximo paso concreto
 
 0. **Dependencias:** PR abiertos (uniride-backend#15, uniride-mobile#14, uniride#23), pendientes de revisión; tras fusionar los de submódulos, PR de punteros. Al fusionar `mobile` con las ramas de HU-12 a HU-18, `package.json` y `package-lock.json` chocan: conservar las versiones del SDK 58, volver a agregar las dependencias de cada HU con `npx expo install` (maplibre incluido) y regenerar el lockfile. Probar en teléfono un dev build con SDK 58 (Keystore de HU-09). Al fusionar el PR de raíz con #19 a #22, conservar el HEARTBEAT más reciente y agregar esta línea.
+1. **HU-18, punto exacto:** PR abiertos (`backend` #14, `mobile` #13, raíz #22), van después de los de HU-17. Siguiente historia: se apila sobre HU-18.
+4. En paralelo, otro integrante revisa y fusiona los PR en el orden de arriba, con `contracts` antes que `backend`. Tras el merge: confirmar con `git merge-base --is-ancestor`, actualizar punteros y marcar lo que corresponda. El cambio de firma de `mobile` exige recompilar el APK.
 
-1. **HU-08 y HU-09:** backend fusionado en `develop` (PR backend #8 y #9, 288 unitarias + 209 e2e). Móvil con PR abiertos: uniride-mobile#6 (SP92) y #7 (SP98); al fusionar el segundo hay conflictos aditivos en `cliente.ts`, `index.tsx`, `es-BO.json` y `respuestasApi.ts` (conservar ambos lados). Specs corregidas (`MODO_EMULADOR_DEV`).
-2. **Sin verificar (requiere teléfono físico y dev build):** Rekognition y Play Integrity reales; módulos nativos de Face Liveness y Keystore con biometría (HU-09 CA-7) aún no instalados — `liveness.ts` y `keystore.ts` fallan de forma segura. Instalarlos exige confirmación de dependencia (AGENTS.md §14). Actualizar UML: secuencia de vinculación, clases (`Dispositivo`, `FirmaDispositivoGuard`) y despliegue (Play Integrity).
-3. Siguiente: HU-12/HU-14, HU-13, HU-17/HU-18 (usan `@RequiereIdentidadVerificada()` y `@RequiereFirmaDispositivo()`; importar `FirmaDispositivoModule`).
+## Sin verificar
+
+- HU-18: OpenFreeMap y las teselas de relieve no dan garantía de servicio. El tope de 15 s se midió forzando que Android no responda; no se vio ocurrir bajo techo.
+- HU-17, fecha vieja al volver otro día: solo con prueba de Jest, que adelanta el reloj; en el teléfono exigiría cambiar su fecha.
+- HU-17 y firma: la recarga con la firma nueva se probó en el teléfono contra cadena simulada; contra contrato real, al desplegar en Amoy (decisión del integrante). La voz de TalkBack solo la confirma una persona.
+- Polygon Amoy y SP23: billetera, saldo y escrow solo se probaron contra Hardhat local.
+- El enlace a Polygonscan se vio y se abrió con la URL de Amoy agregada por un proxy de prueba, con un hash que no existe en esa red.
+- HU-13 en Polygon Amoy: acuñar allí (contrato sin desplegar, sin relayer con fondos). Solo se comprobó contra su RPC público que la ventana de 1000 bloques pasa y el rango completo no.
+- HU-13: una confirmación por transacción y sin reemplazar una atascada, aceptable con el relayer de desarrollo; se resuelve en SP129.
+- Play Integrity real, StrongBox, invalidación al registrar una huella nueva.
+- Escrow desde el backend: la prueba llamó al contrato y escribió los asientos por su cuenta. El flujo real llega con HU-19.
 
 ## Bloqueos activos
 
-- Sin teléfonos Android físicos confirmados aún (R-02, SP04): Play Integrity correrá con bypass simulado en desarrollo.
+- HU-13 no puede fusionarse antes que HU-12 y HU-14: esos PR dependen de otro integrante. No bloquea implementarla. Orden de `contracts`: su PR va antes que el de `backend` de HU-13.
+- **Con HU-13 fusionada, producción no arranca hasta SP129 (firmante KMS).** Hacerlo al desplegar.
+- Esta PC tiene Node 22 y npm 10: usar Node 24 portable, solo en el PATH del proceso y con un PATH corto (con el largo, npm no encuentra `prisma`).
+- `.env` local sin `WALLET_ENCRYPTION_KEY` ni `IDENTIDAD_SECRETO`: el backend no arranca sin ellas.
 
-## Decisiones abiertas del Sprint 2
+## Decisiones abiertas
 
-- **D-13 (Biometría en recarga):** RESUELTA en HU-13 mediante la llave biométrica de hardware de HU-09.
-- **D-17 (Calificación en búsqueda):** RESUELTA en HU-18 con campo opcional e insignias sin estrellas ficticias.
-- Abiertas para sprints futuros: D-08 (voz en web), D-10 (cola on-chain), D-15 (criterio de "invulnerable" con el docente).
+- **Accesibilidad, para después (decisión del integrante, 07/11):** TalkBack no lee los avisos que aparecen: al cancelar la huella dice el título y salta al botón. Afecta a todos los `Aviso`. Región viva y anuncio explícito no bastaron; falta probar mover el foco al aviso. Decidir en qué historia va.
+- **HU-10 (reserva):** tras registrar una huella nueva la llave queda anulada y no hay salida: el aviso dice falsamente "Actualiza la app" y "Mi teléfono" no deja volver a vincular. Quien agregue una huella pierde firmar, billetera y publicar. Decidir si HU-10 debe adelantarse antes de producción.
+- **Para HU-19, viajes de una cuenta suspendida:** ya no aparecen en la búsqueda (decisión del integrante, 07/11), pero siguen en `publicado` y quien ya reservó sigue con su reserva. Cambiarlo toca la máquina de estados (`AGENTS.md` §14). Decidir qué pasa con esos viajes y sus reservas.
+- **HU-18, «Elegir en el mapa» sin ubicación:** el pin empieza en el centro de Santa Cruz y «Usar este punto» se puede tocar sin moverlo. Decidir si se exige mover el pin primero.
+- **Para HU-19, el conductor se encuentra a sí mismo:** la búsqueda incluye sus propios viajes, porque la spec no los excluye. Decidir si se ocultan; reservar el propio debe rechazarse en cualquier caso.
+- **Viajes que nunca salieron:** ninguna historia pasa un viaje a `expirado`. Uno que ya debió salir sigue en `publicado` para siempre, aunque ya no ocupa al conductor (decisión del integrante, 07/11), y `mis-viajes` y el detalle lo muestran así. Decidir qué historia lo hace; toca la máquina de estados (`AGENTS.md` §14).
+- **Organización suspendida:** ningún código pone una organización en ese estado y `POST /viajes` no lo mira. Decisión del integrante (07/11): se resuelve en la historia que implemente la suspensión.
+- **`app.super_admin` en viajes:** `publicar` y `mis-viajes` abren RLS para leer los viajes del propio conductor, siempre con filtro por `conductorId`. Una política por `conductor_id` sería más estrecha; toca el diseño de RLS (`AGENTS.md` §14).
+- **Sesión muerta en la app:** si el refresco falla, ninguna pantalla lleva a iniciar sesión, y Publicar lo muestra como falta de conexión. Afecta a toda la app.
+- **HU-18, diferencias con el prototipo (decisión del integrante, 07/11):** se aceptan sin «Hacia», el título de resultados genérico, el nombre de pila sin inicial del apellido (RN-4) y las fechas en chips. La voz real es de HU-27.
+- **HU-17, diferencias con el prototipo:** fecha en chips con hora escrita (P-08 de `DESIGN_SYSTEM.md`), y origen y destino en campos fuera de la tarjeta del mapa. Decidir si se aceptan.
+- **Vulnerabilidades en dependencias de producción (`npm audit`, 07/11), anteriores a HU-14, sin corregir:** `backend` 7 altas, con `@nestjs/platform-express` y `prisma` como directas; `mobile` 6 altas, con `expo-router` como directa. Cambiar dependencias requiere autorización (`AGENTS.md` §14). Decidir si se atienden antes de desplegar.
+- **Para HU-19, reembolso 50/50 de un monto con centavos impares:** `reembolsar` reparte 6,175 URC de 12,35 y el libro solo guarda 2 decimales. La diferencia con la cadena queda permanente y agrega filas de auditoría en cada lectura real. Decidir antes de HU-19: redondear en el contrato o limitar los montos. Cambiar el contrato requiere autorización (`AGENTS.md` §14).
+- Sin resolver para HU-09/HU-10: pedir huella al vincular y alias de llave por cuenta.
+- D-08 (voz en web), D-15 (criterio de "invulnerable" con el docente).

@@ -148,40 +148,47 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP97 · Suite de pruebas y pruebas de ataque A-03 (no íntegro), A-04 (llave ajena) y A-08 (sin firma) — 4h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
 - [x] SP98 · Mobile: integración con Android Keystore y pantalla de vinculación en Expo — 6h — @[POR DEFINIR] · mobile @agente 05/11 (PR uniride-mobile#7; pantalla, firma canónica y pruebas; Keystore/Play Integrity nativos pendientes de dev build)
 
+- [x] SP125 · Mobile: módulo nativo local de Expo para Android Keystore (ECDSA P-256 no exportable, huella en cada firma con `BiometricPrompt` y `CryptoObject`), detrás de `keystore.ts`; prueba en teléfono físico. Requisito de SP103 y SP114 — 6h — @[POR DEFINIR] · mobile @agente 06/11: probado en Infinix X669 (TEE, sin StrongBox): el backend acepta la firma real; repetida, ajena y cancelada no pasan. Play Integrity sigue simulado. 07/11, en la rama de HU-17: la hora se firma tras la huella y una sesión vencida no pide otra
+
 ### HU-12 · Creación de billetera (16 h)
-- [ ] SP99 · Modelo Prisma `billeteras`, migración `008_billeteras` y repositorio — 2h — @[POR DEFINIR]
-- [ ] SP100 · `BlockchainService` (ethers.js, conexión Polygon Amoy/Hardhat y lectura de balance UniCoin) — 4h — @[POR DEFINIR]
-- [ ] SP101 · Endpoints de creación idempotente y consulta de billetera en backend — 3h — @[POR DEFINIR]
-- [ ] SP102 · Suite de pruebas y validación de seguridad A-12 (sin llaves en BD) — 3h — @[POR DEFINIR]
-- [ ] SP103 · Mobile: pantalla de Billetera en Expo (tarjeta de balance URC, dirección y accesos) — 4h — @[POR DEFINIR]
+- [x] SP99 · Modelo Prisma `billeteras`, migración `008_billeteras` y repositorio — 2h — @[POR DEFINIR] · backend @agente 06/11: también `usuarios.suspendida_en` (spec §4); la API solo tiene SELECT e INSERT sobre `billeteras`
+- [x] SP100 · `BlockchainService` (ethers.js, conexión Polygon Amoy/Hardhat y lectura de balance UniCoin) — 4h — @[POR DEFINIR] · backend @agente 06/11: solo redes 31337 y 80002, tope de 5 s; probado contra Hardhat, Amoy sin probar
+- [x] SP101 · Endpoints de creación idempotente y consulta de billetera en backend — 3h — @[POR DEFINIR] · backend @agente 06/11: creación automática al aprobar la identidad y firma de dispositivo en ambos endpoints
+- [x] SP102 · Suite de pruebas y validación de seguridad A-12 (sin llaves en BD) — 3h — @[POR DEFINIR] · backend @agente 06/11: 360 unitarias y 241 e2e en verde, cobertura 95,9 %, ataques A-02, A-08 y A-12
+- [x] SP103 · Mobile: pantalla de Billetera en Expo (tarjeta de balance URC, dirección y accesos) — 4h — @[POR DEFINIR] · mobile @agente 06/11: pestaña Billetera probada en teléfono físico contra Hardhat; Recargar y Movimientos llegan con HU-13 y HU-14
 
 ### HU-14 · Saldo e historial (15 h)
-- [ ] SP104 · Modelo Prisma `movimientos_billetera`, migración `009_movimientos_billetera` e índices contables — 2h — @[POR DEFINIR]
-- [ ] SP105 · Lógica de conciliación de saldo (on-chain + escrow en BD) y endpoint `/saldo` — 3h — @[POR DEFINIR]
-- [ ] SP106 · Endpoint paginado `/movimientos` y servicio de registro inmutable — 3h — @[POR DEFINIR]
-- [ ] SP107 · Suite de pruebas automatizadas y prueba de conciliación contable — 3h — @[POR DEFINIR]
-- [ ] SP108 · Mobile: pantalla de Historial de movimientos y componente `TarjetaSaldo` en Expo — 4h — @[POR DEFINIR]
+- [x] SP104 · Modelo Prisma `movimientos_billetera`, migración `009_movimientos_billetera` e índices contables — 2h — @[POR DEFINIR] · backend @agente 06/11: solo inserción; el trigger congela lo confirmado y la API no tiene DELETE
+- [x] SP105 · Lógica de conciliación de saldo (on-chain + escrow en BD) y endpoint `/saldo` — 3h — @[POR DEFINIR] · backend @agente 06/11: caché de 15 s; nodo caído o colgado da 200 con `enLinea: false`; las diferencias van a auditoría; sin firma de dispositivo. Probado contra Hardhat con `EscrowUniRide` real, Amoy sin probar · 07/11: un movimiento confirmado invalida el caché
+- [x] SP106 · Endpoint paginado `/movimientos` y servicio de registro inmutable — 3h — @[POR DEFINIR] · backend @agente 06/11: filtro `?tipo=`, sin firma de dispositivo; el registro se usará desde HU-13
+- [x] SP107 · Suite de pruebas automatizadas y prueba de conciliación contable — 3h — @[POR DEFINIR] · backend @agente 06/11: 395 unitarias y 318 e2e en verde (07/11), cobertura 95,7 %, ataques A-09 y A-10
+- [x] SP108 · Mobile: pantalla de Historial de movimientos y componente `TarjetaSaldo` en Expo — 4h — @[POR DEFINIR] · mobile @agente 06/11: 247 pruebas en verde (07/11); probado en teléfono físico contra Hardhat con 46 movimientos, sin verificar, vacío y nodo caído. 07/11: web a 360 y 412, teléfono a 412 dp, enlace a Polygonscan en pantalla y una sola huella al abrir Billetera. Saldo en Inicio queda para HU-18
 
-### HU-13 · Recarga de saldo (20 h)
-- [ ] SP109 · Modelo Prisma `ordenes_recarga`, migración `010_ordenes_recarga` y repositorio — 2h — @[POR DEFINIR]
-- [ ] SP110 · Servicio de generación de QR con expiración y cálculo de idempotencia — 3h — @[POR DEFINIR]
-- [ ] SP111 · Método `acunarTokens` en `BlockchainService` e integración con relayer — 3h — @[POR DEFINIR]
-- [ ] SP112 · Endpoint de confirmación de recarga con `FirmaDispositivoGuard` (D-13) — 4h — @[POR DEFINIR]
-- [ ] SP113 · Suite de pruebas automatizadas y prueba de ataque A-09 (doble acreditación) — 3h — @[POR DEFINIR]
-- [ ] SP114 · Mobile: pantalla de recarga en Expo (selector, QR y confirmación biométrica) — 5h — @[POR DEFINIR]
+### HU-13 · Recarga de saldo (31 h)
+- [x] SP109 · Modelo Prisma `ordenes_recarga` y `trabajos_onchain`, migración `010_ordenes_recarga` y repositorio — 2h — @[POR DEFINIR] · backend @agente 07/11: migración 010 aplicada; sin diferencias entre esquema y migraciones
+- [x] SP110 · Servicio de generación de QR con expiración y cálculo de idempotencia — 3h — @[POR DEFINIR] · backend @agente 07/11: QR PNG en el servidor; la clave es `recarga:<ordenId>`
+- [x] SP111 · Método `acunarRecarga` en `BlockchainService` e integración con relayer — 3h — @[POR DEFINIR] · backend @agente 07/11: probado contra UniCoin en Hardhat, también nodo caído y respuesta perdida; el evento se busca por ventanas de 1000 bloques; producción no arranca sin SP129
+- [x] SP112 · Endpoint de confirmación de recarga con `FirmaDispositivoGuard` (D-13) — 4h — @[POR DEFINIR] · backend @agente 07/11: confirmar con firma, 202 o 200 idempotente
+- [x] SP113 · Suite de pruebas automatizadas y prueba de ataque A-09 (doble acreditación) — 3h — @[POR DEFINIR] · backend @agente 07/11: e2e de recarga y ataques A-08, A-09, A-10 y A-11
+- [x] SP114 · Mobile: pantalla de recarga en Expo (selector, QR y confirmación biométrica), botón Recargar y aviso de pendiente — 5h — @[POR DEFINIR] · mobile @agente 07/11: probada con Jest y en navegador contra UniCoin en Hardhat, con firma real de una llave de prueba; en teléfono físico (Infinix X669) contra UniCoin en Hardhat: una firma por confirmación, cancelar no cobra, reintentar acredita, 412 dp y TalkBack; tras la revisión, Billetera y Movimientos se actualizan solos, y dedo no registrado y "Recarga en camino" probados en el teléfono
+- [x] SP126 · `UniCoin.acunarRecarga` idempotente con evento, y sus pruebas — 2h — @[POR DEFINIR] · contracts @agente 07/11: `acunarRecarga`, `ordenAcunada` y evento; contrato sin desplegar en Amoy
+- [x] SP127 · Worker de `trabajos_onchain` con reintentos y alerta en auditoría (D-10) — 4h — @[POR DEFINIR] · backend @agente 07/11: reintentos hasta 1 h entre intentos y alerta única al quinto; tras la revisión, una falla de la BD después de acuñar también suma intento y llega a la alerta
+- [x] SP128 · Libro mayor: clave en conflicto, decimales y `fallido` final — 2h — @[POR DEFINIR] · backend @agente 07/11: clave en conflicto, decimales y `fallido` final; tras la revisión, otra reserva con la misma clave también es conflicto
+- [ ] SP129 · Firmante KMS del relayer (al desplegar; requiere `@aws-sdk/client-kms`), con N confirmaciones antes de dar por acuñada una recarga y reemplazo con más gas de una transacción atascada — 3h — @[POR DEFINIR] · backend
 
 ### HU-17 · Publicar viaje (18 h)
-- [ ] SP115 · Modelo Prisma `viajes`, migración `011_viajes` y políticas RLS por organización — 3h — @[POR DEFINIR]
-- [ ] SP116 · Lógica de validación de conductor, vehículo y anti-solapamiento — 3h — @[POR DEFINIR]
-- [ ] SP117 · Endpoints `/viajes`, `/mis-viajes` y consulta de detalle — 4h — @[POR DEFINIR]
-- [ ] SP118 · Suite de pruebas y validación de amenazas A-08 y A-13 — 3h — @[POR DEFINIR]
-- [ ] SP119 · Mobile: pantalla de Publicar viaje con mapa OSM y selección de cupos en Expo — 5h — @[POR DEFINIR]
+- [x] SP115 · Modelo Prisma `viajes`, migración `011_viajes` y políticas RLS por organización — 3h — @[POR DEFINIR] · backend @agente 07/11: el rol de la API solo tiene SELECT e INSERT; el precio máximo es el de cada organización, no un CHECK fijo de 20
+- [x] SP116 · Lógica de validación de conductor, vehículo y anti-solapamiento — 3h — @[POR DEFINIR] · backend @agente 07/11: el solape cruza las organizaciones de la persona y es atómico por conductor; un viaje publicado ya pasado no cuenta y origen y destino iguales se rechazan (decisión del integrante)
+- [x] SP117 · Endpoints `/viajes`, `/mis-viajes` y consulta de detalle — 4h — @[POR DEFINIR] · backend @agente 07/11: documentados en Swagger; verificados en sesión limpia
+- [x] SP118 · Suite de pruebas y validación de amenazas A-08 y A-13 — 3h — @[POR DEFINIR] · backend @agente 07/11: CA-1 a CA-7, A-08 y A-13 en API y en PostgreSQL con el rol de la API; prueba real por HTTP sin diferencias
+- [x] SP119 · Mobile: pantalla de Publicar viaje con mapa OSM y selección de cupos en Expo — 5h — @[POR DEFINIR] · mobile y backend (`GET /viajes/limites`) @agente 07/11: requisitos, formulario, resultado y errores con pruebas y firma real en navegador; verificación en sesión limpia (6 defectos corregidos) y en teléfono físico (4 corregidos) hechas; revisión del código hecha (10 corregidos, probados en el teléfono); TalkBack no lee los avisos que aparecen y queda abierto; falta PR
 
 ### HU-18 · Buscar viajes (14 h)
-- [ ] SP120 · Lógica de consulta geoespacial Haversine y filtro de ventana temporal — 3h — @[POR DEFINIR]
-- [ ] SP121 · Endpoint `/viajes/buscar` con DTOs seguros y resolución D-17 — 3h — @[POR DEFINIR]
-- [ ] SP122 · Suite de pruebas automatizadas, prueba de aislamiento A-13 y medición de latencia < 2s — 3h — @[POR DEFINIR]
-- [ ] SP123 · Mobile: pantalla de Búsqueda de viajes y componente `TarjetaViaje` en Expo — 5h — @[POR DEFINIR]
+- [x] SP120 · Lógica de consulta geoespacial Haversine y filtro de ventana temporal — 3h — @[POR DEFINIR] · backend @agente 07/11: índice `idx_viajes_busqueda`; el `acos` del plan fallaba en PostgreSQL por redondeo y quedó acotado; verificado con 40 500 viajes (26 ms como máximo)
+- [x] SP121 · Endpoint `/viajes/buscar` con DTOs seguros y resolución D-17 — 3h — @[POR DEFINIR] · backend @agente 07/11: documentado en Swagger; membresía sin firma, nombre de pila también en el detalle y sin cuentas suspendidas (decisiones del integrante)
+- [x] SP122 · Suite de pruebas automatizadas, prueba de aislamiento A-13 y medición de latencia < 2s — 3h — @[POR DEFINIR] · backend @agente 07/11: CA-1 a CA-6 y A-13 en API y en PostgreSQL; prueba real por HTTP sin diferencias; falta verificación en sesión limpia
+- [x] SP123 · Mobile: pantalla de Búsqueda de viajes y componente `TarjetaViaje` en Expo — 5h — @[POR DEFINIR] · mobile @agente 07/11: formulario en la pestaña Buscar, resultados y detalle; origen por GPS (`expo-location`, autorizado por el integrante), buscador o mapa; saldo a la vista. Probado en navegador contra el backend real y en teléfono físico: permiso, GPS real, ubicación apagada, tope de 15 s, arrastre con el dedo, zoom y atrás; falta verificación en sesión limpia. Verificado en sesión limpia el 07/11: ícono propio para «Nuevo» y auto con ícono en el detalle. Igual al prototipo (decisión del integrante): nombre de pila en el saludo, voz desactivada, una fila a 360 y «2 de 4» con `cuposTotales` en el detalle. Revisión de código (07/11, `a71e3db`): hora ya pasada, enlace incompleto, aviso en un viaje que ya no está, caché al salir, tope del GPS y redondeo de distancia, con pruebas.
+- [x] SP130 · Mobile: mapa con MapLibre, con las funciones habituales de un mapa: pellizco, doble toque, rotar y brújula, punto de mi ubicación y tipos de mapa, con estilo propio; navegador revisado — 6h — @[POR DEFINIR] · mobile @agente 07/11: dependencia autorizada por el integrante; teselas vectoriales de OpenFreeMap (datos OSM) con estilo de `tokens.ts`, tipos calles y relieve; pin en SVG que se coloca al tocar; créditos plegables; la web conserva las teselas. Probado en el teléfono: arrastre, zoom, relieve, atrás, trayecto y Publicar. Rotar, pellizco, doble toque, «Mi ubicación» y TalkBack los probó el integrante en el teléfono.
 
 ### PB-01 · Vulnerabilidades de dependencias (`npm audit`)
 - [x] SP131 · `npm audit fix` sin `--force` en `backend` y `mobile`, rama `fix/dependencias-audit` desde `develop` — 1h — @[POR DEFINIR] · @agente 07/11: autorizado por el integrante (AGENTS.md §14). Las vulnerabilidades ya estaban en `develop`; las HU no agregaron ninguna. Backend de 14 (7 altas) a 3 moderadas: body-parser, multer, deepmerge-ts, mysql2, fast-uri, qs; Prisma 7.10.0 → 7.10.1 y `allowScripts` aprueba esa versión. Mobile de 31 (6 altas) a 23 (3 altas): zod, node-forge, uuid y parches de Expo dentro del SDK 57; sin cambios en `package.json`. Regresión completa en verde en los dos (backend con e2e, mobile con build Android)

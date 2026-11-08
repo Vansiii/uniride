@@ -38,8 +38,10 @@
 | Cupos superan la capacidad del auto (CA-2) | Rechazo indicando el límite del vehículo | `viajes.publicar.cupos_exceden_capacidad` |
 | Precio fuera del rango permitido (CA-3) | Rechazo indicando tarifa mínima/máxima | `viajes.publicar.precio_invalido` |
 | Horario inválido o pasado (CA-4) | Rechazo exigiendo horario futuro | `viajes.publicar.horario_invalido` |
-| Solapamiento con otro viaje del conductor (CA-5) | Rechazo por conflicto de horario | `viajes.publicar.viaje_solapado` |
+| Solapamiento con otro viaje del conductor (CA-5) | Rechazo por conflicto de horario. Un viaje en `Publicado` cuya salida ya pasó no cuenta: nadie reservó y no ocupa al conductor | `viajes.publicar.viaje_solapado` |
+| Origen y destino con las mismas coordenadas | Rechazo; la app lo dice en el campo, sin pedir la huella | `viajes.publicar.lugares_iguales` |
 | Conductor sin vehículo o no verificado (CA-6) | Rechazo 403 con redirección | `viajes.publicar.requisito_incompleto` |
+| Cuenta suspendida | Rechazo 403; la app lo dice al abrir la pestaña, sin formulario ni huella | `viajes.publicar.cuenta_suspendida` |
 
 ## 5. Fuera de alcance de esta HU
 
@@ -53,17 +55,17 @@
 - **HU-08:** Verificación de identidad aprobada.
 - **HU-09:** Dispositivo móvil vinculado.
 - **HU-11:** Vehículo registrado.
-- **HU-12:** Billetera activa para cobrar viajes.
+- **HU-12:** Billetera para cobrar. No es requisito para publicar: importa al cobrar (HU-19 en adelante).
 
 ## 7. Definition of Done
 
 Marcar al cerrar la fase **Verify**. Referencia: `SPECS/constitution.md` Art. 12.
 
 - [ ] Criterios CA-1 a CA-7 cumplidos.
-- [ ] Pruebas automatizadas del `plan.md` en verde; cobertura en backend ≥ 70 %.
-- [ ] Pruebas de ataque A-08 (sin firma) y A-13 (filtro estricto por organización) en verde.
+- [x] Pruebas automatizadas del `plan.md` en verde; cobertura en backend ≥ 70 %.
+- [x] Pruebas de ataque A-08 (sin firma) y A-13 (filtro estricto por organización) en verde.
 - [ ] PR revisado · CI en verde.
-- [ ] Documentado en Swagger.
+- [x] Documentado en Swagger.
 - [ ] Aceptada por el PO en la Sprint Review.
 
 ## 8. Historial de cambios
@@ -72,4 +74,10 @@ Marcar al cerrar la fase **Verify**. Referencia: `SPECS/constitution.md` Art. 12
 |---|---|---|
 | 2026-11-02 | Creación (borrador) | — |
 | 2026-11-02 | Aprobación de spec y plan; máquina de estados, tope de cupos por auto y RLS | 2026-11-02 · HU-17 Publicar viaje: spec y plan técnico aprobados |
+| 2026-11-07 | Sin cambio de criterios; el plan se ajusta al tope por organización y al solape entre organizaciones | 2026-11-07 · HU-17: contrato del backend y ajustes al plan |
+| 2026-11-07 | Sin cambio de criterios; el plan agrega `GET /viajes/limites` y fija la pantalla como pestaña | 2026-11-07 · HU-17: pantalla móvil |
+| 2026-11-07 | Caso borde nuevo: una cuenta suspendida no puede publicar (decisión del integrante) | 2026-11-07 · HU-17: una cuenta suspendida no publica |
+| 2026-11-07 | Sin cambio de criterios; el rechazo por solape dice con qué viaje choca | 2026-11-07 · HU-17: verificación en sesión limpia |
+| 2026-11-07 | Sin cambio de criterios; una huella por publicación aunque se tarde o venza la sesión | 2026-11-07 · HU-17: prueba en teléfono físico |
+| 2026-11-07 | Casos borde nuevos (decisión del integrante): origen y destino iguales se rechazan, y un viaje publicado ya pasado no solapa. La billetera no es requisito para publicar | 2026-11-07 · HU-17: revisión del código |
 
