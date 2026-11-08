@@ -973,3 +973,117 @@ Revisión de `backend` y `mobile` contra HU-13, con el cambio de firma como grad
 **Sin cambiar, por ser limpieza:** `BilleteraModule` importado solo por el guard de cuenta; tres booleanos de bloqueo en Publicar; `con` frente a `.replace`; consulta del tope duplicada; cuatro lecturas al volver a la pestaña; `mensajeCanonico` usado solo en pruebas; condición de reintento en línea. **Sin cambiar, por tocar más que esta historia:** `app.super_admin` en viajes y sesión muerta en la app (ver `HEARTBEAT.md`).
 
 **Probado en el teléfono (solo JS, sin recompilar):** Backspace y cursor en un lugar elegido, nombre largo desde el inicio, mismo lugar sin huella ni petición, hora tecleada 7-3-0, hora sugerida con holgura, intercambiar con aviso a la vista, capacidad bajada de 4 a 2, tope bajado de 20 a 15 con el formulario abierto (400 y aviso con 15), y publicar con 1 firma. Al intercambiar, el campo que queda vacío vuelve a mostrar lo que se había escrito en él; no impide nada y se dejó así.
+
+---
+
+## 2026-11-07 · HU-18: contrato de búsqueda
+
+**Evento:** `GET /viajes/buscar` implementado en `backend`, en `feat/HU-18-buscar-viajes`, apilada sobre HU-17 (SP120-SP122).
+
+**Decisiones del integrante:**
+1. `GET /viajes/buscar` y `GET /viajes/{id}` piden membresía aprobada, sin firma: buscar no pide huella. Se corrigió `ssd.md`.
+2. El pasajero ve el nombre de pila, también en el detalle, que antes daba el nombre completo. Resuelve P-09: la base solo guarda `nombre_completo` y no distingue un nombre compuesto del apellido.
+3. Los viajes de un conductor con la cuenta suspendida no aparecen en la búsqueda. El viaje no cambia de estado; qué pasa con quien ya reservó se decide en HU-19.
+4. La búsqueda no filtra por destino, como dice la spec. Agregarlo después no rompe el contrato.
+
+**Diferencias con el plan:**
+1. El `acos` del plan daba `input is out of range` en PostgreSQL con coordenadas reales, por redondeo: ocurre al buscar desde el punto exacto de salida (-17.698356) y desde el punto opuesto del planeta. El argumento quedó acotado a [-1, 1], con prueba de cada caso.
+2. Sin utilidad `GeoDistance`: la distancia se calcula solo en SQL.
+3. `idx_viajes_busqueda` reemplaza al índice de HU-17, que empezaba por las mismas columnas.
+4. Se agregó `conductor.miembroDesde`, porque RN-5 pide exponer la antigüedad. El plan no lo tenía.
+5. Tope de 50 resultados, por hora de salida.
+
+**Comportamiento:** una coordenada vacía en la URL es inválida, no 0. Una hora que Date no entiende o del año 0000 da `VALIDACION_FALLIDA`. Una hora pasada o más allá de lo publicable da lista vacía sin consultar la base.
+
+**Verificado:** `verificar.py backend` en verde con e2e completas, y prueba real por HTTP (`.harness` local): 13 casos y CA-6 con 40 500 viajes, 26 ms como máximo, usando el índice.
+
+---
+
+## 2026-11-07 · HU-18: pantallas móviles
+
+**Evento:** SP123 en `mobile`, `feat/HU-18-buscar-viajes`, apilada sobre HU-17.
+
+**Decisión del integrante:** se agrega `expo-location` (`AGENTS.md` §14) y se permite mejorar el mapa. Es un módulo nativo: la app se recompila.
+
+**Cómo quedó:**
+1. La pestaña Inicio pasa a llamarse Buscar, como en el prototipo. «Tu cuenta» y Cerrar sesión siguen debajo hasta que exista Perfil.
+2. Sin campo «Hacia»: la búsqueda no filtra por destino. El título de resultados es «Viajes cerca de ti», no «A UAGRM».
+3. El diálogo de ubicación sale solo al tocar «Mi ubicación». Con permiso ya dado, el origen se llena solo sin pisar lo elegido. Negado para siempre: «Abrir ajustes».
+4. Mapa propio con las teselas de `MapaRuta`, sin librería nueva: se mueve bajo un pin fijo, con botones de zoom y «Mi ubicación». Sin pellizco; agregarlo pide una librería de mapas (HU-23).
+5. Placa en la tarjeta: la spec CA-2 manda sobre `DESIGN_SYSTEM.md` §8.7, como en el prototipo.
+6. Nombre de pila tal como llega («María»), no «Carlos J.». «Conductor verificado» en vez de «Verificada»: la app no conoce el género.
+7. Saldo: fila con «Saldo disponible» que lleva a Billetera, sin huella, como en el prototipo; sin saldo legible no se muestra. `TarjetaSaldo` sigue solo en Billetera: es para la banda de marca.
+8. Membresía: la API responde `NO_AUTORIZADO`; la pantalla muestra «Pendiente de aprobación» si la activa lo está, con aviso y «Elegir organización».
+9. Distancia e insignias no vienen en `GET /viajes/{id}`: el detalle las toma de lo último encontrado en memoria, no de la ruta, para que un enlace no pueda inventar una insignia. Entrando por enlace no se muestran.
+
+**Limitaciones:** los resultados no traen coordenadas, así que no hay mapa de resultados sin cambiar el contrato. El saldo de la fila no avisa si el nodo está caído (`enLinea: false`); Billetera sí.
+
+**Defectos hallados al mirarlo:** al entrar por enlace la búsqueda salía antes de restaurar la sesión y mostraba un error genérico; el botón de cerrar el mapa usaba una clave de texto inexistente.
+
+**Verificado:** en navegador contra el backend real, a 360 y 412, con GPS fijado: 42 comprobaciones de la búsqueda y 6 de lo afectado (Publicar, cerrar el mapa, entrada a Billetera, salir). Falta el teléfono físico.
+
+## 2026-11-07 · HU-18: teléfono físico y decisión del mapa
+
+**Evento:** Se prueba en un Infinix X669 (Android 12) con GPS real, permiso, avisos, arrastre con el dedo, zoom, atrás de Android, teclado de la hora, Nominatim y 412 dp.
+
+**Defecto corregido:** con la ubicación apagada, abrir la pantalla pedía la posición y salía sola la ventana de Google para activarla. `obtenerUbicacion` ya no lo hace si la persona no tocó el botón (`mobile` `8db8a8b`, con prueba).
+
+**Decisión del integrante:** el mapa se queda corto. Pide las funciones habituales de un mapa, con estilo propio y sin copiar otra app: pellizco, doble toque, rotar y brújula, punto de mi ubicación y tipos de mapa si hacen falta. Autoriza `@maplibre/maplibre-react-native` (`AGENTS.md` §14) y pide revisar que quede bien tanto en móvil como en web, si la web muestra mapa. Queda como `SP130`.
+
+**Razón:** con teselas propias, rotar y pellizcar habría que escribirlo y mantenerlo a mano. MapLibre es MIT y npm declara compatibilidad con Expo 57 y React Native 0.86; falta probarlo aquí. Es nativa: hay que recompilar y resolver qué se ve en navegador. `MapaRuta` y Publicar (HU-17) comparten estas teselas: entran en la prueba. Antes de usar satélite o relieve se revisan las condiciones de uso de esos servicios.
+
+**Verificado:** informe de la parte en teléfono; regresión de `mobile` en verde. TalkBack confirmado de oído por el integrante en búsqueda, resultados y detalle («Reservar» se oye inhabilitado). El tope de 15 s se midió en el teléfono con la llamada de Android forzada a no responder; no se vio ocurrir bajo techo.
+
+**Sin verificar:** verificación en sesión limpia de la historia y el mapa nuevo.
+
+## 2026-11-07 · HU-18: mapa con MapLibre (SP130)
+
+**Evento:** `@maplibre/maplibre-react-native` 11.5.1 en `mobile`, sin scripts de instalación; APK de debug recompilado.
+
+**Cómo quedó:**
+1. Teselas vectoriales de OpenFreeMap (datos de OpenStreetMap, sin clave) con un estilo propio hecho con `tokens.ts`. El servidor de teselas de OSM no se usa con MapLibre: su política prohíbe el User-Agent por defecto de una librería.
+2. Tipos de mapa: calles y relieve (sombreado de Terrain Tiles de AWS, sin clave). Satélite no: no hay proveedor gratuito que lo permita sin clave ni cuenta; si se quiere, decide el integrante.
+3. Elegir punto: tocar deja el pin ahí; mover, rotar o acercar no lo mueve, y queda de pie al rotar. «Mi ubicación» mueve pin y cámara. Pin dibujado en SVG (`assets/images/pin-mapa.svg`) que muestra `expo-image`. Forma pedida por el integrante: cabeza de 34 y punta larga, sin borde blanco, con un solo contorno.
+4. Trayecto (detalle y Publicar): recuadro fijo dentro de la pantalla, que se reencuadra al cambiar un lugar; al tocarlo se abre a pantalla completa con los gestos.
+5. Créditos: visibles al abrir, a los 5 s se pliegan en una «i» que los vuelve a mostrar, como permiten las pautas de atribución de OSM. Al cambiar de tipo se muestran de nuevo.
+6. Navegador: MapLibre para React Native no dibuja en web; `MapaRuta.web.tsx` y `SelectorMapa.web.tsx` conservan las teselas anteriores. `web/` no muestra mapas.
+
+**Verificado:** en el teléfono, arrastre y zoom medidos por el proxy (187 m, 94 m y 748 m frente a ≈195, 97 y 780), relieve, atrás de Android, trayecto en detalle, pantalla completa, Publicar al cambiar destino, pin al tocar y créditos plegables. En navegador, las 42 comprobaciones de búsqueda y las 6 de lo afectado. Lint, tipos y pruebas de `mobile` en verde.
+
+Rotar, pellizco, doble toque, «Mi ubicación» y TalkBack sobre el mapa los probó el integrante en el teléfono (07/11, sin detalle por punto).
+
+**Sin verificar:** OpenFreeMap y las teselas de relieve no dan garantía de servicio.
+
+## 2026-11-07 · HU-18: verificación en sesión limpia
+
+**Evento:** verificación de toda la historia sobre `backend` `f281a2e` y `mobile` `a42d564`.
+
+**Verificado:** regresión completa de `backend`, `mobile` y `contracts` en verde (459 unitarias, 509 e2e, cobertura de backend 92,4 %; 360 pruebas de `mobile`). CA-1 a CA-6 contra la API real, incluido CA-6 con 40 500 viajes (máximo 25 ms, con `idx_viajes_busqueda`). Errores de spec §4: coordenadas repetidas, vacías o `Infinity` dan `COORDENADAS_INVALIDAS`, y una hora sin zona da `VALIDACION_FALLIDA`. A-13: el detalle de otra organización responde 404, igual que uno inexistente. Swagger con 200, 400, 401 y 403. Amenazas sin hallazgos. En navegador, pantallas a 360 y 412, lo afectado de HU-17 y recorrido con teclado (foco visible, nombres, Enter abre el detalle). Paridad con el prototipo, punto por punto.
+
+**Corregido:**
+1. «Nuevo» llevaba el mismo sello con visto que «Conductor verificado» (`new_releases` se dibuja igual que `verified`) y parecía otra verificación. Ahora usa `auto_awesome`.
+2. El auto del detalle no tenía el ícono del prototipo. Ahora lleva `directions_car`.
+
+Los dos se vieron en el teléfono físico.
+
+**Diferencias nuevas con el prototipo, para decidir:** el subtítulo del saludo («Busca viajes de tu comunidad cerca de ti» en lugar de «¿A dónde vas hoy?», coherente sin destino) y el nombre sin la inicial del apellido («María» frente a «Carlos J.»; RN-4 pide nombre de pila). El botón de voz desactivado de la banda es de HU-27.
+
+**Teléfono:** `dumpsys` lista una ventana «Application Not Responding» de la app, con superficie de 0 × 0, que retiene el foco. No hay `am_anr` en esta sesión; el único archivo de `/data/anr` es de las 16:56. No impide tocar la app y «atrás» no la cierra.
+
+**Ajustes al prototipo (decisión del integrante, 07/11):** el saludo usa el nombre de pila y el subtítulo «¿A dónde vas hoy?». En la banda hay un micrófono desactivado («Hablar con UniRide, disponible pronto»; la voz es de HU-27). «Mi ubicación» y «En el mapa» quedan en una fila a 360: el relleno de los botones de texto sale del borde de la tarjeta. El detalle muestra «2 de 4» asientos, porque `GET /viajes/:id` ahora da `cuposTotales` (backend `7b61c44`, con prueba e2e). Se aceptan sin «Hacia», el título genérico, el nombre de pila sin inicial del apellido (RN-4) y las fechas en chips. Todo verificado en navegador y en el teléfono a 360 dp; regresión completa en verde (459 unitarias, 510 e2e, 361 de móvil).
+
+## 2026-11-07 · HU-18: revisión de código
+
+**Evento:** revisión del diff de `backend` y `mobile` contra HU-17. Correcciones en `mobile` `a71e3db`; `backend` sin cambios.
+
+**Corregido, con pruebas de Jest:**
+1. Resultados por un enlace sin hora o sin coordenadas: la pantalla se caía (`RangeError`). Ahora dice «No pudimos leer ese punto de salida» y no consulta.
+2. Una hora de hoy con toda su ventana en el pasado decía «Sin resultados». Ahora el formulario dice «Esa hora ya pasó. Elige una más tarde.», y al volver a la pestaña una salida vencida vuelve a la próxima media hora.
+3. El detalle de un viaje cancelado, en curso o que ya salió se veía como disponible. Ahora avisa «Este viaje ya no está disponible.».
+4. Las insignias y la distancia de la última búsqueda se borran al cerrar sesión y al cambiar de organización.
+5. El tope de 15 s del GPS limpia su temporizador; 999,6 m ya no se lee «1000 m»; la ventana de ± 30 min sale de una sola función (`ventanaDe`).
+
+**No se cambió:** el conductor que se encuentra a sí mismo y el detalle de un conductor suspendido (decisiones abiertas para HU-19). El índice `idx_viajes_busqueda` con `cupos_disponibles` al final: filtra en el índice sin leer la tabla; quitarlo no compensa (se midió con 40 500 viajes). En «Elegir en el mapa», sin ubicación, el pin empieza en el centro de Santa Cruz y se puede confirmar sin moverlo: queda para decidir.
+
+**Verificado:** `verificar.py mobile --rapido` en verde (lint, tipos, pruebas). Los textos nuevos se comprobaron con Jest y no se vieron en el navegador.
+

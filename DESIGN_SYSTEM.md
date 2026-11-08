@@ -415,7 +415,7 @@ Una función de formato por tipo, compartida por cada cliente (`src/formato.ts`)
 | Tiempo hasta la salida | Solo si falta menos de 60 min | `Sale en 20 min` | — |
 | Distancia | m hasta 999; km con un decimal | `350 m`, `1,2 km` | — |
 | Placa | Dígitos + espacio + letras | `1234 ABC` (se guarda `1234ABC`) | — |
-| Nombre de otra persona | Nombre + inicial del apellido | `Ana R.` [Abierto → P-09] | — |
+| Nombre de otra persona | Nombre de pila (P-09, RN-4 de HU-18) | `Ana` | — |
 | Hash o dirección | Inicio y fin, fuente monoespaciada, botón copiar | `0x12ab…9f3c` | — |
 
 Por qué 24 h: "7:00" es ambiguo en un viaje programado (y en el comando de voz "a las 7"); `es-BO` por defecto produce "7:05 p. m.", más largo y menos escaneable. Por qué siempre 2 decimales: coincide con `NUMERIC(12,2)` del libro mayor y evita que "12" y "12,00" parezcan cosas distintas.
@@ -707,7 +707,7 @@ Seis celdas de 48 × 56, `radio.s`, tipografía `cifra` a 24, separación 8. Ava
 - Toda la tarjeta es tocable (`accessibilityRole="button"`) y lleva al detalle. **No tiene botón "Reservar"**: reservar mueve dinero y se hace desde el detalle con el resumen completo (P1).
 - La hora de salida y el precio son lo más grande: son los dos criterios de decisión de un viaje programado.
 - La placa no se muestra en resultados; aparece en el detalle de un viaje reservado y en el abordaje, donde sirve para encontrar el auto.
-- Calificación del conductor: **[Abierto] D-17**. El espacio queda reservado a la derecha del nombre; no se muestra hasta que se decida.
+- Calificación del conductor (D-17, resuelta el 02/11): sin reseñas se muestran las insignias «Verificado» y «Nuevo», sin estrellas vacías.
 - Nombre accesible compuesto: "Viaje a las 07:30 de Plaza 24 de Septiembre a UAGRM Módulos, 12,00 URC, 2 asientos libres, conductora Ana R.".
 
 ### 8.8 SaldoBilletera y FilaMovimiento
@@ -1309,10 +1309,10 @@ Cosas que el análisis no pudo resolver. Las que necesitan una dependencia nueva
 | P-06 | Monto del reembolso antes de cancelar | La API no expone una vista previa | Agregar el monto de reembolso vigente a `GET /reservas/{id}` para no calcularlo en el cliente | HU-20 |
 | P-07 | Paleta y tipografía | Propuestas sin validar; el 17/10 se sumaron las zonas de marca y la familia display (3.5, 4.2) | Validar en PB-03 con el PO; probar la banda de marca y el saldo oscuro al sol en un teléfono real | Implementación de `BandaMarca` |
 | P-08 | Selector de hora | `@expo/ui/jetpack-compose` trae `TimePickerDialog` (según sus tipos; no se probó en teléfono). HU-17 no lo usa: un chip por cada fecha posible y la hora escrita con teclado numérico | Usarlo si la prueba de usabilidad lo pide | HU-17 |
-| P-09 | Nombre visible de otras personas | Las specs no lo definen | "Nombre + inicial del apellido" (exposición mínima) | HU-18 |
+| P-09 | Nombre visible de otras personas | Resuelta (07/11) | Nombre de pila, como dice RN-4 de HU-18: la base solo guarda `nombre_completo` y no distingue un nombre compuesto del apellido | HU-18 |
 | P-10 | Unidad monetaria visible | El documento técnico habla de Bs y URC | Mostrar siempre "URC" y la equivalencia en Bs solo al recargar; confirmar con el PO | HU-13, HU-14 |
 | P-11 | Administrador de varias organizaciones en web | Las specs no definen un selector de organización en el panel | Si ocurre, selector en la cabecera de la `BarraLateral` reutilizando el cambio de organización activa de HU-07 | — |
 | P-12 | Formato de hora | `es-BO` usa 12 h por defecto | 24 h (4.9); confirmar con el PO | — |
 | D-08 | Voz en el panel web | Abierta en `MEMORY.md` | Sin voz en web hasta que se decida | Web |
 | D-13 | Biometría en la recarga | Abierta | El patrón 9.6 aplica si se decide que sí | HU-13 |
-| D-17 | Calificación en los resultados | Abierta | Espacio reservado en `TarjetaViaje`, oculto hasta decidir | HU-18 |
+| D-17 | Calificación en los resultados | Resuelta (02/11) | Insignias «Verificado» y «Nuevo» mientras no haya reseñas (HU-21) | HU-18 |
