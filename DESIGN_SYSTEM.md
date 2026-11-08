@@ -118,6 +118,8 @@ Cada principio tiene una regla verificable. Si dos principios chocan, gana el de
 
 ### 3.1 Dirección estética [Propuesta]
 
+> **Revisión del 07/11/2026 (PB-03, aprobada por el integrante que la pidió): acabado "SaaS premium".** Neutros más fríos y contornos más finos (`borde` `#E4E7EC`), texto principal casi negro azulado (`#0F1729`), **radios más cerrados en web** (`radio.s` 6, `m` 8, `l` 12, `xl` 16; el móvil conserva 8/12/16/24 por ser táctil), tarjetas con sombra mínima (`sombraTarjeta`, 1 px) en lugar de solo borde, **barra lateral web clara** (superficie blanca, ítem activo en `primarioSuave`, grupos en mayúsculas pequeñas) y títulos de pantalla en la fuente del sistema, peso 650, con tracking −0,02 em. Bricolage Grotesque queda solo para la marca, las zonas de marca y las cifras. Cuerpo web 15 px; controles web de 40 px con puntero fino y 44 px con puntero táctil (`pointer: coarse`).
+
 **"Confianza en movimiento"**: una sola tonalidad de marca, el índigo, **usada con audacia en tres profundidades** (`marcaProfundo`, `primario`, `marcaBrillante`) en las zonas de marca, y superficies blancas y planas donde la persona decide. El color semántico sigue reservado para comunicar estado. La interfaz debe sentirse **seria con el dinero, cercana con las personas y rápida en la calle** (revisión del 17/10/2026, ver 3.5).
 
 | Rasgo | Se expresa con | Se evita |
@@ -193,13 +195,13 @@ Contraste calculado con la fórmula WCAG 2.2 sobre el fondo indicado.
 | Token | Claro | Oscuro (HU-31) | Uso | Contraste (claro) |
 |---|---|---|---|---|
 | `fondo` | `#FFFFFF` | `#0F1218` | Fondo de pantalla y de página | — |
-| `fondoSutil` | `#F6F7F9` | `#14171E` | Área de contenido del panel web, cabecera de tablas, grupos | — |
+| `fondoSutil` | `#F7F8FA` | `#14171E` | Área de contenido del panel web, cabecera de tablas, grupos | — |
 | `superficie` | `#FFFFFF` | `#181C24` | Tarjetas, campos, barras | — |
 | `superficieElevada` | `#FFFFFF` | `#20252F` | Diálogos, hojas inferiores, menús | — |
-| `borde` | `#DDE1E8` | `#2C323D` | Separadores y contorno de tarjetas (decorativo) | — |
+| `borde` | `#E4E7EC` | `#2C323D` | Separadores y contorno de tarjetas (decorativo) | — |
 | `bordeCampo` | `#7A8396` | `#6F788A` | Contorno de campos, casillas y controles | 3,81 : 1 (≥ 3) |
-| `texto` | `#1A1F27` | `#E7EAF0` | Texto principal | 16,55 : 1 |
-| `textoSecundario` | `#535B6C` | `#A3ABBA` | Metadatos, ayudas, etiquetas | 6,82 : 1 (6,36 sobre `fondoSutil`) |
+| `texto` | `#0F1729` | `#E7EAF0` | Texto principal | 17,87 : 1 |
+| `textoSecundario` | `#475467` | `#A3ABBA` | Metadatos, ayudas, etiquetas | 7,69 : 1 (7,23 sobre `fondoSutil`) |
 | `textoPlaceholder` | `#6B7385` | `#8E97A8` | Solo marcador de posición dentro de campos (fondo `superficie`) | 4,76 : 1 |
 | `textoDeshabilitado` | `#8F98A8` | `#5B6475` | Texto de controles deshabilitados (exento de contraste en WCAG) | 2,91 : 1 |
 | `fondoDeshabilitado` | `#EEF0F4` | `#232833` | Relleno de botones deshabilitados | — |
@@ -270,7 +272,7 @@ Solo para construir los semánticos; no se usan en componentes.
 | Familia | 50 | 100 | 300 | 500 | 600 | 700 | 900 |
 |---|---|---|---|---|---|---|---|
 | Índigo (marca) | `#EEF1FF` | `#DDE4FF` | `#93A5FB` | `#4A5FE6` | `#3447CC` | `#2A39A6` | `#1D2763` |
-| Neutro | `#F6F7F9` | `#EEF0F4` | `#C3C9D4` | `#6B7385` | `#535B6C` | `#3E4553` | `#1A1F27` |
+| Neutro | `#F7F8FA` | `#EEF0F4` | `#C3C9D4` | `#6B7385` | `#475467` | `#3E4553` | `#0F1729` |
 
 ### 4.2 Tipografía [Propuesta]
 
@@ -341,10 +343,10 @@ Regla: el espacio comunica agrupación. Elementos relacionados a 8–12; grupos 
 |---|---|---|
 | `grosorBorde` | 1 | Tarjetas, separadores, campos en reposo |
 | `grosorBordeActivo` | 2 | Campo con foco o con error; anillo de foco web |
-| `radio.s` | 8 | Botones compactos, celdas de código OTP |
-| `radio.m` | 12 | Botones, campos, avisos |
-| `radio.l` | 16 | Tarjetas, diálogos |
-| `radio.xl` | 24 | Esquinas superiores de hojas inferiores |
+| `radio.s` | 8 (web 6) | Botones compactos, celdas de código OTP |
+| `radio.m` | 12 (web 8) | Botones, campos, avisos |
+| `radio.l` | 16 (web 12) | Tarjetas, diálogos |
+| `radio.xl` | 24 (web 16) | Esquinas superiores de hojas inferiores |
 | `radio.completo` | 999 | `EtiquetaEstado`, avatares, chips |
 
 ### 4.6 Elevación, sombras y capas [Propuesta]
@@ -373,7 +375,18 @@ Capas (`z-index`, web): contenido 0 · encabezado fijo 10 · menú desplegable 2
 
 Animaciones con nombre [Propuesta 17/10]: **`entradaResultado`** (el ícono de una pantalla de resultado escala de 0,6 a 1 con `curva.entrada` en `duracion.larga`, una sola vez) y **`trazoIlustracion`** (la línea de trayecto de una `Ilustracion` se dibuja de origen a destino en 600 ms, una sola vez). En móvil se hacen con `react-native-reanimated` [Existe, instalado].
 
-Reglas: la animación explica un cambio de estado o de lugar; nunca decora. Prohibido: bucles decorativos, parallax, confeti, rebotes. Si el sistema pide reducir el movimiento (`AccessibilityInfo.isReduceMotionEnabled()` / `prefers-reduced-motion`), las duraciones pasan a 0, salvo los indicadores de progreso.
+**Revisión del 08/11/2026 (PB-03, móvil).** El movimiento pasa a ser parte de la identidad de la app móvil, con estas reglas:
+
+- **Resorte común** (`resorte`: `damping 16, stiffness 240, mass 0.7`): todo lo que responde al toque o entra a pantalla usa el mismo, para que la interfaz se sienta de una sola pieza.
+- **`Toque`**: todo control táctil (botones, chips, filas, tarjetas, pestañas) se hunde a 0,86–0,98 al presionarse y vuelve con el resorte.
+- **`Entra`**: los bloques de una pantalla suben y aparecen en cascada (60 ms entre hermanos, máximo 7).
+- **`Esqueleto`**: la carga de listas, tarjetas y detalle usa marcadores que respiran (opacidad 0,55–1) en lugar de un indicador giratorio.
+- **`useConteo`**: las cifras de saldo suben hasta su valor en 900 ms, una sola vez por lectura.
+- **Cabecera de marca**: dos esferas de baja opacidad flotan despacio (4–6 s por ciclo) detrás del contenido; son decorativas y nunca compiten con el texto.
+- **Barra de pestañas flotante** (`BarraPestanas`): píldora con sombra elevada; el indicador de la pestaña activa se desliza con el resorte.
+- **Transiciones de pantalla**: `slide_from_right` en la pila; `fade` entre pestañas.
+
+Reglas: la animación comunica respuesta, jerarquía o continuidad; nunca bloquea una acción ni retrasa un dato. Prohibido: parallax, confeti y animaciones que se repitan sobre contenido que se está leyendo (las esferas de la cabecera son la única excepción). Si el sistema pide reducir el movimiento (`AccessibilityInfo.isReduceMotionEnabled()` / `prefers-reduced-motion`), `Entra` respeta `ReduceMotion.System` y las duraciones pasan a 0, salvo los indicadores de progreso.
 
 ### 4.8 Iconografía [Propuesta]
 
@@ -775,6 +788,36 @@ Lista completa de comandos: `ssd.md` §11 y pantalla `ayuda`.
 
 Implementación: un SVG por escena en `mobile/assets/ilustraciones/` y `web/src/iconos/`, dibujado desde los trazos de `marca/`. En móvil se muestra con `expo-image` [Existe, instalado; soporta SVG], sin dependencia nueva.
 
+### 8.13 Composición móvil [Propuesta — PB-03, 08/11/2026]
+
+| Componente | Archivo | Qué resuelve |
+|---|---|---|
+| `Toque`, `Entra`, `Esqueleto`, `useConteo` | `componentes/Animado.tsx` | Respuesta física, entrada escalonada, carga y conteo de cifras |
+| `BarraPestanas` | `componentes/BarraPestanas.tsx` | Barra flotante con indicador deslizante |
+| `Boton` | `componentes/Boton.tsx` | Primario con degradado y sombra de color; `suave`, `secundario`, `texto` |
+| `Campo` | `componentes/Campo.tsx` | Relleno sin contorno en reposo; borde y fondo transicionan con el foco |
+| `Baldosa` / `Atajo` | `billetera.tsx`, `index.tsx` | Acción grande con ícono en círculo y rótulo |
+
+Patrones de pantalla:
+- **Formularios de acceso** (iniciar sesión, registro): banda de marca arriba y el formulario como tarjeta que sube 28 dp sobre ella.
+- **Detalle con mapa**: mapa de portada de 300 dp, botón de volver y título flotantes sobre él, y una hoja con esquinas superiores `radio.xl` que sube sobre el mapa.
+- **Pantallas secundarias**: botón de volver y debajo el título grande (`pantalla`), sobre fondo `fondoSutil` para que las tarjetas blancas destaquen.
+- **Listas de elección** (organizaciones): una tarjeta por elemento; la activa lleva borde `primario` de 2 dp.
+
+- **Elegir un lugar** (Inicio): una fila tocable abre el mapa a pantalla completa con pin fijo al centro, buscador, «Mi ubicación» y la dirección que se actualiza sola al soltar el mapa. Escribir sigue disponible donde hay más contexto (Publicar).
+- **Hora de salida**: además del campo, botones de −15 / +15 min (`AjusteHora`) para no abrir el teclado numérico.
+- **Monto de recarga** (`Recargar`): montos rápidos en baldosas de 68 dp con respuesta física y, debajo, una tarjeta de marca con lo que se recibe (cifra de 40 dp) y lo que se paga. El código QR va en tarjeta blanca elevada.
+- **Vehículo registrado**: la placa se muestra como banda de marca con la matrícula en 26 dp y espaciado de 4; mientras consulta, esqueletos con la forma de las tarjetas.
+- **Estado del perfil**: tarjeta de progreso («N de 3 pasos listos») y una etiqueta por fila (Registrado, Vinculado, Verificada o Pendiente); se recarga al volver a la pestaña.
+
+#### Respuesta háptica
+- `Toque` emite una vibración de selección (`expo-haptics`) al presionar: toda acción tocable la tiene sin código adicional.
+- Una recarga acreditada emite la vibración de éxito.
+- Los fallos de vibración se ignoran: es un refuerzo, nunca un requisito (no sustituye al mensaje visual).
+- En Jest `expo-haptics` está simulado en `jest.setup.js`.
+
+La web no cambia de tokens: la dirección visual (índigo, neutros fríos) es la misma en los dos clientes.
+
 ---
 
 ## 9. Diseño de interacción (Interaction Design)
@@ -1075,12 +1118,12 @@ Los tokens se duplican en dos archivos (`tokens.ts` y `tokens.css`) porque los c
 // mobile/src/tema/tokens.ts
 export const claro = {
   fondo: '#FFFFFF',
-  fondoSutil: '#F6F7F9',
+  fondoSutil: '#F7F8FA',
   superficie: '#FFFFFF',
-  borde: '#DDE1E8',
+  borde: '#E4E7EC',
   bordeCampo: '#7A8396',
-  texto: '#1A1F27',
-  textoSecundario: '#535B6C',
+  texto: '#0F1729',
+  textoSecundario: '#475467',
   primario: '#3447CC',
   primarioPresionado: '#2A39A6',
   sobrePrimario: '#FFFFFF',
