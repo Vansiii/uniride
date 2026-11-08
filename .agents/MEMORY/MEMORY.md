@@ -96,6 +96,13 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 | D-17 | Calificación en HU-18 | Los resultados de búsqueda muestran calificación, pero HU-21 (calificaciones) está en Reserva. Opciones: ocultar hasta HU-21 o subir HU-21 | HU-18 | Documento §5–§6 |
 | D-18 | 50 % retenido en cancelación tardía | HU-20: si el pasajero cancela con < 30 min recibe el 50 %. No se define a dónde va el otro 50 % (¿al conductor?) | HU-20, PB-04 (función `refund`) | Documento §6 |
 | D-19 | Idioma de identificadores | Propuesta: inglés en código; español en textos de usuario y documentación | SP02–SP05 | `AGENTS.md` §7 |
+| D-22 | Llave de trayecto (S3) | **Resuelta el 08/11** (entrada «Resuelve D-22 a D-27»). La llave de HU-09 pide huella en cada firma; el código rotativo (HU-22) y las posiciones cada 15 s (HU-23) no pueden pedirla. Ver entrada 2026-11-08 | HU-22, HU-23 | Prototipo S2 · `AGENTS.md` §14 |
+| D-23 | Estados de reserva vs. viaje (S3) | **Resuelta el 08/11** (entrada «Resuelve D-22 a D-27»). La máquina de estados es por viaje, pero un viaje tiene varios pasajeros con abordaje, bajada y pago propios | HU-19, HU-22, HU-23, HU-24 | `AGENTS.md` §5.9, §14 |
+| D-24 | Verificación fallida (S3) | **Resuelta el 08/11** (entrada «Resuelve D-22 a D-27»). Ninguna fuente dice qué pasa con el escrow si la bajada o la traza no se verifican | HU-23, HU-20 | `AGENTS.md` §14 |
+| D-25 | Centavos impares en el 50 % | **Resuelta el 08/11** (entrada «Resuelve D-22 a D-27»). `reembolsar` al 50 % de 12,35 da 6,175; el libro guarda 2 decimales (HEARTBEAT 07/11) | HU-19, HU-20 | MEMORY 2026-11-07 HU-14 |
+| D-26 | Viajes propios en la búsqueda | **Resuelta el 08/11** (entrada «Resuelve D-22 a D-27»). La búsqueda muestra al conductor sus propios viajes (HEARTBEAT 07/11) | HU-19 | HU-18 |
+| D-27 | Cuenta suspendida con viajes o reservas | **Resuelta el 08/11** (entrada «Resuelve D-22 a D-27»). Sus viajes no salen en la búsqueda pero siguen `publicado` y las reservas siguen activas (HEARTBEAT 07/11) | HU-19, HU-20 | `AGENTS.md` §14 |
+| D-28 | Salida a la llave anulada por huella nueva | **Resuelta el 08/11**: HU-10 sube a S3 (entrada «Resuelve D-28») | HU-10, HU-29 | HEARTBEAT 07/11 |
 
 **Archivos afectados:** `SPECS/ssd.md`, `SPECS/roadmap.md`, `.agents/MEMORY/HEARTBEAT.md`.
 
@@ -1116,3 +1123,88 @@ Los dos se vieron en el teléfono físico.
 
 **Verificado:** `verificar.py mobile --rapido` en verde (lint, tipos, pruebas). Los textos nuevos se comprobaron con Jest y no se vieron en el navegador.
 
+
+---
+
+## 2026-11-08 · Specs del Sprint 3 en borrador y decisiones D-22 a D-27
+
+**Evento:** Se redactan en borrador las specs de HU-29, HU-19, HU-22, HU-23 y HU-24 (`SPECS/features/sprint-3/`), en ese orden de dependencia (32 PHU). Faltan la aprobación del PO y, después, los planes. Al revisar el estado se comprobó que todo S2 (HU-12, HU-13, HU-14, HU-17, HU-18) y `fix/dependencias-audit` ya están fusionados en `develop` de `backend` (`dd0b63f`); el HEARTBEAT del 07/11 los da como PR abiertos.
+
+**Valores nuevos propuestos en las specs (los aprueba el PO):** ventana de abordaje de −30 min a +15 min de la hora de salida; posición válida con precisión ≤ 50 m y tomada hace ≤ 30 s; reservar hasta la hora de salida; pares de puntos a ≤ 15 s; mínimo 4 pares; un punto con ubicación simulada invalida la reserva; 100 % al conductor sin comisión.
+
+**Decisiones abiertas, con recomendación (ninguna se toma sin el equipo):**
+
+| ID | Recomendación | Alternativa |
+|---|---|---|
+| D-22 | Segunda llave de hardware no exportable **sin** biometría, creada por viaje: el conductor al abrir «Mostrar código» y el pasajero al abordar la registran con una petición firmada por la llave biométrica; firma el código rotativo y las posiciones, y vence al terminar la reserva. Mantiene la cadena de confianza y no exige volver a vincular | Ventana de validez de la llave biométrica (p. ej. 30 min): más simple, pero debilita HU-29 RN-3 para todas las acciones. Riesgo ya anotado en el prototipo de S2 |
+| D-23 | La reserva lleva su propio estado (`pendiente` → `confirmada` → `abordada` → `verificada` → `pagada`, más `fallida` y `verificacion_fallida`; HU-20 agrega `cancelada` y `expirada`). El viaje se deriva: `reservado` con ≥ 1 confirmada, `en_curso` con el primer abordaje, `verificado` cuando todas las abordadas se verificaron y no queda ninguna confirmada sin abordar, `pagado` cuando todas las verificadas se pagaron. El escrow se libera por reserva | Estado solo por viaje: no representa a dos pasajeros con bajadas distintas |
+| D-24 | Retener el escrow con alerta en auditoría y resolver en HU-20 (regla) o HU-26 (revisión del admin). Así un teléfono sin batería no regala ni quita el dinero | Reembolso automático del 100 % al pasajero: perjudica al conductor honesto |
+| D-25 | Exigir precio por asiento en múltiplos de 0,02 URC al publicar (cambio menor en HU-17); sin tocar el contrato | Redondear en el contrato (contrato desplegado, §14) o ampliar decimales del libro |
+| D-26 | Ocultar los viajes propios en la búsqueda; reservar el propio se rechaza siempre (HU-19 CA-9; el contrato ya revierte si pagador = conductor) | Mostrarlos marcados como «Tu viaje» |
+| D-27 | En S3: una cuenta suspendida no reserva y su viaje no admite reservas nuevas. Lo ya reservado se resuelve con HU-20 | Cancelar en cascada ahora (máquina de estados, §14) |
+
+**Riesgos detectados para el plan:** Play Integrity sigue simulada (HU-22 CA-7 no se declara verificado sin la real); seguimiento con pantalla apagada exige servicio en primer plano y permiso de ubicación en segundo plano en Android; la cuenta verificadora necesita llave propia en desarrollo (hoy solo existe `RELAYER_LLAVE_PRIVADA`) y en producción entra a SP129; huella nueva anula la llave (HU-10) y puede romper la demo; el guard de firma no valida atestación por petición, solo al vincular.
+
+**Archivos afectados:** `SPECS/features/sprint-3/*/spec.md`, `SPECS/roadmap.md`, `.agents/MEMORY/MEMORY.md`.
+
+---
+
+## 2026-11-08 · Resuelve D-22 a D-27 (delegadas por el integrante)
+
+**Evento:** El integrante delega las seis decisiones al criterio del agente («tú eres el experto»). Se adoptan las recomendaciones de la entrada anterior. Las que tocan `AGENTS.md` §14 (D-22 capa de verificación, D-23 máquina de estados, D-24 escrow) quedan autorizadas por esa delegación; ninguna cambia el contrato desplegado.
+
+**Decisión:**
+1. **D-22:** llave de trayecto: segunda llave de hardware no exportable y sin biometría en el mismo módulo nativo (`llave-dispositivo`), sin dependencias nuevas. Su llave pública viaja en el cuerpo de una petición F+B (conductor al pedir el primer código, pasajero en el handshake de abordaje), así queda atada a la biometría del dueño. Firma el código rotativo y las posiciones; vale solo para ese viaje o esa reserva. La llave biométrica no cambia (HU-29 RN-3: una huella por acción).
+2. **D-23:** estado por reserva (`pendiente`, `confirmada`, `abordada`, `verificada`, `pagada`, `fallida`, `verificacion_fallida`; HU-20 agrega `cancelada` y `expirada`). El estado del viaje se deriva y no gana transiciones nuevas: `reservado` con ≥ 1 confirmada, `en_curso` con el primer abordaje, `verificado` cuando todas las abordadas se verificaron y no queda ninguna confirmada sin abordar, `pagado` cuando todas las verificadas se pagaron. El escrow se libera por reserva (el contrato ya trabaja por `idReserva`).
+3. **D-24:** una verificación fallida retiene el escrow con alerta en auditoría; la resuelve HU-20 o HU-26.
+4. **D-25:** precio por asiento en múltiplos de 0,02 URC, validado al publicar (ajuste menor de HU-17 dentro de HU-19). Sin cambio de contrato ni de decimales del libro.
+5. **D-26:** la búsqueda oculta los viajes propios; reservar el propio se rechaza siempre.
+6. **D-27:** cuenta suspendida no reserva y su viaje no admite reservas nuevas; lo ya reservado, con HU-20.
+
+**Por qué:** es lo más simple que respeta las cinco capas: no debilita la biometría de las acciones de dinero (D-22), no agrega estados al viaje (D-23), no mueve dinero sin prueba (D-24) y no toca el contrato desplegado (D-25).
+
+**Archivos afectados:** `SPECS/features/sprint-3/*/spec.md`, `SPECS/ssd.md` §6 y §9, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+---
+
+## 2026-11-08 · Resuelve D-28: HU-10 sube a S3
+
+**Evento:** El integrante pide resolver que una huella nueva deje la cuenta sin salida. Causa en el código: `LlaveDispositivoModule.kt` crea la llave con `setInvalidatedByBiometricEnrollment(true)` y reduce `KeyPermanentlyInvalidatedException` a `KEYSTORE_NO_DISPONIBLE`, que la app traduce como «Actualiza la app»; y `DispositivosService.emitirDesafio`/`vincular` rechazan con `DISPOSITIVO_YA_VINCULADO` si hay un dispositivo activo, con `UNIQUE(usuario_id)` en `dispositivos`.
+
+**Decisión:**
+1. **Se mantiene la anulación por huella nueva** (A-04): quitarla dejaría que quien conoce el PIN agregue su huella y firme como el dueño.
+2. **HU-10 sube de Reserva a S3 como Must (5 PHU, S3 pasa a 37):** volver a vincular, en el mismo teléfono o en uno nuevo, con prueba de vida + comparación ≥ 90 % con la foto del carnet ya guardada (`MotorFacial.compararRostros`, umbrales y bloqueo de 3 fallos / 24 h de HU-08), integridad y llave nueva; el dispositivo anterior queda inactivo en la misma transacción y su llave deja de valer. Sin identidad aprobada basta la integridad (no hay dinero ni viajes que proteger). Aviso por correo en cada revinculación.
+3. **Para el plan:** código nativo propio `LLAVE_ANULADA` y mensaje correcto; `UNIQUE(usuario_id)` pasa a índice único parcial sobre `activo` (como ya dice `ssd.md` §6, sin borrar datos); invalidar las llaves de trayecto del teléfono anterior (D-22); el `FirmaDispositivoGuard` ya busca solo el activo.
+
+**Riesgo:** depende de la prueba de vida nativa de HU-08, aún pendiente en la app.
+
+**Archivos afectados:** `SPECS/features/sprint-3/HU-10-cambio-dispositivo/spec.md`, `SPECS/features/sprint-3/HU-29-confirmacion-biometrica/spec.md`, `SPECS/roadmap.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+---
+
+## 2026-11-08 · Specs del Sprint 3 aprobadas y planes en borrador
+
+**Evento:** El PO aprueba las 6 specs de S3 (HU-10, HU-29, HU-19, HU-22, HU-23, HU-24). Se redactan sus `plan.md` en borrador, para revisión del equipo por PR. Tareas propuestas SP134–SP176 (todavía no van al backlog).
+
+**Desvíos de `ssd.md` (se aplican en §6 y §8):**
+1. **Encuentro por viaje:** `desafios_handshake` lleva `viaje_id` (un QR sirve a cualquier pasajero, un uso cada uno) y guarda la posición del conductor; `POST /reservas/{id}/desafios` pasa a `POST /viajes/{id}/desafios`.
+2. **Handshakes:** `POST /reservas/{id}/handshakes` se divide en `/abordaje` y `/bajada`.
+3. **Llave de trayecto (D-22):** `POST /viajes/{id}/llave-trayecto` (conductor, F+B); el pasajero manda la suya en el abordaje. `FirmaTrayectoGuard` reutiliza la verificación de `FirmaDispositivoGuard`. La llave queda atada al `dispositivo_id`: si HU-10 desactiva ese teléfono, deja de valer sin código extra.
+4. **Posiciones:** `puntos_gps` es por viaje y usuario (la del conductor sirve a todas sus reservas), con lotes `POST /viajes/{id}/posiciones` y `POST /reservas/{id}/posiciones`.
+5. **Integridad sin ida y vuelta:** el nonce de Play Integrity del abordaje y de la llave del conductor es el `X-Nonce` de la misma petición firmada.
+6. **QR dibujado en el servidor** con `qrcode` (ya instalado); la app no necesita librería de QR.
+7. **Estado del viaje en un solo lugar:** `EstadoViajeService.recalcular`, solo hacia adelante (D-23).
+
+**Hallazgos para la implementación:** el worker on-chain está escrito solo para recargas (se generaliza por `operacion`); `ResumenLibro.contable` solo suma confirmados, así que el saldo de una reserva resta además los bloqueos pendientes; el despliegue de Ignition no otorga los roles; el contrato no cambia (`reservas(id)` da la idempotencia).
+
+**Dependencias nuevas que piden autorización (§14):** `expo-camera` (HU-22) y `expo-task-manager` (HU-23), ambas oficiales de Expo y MIT.
+
+**Archivos afectados:** `SPECS/features/sprint-3/*/{spec,plan}.md`, `SPECS/ssd.md`, `SPECS/roadmap.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+---
+
+## 2026-11-08 · Planes del Sprint 3 aprobados
+
+**Evento:** El integrante aprueba los 6 planes de S3 y autoriza lo que exige `AGENTS.md` §14: migraciones `013`–`016` (no destructivas), estados de reserva y viaje derivado (D-23), escrow (bloqueo y liberación), capas de encuentro y trayecto (D-22), y las dependencias `expo-camera` y `expo-task-manager`. También autoriza crear la rama, el commit, el PR de la raíz y fusionarlo. Tareas SP134–SP176 cargadas en `backlog.md`.
+
+**Archivos afectados:** `SPECS/features/sprint-3/*/plan.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.

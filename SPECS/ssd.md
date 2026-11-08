@@ -140,10 +140,11 @@ Claves primarias UUID. Todas las tablas tienen `creado_en`. En Prisma, cada `mod
 | `dispositivos` | usuario_id, llave_publica, veredicto_atestacion, estado, vinculado_en | un dispositivo activo por usuario (índice único parcial) | persona |
 | `vehiculos` | propietario_id, placa, marca, modelo, color, capacidad, clave_s3_foto, consentimiento_foto_en | `UNIQUE(placa)`, `UNIQUE(propietario_id)` (v1), `capacidad BETWEEN 1 AND 6`, placa `^[0-9]{3,4}[A-Z]{3}$` | persona |
 | `viajes` | organizacion_id, conductor_id, vehiculo_id, origen, destino, sale_en, cupos_totales, cupos_disponibles, precio_urc, estado | `0 ≤ cupos_disponibles ≤ cupos_totales ≤ vehiculo.capacidad`; `precio_urc ≤ organizaciones.precio_maximo_urc` | sí |
-| `reservas` | organizacion_id, viaje_id, pasajero_id, monto_urc, estado, clave_idempotencia | `UNIQUE(viaje_id, pasajero_id)`, `UNIQUE(clave_idempotencia)` | sí |
-| `desafios_handshake` | organizacion_id, reserva_id, tipo (`abordaje`/`bajada`), nonce, vence_en, usado_en | `UNIQUE(nonce)`; vence 30 s; un solo uso | sí |
-| `pruebas_presencia` | organizacion_id, reserva_id, tipo, firma_conductor, firma_pasajero, posicion_conductor, posicion_pasajero, distancia_m, resultado, hash_prueba | `distancia_m ≤ 50` para aceptar | sí |
-| `puntos_gps` | organizacion_id, reserva_id, usuario_id, lat, lng, registrado_en, firma, ubicacion_simulada | | sí |
+| `reservas` | organizacion_id, viaje_id, pasajero_id, monto_urc, estado (`pendiente`/`confirmada`/`abordada`/`verificada`/`pagada`/`fallida`/`verificacion_fallida`; HU-20 agrega `cancelada`/`expirada`, D-23), clave_idempotencia, llave_trayecto_pasajero | `UNIQUE(viaje_id, pasajero_id)` para reservas activas, `UNIQUE(clave_idempotencia)` | sí |
+| `llaves_trayecto` | organizacion_id, viaje_id, reserva_id (nulo para el conductor), usuario_id, llave_publica, vence_en | una activa por participante y viaje; se registra en una petición F+B (D-22) | sí |
+| `desafios_handshake` | organizacion_id, viaje_id, tipo (`abordaje`/`bajada`), nonce, posición del conductor, vence_en, usado_en, reserva_id (quién lo usó) | `UNIQUE(nonce)`; vence 30 s; un solo uso (HU-22) | sí |
+| `pruebas_presencia` | organizacion_id, reserva_id, desafio_id, tipo, posición del pasajero, distancia_m, veredicto_integridad, resultado, motivo, hash_prueba | `distancia_m ≤ 50` para aceptar; una aceptada por reserva y tipo | sí |
+| `puntos_gps` | organizacion_id, viaje_id, usuario_id, lat, lng, precision_m, tomada_en, simulada | `UNIQUE(viaje_id, usuario_id, tomada_en)`; la firma se verifica por lote (HU-23) | sí |
 | `billeteras` | usuario_id, direccion, llave_custodia_ref | `UNIQUE(usuario_id)`, `UNIQUE(direccion)`; la llave privada solo cifrada, nunca legible | persona |
 | `ordenes_recarga` | usuario_id, billetera_id, monto, estado (`pendiente`/`procesando`/`completada`/`expirada`), hash_tx, expira_en, completada_en | `monto BETWEEN 10 AND 500` | persona |
 | `movimientos_billetera` | billetera_id, tipo (`recarga`/`bloqueo_reserva`/`liberacion_viaje`/`reembolso_reserva`; `retiro` y `subsidio` se agregan con HU-16 y HU-24), monto, reserva_id, clave_idempotencia, estado (`pendiente`/`confirmado`/`fallido`), hash_tx | `UNIQUE(clave_idempotencia)`; solo inserción (un trigger permite cambiar únicamente `estado` y `hash_tx`) | persona |
@@ -222,9 +223,13 @@ Prefijo `/api/v1`. **F** = exige firma de dispositivo + atestación (`FirmaDispo
 | POST | `/billetera/recargas/{id}/confirmar` | miembro verificado | F B | HU-13 |
 | GET | `/billetera/recargas/{id}` | miembro verificado | | HU-13 |
 | POST | `/viajes/{id}/reservas` | pasajero verificado | F B | HU-19 |
-| POST | `/reservas/{id}/desafios` | conductor verificado | F | HU-22, HU-23 |
-| POST | `/reservas/{id}/handshakes` | pasajero verificado | F B | HU-22, HU-23 |
-| POST | `/reservas/{id}/posiciones` | conductor / pasajero | F | HU-23 |
+| GET | `/reservas/{id}`, `/reservas/mias`, `/viajes/{id}/pasajeros` | participante | | HU-19 |
+| POST | `/dispositivos/revinculacion`, `/dispositivos/revincular` | autenticado | | HU-10 |
+| POST | `/viajes/{id}/llave-trayecto` | conductor verificado | F B | HU-22 |
+| POST | `/viajes/{id}/desafios` | conductor verificado | llave de trayecto | HU-22, HU-23 |
+| POST | `/reservas/{id}/abordaje` | pasajero verificado | F B | HU-22 |
+| POST | `/reservas/{id}/bajada` | pasajero verificado | F B | HU-23 |
+| POST | `/viajes/{id}/posiciones`, `/reservas/{id}/posiciones` | conductor / pasajero | llave de trayecto | HU-23 |
 | GET | `/reservas/{id}` | participante | F | HU-28 |
 | POST | `/reservas/{id}/cancelar` | pasajero | F B | HU-20 |
 | POST | `/viajes/{id}/cancelar` | conductor | F B | HU-20 |
@@ -286,6 +291,8 @@ sequenceDiagram
 | Los viajes no crean saldo; patrones repetitivos → alerta | A-10 |
 | Relayer y verificador en KMS (el backend solo pide firmas); llaves de usuario cifradas con AES-256-GCM | A-12 |
 | `organizacion_id` + RLS + `OrganizacionGuard` | A-13 |
+
+**Llave de trayecto (D-22):** el código rotativo del conductor y las posiciones cada 15 s se firman con una segunda llave de hardware sin biometría, registrada dentro de una petición F+B y válida solo para ese viaje o reserva. El estado del viaje se deriva de sus reservas (D-23); el escrow se libera por reserva.
 
 El modo emulador de desarrollo (`MODO_EMULADOR_DEV`) solo omite la atestación, está en `false` por defecto y el arranque falla si vale `true` con `NODE_ENV=production`.
 

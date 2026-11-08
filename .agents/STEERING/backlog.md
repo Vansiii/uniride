@@ -195,9 +195,59 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP132 · Lo que `audit fix` no corrige y no pide `--force`: `vitest` y `@vitest/coverage-v8` 4.1.11 → 4.1.12 en `backend` (`@vitest/mocker`, moderada, solo desarrollo) — 0,5h — @[POR DEFINIR] · @agente 07/11: pedido por el integrante; `backend` queda con 0 vulnerabilidades y regresión completa en verde. En `mobile` no hay nada más sin versión mayor
 - [x] SP133 · Actualizar el SDK de Expo 57 → 58 en `mobile` (React Native 0.88.1, React 19.3, Jest 30, gesture-handler 3, reanimated 4.7): quita las 3 altas de `expo-router` 57 (decode-uri-component, query-string) — 3h — @[POR DEFINIR] · @agente 07/11: confirmado por el integrante (AGENTS.md §14). De 23 (3 altas) a 22 moderadas y 1 baja en producción, dentro del propio `expo` (glob, minimatch), sin versión que las corrija. `testTimeout` a 15 s: en frío, la primera prueba de las pantallas con foto pasaba de 5 s. Regresión completa en verde (163 pruebas también con caché vacía) y APK de debug compilado con Gradle. En Windows, la compilación nativa necesita rutas largas (`LongPathsEnabled=1`) y CMake 3.31.6 del SDK: gesture-handler 3 trae C++ con rutas de más de 260 caracteres
 
+## Sprint 3 · Viaje completo verificado y pagado
 
+### HU-10 · Volver a vincular o cambiar de teléfono (16,5 h)
+- [ ] SP134 · Migración `013_dispositivos_historial` y ajuste de Prisma (1–N, `findFirst` activo) — 1,5h — @[POR DEFINIR]
+- [ ] SP135 · `IdentidadService.comprobarRostroDelTitular` con bloqueo de HU-08 — 2h — @[POR DEFINIR]
+- [ ] SP136 · `RevinculacionService` + endpoints + Swagger + correo + auditoría — 3h — @[POR DEFINIR]
+- [ ] SP137 · Pruebas e2e y de ataque A-01, A-02, A-03, A-04 — 3h — @[POR DEFINIR]
+- [ ] SP138 · Módulo nativo: códigos `LLAVE_ANULADA`, `SIN_LLAVE`, `SIN_BIOMETRIA`, `BIOMETRIA_BLOQUEADA`; `keystore.ts` — 2h — @[POR DEFINIR]
+- [ ] SP139 · Mobile: aviso de llave anulada y flujo de revinculación en «Mi teléfono»; textos — 4h — @[POR DEFINIR]
+- [ ] SP140 · Prueba en teléfono físico: registrar huella nueva y volver a vincular — 1h — @[POR DEFINIR]
 
+### HU-29 · Confirmación biométrica (8 h)
+- [ ] SP141 · `@AccionSensible` y migración de los controladores existentes; Swagger — 1,5h — @[POR DEFINIR]
+- [ ] SP142 · Pruebas de catálogo y de ataque A-08/A-11 — 2h — @[POR DEFINIR]
+- [ ] SP143 · Mobile: `ConfirmacionBiometrica`, `useAccionSensible`, textos por acción; adoptarlo en recargar, publicar y billetera — 4h — @[POR DEFINIR]
+- [ ] SP144 · Prueba en teléfono físico: huella ajena, cancelar, bloqueo — 0,5h — @[POR DEFINIR]
 
+### HU-19 · Reserva con escrow (25,5 h)
+- [ ] SP145 · Migración `014_reservas` (RLS, índices, FK) y modelos Prisma — 2h — @[POR DEFINIR]
+- [ ] SP146 · `EstadoViajeService.recalcular` con pruebas — 1,5h — @[POR DEFINIR]
+- [ ] SP147 · `ReservasService.reservar` + endpoints + Swagger — 4h — @[POR DEFINIR]
+- [ ] SP148 · `Cadena.bloquearReserva`/`estadoReservaEscrow` (real y simulada), permit con llave custodiada, worker por `operacion` — 4h — @[POR DEFINIR]
+- [ ] SP149 · HU-17: precio múltiplo de 0,02; HU-18: sin viajes propios — 1h — @[POR DEFINIR]
+- [ ] SP150 · Pruebas e2e y de ataque A-08, A-09, A-10, A-13 — 4h — @[POR DEFINIR]
+- [ ] SP151 · Mobile: confirmación de reserva, resultado y estado — 4h — @[POR DEFINIR]
+- [ ] SP152 · Mobile: pestaña «Mis viajes» y tarjeta del viaje activo — 4h — @[POR DEFINIR]
+- [ ] SP153 · Prueba real de bloqueo contra `EscrowUniRide` en Hardhat local — 1h — @[POR DEFINIR]
 
+### HU-22 · Verificación de abordaje (25 h)
+- [ ] SP154 · Migración `015_presencia` (3 tablas, RLS) y modelos — 2h — @[POR DEFINIR]
+- [ ] SP155 · Extraer `verificarFirmaPeticion` y crear `FirmaTrayectoGuard` — 2h — @[POR DEFINIR]
+- [ ] SP156 · Llave de trayecto del conductor y desafíos con QR — 3h — @[POR DEFINIR]
+- [ ] SP157 · Abordaje: consumo, validaciones, integridad, prueba con hash, estados — 4h — @[POR DEFINIR]
+- [ ] SP158 · Pruebas e2e y de ataque A-03, A-05, A-06, A-07, A-08, A-13 — 4h — @[POR DEFINIR]
+- [ ] SP159 · Módulo nativo: llave de trayecto sin biometría; `cabecerasFirmaTrayecto` — 2h — @[POR DEFINIR]
+- [ ] SP160 · Mobile: «Mostrar código» del conductor — 3h — @[POR DEFINIR]
+- [ ] SP161 · Mobile: «Escanear QR» con `expo-camera` (dependencia autorizada el 08/11) y resultados — 4h — @[POR DEFINIR]
+- [ ] SP162 · Prueba con dos teléfonos físicos y medición < 3 s — 1h — @[POR DEFINIR]
 
+### HU-23 · Seguimiento y bajada (24 h)
+- [ ] SP163 · Migración `016_puntos_gps` y `reservas.evaluacion` — 1h — @[POR DEFINIR]
+- [ ] SP164 · `evaluarTrayecto` con pruebas de borde — 3h — @[POR DEFINIR]
+- [ ] SP165 · Endpoints de posiciones (lotes, filtros, idempotencia) — 3h — @[POR DEFINIR]
+- [ ] SP166 · Bajada: encuentro, evaluación, estados y alerta — 3h — @[POR DEFINIR]
+- [ ] SP167 · Pruebas e2e y de ataque A-05, A-06, A-07, A-08, A-13 — 4h — @[POR DEFINIR]
+- [ ] SP168 · Mobile: seguimiento en segundo plano con `expo-task-manager` (dependencia autorizada el 08/11) y permisos — 5h — @[POR DEFINIR]
+- [ ] SP169 · Mobile: viaje en curso y bajada — 3h — @[POR DEFINIR]
+- [ ] SP170 · Viaje real con dos teléfonos (pantalla apagada, sin señal) — 2h — @[POR DEFINIR]
 
+### HU-24 · Liberación del pago (16 h)
+- [ ] SP171 · `Cadena.liberarReserva` con cuenta verificadora (real y simulada), `VERIFICADOR_LLAVE_PRIVADA` y bloqueo en producción — 3h — @[POR DEFINIR]
+- [ ] SP172 · `hashPruebaPresencia` y encolado en la bajada verificada — 2h — @[POR DEFINIR]
+- [ ] SP173 · Worker `liberar_reserva`: idempotencia, estados y auditoría — 3h — @[POR DEFINIR]
+- [ ] SP174 · Pruebas e2e y de ataque A-09, A-10, A-12; viaje completo — 4h — @[POR DEFINIR]
+- [ ] SP175 · Mobile: estado del pago para conductor y pasajero — 2h — @[POR DEFINIR]
+- [ ] SP176 · Viaje completo real contra Hardhat local y documentación de roles del despliegue — 2h — @[POR DEFINIR]
