@@ -12,7 +12,7 @@
 | S0 | 14/10 – 20/10/2026 | Dejar listo el terreno técnico | 18 | — |
 | S1 | 21/10 – 27/10/2026 | Organizaciones y cuentas funcionando | 26 | — |
 | S2 | 28/10 – 03/11/2026 | Identidad verificada, billetera activa y viajes publicados | 39 | — |
-| S3 | 04/11 – 10/11/2026 | Viaje completo verificado y pagado | 32 | 1.0 |
+| S3 | 04/11 – 10/11/2026 | Viaje completo verificado y pagado | 37 (32 + HU-10, D-28) | 1.0 |
 | S4 | 11/11 – 17/11/2026 | Voz, cancelaciones y calidad | 34 | 2.0 |
 | Defensa | `[POR DEFINIR]` | Demo en vivo con dos teléfonos y dos organizaciones | — | — |
 
@@ -58,11 +58,12 @@ Tareas concretas: `/.agents/STEERING/backlog.md`.
 | HU-13 | Recarga de saldo | Como pasajero quiero recargar saldo para pagar mis viajes | Alta (Must) | 5 | S2 | backend, contrato y móvil implementados y verificados, también con huella en teléfono físico, y revisados (07/11); falta PR y SP129 al desplegar | HU-12, HU-09 (biometría, ver D-13) |
 | HU-14 | Saldo e historial | Como usuario quiero ver saldo y movimientos para controlar mi dinero | Alta (Must) | 3 | S2 | implementada | HU-12 |
 | HU-18 | Buscar viajes | Como pasajero quiero buscar viajes por destino y hora para encontrar uno que me sirva | Alta (Must) | 5 | S2 | en curso | HU-17 (calificación, ver D-17) |
-| HU-29 | Confirmación biométrica | Como usuario quiero confirmar con huella o rostro las acciones sensibles para que nadie las haga en mi nombre | Alta (Must) | 3 | S3 | pendiente | HU-09 |
-| HU-19 | Reserva con escrow | Como pasajero quiero reservar y que mi pago quede en garantía para pagar solo si el viaje ocurre | Alta (Must) | 8 | S3 | pendiente | HU-18, HU-13, HU-29, PB-04 |
-| HU-22 | Verificación de abordaje | Como conductor y pasajero queremos confirmar que nos encontramos para iniciar el viaje con prueba válida | Alta (Must) | 8 | S3 | pendiente | HU-19, HU-09 |
-| HU-23 | Seguimiento y bajada | Como sistema quiero comparar las trazas GPS para confirmar que viajaron juntos | Alta (Must) | 8 | S3 | pendiente | HU-22 |
-| HU-24 | Liberación del pago | Como conductor quiero recibir el pago automáticamente tras un viaje verificado para no depender del pasajero | Alta (Must) | 5 | S3 | pendiente | HU-23, PB-04 |
+| HU-10 | Cambio de dispositivo | Como usuario quiero volver a vincular mi teléfono o cambiarlo con nueva verificación para no perder mi cuenta | Alta (Must, D-28) | 5 | S3 | plan aprobado | HU-08, HU-09 |
+| HU-29 | Confirmación biométrica | Como usuario quiero confirmar con huella o rostro las acciones sensibles para que nadie las haga en mi nombre | Alta (Must) | 3 | S3 | plan aprobado | HU-09 |
+| HU-19 | Reserva con escrow | Como pasajero quiero reservar y que mi pago quede en garantía para pagar solo si el viaje ocurre | Alta (Must) | 8 | S3 | plan aprobado | HU-18, HU-13, HU-29, PB-04 |
+| HU-22 | Verificación de abordaje | Como conductor y pasajero queremos confirmar que nos encontramos para iniciar el viaje con prueba válida | Alta (Must) | 8 | S3 | plan aprobado | HU-19, HU-09 |
+| HU-23 | Seguimiento y bajada | Como sistema quiero comparar las trazas GPS para confirmar que viajaron juntos | Alta (Must) | 8 | S3 | plan aprobado | HU-22 |
+| HU-24 | Liberación del pago | Como conductor quiero recibir el pago automáticamente tras un viaje verificado para no depender del pasajero | Alta (Must) | 5 | S3 | plan aprobado | HU-23, PB-04 |
 | HU-20 | Cancelación con reembolso | Como pasajero o conductor quiero cancelar con reglas claras para no perder dinero injustamente | Alta (Must) | 5 | S4 | pendiente | HU-19, HU-22 |
 | HU-27 | Reservar por voz | Como pasajero quiero buscar y reservar diciendo destino y hora para no escribir | Alta (Must) | 5 | S4 | pendiente | HU-18, HU-19, HU-29 |
 | HU-28 | Consultas por voz | Como usuario quiero preguntar saldo, estado del viaje o cancelar por voz para usar la app con las manos ocupadas | Alta (Must) | 5 | S4 | pendiente | HU-14, HU-20, HU-23 |
@@ -70,7 +71,6 @@ Tareas concretas: `/.agents/STEERING/backlog.md`.
 | HU-30 | Prueba de usabilidad (SUS) | Como equipo queremos medir la usabilidad con 5 usuarios para demostrar que la interfaz es intuitiva | Alta (Must) | 3 | S4 | pendiente | HU-27, HU-28 |
 | HU-25 | Detección de anomalías | Como sistema quiero detectar patrones de colusión y bloquear preventivamente para evitar fraude | Media (Should) | 5 | S4 | pendiente | HU-24 |
 | HU-04 | Tarifas y viajes entre organizaciones | Como admin. de organización quiero configurar tarifas y con qué organizaciones se comparten viajes | Media (Should) | 3 | S4 | pendiente | HU-02, HU-17 |
-| HU-10 | Cambio de dispositivo | Como usuario quiero cambiar de teléfono con nueva verificación para no perder mi cuenta | Media (Should) | 5 | Reserva | pendiente | HU-08, HU-09 |
 | HU-16 | Retiro de saldo | Como conductor quiero retirar saldo (simulado) para cobrar lo ganado | Media (Should) | 3 | Reserva | pendiente | HU-14, HU-29 |
 | HU-21 | Calificación mutua | Como usuario quiero calificar a la otra parte tras el viaje para construir confianza | Media (Should) | 3 | Reserva | pendiente | HU-24 |
 | HU-26 | Alertas de fraude | Como admin. de organización quiero revisar alertas de fraude para actuar a tiempo | Media (Should) | 3 | Reserva | pendiente | HU-25 |
@@ -87,7 +87,7 @@ Tareas concretas: `/.agents/STEERING/backlog.md`.
 | Requisito | HU comprometidas (S0–S4) | Refuerzo en Reserva |
 |---|---|---|
 | 1. Multi-cliente | PB-02, HU-01, HU-02, HU-03, HU-05, HU-06, HU-07, HU-34, HU-04 | HU-26, HU-32, HU-33 |
-| 2. Verificación invulnerable | HU-08, HU-09, HU-29, HU-22, HU-23, HU-24, HU-25, PB-05 | HU-10 |
+| 2. Verificación invulnerable | HU-08, HU-09, HU-10, HU-29, HU-22, HU-23, HU-24, HU-25, PB-05 | — |
 | 3. Billetera blockchain | PB-04, HU-12, HU-13, HU-14, HU-19, HU-24, HU-20 | HU-15, HU-16 |
 | 4. Interfaz navegable con voz | PB-03, HU-27, HU-28, HU-29, HU-30 | HU-31 |
 
