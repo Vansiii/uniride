@@ -650,3 +650,16 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 5. **Pendiente:** SP133 (actualizar el SDK de Expo para lo que pide `--force`; versión mayor, requiere confirmación).
 
 **Archivos afectados:** `backend/package.json`, `backend/package-lock.json`, `mobile/package-lock.json`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+## 2026-11-07 · Expo SDK 57 → 58 en `mobile` (SP133)
+
+**Evento:** El integrante confirma la subida de versión mayor (AGENTS.md §14) para quitar las 3 vulnerabilidades altas que quedaron tras SP131 (`expo-router` 57: decode-uri-component, query-string). Va en la misma rama `fix/dependencias-audit` de `mobile`.
+
+**Decisión:**
+1. **Versiones:** las que pide `expo install --fix` para el SDK 58: expo 58.0.23, React Native 0.88.1, React 19.3.0, gesture-handler 3.3, reanimated 4.7.1, worklets 0.13, Jest 30.5, jest-expo y eslint-config-expo 58. `expo install --fix` falla por un conflicto de pares con el árbol viejo; las versiones se escriben en `package.json` y se instala con `npm install`. No cambia código de la app.
+2. **Resultado del audit en producción:** 22 moderadas y 1 baja, todas dentro del propio `expo` (glob, minimatch); `--force` solo propone bajar a expo 52.
+3. **`testTimeout` a 15 s:** con la caché de Jest vacía (como en el CI), la primera prueba de `vehiculo` e `identidad` tarda 3 s sola y más de 5 s con las suites en paralelo, porque carga React Native 0.88 al renderizar. No cambia ninguna aserción ni ningún `waitFor`.
+4. **Compilación nativa en Windows:** gesture-handler 3 trae C++ propio (shadow node de Fabric) y un objeto intermedio mide 334 caracteres desde cualquier carpeta. Hace falta `LongPathsEnabled=1` (administrador) y CMake 3.31.6 del SDK de Android (ninja 1.12), con `cmake.dir` en `android/local.properties`. Cada integrante que compile la app en Windows lo hace una vez; el CI, Mac, Linux y EAS Build no lo necesitan.
+5. **Verificación:** lint, formato, tipos, 163 pruebas (también en frío), bundle Android, audit y `assembleDebug` con Gradle en verde. Sin probar en teléfono.
+
+**Archivos afectados:** `mobile/package.json`, `mobile/package-lock.json`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
