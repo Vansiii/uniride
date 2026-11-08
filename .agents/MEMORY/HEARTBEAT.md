@@ -23,8 +23,11 @@
 
 - HU-18, revisión de código del diff contra HU-17. Corregido en `mobile` `a71e3db`, con pruebas: pantalla de resultados que se caía con un enlace incompleto, hora ya pasada que decía «Sin resultados», aviso en el detalle de un viaje que ya no está, insignias de otra sesión, temporizador del GPS y «1000 m». `verificar.py mobile --rapido` en verde; los textos nuevos no se vieron en el navegador. Detalle en `MEMORY.md`.
 
+- **Dependencias (PB-01, SP131 a SP133):** rama `fix/dependencias-audit` desde `develop` en `backend`, `mobile` y raíz, con PR abiertos (uniride-backend#15, uniride-mobile#14, uniride#23). `backend` con 0 vulnerabilidades. `mobile` en Expo SDK 58 (React Native 0.88.1): de 31 (6 altas) a 22 moderadas y 1 baja, dentro del propio `expo`. Regresión completa y APK de debug en verde; sin probar en teléfono. En Windows, compilar en nativo necesita rutas largas y CMake 3.31.6 (MEMORY, SP133). Esta rama no tiene el estado de HU-12 a HU-18: está en sus ramas y en sus PR.
+
 ## Próximo paso concreto
 
+0. **Dependencias:** PR abiertos (uniride-backend#15, uniride-mobile#14, uniride#23), pendientes de revisión; tras fusionar los de submódulos, PR de punteros. Al fusionar `mobile` con las ramas de HU-12 a HU-18, `package.json` y `package-lock.json` chocan: conservar las versiones del SDK 58, volver a agregar las dependencias de cada HU con `npx expo install` (maplibre incluido) y regenerar el lockfile. Probar en teléfono un dev build con SDK 58 (Keystore de HU-09). Al fusionar el PR de raíz con #19 a #22, conservar el HEARTBEAT más reciente y agregar esta línea.
 1. **HU-18, punto exacto:** PR abiertos (`backend` #14, `mobile` #13, raíz #22), van después de los de HU-17. Siguiente historia: se apila sobre HU-18.
 4. En paralelo, otro integrante revisa y fusiona los PR en el orden de arriba, con `contracts` antes que `backend`. Tras el merge: confirmar con `git merge-base --is-ancestor`, actualizar punteros y marcar lo que corresponda. El cambio de firma de `mobile` exige recompilar el APK.
 

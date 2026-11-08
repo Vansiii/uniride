@@ -634,6 +634,35 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 
 
 
+---
+
+## 2026-11-07 · Vulnerabilidades de dependencias: `npm audit fix` sin `--force` (SP131, SP132)
+
+**Evento:** El integrante autoriza cambiar dependencias (AGENTS.md §14) solo con `npm audit fix` sin `--force` en `backend` y `mobile`, en ramas `fix/dependencias-audit` creadas desde `develop`, no apiladas sobre HU-18.
+
+**Hallazgo:** Las vulnerabilidades ya estaban en `develop`: el audit del lockfile de `develop` y el de `feat/HU-18-buscar-viajes` da lo mismo en `backend` (14, 7 altas). En `mobile`, HU-18 suma una moderada en `@maplibre/maplibre-react-native` (SP130), que hereda del `expo` del que depende; se va con SP133. Las dependencias que agregaron las HU no tienen avisos propios.
+
+**Decisión:**
+1. **Backend:** body-parser, multer, deepmerge-ts, mysql2, fast-uri y qs corregidos; de 14 a 3 moderadas. Prisma sube de 7.10.0 a 7.10.1 dentro del arreglo, y `allowScripts` pasa a aprobar esa versión (mismos paquetes ya aprobados).
+2. **Mobile:** zod, node-forge, uuid y parches de Expo dentro del SDK 57, sin tocar `package.json`; de 31 (6 altas) a 23 (3 altas). Lo que queda solo sale con `--force`, y npm propone versiones mayores que en varios casos bajan de versión (expo 52, jest 25, eslint-config-expo 6): no se aplica.
+3. **Backend, después (SP132, pedido por el integrante):** `vitest` y `@vitest/coverage-v8` a 4.1.12 (`audit fix` no los subía); `backend` queda con 0 vulnerabilidades.
+4. **Verificación:** regresión completa en verde en los dos repositorios tras cada cambio (backend con e2e, mobile con build Android).
+5. **Pendiente:** SP133 (actualizar el SDK de Expo para lo que pide `--force`; versión mayor, requiere confirmación).
+
+**Archivos afectados:** `backend/package.json`, `backend/package-lock.json`, `mobile/package-lock.json`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+## 2026-11-07 · Expo SDK 57 → 58 en `mobile` (SP133)
+
+**Evento:** El integrante confirma la subida de versión mayor (AGENTS.md §14) para quitar las 3 vulnerabilidades altas que quedaron tras SP131 (`expo-router` 57: decode-uri-component, query-string). Va en la misma rama `fix/dependencias-audit` de `mobile`.
+
+**Decisión:**
+1. **Versiones:** las que pide `expo install --fix` para el SDK 58: expo 58.0.23, React Native 0.88.1, React 19.3.0, gesture-handler 3.3, reanimated 4.7.1, worklets 0.13, Jest 30.5, jest-expo y eslint-config-expo 58. `expo install --fix` falla por un conflicto de pares con el árbol viejo; las versiones se escriben en `package.json` y se instala con `npm install`. No cambia código de la app.
+2. **Resultado del audit en producción:** 22 moderadas y 1 baja, todas dentro del propio `expo` (glob, minimatch); `--force` solo propone bajar a expo 52.
+3. **`testTimeout` a 15 s:** con la caché de Jest vacía (como en el CI), la primera prueba de `vehiculo` e `identidad` tarda 3 s sola y más de 5 s con las suites en paralelo, porque carga React Native 0.88 al renderizar. No cambia ninguna aserción ni ningún `waitFor`.
+4. **Compilación nativa en Windows:** gesture-handler 3 trae C++ propio (shadow node de Fabric) y un objeto intermedio mide 334 caracteres desde cualquier carpeta. Hace falta `LongPathsEnabled=1` (administrador) y CMake 3.31.6 del SDK de Android (ninja 1.12), con `cmake.dir` en `android/local.properties`. Cada integrante que compile la app en Windows lo hace una vez; el CI, Mac, Linux y EAS Build no lo necesitan.
+5. **Verificación:** lint, formato, tipos, 163 pruebas (también en frío), bundle Android, audit y `assembleDebug` con Gradle en verde. Sin probar en teléfono.
+
+**Archivos afectados:** `mobile/package.json`, `mobile/package-lock.json`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
 ## 2026-11-06 · HU-12: se alinean los documentos con la custodia cifrada
 
 **Decisión:** el integrante confirma la custodia aprobada por el PO el 02/11: llaves de billetera de usuario cifradas con AES-256-GCM en `billeteras.llave_custodia_ref`, con la clave en `WALLET_ENCRYPTION_KEY`. Relayer y verificador siguen en KMS. Solo se añade `ethers` ^6.17 al backend (`AGENTS.md` §14); `@aws-sdk/client-kms` no, porque el modo KMS opcional no se implementa. Se usan las variables que ya existían (`CADENA_RPC_URL`, `DIRECCION_TOKEN_URC`) en vez de las del plan.
