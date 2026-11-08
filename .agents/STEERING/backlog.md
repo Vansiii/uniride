@@ -148,19 +148,21 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP97 · Suite de pruebas y pruebas de ataque A-03 (no íntegro), A-04 (llave ajena) y A-08 (sin firma) — 4h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
 - [x] SP98 · Mobile: integración con Android Keystore y pantalla de vinculación en Expo — 6h — @[POR DEFINIR] · mobile @agente 05/11 (PR uniride-mobile#7; pantalla, firma canónica y pruebas; Keystore/Play Integrity nativos pendientes de dev build)
 
+- [x] SP125 · Mobile: módulo nativo local de Expo para Android Keystore (ECDSA P-256 no exportable, huella en cada firma con `BiometricPrompt` y `CryptoObject`), detrás de `keystore.ts`; prueba en teléfono físico. Requisito de SP103 y SP114 — 6h — @[POR DEFINIR] · mobile @agente 06/11: probado en Infinix X669 (TEE, sin StrongBox): el backend acepta la firma real; repetida, ajena y cancelada no pasan. Play Integrity sigue simulado
+
 ### HU-12 · Creación de billetera (16 h)
-- [ ] SP99 · Modelo Prisma `billeteras`, migración `008_billeteras` y repositorio — 2h — @[POR DEFINIR]
-- [ ] SP100 · `BlockchainService` (ethers.js, conexión Polygon Amoy/Hardhat y lectura de balance UniCoin) — 4h — @[POR DEFINIR]
-- [ ] SP101 · Endpoints de creación idempotente y consulta de billetera en backend — 3h — @[POR DEFINIR]
-- [ ] SP102 · Suite de pruebas y validación de seguridad A-12 (sin llaves en BD) — 3h — @[POR DEFINIR]
-- [ ] SP103 · Mobile: pantalla de Billetera en Expo (tarjeta de balance URC, dirección y accesos) — 4h — @[POR DEFINIR]
+- [x] SP99 · Modelo Prisma `billeteras`, migración `008_billeteras` y repositorio — 2h — @[POR DEFINIR] · backend @agente 06/11: también `usuarios.suspendida_en` (spec §4); la API solo tiene SELECT e INSERT sobre `billeteras`
+- [x] SP100 · `BlockchainService` (ethers.js, conexión Polygon Amoy/Hardhat y lectura de balance UniCoin) — 4h — @[POR DEFINIR] · backend @agente 06/11: solo redes 31337 y 80002, tope de 5 s; probado contra Hardhat, Amoy sin probar
+- [x] SP101 · Endpoints de creación idempotente y consulta de billetera en backend — 3h — @[POR DEFINIR] · backend @agente 06/11: creación automática al aprobar la identidad y firma de dispositivo en ambos endpoints
+- [x] SP102 · Suite de pruebas y validación de seguridad A-12 (sin llaves en BD) — 3h — @[POR DEFINIR] · backend @agente 06/11: 360 unitarias y 241 e2e en verde, cobertura 95,9 %, ataques A-02, A-08 y A-12
+- [x] SP103 · Mobile: pantalla de Billetera en Expo (tarjeta de balance URC, dirección y accesos) — 4h — @[POR DEFINIR] · mobile @agente 06/11: pestaña Billetera probada en teléfono físico contra Hardhat; Recargar y Movimientos llegan con HU-13 y HU-14
 
 ### HU-14 · Saldo e historial (15 h)
-- [ ] SP104 · Modelo Prisma `movimientos_billetera`, migración `009_movimientos_billetera` e índices contables — 2h — @[POR DEFINIR]
-- [ ] SP105 · Lógica de conciliación de saldo (on-chain + escrow en BD) y endpoint `/saldo` — 3h — @[POR DEFINIR]
-- [ ] SP106 · Endpoint paginado `/movimientos` y servicio de registro inmutable — 3h — @[POR DEFINIR]
-- [ ] SP107 · Suite de pruebas automatizadas y prueba de conciliación contable — 3h — @[POR DEFINIR]
-- [ ] SP108 · Mobile: pantalla de Historial de movimientos y componente `TarjetaSaldo` en Expo — 4h — @[POR DEFINIR]
+- [x] SP104 · Modelo Prisma `movimientos_billetera`, migración `009_movimientos_billetera` e índices contables — 2h — @[POR DEFINIR] · backend @agente 06/11: solo inserción; el trigger congela lo confirmado y la API no tiene DELETE
+- [x] SP105 · Lógica de conciliación de saldo (on-chain + escrow en BD) y endpoint `/saldo` — 3h — @[POR DEFINIR] · backend @agente 06/11: caché de 15 s; nodo caído o colgado da 200 con `enLinea: false`; las diferencias van a auditoría; sin firma de dispositivo. Probado contra Hardhat con `EscrowUniRide` real, Amoy sin probar · 07/11: un movimiento confirmado invalida el caché
+- [x] SP106 · Endpoint paginado `/movimientos` y servicio de registro inmutable — 3h — @[POR DEFINIR] · backend @agente 06/11: filtro `?tipo=`, sin firma de dispositivo; el registro se usará desde HU-13
+- [x] SP107 · Suite de pruebas automatizadas y prueba de conciliación contable — 3h — @[POR DEFINIR] · backend @agente 06/11: 395 unitarias y 318 e2e en verde (07/11), cobertura 95,7 %, ataques A-09 y A-10
+- [x] SP108 · Mobile: pantalla de Historial de movimientos y componente `TarjetaSaldo` en Expo — 4h — @[POR DEFINIR] · mobile @agente 06/11: 247 pruebas en verde (07/11); probado en teléfono físico contra Hardhat con 46 movimientos, sin verificar, vacío y nodo caído. 07/11: web a 360 y 412, teléfono a 412 dp, enlace a Polygonscan en pantalla y una sola huella al abrir Billetera. Saldo en Inicio queda para HU-18
 
 ### HU-13 · Recarga de saldo (20 h)
 - [ ] SP109 · Modelo Prisma `ordenes_recarga`, migración `010_ordenes_recarga` y repositorio — 2h — @[POR DEFINIR]

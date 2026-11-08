@@ -54,9 +54,9 @@ Tareas concretas: `/.agents/STEERING/backlog.md`.
 | HU-08 | Verificación de identidad | Como usuario quiero verificar mi identidad con carnet y prueba de vida para que confíen en mí | Alta (Must) | 8 | S2 | plan aprobado | HU-06 |
 | HU-17 | Publicar viaje | Como conductor quiero publicar un viaje para compartir mi trayecto | Alta (Must) | 5 | S2 | plan aprobado | HU-11, HU-08 |
 | HU-09 | Vinculación de dispositivo | Como usuario quiero mi cuenta atada a mi teléfono para que nadie la use desde otro | Alta (Must) | 8 | S2 | plan aprobado | HU-06 |
-| HU-12 | Creación de billetera | Como usuario verificado quiero una billetera automática para pagar y cobrar sin configurar nada | Alta (Must) | 5 | S2 | plan aprobado | HU-08, PB-04 |
+| HU-12 | Creación de billetera | Como usuario verificado quiero una billetera automática para pagar y cobrar sin configurar nada | Alta (Must) | 5 | S2 | implementada | HU-08, PB-04 |
 | HU-13 | Recarga de saldo | Como pasajero quiero recargar saldo para pagar mis viajes | Alta (Must) | 5 | S2 | plan aprobado | HU-12, HU-09 (biometría, ver D-13) |
-| HU-14 | Saldo e historial | Como usuario quiero ver saldo y movimientos para controlar mi dinero | Alta (Must) | 3 | S2 | plan aprobado | HU-12 |
+| HU-14 | Saldo e historial | Como usuario quiero ver saldo y movimientos para controlar mi dinero | Alta (Must) | 3 | S2 | implementada | HU-12 |
 | HU-18 | Buscar viajes | Como pasajero quiero buscar viajes por destino y hora para encontrar uno que me sirva | Alta (Must) | 5 | S2 | plan aprobado | HU-17 (calificación, ver D-17) |
 | HU-29 | Confirmación biométrica | Como usuario quiero confirmar con huella o rostro las acciones sensibles para que nadie las haga en mi nombre | Alta (Must) | 3 | S3 | pendiente | HU-09 |
 | HU-19 | Reserva con escrow | Como pasajero quiero reservar y que mi pago quede en garantía para pagar solo si el viaje ocurre | Alta (Must) | 8 | S3 | pendiente | HU-18, HU-13, HU-29, PB-04 |
