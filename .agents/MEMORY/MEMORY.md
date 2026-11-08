@@ -843,3 +843,133 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 **Archivos afectados:** `backend/src/blockchain/`, `backend/src/billetera/movimientos.service.ts`; `mobile/src/app/recargar.tsx`, `mobile/src/app/movimientos.tsx`, `mobile/src/app/(pestanas)/billetera.tsx`, `mobile/src/__tests__/`; `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
 
 ---
+
+## 2026-11-07 · HU-17: contrato del backend y ajustes al plan
+
+**Evento:** Se implementan SP115 a SP118 en `backend`, rama `feat/HU-17-publicar-viaje`, apilada sobre HU-13: tabla `viajes` con RLS, validaciones, `POST /viajes`, `GET /viajes/mis-viajes` y `GET /viajes/:id`.
+
+**Ajustes al plan aprobado** (la spec y `ssd.md` los responden; no cambia ningún criterio):
+1. **Precio:** el plan fijaba `CHECK (precio_por_asiento BETWEEN 1.00 AND 20.00)`, pero CA-3 da 20 URC solo como ejemplo del tope de cada organización y `organizaciones.precio_maximo_urc` admite otros valores. Con el CHECK fijo, una organización con tope 50 respondería 500 al publicar a 30. Queda `CHECK (>= 1)` y la API valida contra el tope de la organización.
+2. **Solape entre organizaciones:** el conductor es la misma persona en todas sus organizaciones (HU-07), y RLS le escondería un viaje suyo de otra. Dentro de la transacción, el contexto de plataforma se abre solo para leer sus propios viajes y se cierra antes del INSERT, que sigue sujeto a RLS. No cambia ninguna política. Un candado por conductor evita que dos publicaciones simultáneas pasen juntas la comprobación.
+3. **`mis-viajes`:** el plan pide solo sesión; devuelve los viajes de la persona en todas sus organizaciones, siempre filtrados por conductor. Tiene un tope de 100, sin paginar.
+4. **Detalle:** el plan omitía `fechaHoraSalida`; se agrega.
+
+**Interpretaciones de la spec:** un viaje ocupa al conductor en `publicado`, `reservado` y `en_curso`; con exactamente 2 horas entre salidas no hay solape. `verificado` y `pagado` ya no ocupan.
+
+**Permisos:** el rol de la API solo tiene SELECT e INSERT sobre `viajes`. Las historias que cambien estado o cupos deben otorgar UPDATE de esas columnas.
+
+**Verificado:** regresión de `backend` en verde (lint, formato, pruebas con cobertura, e2e y build). Prueba real por HTTP contra un backend en marcha, con firma ECDSA de una llave de prueba: CA-1 a CA-7, repetir una petición capturada, el tope de otra organización, el solape entre organizaciones y las 3 rutas en Swagger. En PostgreSQL, con el rol de la API: otra organización no ve ni inserta, sin contexto no se ve nada, no puede actualizar ni borrar, y los CHECK rechazan cupos, precio y coordenadas fuera de rango.
+
+**Sin verificar:** verificación en sesión limpia, móvil y teléfono real.
+
+**Sin decidir:** si una cuenta suspendida puede publicar, y qué rol exige `GET /viajes/{id}` (`ssd.md` pide miembro verificado con firma; el plan, solo miembro). Están en `HEARTBEAT.md`.
+
+**Archivos afectados:** `backend/prisma/schema.prisma`, `backend/prisma/migrations/011_viajes/`, `backend/src/viajes/`, `backend/src/aplicacion.module.ts`, `backend/src/i18n/es-BO.json`, `backend/test/viajes/`, `backend/test/ataques/a-08-publicar-viaje.e2e-spec.ts`, `backend/test/ataques/a-13-viajes.e2e-spec.ts`, `backend/test/ayudas-organizaciones.ts`, `backend/test/billetera/ayudas-billetera.ts`; `SPECS/features/sprint-2/HU-17-publicar-viaje/{spec,plan}.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/HEARTBEAT.md`.
+
+---
+## 2026-11-07 · HU-17: pantalla móvil
+
+**Evento:** Se implementa SP119 en `mobile`, rama `feat/HU-17-publicar-viaje`, apilada sobre HU-13: pestaña Publicar con los requisitos que faltan (CA-6), formulario firmado con la huella (CA-7) y pantalla de resultado.
+
+**Ajustes al plan aprobado** (no cambia ningún criterio):
+1. **`GET /viajes/limites`:** `DESIGN_SYSTEM.md` §9.2 y el prototipo piden mostrar el tope de la organización antes de fallar, y ningún endpoint de miembro lo daba. Es un agregado compatible; no se amplió `GET /yo`, que se limita a sus campos por HU-06 CA-7.
+2. **Ruta:** la pantalla es la pestaña `app/(pestanas)/publicar.tsx`, como pide el prototipo, no `app/viajes/publicar.tsx`.
+3. **Mapa sin librería:** agregar una requiere autorización (`AGENTS.md` §14). Es un mapa fijo con teselas de OpenStreetMap y su atribución, que no se puede mover.
+4. **Búsqueda de lugar:** la política de Nominatim prohíbe autocompletar, así que se busca al pedirlo. Solo vale un lugar elegido de la lista, que trae coordenadas.
+5. **Fecha y hora:** en vez de los dos campos del prototipo, un chip por cada fecha posible (hoy y 7 días) y la hora escrita con teclado numérico. No hace falta un diálogo nativo, y una fecha fuera de rango no se puede elegir. Es diferencia con el prototipo, a revisar en la paridad.
+6. **Validar antes de firmar:** horario y precio se revisan también en la app para no gastar una huella en algo que el servidor rechazará. Decide el servidor.
+
+**Limitaciones:** el aviso de solape no dice con qué viaje choca, porque la API solo devuelve `margenHoras`. La búsqueda cubre toda Bolivia, sin priorizar la ciudad de la organización: un nombre común trae lugares de otros pueblos y se distinguen por la dirección completa.
+
+**Verificado:** pruebas de `mobile` en verde (lint, formato, tipos, Jest y build) y regresión de `backend` con e2e. En navegador, contra un backend real con una llave P-256 inyectada: requisitos, límites, errores, Nominatim y teselas reales, CA-1 con fila en la base, una firma por publicación y CA-5, a 360 y 412 dp.
+
+**Sin verificar:** verificación en sesión limpia y teléfono físico: huella real, Keystore, y Nominatim y teselas desde Android, donde el `User-Agent` sí se envía.
+
+**Archivos afectados:** `mobile/src/app/(pestanas)/{publicar,_layout,index}.tsx`, `mobile/src/componentes/{SelectorLugar,MapaRuta,Mensajes}.tsx`, `mobile/src/servicios/geocoding.ts`, `mobile/src/api/cliente.ts`, `mobile/src/i18n/es-BO.json`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/publicar.test.tsx`; `backend/src/viajes/`, `backend/test/viajes/publicar.e2e-spec.ts`; `SPECS/features/sprint-2/HU-17-publicar-viaje/{spec,plan}.md`, `SPECS/roadmap.md`, `DESIGN_SYSTEM.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/HEARTBEAT.md`.
+
+---
+
+## 2026-11-07 · HU-17: una cuenta suspendida no publica
+
+**Decisión del integrante:** una cuenta suspendida no puede publicar viajes. Con la billetera bloqueada no podría cobrarlos, y los pasajeros verían una oferta de alguien sancionado.
+
+**Cómo queda:** `POST /viajes` y `GET /viajes/limites` responden 403 `CUENTA_SUSPENDIDA`, con el `CuentaActivaGuard` de la billetera, después de la membresía y antes de identidad y firma. Se exige también en `limites` porque firmar pide la huella antes de enviar: así la app lo sabe al abrir la pestaña y no muestra el formulario. El texto del backend deja de nombrar la billetera, porque ya no es exclusivo de ella.
+
+**Sin decidir:** qué pasa con los viajes ya publicados por alguien que luego es suspendido; siguen activos. Toca la máquina de estados (`AGENTS.md` §14). Está en `HEARTBEAT.md`.
+
+**Verificado:** e2e de `backend` y pruebas de `mobile`. Sin mirar todavía en navegador: entra en la verificación en sesión limpia.
+
+**Archivos afectados:** `backend/src/viajes/viajes.{controller,module}.ts`, `backend/src/i18n/es-BO.json`, `backend/test/viajes/publicar.e2e-spec.ts`, `mobile/src/app/(pestanas)/publicar.tsx`, `mobile/src/i18n/es-BO.json`, `mobile/src/__tests__/publicar.test.tsx`; `SPECS/features/sprint-2/HU-17-publicar-viaje/{spec,plan}.md`, `.agents/MEMORY/HEARTBEAT.md`.
+
+---
+
+## 2026-11-07 · HU-17: verificación en sesión limpia
+
+**Evento:** Se verifican CA-1 a CA-7, A-08, A-13 y la cuenta suspendida por criterio y por riesgo, contra el backend real y en la app a 360 y 412 dp.
+
+**Defectos corregidos en `mobile`:**
+1. Tras tocar Publicar sin lugar, el error genérico tapaba lo que respondía la búsqueda.
+2. Al fallar, la pantalla subía al principio y un error de precio u hora quedaba fuera de la vista. Ahora lleva al primer campo con error, con foco, y avisa arriba si hay más de dos (`DESIGN_SYSTEM.md` §9.2.4).
+3. Con la membresía revocada en la organización activa y aprobada en otra decía "No hay conexión". Ahora lo dice y deja elegir otra.
+4. Al intercambiar quedaba el error sobre el lugar ya lleno.
+5. Al volver de resolver un requisito quedaba el aviso viejo.
+6. "Tu vehículo tiene 1 asientos".
+
+**Paridad con el prototipo:** el vehículo hecho muestra la placa, el resultado lleva los puntos del trayecto, y el error de hora dice desde cuándo se puede salir. El rechazo por solape dice con qué viaje choca, para lo que `VIAJE_SOLAPADO` agrega `salidaExistente`: es un viaje del propio conductor y es un agregado compatible.
+
+**Diferencias que quedan:** el micrófono apagado llega con `BotonVoz` (HU-27, HU-28), y "Te avisaremos cuando alguien reserve" no se promete mientras no haya esa notificación. La X del resultado y ocultar las pestañas no cambian el flujo. Fecha en chips con hora escrita, y origen y destino fuera de la tarjeta del mapa, están en `HEARTBEAT.md` para que decida el integrante.
+
+**Verificado:** peticiones reales de cada error del plan, datos forzados, 8 publicaciones simultáneas (entra 1), la misma firma 5 veces a la vez (entra 1), RLS con el rol de la API, Swagger y esquema de Prisma sin diferencias con la base. En la app, cada rechazo del servidor con el formulario abierto, huella cancelada simulada, sin red, cuenta suspendida, datos largos, teclado y foco. Regresión en verde: `backend` 452 unitarias, 455 e2e y cobertura de 92 %; `mobile` 321 pruebas y build.
+
+**Sin verificar:** teléfono físico: huella y Keystore reales, Nominatim y teselas desde Android, TalkBack.
+
+**Sin decidir:** están en `HEARTBEAT.md`.
+
+**Archivos afectados:** `backend/src/viajes/viajes.{controller,service,service.spec}.ts`, `backend/test/viajes/publicar.e2e-spec.ts`, `mobile/src/app/(pestanas)/publicar.tsx`, `mobile/src/componentes/{Campo,SelectorLugar}.tsx`, `mobile/src/i18n/es-BO.json`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/publicar.test.tsx`; `SPECS/features/sprint-2/HU-17-publicar-viaje/{spec,plan}.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/HEARTBEAT.md`.
+
+---
+
+## 2026-11-07 · HU-17: prueba en teléfono físico
+
+**Evento:** Se prueba en un Infinix X669 (Android 12, TEE) publicar con huella y Keystore reales, cancelar, solape, error de hora, Nominatim y teselas reales, TalkBack en chips y asientos, y 412 dp, contando las firmas en un registro.
+
+**Defectos corregidos, que no se veían en navegador:**
+1. Con un campo con foco, Android devolvía el desplazamiento a ese campo y el aviso de arriba quedaba fuera de la vista. Ahora se suelta el foco.
+2. Dos huellas. La hora se firmaba antes de abrir el aviso: tardar más de 30 s daba 401, y el cliente reintentaba cualquier 401 con otra huella.
+3. Hueco de 48 dp sobre las pestañas en Publicar e Inicio: `ZonaAccion` contaba otra vez el margen del sistema. Nueva propiedad `enPestanas`.
+4. Un nombre de lugar largo se veía sin su comienzo.
+
+**Decisión técnica (firma, a pedido del integrante):** el módulo nativo recibe el mensaje en dos partes y toma la hora tras la huella, con lo que `firmar` devuelve firma y marca. El mensaje canónico, la ventana de 30 s y el servidor no cambian. Un 401 solo se reintenta si es `NO_AUTENTICADO`, y con la misma firma: `JwtGuard` rechaza antes de que `FirmaDispositivoGuard` gaste el nonce (prueba de ataque en `a-08-publicar-viaje.e2e-spec.ts`). `PETICION_EXPIRADA` y `FIRMA_DISPOSITIVO_INVALIDA` van a la pantalla sin otra huella. Vale para toda petición firmada, también billetera y recargas. Exige recompilar el APK.
+
+**Comprobado tras el cambio:** aviso abierto 44 s: 1 firma y 201. Token vencido de verdad: 401, renovación y 201 con 1 solo aviso. Billetera: 1 huella.
+
+**Pruebas:** la animación de `Ilustracion` dejaba un temporizador que rompía otra suite al azar; `publicar.test.tsx` activa "reducir movimiento".
+
+**Segunda pasada en el teléfono:** recarga con la firma nueva (cadena simulada), firma vencida con un proxy que retiene la petición, dedo no registrado, hora con teclas de dígitos, cambio de selección en TalkBack y huella nueva que anula la llave.
+
+**Defectos abiertos:** TalkBack no lee los `Aviso` que aparecen (región viva y `announceForAccessibility` no bastaron, y se revirtió). Tras una huella nueva no hay cómo volver a vincular, y el aviso dice "Actualiza la app" (HU-10).
+
+## 2026-11-07 · HU-17: revisión del código
+
+Revisión de `backend` y `mobile` contra HU-13, con el cambio de firma como grado 5: 25 hallazgos. En la firma no salió ningún defecto: la hora tras la huella y el reenvío solo con `NO_AUTENTICADO` se sostienen.
+
+**Decisiones del integrante:** origen y destino con las mismas coordenadas se rechazan (`LUGARES_IGUALES` 400; la app lo dice antes de la huella). Un viaje en `publicado` cuya salida ya pasó no cuenta para el solape; `reservado` y `en_curso` sí. La billetera no es requisito para publicar: importa al cobrar. Organización suspendida: se resuelve en la historia que implemente la suspensión, porque hoy ningún código pone ese estado.
+
+**Corregido:**
+1. El lugar elegido tenía el cursor fijo en 0: Backspace no borraba y no se podía mover. Ahora se fija solo sin foco, y elegir cierra el teclado.
+2. Asientos por encima de la capacidad tras cambiar de vehículo: se gastaba una huella en un rechazo seguro.
+3. Tras un rechazo por precio o asientos, la pantalla vuelve a leer los datos, para no quedarse con el tope viejo.
+4. La fecha por omisión de otro día ya no queda sin chip elegido.
+5. Búsqueda: no se repite si hay una en camino, y su respuesta se descarta si cambió el texto.
+6. Al intercambiar lugares no quedan el aviso ni los resultados de la búsqueda anterior.
+7. `730` queda `07:30`.
+8. La hora sugerida lleva un minuto de holgura.
+9. "Listo" a la misma altura que el botón del formulario.
+10. El carácter NUL en un texto daba 500: `recortar()` lo quita, y vale para todos los DTO que lo usan.
+11. Comentario de la barra de pestañas que ya no era cierto.
+
+**Descartado:** `selected` en los radios, porque el integrante oyó "seleccionado" en TalkBack. Huella nueva que anula la llave: ya es defecto abierto de HU-10.
+
+**Sin cambiar, por ser limpieza:** `BilleteraModule` importado solo por el guard de cuenta; tres booleanos de bloqueo en Publicar; `con` frente a `.replace`; consulta del tope duplicada; cuatro lecturas al volver a la pestaña; `mensajeCanonico` usado solo en pruebas; condición de reintento en línea. **Sin cambiar, por tocar más que esta historia:** `app.super_admin` en viajes y sesión muerta en la app (ver `HEARTBEAT.md`).
+
+**Probado en el teléfono (solo JS, sin recompilar):** Backspace y cursor en un lugar elegido, nombre largo desde el inicio, mismo lugar sin huella ni petición, hora tecleada 7-3-0, hora sugerida con holgura, intercambiar con aviso a la vista, capacidad bajada de 4 a 2, tope bajado de 20 a 15 con el formulario abierto (400 y aviso con 15), y publicar con 1 firma. Al intercambiar, el campo que queda vacío vuelve a mostrar lo que se había escrito en él; no impide nada y se dejó así.

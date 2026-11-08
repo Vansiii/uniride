@@ -1303,12 +1303,12 @@ Cosas que el análisis no pudo resolver. Las que necesitan una dependencia nueva
 |---|---|---|---|---|
 | P-01 | Marca (logotipo, ícono, splash, favicon) | **Resuelto** el 16/10/2026: aprobada por el PO (3.4) | Fusionar `feat/PB-03-marca` en `mobile/` y `web/` y actualizar los punteros | — |
 | P-02 | Generar y escanear QR | No hay librería instalada | Evaluar `expo-camera` (escaneo) y un generador de QR en SVG; decidir en el plan de HU-22 | HU-22 |
-| P-03 | Mapa con OpenStreetMap | Stack fijado, librería no elegida | El mapa es secundario (P8): primero lista y textos; mapa en detalle y viaje en curso. Decidir librería en el plan de HU-17/HU-23 | HU-23 |
+| P-03 | Mapa con OpenStreetMap | Stack fijado, librería no elegida. HU-17 usa un mapa fijo con teselas y `expo-image`, sin librería | El mapa es secundario (P8): primero lista y textos; mapa en detalle y viaje en curso. Decidir librería en el plan de HU-23, si hay que moverlo | HU-23 |
 | P-04 | Reconocimiento y síntesis de voz | Android SpeechRecognizer es el stack, pero no hay módulo instalado que lo exponga ni uno de texto a voz | Decidir en el plan de HU-27 | HU-27, HU-28 |
 | P-05 | Biometría y prueba de vida | La llave del Keystore con biometría y la UI de Face Liveness requieren módulos nativos | El diseño de 9.6 y 8.9 envuelve esas pantallas; la UI interna de Face Liveness la impone AWS | HU-08, HU-09, HU-29 |
 | P-06 | Monto del reembolso antes de cancelar | La API no expone una vista previa | Agregar el monto de reembolso vigente a `GET /reservas/{id}` para no calcularlo en el cliente | HU-20 |
 | P-07 | Paleta y tipografía | Propuestas sin validar; el 17/10 se sumaron las zonas de marca y la familia display (3.5, 4.2) | Validar en PB-03 con el PO; probar la banda de marca y el saldo oscuro al sol en un teléfono real | Implementación de `BandaMarca` |
-| P-08 | Selector de hora | `DatePicker` de `@expo/ui` instalado; no se verificó el modo hora | Verificar en HU-17 | HU-17 |
+| P-08 | Selector de hora | `@expo/ui/jetpack-compose` trae `TimePickerDialog` (según sus tipos; no se probó en teléfono). HU-17 no lo usa: un chip por cada fecha posible y la hora escrita con teclado numérico | Usarlo si la prueba de usabilidad lo pide | HU-17 |
 | P-09 | Nombre visible de otras personas | Las specs no lo definen | "Nombre + inicial del apellido" (exposición mínima) | HU-18 |
 | P-10 | Unidad monetaria visible | El documento técnico habla de Bs y URC | Mostrar siempre "URC" y la equivalencia en Bs solo al recargar; confirmar con el PO | HU-13, HU-14 |
 | P-11 | Administrador de varias organizaciones en web | Las specs no definen un selector de organización en el panel | Si ocurre, selector en la cabecera de la `BarraLateral` reutilizando el cambio de organización activa de HU-07 | — |
