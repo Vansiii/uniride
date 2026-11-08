@@ -86,7 +86,7 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 | D-07 | Registros de alcance plataforma | `AGENTS.md` §5.3 dice "todo registro lleva organization_id", pero usuario, dispositivo, identidad, billetera y vehículo son únicos por persona (un CI, un rostro, una placa) y la persona puede estar en varias organizaciones (HU-07) | SP10 (PB-02) | Tensión `AGENTS.md` ↔ documento técnico |
 | D-08 | Voz en el panel web | El documento solo define voz en la app móvil (Android). ¿Los paneles admin también llevan voz (p. ej. Web Speech API) o el requisito 4 se cumple solo en móvil? | HU de web | Requisito 4 del docente |
 | D-09 | Entornos AWS | ¿Solo un entorno de demo o también staging? ¿Panel web en S3 o junto al backend? Impacta costos (R-03) | SP08 | No definido |
-| D-10 | Cola de reintentos on-chain | Propuesta: tabla PostgreSQL + worker. Alternativa: SQS | HU-12 | No definido |
+| D-10 | Cola de reintentos on-chain | **Resuelta el 07/11:** tabla PostgreSQL + worker (entrada "HU-13: alineación") | HU-13 | `ssd.md` §10 |
 | D-11 | HU-17 (S1) antes que HU-08 (S2) | HU-08 y la constitución exigen verificación para publicar, pero publicar viaje está en S1 y la verificación en S2. Opciones: mover HU-17 a S2; o implementarla en S1 con el `VerifiedMemberGuard` activado desde S2 (no se despliega a usuarios reales antes) | HU-17 | Documento técnico §4–§6 |
 | D-12 | Tope de precio en HU-17 | HU-17 exige "precio ≤ tope de la organización", pero las tarifas se configuran en HU-04 (S4). Propuesta: campo `price_cap_urc` cargado en el alta (HU-01) | HU-17 | Documento técnico §6 |
 | D-13 | Biometría en recarga (HU-13, S2) | HU-29 (S3) pide biometría para recargar. Propuesta: la firma con la llave biométrica de HU-09 ya cubre la recarga; HU-29 completa la UI y la regla para voz | HU-13 | Documento técnico §6 |
@@ -722,5 +722,124 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 **Sin verificar:** CI real. Los arreglos de `mobile` no se probaron en el teléfono ni en web; la prueba nueva cubre el reintento y el aviso rojo no tiene prueba propia.
 
 **Archivos afectados:** `mobile/src/app/movimientos.tsx`, `mobile/src/app/(pestanas)/billetera.tsx`, `mobile/src/__tests__/movimientos.test.tsx`.
+
+---
+
+## 2026-11-07 · HU-13: alineación de spec, plan y ssd antes de implementar (Resuelve D-10)
+
+**Evento:** El plan aprobado el 02/11 contradecía a su propia spec y a `ssd.md`. El integrante toma las decisiones pendientes. El ajuste de spec y plan queda por aprobar antes de escribir código.
+
+**Decisión:**
+1. **D-10, cola:** tabla `trabajos_onchain` y worker. Confirmar responde 202 "procesando" y la app consulta `GET /recargas/:id`. Se descarta acuñar dentro de la petición: un corte dejaría el movimiento pendiente sin nadie que lo retome, y `spec.md` §4 pide reintento automático.
+2. **Doble acuñación (A-09):** `UniCoin.acunar` no tiene id, así que reintentar tras una respuesta perdida acuñaría dos veces. Se agrega `acunarRecarga(destino, monto, idOrden)`, que revierte si el id ya se usó (autorizado, `AGENTS.md` §14). `acunar` queda para subsidios.
+3. **Relayer:** `RELAYER_LLAVE_PRIVADA` solo en Hardhat y desarrollo. En producción el arranque falla mientras no exista el firmante KMS, que queda en SP129, al desplegar. Se autoriza `qrcode` en backend.
+4. **Libro mayor:** una clave repetida con otros datos falla; un monto con más de 2 decimales se rechaza; `fallido` es final; un `pendiente` atascado se sigue reintentando y alerta en auditoría a los 5 intentos; la conciliación no cambia. Cambian a propósito dos pruebas de `a-09-libro-mayor.e2e-spec.ts`.
+5. **Endpoints (lo responde CA-4):** `POST /recargas` sin firma y `POST /recargas/:id/confirmar` con firma. `/simular-pago` sale de `ssd.md`.
+
+**Tareas nuevas:** SP126 (contrato), SP127 (worker), SP128 (libro mayor), SP129 (firmante KMS, al desplegar).
+
+**Archivos afectados:** `SPECS/features/sprint-2/HU-13-recarga-saldo/{spec,plan}.md`, `SPECS/ssd.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+---
+
+## 2026-11-07 · HU-13: backend y contrato implementados (SP109–SP113, SP126–SP128)
+
+**Evento:** El integrante aprueba el ajuste de spec y plan, y se implementan el contrato y el backend. Rama `feat/HU-13-recarga-saldo` en `contracts` (desde `develop`) y en `backend` (apilada sobre HU-14). Falta móvil (SP114).
+
+**Decisión:**
+1. **Respuesta perdida:** el worker consulta `ordenAcunada` antes de enviar y, si ya está acuñada, toma el hash del evento. Es más simple que interpretar el error del envío, porque ethers no decodifica un error propio al estimar gas. El contrato sigue revirtiendo con `OrdenYaAcunada` si dos intentos se cruzan. Se agregó el getter público `ordenAcunada`.
+2. **Sin transacción abierta durante la cadena:** a diferencia de la cola de correos, tomar un trabajo lo reserva 5 min en un solo `UPDATE` con `SKIP LOCKED`. Un corte se retoma solo; `idOrden` evita acuñar dos veces.
+3. **Caché del proveedor apagada:** con los 250 ms de ethers, dos acuñaciones seguidas leían el mismo nonce y la segunda daba `NONCE_EXPIRED`. Lo encontró la prueba real, no las pruebas con cadena simulada; esta corrección no tiene prueba automatizada.
+4. **`monto` no numérico:** responde `VALIDACION_FALLIDA`. `MONTO_INVALIDO` queda para más de 2 decimales.
+5. **`@types/qrcode`** se agrega como dependencia de desarrollo junto con `qrcode`, autorizada el 07/11.
+
+**Verificado:** `backend` lint, formato, 434 unitarias (cobertura 92,79 %), 375 e2e y build; `contracts` lint, 18 pruebas y build; `prisma migrate diff` sin diferencias. Prueba real con el backend en su proceso, `UniCoin` en un nodo Hardhat y firmas P-256: montos rechazados, confirmar sin firma da 401, acuñación con `balanceOf` y evento, repetir da 200 con el mismo hash, respuesta perdida sin doble acuñación, dos órdenes seguidas sin reintentos, orden vencida da 410 y nodo caído deja la orden en `procesando`. Tras caer el nodo no se comprobó que la orden termine acreditada contra Hardhat: esa recuperación está probada con la cadena simulada.
+
+**Sin verificar:** Polygon Amoy (`queryFilter` sin `fromBlock` puede chocar con el límite de rango de un RPC público; si pasa, el worker reintenta y alerta). El firmante KMS no existe: **con HU-13 fusionada, producción no arranca hasta SP129**. La firma real con huella se prueba con el móvil.
+
+**Observado:** `test/membresias/decision.e2e-spec.ts` (HU-03) falló una vez con un timeout de 10 s en `beforeAll`, tras colgarse 135 s. Pasó sola y en las dos corridas completas siguientes; no se encontró la causa y no toca código de HU-13. `npm audit` de `backend` sigue en 7 altas, igual que antes de `qrcode`; `contracts` reporta 14 altas, sin revisar. Un `npm audit fix` no se aplicó.
+
+**Diagramas a actualizar:** secuencia de recarga (ya en `plan.md` §5); clases, con `OrdenRecarga` y `TrabajoOnchain`.
+
+**Archivos afectados:** `contracts/contracts/UniCoin.sol`, `contracts/test/UniCoin.ts`; `backend/prisma/`, `backend/src/billetera/`, `backend/src/blockchain/`, `backend/src/i18n/es-BO.json`, `backend/test/`; `.env.example`; `SPECS/features/sprint-2/HU-13-recarga-saldo/{spec,plan}.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+---
+
+## 2026-11-07 · HU-13: pantalla de recarga en el móvil (SP114)
+
+**Decisión:** `src/app/recargar.tsx` es una sola ruta con pasos en memoria (monto, QR, en camino, acreditada, vencida), así "atrás" nunca vuelve a un QR ya pagado. El QR es la imagen del servidor con `Image`, sin dependencias nuevas. Al llegar a cero, la pantalla consulta `GET /billetera/recargas/:id` antes de decir "no se cobró nada". Billetera muestra un aviso por cada recarga pendiente de la primera página de movimientos, sin sumarlas, y relee saldo y pendientes al recuperar el foco, sin firma.
+
+**Razón:** una confirmación cuya respuesta se perdió ya no vence en el servidor, así que el reloj del teléfono no puede afirmar que no hubo cobro. Sumar montos obligaría a pasar por `Number`. Releer sin firma actualiza el saldo sin gastar una huella (CA-1).
+
+**Verificado:** `mobile` lint, tipos y 282 pruebas. En navegador contra el backend con cadena simulada, a 360 y 412 dp, con una llave P-256 de prueba inyectada como módulo nativo, de modo que el servidor validó firmas reales: monto, errores de rango y decimales, QR, una sola firma al confirmar, en camino, acreditada, saldo actualizado sin otra firma, movimiento en el historial, orden vencida (410), pago repetido (CA-3) y sin identidad (CA-6). El aviso de pendiente se vio con un movimiento insertado por SQL, y el pago repetido y el vencimiento se forzaron por SQL.
+
+**Sin verificar:** huella real en el teléfono y contra `UniCoin` en Hardhat desde la app. Falla de red al confirmar y QR que llega a cero: solo con Jest. Build de `mobile` sin correr en esta parte.
+
+**Diferencia con el prototipo:** "Recarga en camino" no lleva la tarjeta con la fila del movimiento y Billetera no agrega "1 URC = 1 Bs". Decidir en la verificación.
+
+**Archivos afectados:** `mobile/src/app/recargar.tsx`, `mobile/src/app/(pestanas)/billetera.tsx`, `mobile/src/app/movimientos.tsx`, `mobile/src/api/cliente.ts`, `mobile/src/i18n/es-BO.json`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/`.
+
+---
+
+## 2026-11-07 · HU-13: verificación en sesión limpia
+
+**Evento:** Se verifican CA-1 a CA-6 y las amenazas A-08 a A-13 contra `UniCoin` en un nodo Hardhat, con el worker real y un proxy RPC que apaga el nodo y pierde respuestas, por API y desde la app con una llave P-256 de prueba.
+
+**Defectos corregidos:**
+1. **Orden atascada en Amoy (`backend`, `c608dff`):** el RPC público de Amoy rechaza `eth_getLogs` desde el bloque 0 con `exceed maximum block range: 10000`. Con una respuesta perdida, los tokens quedaban acuñados y la orden en `procesando` sin salida. Ahora el hash se busca hacia atrás por ventanas de 1000 bloques, hasta 500 ventanas (unos 11 días en Amoy). Más allá, el worker sigue reintentando con su alerta.
+2. **Swagger:** el 401 de `confirmar` no nombraba `FIRMA_DISPOSITIVO_INVALIDA` ni `PETICION_EXPIRADA`.
+3. **Nonce:** el arreglo de la caché del proveedor ya tiene prueba automatizada; se comprobó que falla sin el arreglo.
+4. **Paridad (`mobile`, `8f51fb3`):** "Recarga en camino" lleva la fila del movimiento y Billetera agrega "1 URC = 1 Bs".
+
+**Verificado:** `backend` lint, formato, 436 unitarias (cobertura 92,98 %), 375 e2e y build; `mobile` lint, formato, tipos, 282 pruebas y build; `contracts` lint, 18 pruebas y build. Contra el contrato: contrato, API y libro mayor coinciden en cada paso; 8 confirmaciones simultáneas dejan un movimiento y un evento; respuesta perdida de verdad sin doble acuñación; con el nodo caído la orden sigue en `procesando`, alerta una vez al quinto intento y termina acreditada al volver el nodo. Desde la app: falla de red al confirmar, QR que llega a cero (pagado y sin pagar), pago repetido sin tocar la base, huella cancelada, sin identidad e historial vacío, a 360 y 412 dp. Con eso sale de "sin verificar" lo que había quedado solo con Jest.
+
+**Diferencias con el prototipo que quedan:** el diálogo de huella es el nativo genérico, sin el monto; el aviso "Tu pago quedó registrado" se ve siempre, porque la API no distingue un nodo caído de una espera normal; "Otro monto" no lleva el sufijo Bs; la etiqueta Pendiente usa reloj de arena (viene de HU-14).
+
+**Sin verificar:** huella y Keystore reales, en el teléfono. Acuñar en Amoy: contrato sin desplegar y relayer sin fondos (SP23, SP129); del RPC solo se comprobó la ventana de bloques. Montos rápidos con TalkBack: usan `selected` sobre `radio`, igual que Movimientos.
+
+**Dependencias:** altas en `backend` 7 y `mobile` 6, sin cambio por esta historia. `contracts` reportó 14 en la implementación, sin revisar. No se tocó ninguna dependencia.
+
+**Archivos afectados:** `backend/src/blockchain/blockchain.service.ts`, `backend/src/blockchain/blockchain.service.spec.ts`, `backend/src/billetera/recargas.controller.ts`; `mobile/src/app/recargar.tsx`, `mobile/src/i18n/es-BO.json`, `mobile/src/__tests__/`; `SPECS/features/sprint-2/HU-13-recarga-saldo/spec.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+---
+
+## 2026-11-07 · HU-13: huella real en el teléfono
+
+**Evento:** Se prueba la recarga en el teléfono físico (Infinix X669, Android 12, TEE) contra `UniCoin` en un nodo Hardhat, con la huella del integrante y un proxy que cuenta las peticiones firmadas. Sin cambios de código.
+
+**Verificado:** Una firma por confirmación: el integrante vio 2 huellas (abrir Billetera y pagar) y el registro muestra 2 firmadas. Crear la orden, consultarla y volver a Billetera no firman. Recargar 50 Bs acredita: contrato, libro y app coinciden. Cancelar la huella no llama a `confirmar`, no cobra y deja reintentar la misma orden, que acredita 20 Bs (contrato, libro y app en 70, 2 eventos). Cerrar un QR sin pagar no crea movimiento. Billetera, monto y QR sin desbordes a 412 dp.
+
+**TalkBack, montos rápidos:** el elegido dice "Seleccionado, 20 Bs, botón de selección, tocar 2 veces para seleccionar"; los demás no dicen "Seleccionado". Se distinguen. El elegido repite la pista de tocar 2 veces, igual que en Movimientos; queda sin corregir.
+
+**Sin verificar:** dedo no registrado en esta pantalla (probado con el mismo módulo en SP125, sin firma). "Recarga en camino" en el teléfono: Hardhat acuña antes de la consulta de 3 s; vista en web con el nodo caído. Invalidación al registrar una huella nueva, StrongBox, Play Integrity real y Amoy.
+
+**Archivos afectados:** `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+---
+
+## 2026-11-07 · HU-13: revisión de código y últimas pruebas en el teléfono
+
+**Evento:** Revisión de todo el cambio de HU-13 en `backend`, `mobile` y `contracts`, antes de subirlo. 10 hallazgos, comprobados contra el código.
+
+**Corregidos:**
+1. Una falla de la BD después de acuñar detenía el lote y nunca sumaba intentos, así que la alerta no salía (`backend` `c6a67e8`).
+2. La misma clave de idempotencia con otra reserva pasaba como la misma operación (`backend` `b15640a`, A-09).
+3. Billetera no se actualizaba sola con una recarga pendiente: ahora consulta cada 5 s mientras la pantalla está a la vista y hay pendientes, sin huella (`mobile` `5cb8227`, también lo siguiente).
+4. Movimientos no recargaba al volver de recargar y seguía invitando a recargar.
+5. Consultar una orden aún pendiente borraba el error a la vista.
+6. Un rechazo del servidor al consultar se reintentaba sin fin y sin aviso: ahora se muestra y deja de consultar.
+7. "Seguimos intentando" salía en toda recarga: ahora solo si tarda más de 30 s (RN-6).
+
+**Pasan a SP129:** esperar N confirmaciones antes de dar por acuñada una recarga, y reemplazar con más gas una transacción atascada. Solo importan con el firmante real.
+
+**Sin cambio:** producción no arranca sin SP129, aprobado el 07/11. La revisión propone una opción más estrecha: arrancar sin relayer y dejar que las recargas reintenten. Queda a decisión del integrante.
+
+**Verificado en el teléfono** (Infinix X669, `UniCoin` en Hardhat, sin compilar el APK): un dedo no registrado dice "no reconocido", y al cancelar no hay petición a `confirmar`, ni evento, ni cambio en el contrato. Con el nodo cortado por un proxy RPC: "Recarga en camino" con su fila, el aviso de reintento a los 30 s y Billetera con la recarga pendiente. Al devolver el nodo, Billetera pasa a 50,00 URC y quita el aviso sin tocar nada y sin otra huella: contrato, libro y app coinciden, 1 evento; después deja de consultar. Desde el historial vacío, recargar y cerrar muestra el movimiento nuevo.
+
+**Regresión:** `backend`, `mobile` y `contracts`: lint, formato, pruebas, e2e y build en verde.
+
+**Sin verificar:** invalidación al registrar una huella nueva, StrongBox, Play Integrity real, Amoy y CI real.
+
+**Archivos afectados:** `backend/src/blockchain/`, `backend/src/billetera/movimientos.service.ts`; `mobile/src/app/recargar.tsx`, `mobile/src/app/movimientos.tsx`, `mobile/src/app/(pestanas)/billetera.tsx`, `mobile/src/__tests__/`; `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
 
 ---
