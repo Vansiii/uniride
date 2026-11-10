@@ -1208,3 +1208,20 @@ Los dos se vieron en el teléfono físico.
 **Evento:** El integrante aprueba los 6 planes de S3 y autoriza lo que exige `AGENTS.md` §14: migraciones `013`–`016` (no destructivas), estados de reserva y viaje derivado (D-23), escrow (bloqueo y liberación), capas de encuentro y trayecto (D-22), y las dependencias `expo-camera` y `expo-task-manager`. También autoriza crear la rama, el commit, el PR de la raíz y fusionarlo. Tareas SP134–SP176 cargadas en `backlog.md`.
 
 **Archivos afectados:** `SPECS/features/sprint-3/*/plan.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+---
+
+## 2026-11-10 · HU-10: correcciones del contrato en el backend
+
+**Evento:** Sobre la rama de Smile-HD (`feat/HU-10-cambio-dispositivo`, con OK del integrante) se corrige lo que la revisión del 10/11 encontró en el backend. Los commits nuevos usan SP136 y SP137, no SP03.
+
+**Decisiones:**
+1. **Códigos de HU-08:** la revinculación responde `PRUEBA_VIDA_FALLIDA` e `INTENTOS_AGOTADOS`, como la verificación de identidad. Se corrige el plan, que decía `LIVENESS_FALLIDA` e `IDENTIDAD_BLOQUEADA`. La app (`mobile/src/app/dispositivo.tsx`) tiene que esperar estos en SP139.
+2. **Sesión de vida atada al desafío (A-08):** una sesión que no salió con ese desafío (repetida de otro, inventada o ausente) cuenta como prueba de vida fallida. Se acepta el sufijo `~<rostro>` del motor simulado; Rekognition rechaza un id así.
+3. **409 `CONFLICTO_CONCURRENTE`** con `dispositivo.revincular.concurrente` y en Swagger.
+4. **Auditoría:** cada rechazo lleva modelo y motivo (CA-12). El correo lleva la fecha en hora de Bolivia (CA-8).
+5. **CORS:** se quita el `enableCors` abierto con credenciales; el desarrollo web usa el proxy.
+
+**Prueba real de la API** (base propia, motor y Play Integrity simulados): revinculación sin identidad 201, desafío reusado 400, dos a la vez quedan con un solo activo, sesión inventada y sesión de otro desafío 422 (cuentan 2 intentos), servicio caído 503 sin contar. La semilla de `con@prueba.test` no tiene carnet en S3: el camino feliz con identidad solo se prueba en las e2e.
+
+**Archivos afectados:** `backend/src/dispositivos/{revinculacion.service,dispositivos.controller}.ts`, `dto/dispositivo.dto.ts`, `src/configurar-aplicacion.ts`, `src/i18n/es-BO.json`, pruebas de `dispositivos`, `notificaciones` y `test/ataques/a-08-revinculacion.e2e-spec.ts`; `SPECS/features/sprint-3/HU-10-cambio-dispositivo/plan.md`, `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.

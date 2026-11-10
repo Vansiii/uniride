@@ -2,37 +2,34 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-11-08
+**Última actualización:** 2026-11-10
 
 **Sprint actual:** Sprint 3 · Viaje completo verificado y pagado (37 PHU con HU-10, Release 1.0).
-**Foco:** specs de HU-10, HU-29, HU-19, HU-22, HU-23 y HU-24 **aprobadas por el PO (08/11)**; **planes aprobados (08/11)** y tareas SP134–SP176 en el backlog. D-22 a D-28 resueltas (delegadas por el integrante, 08/11). Siguiente fase: planes técnicos.
+**Foco:** HU-10: backend corregido (10/11); falta mobile (CA-1 y códigos) y el teléfono físico.
 
 ## Estado actual
 
-- **Sprint 1 y Sprint 2 en `develop`** de los 5 repositorios: HU-08, HU-09 (con SP125 Keystore nativo), HU-12, HU-13, HU-14, HU-17, HU-18 y `fix/dependencias-audit` (Expo SDK 58) fusionados; comprobado con `git merge-base --is-ancestor` el 08/11 en `backend`, `mobile` y raíz. `backend` `develop` en `dd0b63f`.
-- **Specs del Sprint 3** (`SPECS/features/sprint-3/`), aprobadas; `plan.md` aprobados (roadmap `plan aprobado`), en orden de dependencia: HU-10 (5) y HU-29 (3) → HU-19 (8) → HU-22 (8) → HU-23 (8) → HU-24 (5). Roadmap en `en spec`.
-- **D-22 a D-27 resueltas** (MEMORY 08/11, «Resuelve D-22 a D-27»), reflejadas en las specs y en `ssd.md` §6 y §9:
-  - D-22 llave de trayecto sin biometría, registrada en una petición F+B, solo para el código rotativo y las posiciones.
-  - D-23 estado por reserva; el del viaje se deriva, sin transiciones nuevas.
-  - D-24 verificación fallida retiene el escrow con alerta (resuelve HU-20/HU-26).
-  - D-25 precio en múltiplos de 0,02 URC al publicar.
-  - D-26 la búsqueda oculta los viajes propios.
-  - D-27 cuenta suspendida no reserva ni recibe reservas nuevas.
-  - D-28 HU-10 sube a S3: volver a vincular (huella nueva o teléfono nuevo) con prueba de vida contra el carnet; la llave sigue anulándose con cada huella nueva.
-- Cambios sin commit en la raíz: specs de S3, `MEMORY.md`, `HEARTBEAT.md`, `roadmap.md`, `ssd.md`.
+- **Sprint 1 y Sprint 2 en `develop`** de los 5 repositorios. Specs y planes del Sprint 3 aprobados (08/11), tareas SP134–SP176 en el backlog.
+- **HU-10 en curso** en `feat/HU-10-cambio-dispositivo` (raíz PR #27, backend #16, mobile #16, de Smile-HD). **No fusionar todavía.**
+  - Backend (SP134–SP137) hecho y corregido el 10/11: `backend` en `d979d72`, `verificar.py backend` en verde (482 unitarias, 523 e2e, cobertura 92 %), prueba real de la API en `.harness`.
+  - Contrato definitivo en `plan.md` §3: códigos de HU-08 (`PRUEBA_VIDA_FALLIDA`, `INTENTOS_AGOTADOS`), 409 `CONFLICTO_CONCURRENTE`, la sesión de vida vale solo con su desafío.
 
-## Última sesión (08/11)
+## Última sesión (10/11)
 
-- Análisis completo del harness, documento técnico, `ssd.md`, `DESIGN_SYSTEM.md` §9–§10, contrato `EscrowUniRide`, `FirmaDispositivoGuard`, Prisma y módulo nativo de la llave.
-- Hallazgo: la llave de HU-09 exige huella en cada firma (`setUserAuthenticationParameters(0, …)`), incompatible con el QR rotativo y las posiciones cada 15 s → D-22.
-- Redactadas las specs, resueltas D-22 a D-28, PO aprobó las 6 specs; planes aprobados por el integrante con lo de §14, tareas SP134–SP176 en el backlog; PR de la raíz con todo.
-- HU-10 sube a S3 (D-28): causa del callejón sin salida en `LlaveDispositivoModule.kt` (anulación reducida a «Actualiza la app») y en `DispositivosService` (rechaza con dispositivo activo, `UNIQUE(usuario_id)`).
+- Correcciones del backend de HU-10 sobre la rama de Smile-HD (con OK del integrante): sesión de vida atada al desafío (A-08), 409 con mensaje y Swagger, auditoría de rechazos con modelo (CA-12), fecha local en el correo (CA-8), fuera el CORS abierto con credenciales. Prueba A-08 propia.
+- Plan de HU-10 completado: códigos reales, amenazas con su prueba, consultas, decisiones y §7b.
+- Vulnerabilidades publicadas revisadas en los 4 repositorios: ninguna.
 
 ## Próximo paso concreto
 
-1. Implementar en orden, apilando ramas `feat/HU-xx-slug` desde `develop` en cada repositorio tocado: **HU-10 (SP134)** → HU-29 → HU-19 → HU-22 → HU-23 → HU-24.
-2. Dependencias autorizadas: `expo-camera` (SP161) y `expo-task-manager` (SP168), con `npx expo install`.
-3. Antes de HU-24 en Amoy: otorgar `ROL_OPERADOR`/`ROL_VERIFICADOR` (Ignition no lo hace) y fondear la cuenta verificadora.
+1. **HU-10 parte 2 (mobile, SP138–SP139)** sobre la rama de Smile-HD:
+   - CA-1: Billetera, Publicar y Recarga muestran «Actualiza la app» con `LLAVE_ANULADA`; falta el aviso «Registraste una huella nueva…» con «Confirmar mi identidad».
+   - `dispositivo.tsx` espera `LIVENESS_FALLIDA` e `IDENTIDAD_BLOQUEADA`: pasar a `PRUEBA_VIDA_FALLIDA` e `INTENTOS_AGOTADOS`, y agregar `CONFLICTO_CONCURRENTE`.
+   - `crearLlave()` borra la llave local antes de que el servidor acepte: borrar solo después del 201.
+   - Fuera de alcance que baja seguridad: modo simulado en cualquier build web, token de refresco en `localStorage`, `globalThis` en `sesion.tsx`, script `android` de `package.json`. Sin CORS en el backend: el web de desarrollo va por el proxy.
+   - Raíz: `docker-compose.yml` cambiado en el PR, revisarlo.
+2. Luego SP140 en teléfono físico (huella nueva real) y la parte 4: revisión, commits con SP134–SP140, punteros.
+3. Después, en orden: HU-29 → HU-19 → HU-22 → HU-23 → HU-24. Dependencias autorizadas: `expo-camera` (SP161) y `expo-task-manager` (SP168).
 
 ## Sin verificar
 

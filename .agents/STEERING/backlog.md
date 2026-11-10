@@ -198,10 +198,10 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 ## Sprint 3 · Viaje completo verificado y pagado
 
 ### HU-10 · Volver a vincular o cambiar de teléfono (16,5 h)
-- [ ] SP134 · Migración `013_dispositivos_historial` y ajuste de Prisma (1–N, `findFirst` activo) — 1,5h — @[POR DEFINIR]
-- [ ] SP135 · `IdentidadService.comprobarRostroDelTitular` con bloqueo de HU-08 — 2h — @[POR DEFINIR]
-- [ ] SP136 · `RevinculacionService` + endpoints + Swagger + correo + auditoría — 3h — @[POR DEFINIR]
-- [ ] SP137 · Pruebas e2e y de ataque A-01, A-02, A-03, A-04 — 3h — @[POR DEFINIR]
+- [x] SP134 · Migración `013_dispositivos_historial` y ajuste de Prisma (1–N, `findFirst` activo) — 1,5h — @[POR DEFINIR] · backend `6c77d2d` (Smile-HD)
+- [x] SP135 · `IdentidadService.comprobarRostroDelTitular` con bloqueo de HU-08 — 2h — @[POR DEFINIR] · backend `6c77d2d` (Smile-HD)
+- [x] SP136 · `RevinculacionService` + endpoints + Swagger + correo + auditoría — 3h — @[POR DEFINIR] · backend `6c77d2d` (Smile-HD); @agente 10/11 `1c272cb`, `d979d72`: sesión de vida atada al desafío, 409 con mensaje y en Swagger, auditoría con modelo, fecha local en el correo, sin CORS abierto
+- [x] SP137 · Pruebas e2e y de ataque A-01, A-02, A-03, A-04 — 3h — @[POR DEFINIR] · backend `6c77d2d` (Smile-HD); @agente 10/11 `3d4f6fe`: CA-8, CA-12, 409 en concurrencia y A-08 propia. 482 unitarias, 523 e2e, cobertura 92 %
 - [ ] SP138 · Módulo nativo: códigos `LLAVE_ANULADA`, `SIN_LLAVE`, `SIN_BIOMETRIA`, `BIOMETRIA_BLOQUEADA`; `keystore.ts` — 2h — @[POR DEFINIR]
 - [ ] SP139 · Mobile: aviso de llave anulada y flujo de revinculación en «Mi teléfono»; textos — 4h — @[POR DEFINIR]
 - [ ] SP140 · Prueba en teléfono físico: registrar huella nueva y volver a vincular — 1h — @[POR DEFINIR]
