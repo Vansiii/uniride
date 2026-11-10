@@ -1243,3 +1243,10 @@ Los dos se vieron en el teléfono físico.
 **Teléfono (Infinix X669):** vincular, rechazo forzado que conserva la llave (firma 200 después), huella nueva real (`dumpsys fingerprint` count 1→2) → aviso CA-1 sin pedir huella ni enviar nada → revinculación con identidad (carnet sembrado en MinIO, motor simulado) → firma con la llave nueva 202. Teléfono sin llave (`pm clear`): aviso «vinculada a otro teléfono» y revinculación. Carnet con otro rostro: dos `ROSTRO_NO_COINCIDE` y el tercero `INTENTOS_AGOTADOS` con el día. Base: anterior inactivo con `desactivado_en`, auditoría sin datos biométricos, correo encolado. Capturas y registro de peticiones guardados fuera del repositorio.
 
 **Archivos afectados:** `backend/src/configurar-aplicacion.ts`, `backend/test/salud.e2e-spec.ts`, `mobile/modules/llave-dispositivo/…/LlaveDispositivoModule.kt`, `mobile/src/dispositivo/keystore.ts`, `src/componentes/BotonRevincular.tsx`, `src/app/{dispositivo,recargar}.tsx`, `src/app/(pestanas)/{billetera,publicar}.tsx`, `src/api/cliente.ts`, `src/i18n/es-BO.json`, pruebas; `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
+
+## 2026-11-10 · HU-10: verificación limpia
+
+- Regresión completa de backend y mobile en verde sobre `backend` `8887527` (484 unitarias, 524 e2e, cobertura 92 %).
+- Peticiones reales contra el backend de pruebas, con MinIO real (`.harness` local): CA-2, CA-3 (firma del anterior → 401), CA-4, CA-5, CA-6, CA-7 (429 con `bloqueadoHasta` a 24 h), CA-8 (correo con fecha de Bolivia y modelo; el perdedor del 409 no recibe correo), CA-10, CA-11 (integridad caída y almacenamiento detenido: 503, nada cambia, sin intento), CA-12, A-08 y dos revinculaciones a la vez (una 201 y otra 409, un solo activo).
+- Corregido: pedir el desafío durante un bloqueo o con el motor caído no quedaba en auditoría (CA-12); el sufijo `~rostro` del motor simulado se aceptaba sobre ids reales de Rekognition y daba 503 sin contar intento: ahora solo sobre `sim-…` (`86d6e54`).
+- Sin verificar: CA-9 (depende de HU-22); prueba de vida nativa (HU-08) y Play Integrity reales (despliegue).

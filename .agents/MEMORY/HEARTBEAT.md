@@ -5,35 +5,30 @@
 **Última actualización:** 2026-11-10
 
 **Sprint actual:** Sprint 3 · Viaje completo verificado y pagado (37 PHU con HU-10, Release 1.0).
-**Foco:** HU-10: backend, app y teléfono físico hechos; falta la verificación limpia y la subida.
+**Foco:** HU-10: implementada y verificada (verificación limpia el 10/11); falta la subida.
 
 ## Estado actual
 
 - **Sprint 1 y Sprint 2 en `develop`** de los 5 repositorios. Specs y planes del Sprint 3 aprobados (08/11), tareas SP134–SP176 en el backlog.
 - **HU-10 en curso** en `feat/HU-10-cambio-dispositivo` (raíz PR #27, backend #16, mobile #16, de Smile-HD). **No fusionar todavía.**
-  - Backend (SP134–SP137) corregido el 10/11: `backend` en `9951b72` (sin ETag en la API), verificación completa en verde.
+  - Backend (SP134–SP137) corregido y verificado el 10/11: `backend` en `8887527`, sin push (dos commits de la verificación).
   - Mobile (SP138–SP139) corregido el 10/11: `mobile` en `472e22b`, lint, tipos y 390 pruebas en verde. Sin commit ni push en la raíz (punteros de submódulos pendientes).
   - SP140 hecho en un Infinix X669 con huella nueva real.
 
 ## Última sesión (10/11)
 
-- App de HU-10: CA-1 («Registraste una huella nueva…» con «Confirmar mi identidad») en Billetera, Publicar y Recarga; «Mi teléfono» con los códigos del contrato final (`PRUEBA_VIDA_FALLIDA`, `INTENTOS_AGOTADOS` con hora, `CONFLICTO_CONCURRENTE`).
-- La llave nueva solo firma tras el 201 (dos alias y `confirmarLlave`): un rechazo ya no deja el teléfono sin llave.
-- Quitado lo fuera de alcance que bajaba la seguridad: simulaciones en web, refresco en `localStorage`, `globalThis` en `sesion.tsx`, script `android`.
-- El Kotlin de la rama no compilaba; corregido y compilado. Aviso de éxito que quedaba junto a un rechazo, corregido.
-- En el teléfono: vincular, rechazo que conserva la llave, huella nueva → CA-1 → revinculación con identidad → firma con la llave nueva; teléfono sin llave → revinculación. Base: anterior inactivo, auditoría y correo.
-- Rechazo real de rostro y bloqueo de 24 h vistos en el teléfono; la hora para reintentar ahora dice el día cuando no es hoy (`formatearHora`, también en HU-08).
-- Corregido (venía de antes): tras renovar la sesión, un GET volvía como `304` vacío y la app mostraba «Algo salió mal». La API ya no manda ETag (`9951b72`, prueba e2e en `salud`).
-- Disco C: liberado (18 GB libres): restos de JetBrains y de Visual Studio, Gradle 8.14 y la imagen del emulador.
+- Verificación limpia de HU-10 (sesión que no implementó): regresión completa de backend y mobile en verde; cada CA con peticiones reales contra el backend de pruebas y MinIO real (detalle en MEMORY).
+- Corregido en el backend: auditoría también al pedir el desafío bloqueado o con el motor caído (CA-12), y sufijo del motor simulado aceptado solo en sesiones `sim-` (`86d6e54`, `8887527`). Las pruebas nuevas fallan sin la corrección.
+- Revisado `docker-compose.yml` del PR: solo da al contenedor del backend las URL de la base con el host `postgres` y el rol de la app; fuera del alcance de la historia pero correcto.
 
 ## Próximo paso concreto
 
-1. **HU-10 parte 3: verificación limpia** (sesión que no implementó), por criterio y por riesgo, con la corrida completa de backend y mobile.
-2. Parte 4: revisión, PR y punteros. Raíz: `docker-compose.yml` cambiado en el PR, revisarlo.
-3. Después, en orden: HU-29 → HU-19 → HU-22 → HU-23 → HU-24. Dependencias autorizadas: `expo-camera` (SP161) y `expo-task-manager` (SP168).
+1. **HU-10 parte 4:** revisión, push de `backend` (`86d6e54`, `8887527`), PR y punteros. Los commits viejos dicen `SP03` en vez de SP134–SP140.
+2. Después, en orden: HU-29 → HU-19 → HU-22 → HU-23 → HU-24. Dependencias autorizadas: `expo-camera` (SP161) y `expo-task-manager` (SP168).
 
 ## Sin verificar
 
+- HU-10 CA-9 (llaves de trayecto) depende de HU-22.
 - HU-10 depende de la prueba de vida nativa de HU-08, todavía pendiente en la app: en el teléfono se usó la simulada de desarrollo.
 - HU-10: `PRUEBA_VIDA_FALLIDA` y `CONFLICTO_CONCURRENTE` en la app solo con Jest (el backend los prueba en e2e); `ROSTRO_NO_COINCIDE` e `INTENTOS_AGOTADOS` vistos en el teléfono. Publicar con la llave anulada, solo con Jest (misma función que Billetera y Recarga, vistas en el teléfono).
 - Play Integrity real: simulada en desarrollo. HU-22 CA-7 no se declara verificado sin un teléfono físico con atestación real.
