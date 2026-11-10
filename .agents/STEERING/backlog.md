@@ -207,8 +207,8 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP140 · Prueba en teléfono físico: registrar huella nueva y volver a vincular — 1h — @[POR DEFINIR] · @agente 10/11 en Infinix X669 con huella nueva real: aviso CA-1, revinculación con identidad, firma con la llave nueva; rechazo que conserva la llave; teléfono sin llave
 
 ### HU-29 · Confirmación biométrica (8 h)
-- [ ] SP141 · `@AccionSensible` y migración de los controladores existentes; Swagger — 1,5h — @[POR DEFINIR]
-- [ ] SP142 · Pruebas de catálogo y de ataque A-08/A-11 — 2h — @[POR DEFINIR]
+- [x] SP141 · `@AccionSensible` y migración de los controladores existentes; Swagger — 1,5h — @[POR DEFINIR] · @agente 10/11 backend `0aa3d23`, `d9875bd`: crear billetera, confirmar recarga y publicar viaje; texto en Swagger; rechazo auditado con el nombre de la acción
+- [x] SP142 · Pruebas de catálogo y de ataque A-08/A-11 — 2h — @[POR DEFINIR] · @agente 10/11 backend `64e9cdb`: catálogo leído de las rutas registradas y A-08/A-04 por acción; 488 unitarias, 543 e2e, cobertura 92 %
 - [ ] SP143 · Mobile: `ConfirmacionBiometrica`, `useAccionSensible`, textos por acción; adoptarlo en recargar, publicar y billetera — 4h — @[POR DEFINIR]
 - [ ] SP144 · Prueba en teléfono físico: huella ajena, cancelar, bloqueo — 0,5h — @[POR DEFINIR]
 

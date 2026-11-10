@@ -5,7 +5,7 @@
 **Última actualización:** 2026-11-10
 
 **Sprint actual:** Sprint 3 · Viaje completo verificado y pagado (37 PHU con HU-10, Release 1.0).
-**Foco:** HU-10: implementada, verificada y revisada (10/11); falta push y PR.
+**Foco:** HU-29 parte 1 (backend) hecha; sigue la app (SP143). HU-10 sigue sin push.
 
 ## Estado actual
 
@@ -16,21 +16,25 @@
   - Punteros de `backend` y `mobile` en la raíz con commit; el de `contracts` apunta a HU-13 y no va en esta rama.
   - **Pendiente de revisión por otro integrante** : llave desparejada si la app se cierra entre el 201 y `confirmarLlave()` (hoy se recupera revinculando) y el bloque de fallas de llave repetido en Billetera, Publicar, Recarga y Dispositivo.
   - SP140 hecho en un Infinix X669 con huella nueva real.
+- **HU-29 en curso** en `feat/HU-29-confirmacion-biometrica` (raíz y `backend`), apilada sobre HU-10: se fusiona después de HU-10.
+  - Backend (SP141–SP142): `backend` en `d9875bd`, sin push. Verificación completa en verde (488 unitarias, 543 e2e, cobertura 92 %) y prueba real de API.
+  - Mobile (SP143) sin empezar: la rama de `mobile` se crea desde `feat/HU-10-cambio-dispositivo`.
 
 ## Última sesión (10/11)
 
-- Revisión de código de lo no subido: corregidos el doble registro de cada fallo de rostro en auditoría, la identidad comprobada antes de Play Integrity (bloqueo de 24 h desde un emulador) y la pantalla que ofrecía «Vincular» tras un 409 sin consulta. Lo demás se descartó con motivo.
-
-- Verificación limpia de HU-10 (sesión que no implementó): regresión completa de backend y mobile en verde; cada CA con peticiones reales contra el backend de pruebas y MinIO real (detalle en MEMORY).
-- Corregido en el backend: auditoría también al pedir el desafío bloqueado o con el motor caído (CA-12), y sufijo del motor simulado aceptado solo en sesiones `sim-` (`86d6e54`, `8887527`). Las pruebas nuevas fallan sin la corrección.
-- Revisado `docker-compose.yml` del PR: solo da al contenedor del backend las URL de la base con el host `postgres` y el rol de la app; fuera del alcance de la historia pero correcto.
+- HU-29 parte 1: `@AccionSensible` en crear billetera, confirmar recarga y publicar viaje, con texto en Swagger y el nombre de la acción en la auditoría de cada rechazo de firma.
+- Prueba de catálogo (CA-7, CA-4) que lee las rutas registradas y prueba de ataque A-08/A-04 por acción (CA-3, CA-6). Comprobado que quitar la firma de una acción hace fallar 15 pruebas.
+- Prueba real contra el backend de pruebas: sin firma 401, llave ajena 401, firma del dueño 202 auditada, firma repetida 401 `PETICION_EXPIRADA`.
 
 ## Próximo paso concreto
 
 1. **HU-10:** push de `backend`, `mobile` y la raíz a los PR #16, #16 y #27 cuando el usuario lo diga; merge en orden backend → mobile → raíz. Los commits viejos dicen `SP03` en vez de SP134–SP140.
-2. Después, en orden: HU-29 → HU-19 → HU-22 → HU-23 → HU-24. Dependencias autorizadas: `expo-camera` (SP161) y `expo-task-manager` (SP168).
+2. **HU-29 parte 2:** SP143 en `mobile` (`ConfirmacionBiometrica`, `useAccionSensible`, textos del diálogo por acción; adoptarlo en recargar, publicar y billetera). Luego verificación (parte 3) y teléfono (SP144).
+3. Después, en orden: HU-19 → HU-22 → HU-23 → HU-24. Dependencias autorizadas: `expo-camera` (SP161) y `expo-task-manager` (SP168).
 
 ## Sin verificar
+
+- HU-29: CA-1, CA-2, CA-8 y CA-9 (app, parte 2); CA-5 (huella ajena) solo en teléfono físico (SP144).
 
 - HU-10 CA-9 (llaves de trayecto) depende de HU-22.
 - HU-10: si la app se cierra entre el 201 y `confirmarLlave()`, el servidor queda con la llave nueva y el teléfono con la vieja; se recupera revinculando (riesgo aceptado en la revisión).
