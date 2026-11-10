@@ -14,6 +14,7 @@
   - Backend (SP134–SP137): `backend` en `180ae4e`, sin push. Verificación completa en verde tras la revisión (524 e2e).
   - Mobile (SP138–SP139): `mobile` en `6bc8777`, sin push. Lint, tipos y pruebas en verde.
   - Punteros de `backend` y `mobile` en la raíz con commit; el de `contracts` apunta a HU-13 y no va en esta rama.
+  - **Pendiente de revisión por otro integrante** : llave desparejada si la app se cierra entre el 201 y `confirmarLlave()` (hoy se recupera revinculando) y el bloque de fallas de llave repetido en Billetera, Publicar, Recarga y Dispositivo.
   - SP140 hecho en un Infinix X669 con huella nueva real.
 
 ## Última sesión (10/11)
