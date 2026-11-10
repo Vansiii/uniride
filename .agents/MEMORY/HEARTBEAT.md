@@ -11,7 +11,7 @@
 
 - **Sprint 1 y Sprint 2 en `develop`** de los 5 repositorios. Specs y planes del Sprint 3 aprobados (08/11), tareas SP134–SP176 en el backlog.
 - **HU-10 en curso** en `feat/HU-10-cambio-dispositivo` (raíz PR #27, backend #16, mobile #16, de Smile-HD). **No fusionar todavía.**
-  - Backend (SP134–SP137) corregido el 10/11: `backend` en `d979d72`, en verde (482 unitarias, 523 e2e, cobertura 92 %).
+  - Backend (SP134–SP137) corregido el 10/11: `backend` en `9951b72` (sin ETag en la API), verificación completa en verde.
   - Mobile (SP138–SP139) corregido el 10/11: `mobile` en `472e22b`, lint, tipos y 390 pruebas en verde. Sin commit ni push en la raíz (punteros de submódulos pendientes).
   - SP140 hecho en un Infinix X669 con huella nueva real.
 
@@ -23,6 +23,7 @@
 - El Kotlin de la rama no compilaba; corregido y compilado. Aviso de éxito que quedaba junto a un rechazo, corregido.
 - En el teléfono: vincular, rechazo que conserva la llave, huella nueva → CA-1 → revinculación con identidad → firma con la llave nueva; teléfono sin llave → revinculación. Base: anterior inactivo, auditoría y correo.
 - Rechazo real de rostro y bloqueo de 24 h vistos en el teléfono; la hora para reintentar ahora dice el día cuando no es hoy (`formatearHora`, también en HU-08).
+- Corregido (venía de antes): tras renovar la sesión, un GET volvía como `304` vacío y la app mostraba «Algo salió mal». La API ya no manda ETag (`9951b72`, prueba e2e en `salud`).
 - Disco C: liberado (18 GB libres): restos de JetBrains y de Visual Studio, Gradle 8.14 y la imagen del emulador.
 
 ## Próximo paso concreto
@@ -56,7 +57,6 @@
 - **HU-18, «Elegir en el mapa» sin ubicación:** el pin empieza en el centro de Santa Cruz y se puede usar sin moverlo.
 - **Organización suspendida:** ningún código la suspende; se resuelve en la historia que implemente la suspensión.
 - **`app.super_admin` en viajes:** `publicar` y `mis-viajes` abren RLS filtrando por `conductorId`; una política por `conductor_id` sería más estrecha (`AGENTS.md` §14).
-- **304 tras renovar la sesión:** con el token de acceso vencido, el reintento de un GET puede llegar como `304` (ETag de Express) y `leer()` lo muestra como «Algo salió mal»; «Reintentar» lo resuelve. Viene de antes de HU-10. Opciones: quitar el ETag en la API (datos privados por usuario) o tratar el 304 en el cliente. Decidir en qué historia va.
 - **Sesión muerta en la app:** si el refresco falla, ninguna pantalla lleva a iniciar sesión.
 - **HU-17, diferencias con el prototipo:** fecha en chips con hora escrita y origen/destino fuera de la tarjeta del mapa.
 - Sin resolver para HU-09/HU-10: pedir huella al vincular y alias de llave por cuenta.
