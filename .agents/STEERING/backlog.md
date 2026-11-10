@@ -202,9 +202,9 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP135 · `IdentidadService.comprobarRostroDelTitular` con bloqueo de HU-08 — 2h — @[POR DEFINIR] · backend `6c77d2d` (Smile-HD)
 - [x] SP136 · `RevinculacionService` + endpoints + Swagger + correo + auditoría — 3h — @[POR DEFINIR] · backend `6c77d2d` (Smile-HD); @agente 10/11 `1c272cb`, `d979d72`: sesión de vida atada al desafío, 409 con mensaje y en Swagger, auditoría con modelo, fecha local en el correo, sin CORS abierto
 - [x] SP137 · Pruebas e2e y de ataque A-01, A-02, A-03, A-04 — 3h — @[POR DEFINIR] · backend `6c77d2d` (Smile-HD); @agente 10/11 `3d4f6fe`: CA-8, CA-12, 409 en concurrencia y A-08 propia. 482 unitarias, 523 e2e, cobertura 92 %
-- [ ] SP138 · Módulo nativo: códigos `LLAVE_ANULADA`, `SIN_LLAVE`, `SIN_BIOMETRIA`, `BIOMETRIA_BLOQUEADA`; `keystore.ts` — 2h — @[POR DEFINIR]
-- [ ] SP139 · Mobile: aviso de llave anulada y flujo de revinculación en «Mi teléfono»; textos — 4h — @[POR DEFINIR]
-- [ ] SP140 · Prueba en teléfono físico: registrar huella nueva y volver a vincular — 1h — @[POR DEFINIR]
+- [x] SP138 · Módulo nativo: códigos `LLAVE_ANULADA`, `SIN_LLAVE`, `SIN_BIOMETRIA`, `BIOMETRIA_BLOQUEADA`; `keystore.ts` — 2h — @[POR DEFINIR] · mobile `a59b287` (Smile-HD); @agente 10/11 `306de57`, `f269314`: la llave nueva firma solo tras el 201 (dos alias, `confirmarLlave`), sin llave ni firma simuladas en web, Kotlin que compila
+- [x] SP139 · Mobile: aviso de llave anulada y flujo de revinculación en «Mi teléfono»; textos — 4h — @[POR DEFINIR] · mobile `6a6eda4` (Smile-HD); @agente 10/11 `08167fd`, `690e86b`, `472e22b`: CA-1 en Billetera, Publicar y Recarga, códigos del contrato final, fuera `localStorage`, `globalThis` y script `android`, hora de desbloqueo con el día. 390 pruebas
+- [x] SP140 · Prueba en teléfono físico: registrar huella nueva y volver a vincular — 1h — @[POR DEFINIR] · @agente 10/11 en Infinix X669 con huella nueva real: aviso CA-1, revinculación con identidad, firma con la llave nueva; rechazo que conserva la llave; teléfono sin llave
 
 ### HU-29 · Confirmación biométrica (8 h)
 - [ ] SP141 · `@AccionSensible` y migración de los controladores existentes; Swagger — 1,5h — @[POR DEFINIR]
