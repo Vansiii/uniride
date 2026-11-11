@@ -1260,3 +1260,14 @@ Los dos se vieron en el teléfono físico.
 - Sin verificar en esta parte: CA-1, CA-2, CA-8, CA-9 (app, parte 2) y CA-5 en teléfono físico (SP144).
 
 **Archivos afectados:** `backend/src/comun/firma-dispositivo.guard.ts` (y su prueba), `src/configurar-aplicacion.ts`, `src/billetera/{billetera,recargas}.controller.ts`, `src/billetera/billetera.guard.spec.ts`, `src/viajes/viajes.controller.ts`, `test/ataques/{catalogo-rutas.ts,a-08-acciones-sensibles.e2e-spec.ts,a-11-catalogo-sensible.e2e-spec.ts}`; `plan.md` §7b, `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
+
+## 2026-11-10 · HU-29: confirmación biométrica en la app
+
+- `useAccionSensible(accion)` (`mobile/src/hooks/`): ejecuta la petición firmada con el diálogo de esa acción, lleva `reposo`/`firmando`/`enviando` (pasa a `enviando` cuando `cabecerasFirma` avisa que ya firmó) y no abre un segundo diálogo con uno en curso. `fallaDeFirma` explica igual en toda acción la cancelación («No se confirmó {acción}.», CA-2), la llave anulada o ausente, la huella bloqueada, sin biometría, `PETICION_EXPIRADA` y `SIN_CONEXION`; lo demás lo explica cada pantalla.
+- `ConfirmacionBiometrica`: botón con `fingerprint` que dice la acción y el monto y «Confirmando…» mientras espera al servidor (CA-9). El resumen es el que ya mostraba cada pantalla (monto a pagar del QR; el formulario en publicar).
+- `firmar(antes, despues, dialogo?)`: título y subtítulo por acción (`comun.biometria.dialogo.*`); sin `dialogo` (lectura de billetera) queda el texto genérico. Billetera no tiene botón: la creación es automática (HU-12) y solo lleva el diálogo de su acción.
+- Cambio de texto: los avisos de cancelación por pantalla pasan al de la spec (CA-2); se quitaron `billetera.recarga.biometria_cancelada`, `viajes.publicar.biometria_cancelada` y `billetera.pantalla.peticion_expirada` (ahora `comun.errores.peticion_expirada`). La lectura de billetera conserva su aviso propio.
+- Teléfono físico (Infinix X669): la persona leyó el diálogo de recargar, publicar y crear billetera; cancelar no envió nada; con el proxy reteniendo 20 s se vio «Confirmando…» hasta la respuesta (`.harness/evidencias/HU-29/telefono/`).
+- Sin verificar: CA-8 en teléfono (borrar las huellas anula la llave; decidido hacerlo en SP144) y CA-5 (SP144).
+
+**Archivos afectados:** `mobile/src/hooks/useAccionSensible.ts`, `src/componentes/ConfirmacionBiometrica.tsx`, `src/__tests__/confirmacion-biometrica.test.tsx`, `src/dispositivo/{firma,keystore}.ts`, `src/api/cliente.ts`, `src/app/recargar.tsx`, `src/app/(pestanas)/{publicar,billetera}.tsx`, `src/i18n/es-BO.json`, pruebas de recargar y publicar; `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.

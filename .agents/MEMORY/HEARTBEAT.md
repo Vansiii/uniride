@@ -5,7 +5,7 @@
 **Última actualización:** 2026-11-10
 
 **Sprint actual:** Sprint 3 · Viaje completo verificado y pagado (37 PHU con HU-10, Release 1.0).
-**Foco:** HU-29 parte 1 (backend) hecha; sigue la app (SP143). HU-10 sigue sin push.
+**Foco:** HU-29 partes 1 (backend) y 2 (app) hechas; sigue la verificación (parte 3). HU-10 sigue sin push.
 
 ## Estado actual
 
@@ -18,23 +18,22 @@
   - SP140 hecho en un Infinix X669 con huella nueva real.
 - **HU-29 en curso** en `feat/HU-29-confirmacion-biometrica` (raíz y `backend`), apilada sobre HU-10: se fusiona después de HU-10.
   - Backend (SP141–SP142): `backend` en `d9875bd`, sin push. Verificación completa en verde (488 unitarias, 543 e2e, cobertura 92 %) y prueba real de API.
-  - Mobile (SP143) sin empezar: la rama de `mobile` se crea desde `feat/HU-10-cambio-dispositivo`.
+  - Mobile (SP143): `mobile` en `8fed720` (rama `feat/HU-29-confirmacion-biometrica`, apilada sobre la de HU-10), sin push. Lint, tipos, formato y 398 pruebas en verde; mirada en teléfono físico hecha.
 
 ## Última sesión (10/11)
 
-- HU-29 parte 1: `@AccionSensible` en crear billetera, confirmar recarga y publicar viaje, con texto en Swagger y el nombre de la acción en la auditoría de cada rechazo de firma.
-- Prueba de catálogo (CA-7, CA-4) que lee las rutas registradas y prueba de ataque A-08/A-04 por acción (CA-3, CA-6). Comprobado que quitar la firma de una acción hace fallar 15 pruebas.
-- Prueba real contra el backend de pruebas: sin firma 401, llave ajena 401, firma del dueño 202 auditada, firma repetida 401 `PETICION_EXPIRADA`.
+- HU-29 parte 2 (SP143): `useAccionSensible` y `ConfirmacionBiometrica` en Recargar y Publicar; Billetera lleva el diálogo de crear la billetera. El diálogo del sistema nombra la acción y el monto, cancelar avisa «No se confirmó {acción}.» y el botón dice «Confirmando…» hasta que responde el servidor.
+- Jest: `confirmacion-biometrica.test.tsx` (CA-1, CA-2, CA-8, CA-9, bloqueo). Teléfono físico: recarga, publicación y creación de billetera con huella real, cancelación sin envío y CA-9 con el servidor retenido 20 s.
 
 ## Próximo paso concreto
 
 1. **HU-10:** push de `backend`, `mobile` y la raíz a los PR #16, #16 y #27 cuando el usuario lo diga; merge en orden backend → mobile → raíz. Los commits viejos dicen `SP03` en vez de SP134–SP140.
-2. **HU-29 parte 2:** SP143 en `mobile` (`ConfirmacionBiometrica`, `useAccionSensible`, textos del diálogo por acción; adoptarlo en recargar, publicar y billetera). Luego verificación (parte 3) y teléfono (SP144).
+2. **HU-29 parte 3:** verificación limpia de backend y app (`verificaciones.md`, por criterio y por riesgo). Luego SP144 en teléfono (parte 3b): huella ajena (CA-5) y sin huellas registradas (CA-8), decidido por el usuario el 10/11.
 3. Después, en orden: HU-19 → HU-22 → HU-23 → HU-24. Dependencias autorizadas: `expo-camera` (SP161) y `expo-task-manager` (SP168).
 
 ## Sin verificar
 
-- HU-29: CA-1, CA-2, CA-8 y CA-9 (app, parte 2); CA-5 (huella ajena) solo en teléfono físico (SP144).
+- HU-29: CA-8 en teléfono (solo Jest) y CA-5 (huella ajena), ambos en SP144.
 
 - HU-10 CA-9 (llaves de trayecto) depende de HU-22.
 - HU-10: si la app se cierra entre el 201 y `confirmarLlave()`, el servidor queda con la llave nueva y el teléfono con la vieja; se recupera revinculando (riesgo aceptado en la revisión).
