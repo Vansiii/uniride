@@ -1271,3 +1271,14 @@ Los dos se vieron en el teléfono físico.
 - Sin verificar: CA-8 en teléfono (borrar las huellas anula la llave; decidido hacerlo en SP144) y CA-5 (SP144).
 
 **Archivos afectados:** `mobile/src/hooks/useAccionSensible.ts`, `src/componentes/ConfirmacionBiometrica.tsx`, `src/__tests__/confirmacion-biometrica.test.tsx`, `src/dispositivo/{firma,keystore}.ts`, `src/api/cliente.ts`, `src/app/recargar.tsx`, `src/app/(pestanas)/{publicar,billetera}.tsx`, `src/i18n/es-BO.json`, pruebas de recargar y publicar; `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
+
+## 2026-11-10 · HU-29 verificada en backend y app
+
+- Verificación limpia de backend (`d9875bd`) y mobile (`555dc78`): regresión completa en verde (488 unitarias, 543 e2e, cobertura 92,3 %; mobile 399 pruebas y build).
+- Peticiones reales contra un backend de pruebas, en las tres acciones del catálogo: sin firma, otra llave con el id del dueño (A-04), teléfono de otra cuenta, firma de hace 31 s, firma de otra ruta, cuerpo cambiado y firma repetida dan 401 sin efecto en la base; la firma del dueño ejecuta y se audita. Sin identidad o sin membresía, 403 antes que la firma, y un 403 no gasta la firma (confirmar con cuenta suspendida → 403; la misma firma después → 202). Swagger: las tres dicen «Requiere firma biométrica del teléfono vinculado.».
+- Corregido (CA-2): cancelar la huella al crear la billetera mostraba el aviso de la lectura; ahora dice «No se confirmó la creación de tu billetera.», con reintentar y sin enviar nada.
+- Desvío aceptado por el usuario: crear la billetera no tiene resumen previo (CA-1): el servidor la crea al aprobar la identidad y la app solo reintenta. Anotado en la spec.
+- Las e2e de concurrencia (A-02 billetera, publicar simultáneo, A-09 recarga) agotan tiempo si un backend de pruebas sigue arriba en la misma PC; con todo abajo pasan.
+- Sin verificar: CA-5 (huella ajena), CA-8 (sin huellas) y cancelar al crear la billetera, en teléfono físico (SP144).
+
+**Archivos afectados:** `mobile/src/app/(pestanas)/billetera.tsx`, `src/__tests__/billetera.test.tsx`; `SPECS/features/sprint-3/HU-29-confirmacion-biometrica/spec.md`, `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
