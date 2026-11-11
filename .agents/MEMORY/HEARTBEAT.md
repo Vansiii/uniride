@@ -11,8 +11,8 @@
 
 - **Sprint 1 y Sprint 2 en `develop`** de los 5 repositorios. Specs y planes del Sprint 3 aprobados (08/11), tareas SP134–SP176 en el backlog.
 - **HU-10 en curso** en `feat/HU-10-cambio-dispositivo` (raíz PR #27, backend #16, mobile #16, de Smile-HD). **No fusionar todavía.**
-  - Backend (SP134–SP137): `backend` en `180ae4e`, sin push. Verificación completa en verde tras la revisión (524 e2e).
-  - Mobile (SP138–SP139): `mobile` en `6bc8777`, sin push. Lint, tipos y pruebas en verde.
+  - Backend (SP134–SP137): `backend` en `180ae4e`, subido. Verificación completa en verde tras la revisión (524 e2e).
+  - Mobile (SP138–SP139): `mobile` en `6bc8777`, subido. Lint, tipos y pruebas en verde.
   - Punteros de `backend` y `mobile` en la raíz con commit; el de `contracts` apunta a HU-13 y no va en esta rama.
   - **Pendiente de revisión por otro integrante** : llave desparejada si la app se cierra entre el 201 y `confirmarLlave()` (hoy se recupera revinculando) y el bloque de fallas de llave repetido en Billetera, Publicar, Recarga y Dispositivo.
   - SP140 hecho en un Infinix X669 con huella nueva real.
