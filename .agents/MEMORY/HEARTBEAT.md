@@ -5,7 +5,7 @@
 **Última actualización:** 2026-11-10
 
 **Sprint actual:** Sprint 3 · Viaje completo verificado y pagado (37 PHU con HU-10, Release 1.0).
-**Foco:** HU-29 revisada y corregida, lista para subir después de HU-10. HU-10 sigue sin push.
+**Foco:** HU-10 y HU-29 subidas y con PR; falta fusionar en orden (HU-10 primero) con revisión de otro integrante.
 
 ## Estado actual
 
@@ -16,9 +16,9 @@
   - Punteros de `backend` y `mobile` en la raíz con commit; el de `contracts` apunta a HU-13 y no va en esta rama.
   - **Pendiente de revisión por otro integrante** : llave desparejada si la app se cierra entre el 201 y `confirmarLlave()` (hoy se recupera revinculando) y el bloque de fallas de llave repetido en Billetera, Publicar, Recarga y Dispositivo.
   - SP140 hecho en un Infinix X669 con huella nueva real.
-- **HU-29 en curso** en `feat/HU-29-confirmacion-biometrica` (raíz y `backend`), apilada sobre HU-10: se fusiona después de HU-10.
-  - Backend (SP141–SP142): `backend` en `46822b0`, sin push. Verificación completa en verde tras la revisión (543 e2e) y prueba real de API.
-  - Mobile (SP143): `mobile` en `1106de2` (rama `feat/HU-29-confirmacion-biometrica`, apilada sobre la de HU-10), sin push. Lint, tipos, formato y 399 pruebas en verde tras la revisión; mirada en teléfono físico hecha.
+- **HU-29 en PR**: backend #17, mobile #17 y raíz #28, con base en `feat/HU-10-cambio-dispositivo`. Se fusiona después de HU-10, en orden backend → mobile → raíz.
+  - Backend (SP141–SP142): `backend` en `46822b0`, subido. Verificación completa en verde tras la revisión (543 e2e) y prueba real de API.
+  - Mobile (SP143): `mobile` en `1106de2`, subido. Verificación completa en verde tras la revisión (399 pruebas y build); mirada en teléfono físico hecha.
   - Verificación limpia (10/11): regresión completa en verde (543 e2e, cobertura 92,3 %) y peticiones reales de los ataques en las tres acciones. Corregido CA-2 al crear la billetera. Crear la billetera pasa a un resumen con botón con huella (CA-1, a pedido del usuario); Movimientos lleva a Billetera.
   - SP144 en el Infinix X669 (10/11): resumen y CA-1 al crear la billetera, CA-5 con un dedo no registrado (16 rechazos, nada firmado llegó al servidor), CA-2, RN-4/RN-5 sin PIN ni patrón en el diálogo, Movimientos → «Ir a Billetera» y CA-8 sin huellas ni rostro; tras volver a registrar la huella, la llave anulada lleva a «Confirmar mi identidad». Evidencias en `.harness/evidencias/HU-29/telefono/informe.md`.
 
@@ -30,8 +30,8 @@
 
 ## Próximo paso concreto
 
-1. **HU-10:** push de `backend`, `mobile` y la raíz a los PR #16, #16 y #27 cuando el usuario lo diga; merge en orden backend → mobile → raíz. Los commits viejos dicen `SP03` en vez de SP134–SP140.
-2. **HU-29:** revisión hecha (6 de 9 hallazgos corregidos: doble toque en recarga y publicar, saldo que falla justo tras crear la billetera, textos de recarga y de huella bloqueada, `@AccionSensible` solo en métodos). Falta push de `backend`, `mobile` y la raíz y abrir los PR cuando el usuario lo diga, después de fusionar HU-10; luego los punteros.
+1. **HU-10:** subida a los PR #16, #16 y #27 (backend y mobile ya estaban; la raíz se subió el 10/11). Merge en orden backend → mobile → raíz, tras la revisión de otro integrante. Los commits viejos dicen `SP03` en vez de SP134–SP140.
+2. **HU-29:** revisión hecha (6 de 9 hallazgos corregidos) y PR abiertos. Tras fusionar HU-10, fusionar HU-29 y luego actualizar los punteros de `develop`. Si se conecta el teléfono, ver la nueva instrucción de recarga.
 3. Después, en orden: HU-19 → HU-22 → HU-23 → HU-24. Dependencias autorizadas: `expo-camera` (SP161) y `expo-task-manager` (SP168).
 
 ## Sin verificar
