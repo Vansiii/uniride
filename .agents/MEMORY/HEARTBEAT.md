@@ -5,7 +5,7 @@
 **Última actualización:** 2026-11-10
 
 **Sprint actual:** Sprint 3 · Viaje completo verificado y pagado (37 PHU con HU-10, Release 1.0).
-**Foco:** HU-29 verificada en backend y app (parte 3); sigue SP144 en el teléfono (parte 3b). HU-10 sigue sin push.
+**Foco:** HU-29 verificada en backend, app y teléfono (SP144 hecho); sigue la parte 4 (revisión y subida). HU-10 sigue sin push.
 
 ## Estado actual
 
@@ -20,6 +20,7 @@
   - Backend (SP141–SP142): `backend` en `d9875bd`, sin push. Verificación completa en verde (488 unitarias, 543 e2e, cobertura 92 %) y prueba real de API.
   - Mobile (SP143): `mobile` en `555dc78` (rama `feat/HU-29-confirmacion-biometrica`, apilada sobre la de HU-10), sin push. Lint, tipos, formato, 399 pruebas y build en verde; mirada en teléfono físico hecha.
   - Verificación limpia (10/11): regresión completa en verde (543 e2e, cobertura 92,3 %) y peticiones reales de los ataques en las tres acciones. Corregido CA-2 al crear la billetera. Crear la billetera pasa a un resumen con botón con huella (CA-1, a pedido del usuario); Movimientos lleva a Billetera.
+  - SP144 en el Infinix X669 (10/11): resumen y CA-1 al crear la billetera, CA-5 con un dedo no registrado (16 rechazos, nada firmado llegó al servidor), CA-2, RN-4/RN-5 sin PIN ni patrón en el diálogo, Movimientos → «Ir a Billetera» y CA-8 sin huellas ni rostro; tras volver a registrar la huella, la llave anulada lleva a «Confirmar mi identidad». Evidencias en `.harness/evidencias/HU-29/telefono/informe.md`.
 
 ## Última sesión (10/11)
 
@@ -30,13 +31,12 @@
 ## Próximo paso concreto
 
 1. **HU-10:** push de `backend`, `mobile` y la raíz a los PR #16, #16 y #27 cuando el usuario lo diga; merge en orden backend → mobile → raíz. Los commits viejos dicen `SP03` en vez de SP134–SP140.
-2. **HU-29 SP144 en teléfono (parte 3b):** huella ajena (CA-5), sin huellas registradas (CA-8) y el resumen nuevo de crear la billetera (con `sin@` verificada sin billetera: ver la tarjeta, crear con huella, cancelar) y Movimientos → «Ir a Billetera». Después, la parte 4 (revisión y subida).
+2. **HU-29 parte 4:** revisión, documentar y subir cuando el usuario lo diga (después de HU-10). Texto: `comun.biometria.bloqueada` dice «con tu PIN»; el teléfono puede usar patrón.
 3. Después, en orden: HU-19 → HU-22 → HU-23 → HU-24. Dependencias autorizadas: `expo-camera` (SP161) y `expo-task-manager` (SP168).
 
 ## Sin verificar
 
-- HU-29: CA-8 en teléfono (solo Jest), CA-5 (huella ajena) y el resumen de crear la billetera con Movimientos → Billetera (solo Jest), en SP144.
-
+- HU-29: bloqueo del sistema tras intentos fallidos (`comun.biometria.bloqueada`) solo con Jest: el Infinix X669 no bloqueó tras 16 rechazos en el diálogo y desbloquear con patrón anula el bloqueo.
 - HU-10 CA-9 (llaves de trayecto) depende de HU-22.
 - HU-10: si la app se cierra entre el 201 y `confirmarLlave()`, el servidor queda con la llave nueva y el teléfono con la vieja; se recupera revinculando (riesgo aceptado en la revisión).
 - HU-10 depende de la prueba de vida nativa de HU-08, todavía pendiente en la app: en el teléfono se usó la simulada de desarrollo.
@@ -57,6 +57,7 @@
 
 ## Decisiones abiertas
 
+- **Billetera al volver de vincular:** sigue en «primero vincula este teléfono» hasta tocar actualizar (visto en SP144, ya era así antes de HU-29). Releer por foco abriría la huella sola si hay billetera. El usuario decidió dejarlo anotado.
 - **Accesibilidad:** TalkBack no lee los `Aviso` que aparecen; falta probar mover el foco. Decidir en qué historia va.
 - **Viajes que nunca salieron:** ninguna historia pasa un viaje a `expirado`; lo cubre HU-20 (S4) con la ventana de abordaje de HU-22 RN-3.
 - **HU-18, «Elegir en el mapa» sin ubicación:** el pin empieza en el centro de Santa Cruz y se puede usar sin moverlo.

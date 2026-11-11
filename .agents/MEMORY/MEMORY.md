@@ -1290,3 +1290,9 @@ Los dos se vieron en el teléfono físico.
 - Mobile `10e50d8`: lint, formato, tipos, 398 pruebas y build en verde. Sin probar todavía en el teléfono: SP144.
 
 **Archivos afectados:** `mobile/src/app/(pestanas)/billetera.tsx`, `src/app/movimientos.tsx`, sus pruebas, `src/i18n/es-BO.json`; `spec.md`, `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
+
+### HU-29 parte 3b · SP144 en teléfono (10/11)
+
+- Hecho en el Infinix X669 con `sin@`: resumen de crear la billetera, CA-1, CA-5 (meñique no registrado: 16 rechazos en `dumpsys fingerprint`, ningún `POST /billetera`; el nudillo no cuenta como intento en este lector), CA-2, Movimientos → «Ir a Billetera» y CA-8 (aviso `comun.biometria.sin_registrar`, sin peticiones). Sin huellas, Android anula la llave: al volver a registrar una, la app pide «Confirmar mi identidad» (HU-10).
+- La primera vez la persona puso el dedo registrado en la prueba de nudillo y la billetera se creó de verdad. Control: `/__bloquear` en el proxy de `HU-29/telefono/telefono.mjs`.
+- Bloqueo (RN-5) no provocable en el Infinix: sin `lockout` tras 16 rechazos dentro del diálogo; queda con Jest. El diálogo no ofrece PIN ni patrón (RN-4).
