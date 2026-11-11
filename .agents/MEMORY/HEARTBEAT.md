@@ -31,7 +31,7 @@
 ## Próximo paso concreto
 
 1. **HU-10:** subida a los PR #16, #16 y #27 (backend y mobile ya estaban; la raíz se subió el 10/11). Merge en orden backend → mobile → raíz, tras la revisión de otro integrante. Los commits viejos dicen `SP03` en vez de SP134–SP140.
-2. **HU-29:** revisión hecha (6 de 9 hallazgos corregidos) y PR abiertos. Tras fusionar HU-10, fusionar HU-29 y luego actualizar los punteros de `develop`. Si se conecta el teléfono, ver la nueva instrucción de recarga.
+2. **HU-29:** revisión hecha (6 de 9 hallazgos corregidos) y PR abiertos. Tras fusionar HU-10, fusionar HU-29 y luego actualizar los punteros de `develop`. La fusión la hace otro integrante en GitHub; la instrucción nueva de recarga ya se vio en el teléfono.
 3. Después, en orden: HU-19 → HU-22 → HU-23 → HU-24. Dependencias autorizadas: `expo-camera` (SP161) y `expo-task-manager` (SP168).
 
 ## Sin verificar
