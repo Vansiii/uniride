@@ -19,23 +19,23 @@
 - **HU-29 en curso** en `feat/HU-29-confirmacion-biometrica` (raíz y `backend`), apilada sobre HU-10: se fusiona después de HU-10.
   - Backend (SP141–SP142): `backend` en `d9875bd`, sin push. Verificación completa en verde (488 unitarias, 543 e2e, cobertura 92 %) y prueba real de API.
   - Mobile (SP143): `mobile` en `555dc78` (rama `feat/HU-29-confirmacion-biometrica`, apilada sobre la de HU-10), sin push. Lint, tipos, formato, 399 pruebas y build en verde; mirada en teléfono físico hecha.
-  - Verificación limpia (10/11): regresión completa en verde (543 e2e, cobertura 92,3 %) y peticiones reales de los ataques en las tres acciones. Corregido CA-2 al crear la billetera. Desvío aceptado: crear la billetera sin resumen previo (CA-1), anotado en la spec.
+  - Verificación limpia (10/11): regresión completa en verde (543 e2e, cobertura 92,3 %) y peticiones reales de los ataques en las tres acciones. Corregido CA-2 al crear la billetera. Crear la billetera pasa a un resumen con botón con huella (CA-1, a pedido del usuario); Movimientos lleva a Billetera.
 
 ## Última sesión (10/11)
 
 - HU-29 parte 3: verificación de backend y app por criterio y por riesgo. Peticiones reales en crear billetera, confirmar recarga y publicar: cada ataque de A-08/A-04 da 401 sin efecto; 403 antes que la firma sin gastarla; auditoría y Swagger correctos.
-- Corrección en mobile `555dc78`: cancelar la huella al crear la billetera dice «No se confirmó la creación de tu billetera.» (CA-2).
+- Correcciones en mobile: `555dc78` (cancelar al crear la billetera dice «No se confirmó la creación de tu billetera.», CA-2) y `10e50d8` (crear la billetera desde un resumen con botón con huella, CA-1; Movimientos ya no la crea).
 - Las e2e de concurrencia del backend fallan por tiempo con un backend de pruebas arriba en la PC; con todo abajo, 543 en verde.
 
 ## Próximo paso concreto
 
 1. **HU-10:** push de `backend`, `mobile` y la raíz a los PR #16, #16 y #27 cuando el usuario lo diga; merge en orden backend → mobile → raíz. Los commits viejos dicen `SP03` en vez de SP134–SP140.
-2. **HU-29 SP144 en teléfono (parte 3b):** huella ajena (CA-5), sin huellas registradas (CA-8) y cancelar al crear la billetera. Después, la parte 4 (revisión y subida).
+2. **HU-29 SP144 en teléfono (parte 3b):** huella ajena (CA-5), sin huellas registradas (CA-8) y el resumen nuevo de crear la billetera (con `sin@` verificada sin billetera: ver la tarjeta, crear con huella, cancelar) y Movimientos → «Ir a Billetera». Después, la parte 4 (revisión y subida).
 3. Después, en orden: HU-19 → HU-22 → HU-23 → HU-24. Dependencias autorizadas: `expo-camera` (SP161) y `expo-task-manager` (SP168).
 
 ## Sin verificar
 
-- HU-29: CA-8 en teléfono (solo Jest), CA-5 (huella ajena) y cancelar al crear la billetera (solo Jest), en SP144.
+- HU-29: CA-8 en teléfono (solo Jest), CA-5 (huella ajena) y el resumen de crear la billetera con Movimientos → Billetera (solo Jest), en SP144.
 
 - HU-10 CA-9 (llaves de trayecto) depende de HU-22.
 - HU-10: si la app se cierra entre el 201 y `confirmarLlave()`, el servidor queda con la llave nueva y el teléfono con la vieja; se recupera revinculando (riesgo aceptado en la revisión).

@@ -1277,8 +1277,16 @@ Los dos se vieron en el teléfono físico.
 - Verificación limpia de backend (`d9875bd`) y mobile (`555dc78`): regresión completa en verde (488 unitarias, 543 e2e, cobertura 92,3 %; mobile 399 pruebas y build).
 - Peticiones reales contra un backend de pruebas, en las tres acciones del catálogo: sin firma, otra llave con el id del dueño (A-04), teléfono de otra cuenta, firma de hace 31 s, firma de otra ruta, cuerpo cambiado y firma repetida dan 401 sin efecto en la base; la firma del dueño ejecuta y se audita. Sin identidad o sin membresía, 403 antes que la firma, y un 403 no gasta la firma (confirmar con cuenta suspendida → 403; la misma firma después → 202). Swagger: las tres dicen «Requiere firma biométrica del teléfono vinculado.».
 - Corregido (CA-2): cancelar la huella al crear la billetera mostraba el aviso de la lectura; ahora dice «No se confirmó la creación de tu billetera.», con reintentar y sin enviar nada.
-- Desvío aceptado por el usuario: crear la billetera no tiene resumen previo (CA-1): el servidor la crea al aprobar la identidad y la app solo reintenta. Anotado en la spec.
+- Crear la billetera sin resumen previo (CA-1) se propuso como desvío; el usuario pidió cumplirlo (ver la entrada siguiente).
 - Las e2e de concurrencia (A-02 billetera, publicar simultáneo, A-09 recarga) agotan tiempo si un backend de pruebas sigue arriba en la misma PC; con todo abajo pasan.
 - Sin verificar: CA-5 (huella ajena), CA-8 (sin huellas) y cancelar al crear la billetera, en teléfono físico (SP144).
 
 **Archivos afectados:** `mobile/src/app/(pestanas)/billetera.tsx`, `src/__tests__/billetera.test.tsx`; `SPECS/features/sprint-3/HU-29-confirmacion-biometrica/spec.md`, `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
+
+## 2026-11-10 · HU-29: resumen al crear la billetera
+
+- A pedido del usuario se cumple CA-1 también al crear la billetera: si la creación automática de HU-12 falló, Billetera ya no la reintenta sola. Muestra «Tu billetera aún no está lista», qué hace («Se crea a tu nombre y vacía… No mueve dinero») y el botón con huella «Crear mi billetera». Cancelar deja el aviso «No se confirmó la creación de tu billetera.» y el mismo botón.
+- Movimientos creaba la billetera sin resumen y con el diálogo genérico: ahora, con el 404, avisa y lleva a Billetera («Ir a Billetera»). Billetera es el único lugar donde se crea desde la app.
+- Mobile `10e50d8`: lint, formato, tipos, 398 pruebas y build en verde. Sin probar todavía en el teléfono: SP144.
+
+**Archivos afectados:** `mobile/src/app/(pestanas)/billetera.tsx`, `src/app/movimientos.tsx`, sus pruebas, `src/i18n/es-BO.json`; `spec.md`, `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
