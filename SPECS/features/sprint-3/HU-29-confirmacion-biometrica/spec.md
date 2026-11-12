@@ -26,6 +26,8 @@
 | CA-8 | un teléfono sin huella ni rostro registrados en el sistema | la persona intenta una acción sensible | la app explica que debe registrar una huella en los ajustes del teléfono y no ofrece otra forma de confirmar |
 | CA-9 | la confirmación enviada | el servidor todavía no responde | la app nunca muestra «Confirmado» antes de la respuesta del servidor |
 
+> **Crear la billetera (2026-11-10):** el servidor la crea al aprobar la identidad (HU-12). Si esa creación falló, la app no la reintenta sola: Billetera muestra el resumen «Tu billetera aún no está lista» con el botón «Crear mi billetera», que pide la huella (CA-1). Movimientos lleva a Billetera.
+
 ## 3. Reglas de negocio
 
 - RN-1: **Acciones sensibles** (piden biometría): reservar (HU-19), cancelar una reserva o un viaje (HU-20), recargar (HU-13), retirar (HU-16), verificar abordaje y bajada (HU-22, HU-23), crear la billetera (HU-12) y publicar un viaje (HU-17). Las historias de S4 y Reserva heredan esta regla.
@@ -79,3 +81,4 @@ Marcar al cerrar la fase **Verify**. Referencia: `SPECS/constitution.md` Art. 12
 |---|---|---|
 | 2026-11-08 | Creación (borrador) | 2026-11-08 · Specs del Sprint 3 en borrador y decisiones D-22 a D-27 |
 | 2026-11-08 | Aprobada por el PO | 2026-11-08 · Specs del Sprint 3 aprobadas |
+| 2026-11-10 | Crear la billetera desde un resumen con botón, en vez del reintento automático (CA-1) | 2026-11-10 · HU-29: resumen al crear la billetera |

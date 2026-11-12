@@ -93,6 +93,20 @@ Metas de rendimiento: no aplica.
 | Cambiar `recargar` y `publicar` rompe flujos ya aceptados | Media | Medio | Sus pruebas de Jest no cambian de aserción; solo cambia el componente |
 | TalkBack no anuncia los avisos (decisión abierta) | Alta | Bajo | El componente centraliza el aviso: se arregla en un solo lugar cuando se decida |
 
+## 7b. Con qué se cruza
+
+Completado al empezar la implementación del backend (2026-11-10).
+
+| Tema | Decisión y porqué |
+|---|---|
+| Orden de guards | `@AccionSensible(nombre, ...antes)` recibe los guards que corren antes de la firma (organización, cuenta, identidad). Con varios `@UseGuards` en un método el orden depende de cómo se apilan los decoradores; así quien no cumple recibe su 403 antes que el 401 de la firma y no gasta el nonce. En Billetera los guards de la clase ya corren antes que los del método |
+| `GET /billetera/mia` | Sigue con `@RequiereFirmaDispositivo()` (decisión de HU-12): firma sin ser acción del catálogo |
+| Swagger | El decorador deja la extensión `x-accion-sensible`; `configurarAplicacion` la vuelve texto en la descripción. Se descartó fusionar `ApiOperation` en el decorador: depende del orden de los decoradores |
+| Catálogo | Vive en `test/ataques/catalogo-rutas.ts` y se compara con las rutas leídas de los metadatos de Nest: una ruta nueva entra sola a la prueba. Incluye ya las rutas de HU-19, HU-22 y HU-23 |
+| Auditoría | El éxito lo audita cada servicio, como antes (`billetera.creacion`, `billetera.recarga.confirmada`, `viaje.publicacion`); el rechazo de la firma agrega `accionSensible` al detalle |
+| Consultas | Ninguna nueva: el guard sigue con un `findFirst` del dispositivo activo por petición |
+| Amenazas | A-08 y A-04 (llave ajena con el id del dueño) en `a-08-acciones-sensibles.e2e-spec.ts`, por cada acción; A-11 y CA-7 en `a-11-catalogo-sensible.e2e-spec.ts` |
+
 ## 8. Tareas propuestas (se copian a backlog.md al aprobar)
 
 | Tarea | Horas | Responsable |

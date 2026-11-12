@@ -1250,3 +1250,49 @@ Los dos se vieron en el teléfono físico.
 - Peticiones reales contra el backend de pruebas, con MinIO real (`.harness` local): CA-2, CA-3 (firma del anterior → 401), CA-4, CA-5, CA-6, CA-7 (429 con `bloqueadoHasta` a 24 h), CA-8 (correo con fecha de Bolivia y modelo; el perdedor del 409 no recibe correo), CA-10, CA-11 (integridad caída y almacenamiento detenido: 503, nada cambia, sin intento), CA-12, A-08 y dos revinculaciones a la vez (una 201 y otra 409, un solo activo).
 - Corregido: pedir el desafío durante un bloqueo o con el motor caído no quedaba en auditoría (CA-12); el sufijo `~rostro` del motor simulado se aceptaba sobre ids reales de Rekognition y daba 503 sin contar intento: ahora solo sobre `sim-…` (`86d6e54`).
 - Sin verificar: CA-9 (depende de HU-22); prueba de vida nativa (HU-08) y Play Integrity reales (despliegue).
+
+## 2026-11-10 · HU-29: contrato en el backend
+
+- `@AccionSensible(nombre, ...antes)` en `comun/firma-dispositivo.guard.ts`: metadato con el nombre, guard de firma al final, cabeceras y texto en Swagger. Lo llevan `POST /billetera`, `POST /billetera/recargas/:id/confirmar` y `POST /viajes`; `GET /billetera/mia` sigue con `@RequiereFirmaDispositivo()`.
+- CA-7: `test/ataques/a-11-catalogo-sensible.e2e-spec.ts` lee las rutas de los metadatos de Nest y falla si una escritura de billetera, viajes, reservas o presencia no está en el catálogo ni en la lista justificada (`POST /billetera/recargas`: solo crea la orden). Comprobado quitando la firma de publicar: 15 pruebas fallan.
+- CA-3, CA-6 y A-08: `a-08-acciones-sensibles.e2e-spec.ts`, por acción: sin firma, teléfono de otra persona, otra llave con el id del dueño (401, nada cambia) y firma del dueño (ejecuta, audita, repetida da `PETICION_EXPIRADA`). La última prueba exige un caso por cada acción registrada.
+- Prueba real contra el backend de pruebas: los cuatro casos sobre confirmar recarga y su auditoría, con `accionSensible` en cada rechazo.
+- Sin verificar en esta parte: CA-1, CA-2, CA-8, CA-9 (app, parte 2) y CA-5 en teléfono físico (SP144).
+
+**Archivos afectados:** `backend/src/comun/firma-dispositivo.guard.ts` (y su prueba), `src/configurar-aplicacion.ts`, `src/billetera/{billetera,recargas}.controller.ts`, `src/billetera/billetera.guard.spec.ts`, `src/viajes/viajes.controller.ts`, `test/ataques/{catalogo-rutas.ts,a-08-acciones-sensibles.e2e-spec.ts,a-11-catalogo-sensible.e2e-spec.ts}`; `plan.md` §7b, `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
+
+## 2026-11-10 · HU-29: confirmación biométrica en la app
+
+- `useAccionSensible(accion)` (`mobile/src/hooks/`): ejecuta la petición firmada con el diálogo de esa acción, lleva `reposo`/`firmando`/`enviando` (pasa a `enviando` cuando `cabecerasFirma` avisa que ya firmó) y no abre un segundo diálogo con uno en curso. `fallaDeFirma` explica igual en toda acción la cancelación («No se confirmó {acción}.», CA-2), la llave anulada o ausente, la huella bloqueada, sin biometría, `PETICION_EXPIRADA` y `SIN_CONEXION`; lo demás lo explica cada pantalla.
+- `ConfirmacionBiometrica`: botón con `fingerprint` que dice la acción y el monto y «Confirmando…» mientras espera al servidor (CA-9). El resumen es el que ya mostraba cada pantalla (monto a pagar del QR; el formulario en publicar).
+- `firmar(antes, despues, dialogo?)`: título y subtítulo por acción (`comun.biometria.dialogo.*`); sin `dialogo` (lectura de billetera) queda el texto genérico. Billetera no tiene botón: la creación es automática (HU-12) y solo lleva el diálogo de su acción.
+- Cambio de texto: los avisos de cancelación por pantalla pasan al de la spec (CA-2); se quitaron `billetera.recarga.biometria_cancelada`, `viajes.publicar.biometria_cancelada` y `billetera.pantalla.peticion_expirada` (ahora `comun.errores.peticion_expirada`). La lectura de billetera conserva su aviso propio.
+- Teléfono físico (Infinix X669): la persona leyó el diálogo de recargar, publicar y crear billetera; cancelar no envió nada; con el proxy reteniendo 20 s se vio «Confirmando…» hasta la respuesta (`.harness/evidencias/HU-29/telefono/`).
+- Sin verificar: CA-8 en teléfono (borrar las huellas anula la llave; decidido hacerlo en SP144) y CA-5 (SP144).
+
+**Archivos afectados:** `mobile/src/hooks/useAccionSensible.ts`, `src/componentes/ConfirmacionBiometrica.tsx`, `src/__tests__/confirmacion-biometrica.test.tsx`, `src/dispositivo/{firma,keystore}.ts`, `src/api/cliente.ts`, `src/app/recargar.tsx`, `src/app/(pestanas)/{publicar,billetera}.tsx`, `src/i18n/es-BO.json`, pruebas de recargar y publicar; `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
+
+## 2026-11-10 · HU-29 verificada en backend y app
+
+- Verificación limpia de backend (`d9875bd`) y mobile (`555dc78`): regresión completa en verde (488 unitarias, 543 e2e, cobertura 92,3 %; mobile 399 pruebas y build).
+- Peticiones reales contra un backend de pruebas, en las tres acciones del catálogo: sin firma, otra llave con el id del dueño (A-04), teléfono de otra cuenta, firma de hace 31 s, firma de otra ruta, cuerpo cambiado y firma repetida dan 401 sin efecto en la base; la firma del dueño ejecuta y se audita. Sin identidad o sin membresía, 403 antes que la firma, y un 403 no gasta la firma (confirmar con cuenta suspendida → 403; la misma firma después → 202). Swagger: las tres dicen «Requiere firma biométrica del teléfono vinculado.».
+- Corregido (CA-2): cancelar la huella al crear la billetera mostraba el aviso de la lectura; ahora dice «No se confirmó la creación de tu billetera.», con reintentar y sin enviar nada.
+- Crear la billetera sin resumen previo (CA-1) se propuso como desvío; el usuario pidió cumplirlo (ver la entrada siguiente).
+- Las e2e de concurrencia (A-02 billetera, publicar simultáneo, A-09 recarga) agotan tiempo si un backend de pruebas sigue arriba en la misma PC; con todo abajo pasan.
+- Sin verificar: CA-5 (huella ajena), CA-8 (sin huellas) y cancelar al crear la billetera, en teléfono físico (SP144).
+
+**Archivos afectados:** `mobile/src/app/(pestanas)/billetera.tsx`, `src/__tests__/billetera.test.tsx`; `SPECS/features/sprint-3/HU-29-confirmacion-biometrica/spec.md`, `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
+
+## 2026-11-10 · HU-29: resumen al crear la billetera
+
+- A pedido del usuario se cumple CA-1 también al crear la billetera: si la creación automática de HU-12 falló, Billetera ya no la reintenta sola. Muestra «Tu billetera aún no está lista», qué hace («Se crea a tu nombre y vacía… No mueve dinero») y el botón con huella «Crear mi billetera». Cancelar deja el aviso «No se confirmó la creación de tu billetera.» y el mismo botón.
+- Movimientos creaba la billetera sin resumen y con el diálogo genérico: ahora, con el 404, avisa y lleva a Billetera («Ir a Billetera»). Billetera es el único lugar donde se crea desde la app.
+- Mobile `10e50d8`: lint, formato, tipos, 398 pruebas y build en verde. Sin probar todavía en el teléfono: SP144.
+
+**Archivos afectados:** `mobile/src/app/(pestanas)/billetera.tsx`, `src/app/movimientos.tsx`, sus pruebas, `src/i18n/es-BO.json`; `spec.md`, `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
+
+### HU-29 parte 3b · SP144 en teléfono (10/11)
+
+- Hecho en el Infinix X669 con `sin@`: resumen de crear la billetera, CA-1, CA-5 (meñique no registrado: 16 rechazos en `dumpsys fingerprint`, ningún `POST /billetera`; el nudillo no cuenta como intento en este lector), CA-2, Movimientos → «Ir a Billetera» y CA-8 (aviso `comun.biometria.sin_registrar`, sin peticiones). Sin huellas, Android anula la llave: al volver a registrar una, la app pide «Confirmar mi identidad» (HU-10).
+- La primera vez la persona puso el dedo registrado en la prueba de nudillo y la billetera se creó de verdad. Control: `/__bloquear` en el proxy de `HU-29/telefono/telefono.mjs`.
+- Bloqueo (RN-5) no provocable en el Infinix: sin `lockout` tras 16 rechazos dentro del diálogo; queda con Jest. El diálogo no ofrece PIN ni patrón (RN-4).
