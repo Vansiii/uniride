@@ -37,6 +37,8 @@ services:
         required: false
     environment:
       PORT: 3000
+      DATABASE_URL: postgresql://uniride_app:${POSTGRES_APP_PASSWORD}@postgres:5432/${POSTGRES_DB:-uniride}
+      DATABASE_URL_MIGRACIONES: postgresql://${POSTGRES_USER:-uniride_migraciones}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-uniride}
       S3_ENDPOINT: http://minio:9000
       # MinIO local no tiene KMS (HU-11).
       S3_CIFRADO: ninguno

@@ -1208,3 +1208,45 @@ Los dos se vieron en el teléfono físico.
 **Evento:** El integrante aprueba los 6 planes de S3 y autoriza lo que exige `AGENTS.md` §14: migraciones `013`–`016` (no destructivas), estados de reserva y viaje derivado (D-23), escrow (bloqueo y liberación), capas de encuentro y trayecto (D-22), y las dependencias `expo-camera` y `expo-task-manager`. También autoriza crear la rama, el commit, el PR de la raíz y fusionarlo. Tareas SP134–SP176 cargadas en `backlog.md`.
 
 **Archivos afectados:** `SPECS/features/sprint-3/*/plan.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+---
+
+## 2026-11-10 · HU-10: correcciones del contrato en el backend
+
+**Evento:** Sobre la rama de Smile-HD (`feat/HU-10-cambio-dispositivo`, con OK del integrante) se corrige lo que la revisión del 10/11 encontró en el backend. Los commits nuevos usan SP136 y SP137, no SP03.
+
+**Decisiones:**
+1. **Códigos de HU-08:** la revinculación responde `PRUEBA_VIDA_FALLIDA` e `INTENTOS_AGOTADOS`, como la verificación de identidad. Se corrige el plan, que decía `LIVENESS_FALLIDA` e `IDENTIDAD_BLOQUEADA`. La app (`mobile/src/app/dispositivo.tsx`) tiene que esperar estos en SP139.
+2. **Sesión de vida atada al desafío (A-08):** una sesión que no salió con ese desafío (repetida de otro, inventada o ausente) cuenta como prueba de vida fallida. Se acepta el sufijo `~<rostro>` del motor simulado; Rekognition rechaza un id así.
+3. **409 `CONFLICTO_CONCURRENTE`** con `dispositivo.revincular.concurrente` y en Swagger.
+4. **Auditoría:** cada rechazo lleva modelo y motivo (CA-12). El correo lleva la fecha en hora de Bolivia (CA-8).
+5. **CORS:** se quita el `enableCors` abierto con credenciales; el desarrollo web usa el proxy.
+
+**Prueba real de la API** (base propia, motor y Play Integrity simulados): revinculación sin identidad 201, desafío reusado 400, dos a la vez quedan con un solo activo, sesión inventada y sesión de otro desafío 422 (cuentan 2 intentos), servicio caído 503 sin contar. La semilla de `con@prueba.test` no tiene carnet en S3: el camino feliz con identidad solo se prueba en las e2e.
+
+**Archivos afectados:** `backend/src/dispositivos/{revinculacion.service,dispositivos.controller}.ts`, `dto/dispositivo.dto.ts`, `src/configurar-aplicacion.ts`, `src/i18n/es-BO.json`, pruebas de `dispositivos`, `notificaciones` y `test/ataques/a-08-revinculacion.e2e-spec.ts`; `SPECS/features/sprint-3/HU-10-cambio-dispositivo/plan.md`, `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
+
+---
+
+## 2026-11-10 · HU-10: app móvil y teléfono físico
+
+**Evento:** Sobre la rama de Smile-HD se corrige la app (SP138–SP139) y se prueba en un teléfono real (SP140). Commits en `mobile`: `306de57`, `08167fd`, `f269314`, `690e86b`, `472e22b`.
+
+**Decisiones:**
+1. **La llave nueva firma solo tras el 201:** el módulo nativo genera la llave en el otro de dos alias (`uniride.llave.dispositivo` y `….2`); `confirmarLlave()` la activa y borra la anterior. Sin preferencia guardada la activa es la de siempre, así las llaves de HU-09 siguen valiendo. Un rechazo del servidor deja el teléfono con su llave.
+2. **CA-1 en las tres pantallas que firman:** `fallaDeLlave()` en `keystore.ts` traduce `LLAVE_ANULADA` y `SIN_LLAVE` a la explicación y a `BotonRevincular`, que abre «Mi teléfono» con `motivo`. Ahí la acción principal es «Confirmar mi identidad» o «Pasar mi cuenta a este teléfono».
+3. **Fuera de la historia y bajaban la seguridad:** llave, firma y nonce simulados en cualquier build web, refresco en `localStorage`, contexto de sesión en `globalThis`, prueba de vida simulada en web y el script `android`. En web sin módulo nativo todo falla de forma segura.
+4. **La hora para reintentar dice el día si no es hoy** (`formatearHora`): un bloqueo de 24 h termina a la misma hora de mañana y «a las 18:24» parecía ya vencido. Vale también para HU-08.
+5. **API sin ETag** (`backend` `9951b72`): con el token vencido, el reintento de un GET podía llegar a la app como `304` sin cuerpo y `leer()` lo mostraba como error. Son datos privados de cada usuario: no se cachean. Venía de antes de HU-10; se corrige aquí con OK del integrante.
+6. El Kotlin de la rama no compilaba (`CodedException` sin causa): se compila el dev build antes de dar por hecho un cambio nativo.
+
+**Teléfono (Infinix X669):** vincular, rechazo forzado que conserva la llave (firma 200 después), huella nueva real (`dumpsys fingerprint` count 1→2) → aviso CA-1 sin pedir huella ni enviar nada → revinculación con identidad (carnet sembrado en MinIO, motor simulado) → firma con la llave nueva 202. Teléfono sin llave (`pm clear`): aviso «vinculada a otro teléfono» y revinculación. Carnet con otro rostro: dos `ROSTRO_NO_COINCIDE` y el tercero `INTENTOS_AGOTADOS` con el día. Base: anterior inactivo con `desactivado_en`, auditoría sin datos biométricos, correo encolado. Capturas y registro de peticiones guardados fuera del repositorio.
+
+**Archivos afectados:** `backend/src/configurar-aplicacion.ts`, `backend/test/salud.e2e-spec.ts`, `mobile/modules/llave-dispositivo/…/LlaveDispositivoModule.kt`, `mobile/src/dispositivo/keystore.ts`, `src/componentes/BotonRevincular.tsx`, `src/app/{dispositivo,recargar}.tsx`, `src/app/(pestanas)/{billetera,publicar}.tsx`, `src/api/cliente.ts`, `src/i18n/es-BO.json`, pruebas; `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
+
+## 2026-11-10 · HU-10: verificación limpia
+
+- Regresión completa de backend y mobile en verde sobre `backend` `8887527` (484 unitarias, 524 e2e, cobertura 92 %).
+- Peticiones reales contra el backend de pruebas, con MinIO real (`.harness` local): CA-2, CA-3 (firma del anterior → 401), CA-4, CA-5, CA-6, CA-7 (429 con `bloqueadoHasta` a 24 h), CA-8 (correo con fecha de Bolivia y modelo; el perdedor del 409 no recibe correo), CA-10, CA-11 (integridad caída y almacenamiento detenido: 503, nada cambia, sin intento), CA-12, A-08 y dos revinculaciones a la vez (una 201 y otra 409, un solo activo).
+- Corregido: pedir el desafío durante un bloqueo o con el motor caído no quedaba en auditoría (CA-12); el sufijo `~rostro` del motor simulado se aceptaba sobre ids reales de Rekognition y daba 503 sin contar intento: ahora solo sobre `sim-…` (`86d6e54`).
+- Sin verificar: CA-9 (depende de HU-22); prueba de vida nativa (HU-08) y Play Integrity reales (despliegue).

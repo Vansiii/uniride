@@ -2,46 +2,44 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-11-08
+**Última actualización:** 2026-11-10
 
 **Sprint actual:** Sprint 3 · Viaje completo verificado y pagado (37 PHU con HU-10, Release 1.0).
-**Foco:** specs de HU-10, HU-29, HU-19, HU-22, HU-23 y HU-24 **aprobadas por el PO (08/11)**; **planes aprobados (08/11)** y tareas SP134–SP176 en el backlog. D-22 a D-28 resueltas (delegadas por el integrante, 08/11). Siguiente fase: planes técnicos.
+**Foco:** HU-10: implementada, verificada y revisada (10/11); falta push y PR.
 
 ## Estado actual
 
-- **Sprint 1 y Sprint 2 en `develop`** de los 5 repositorios: HU-08, HU-09 (con SP125 Keystore nativo), HU-12, HU-13, HU-14, HU-17, HU-18 y `fix/dependencias-audit` (Expo SDK 58) fusionados; comprobado con `git merge-base --is-ancestor` el 08/11 en `backend`, `mobile` y raíz. `backend` `develop` en `dd0b63f`.
-- **Specs del Sprint 3** (`SPECS/features/sprint-3/`), aprobadas; `plan.md` aprobados (roadmap `plan aprobado`), en orden de dependencia: HU-10 (5) y HU-29 (3) → HU-19 (8) → HU-22 (8) → HU-23 (8) → HU-24 (5). Roadmap en `en spec`.
-- **D-22 a D-27 resueltas** (MEMORY 08/11, «Resuelve D-22 a D-27»), reflejadas en las specs y en `ssd.md` §6 y §9:
-  - D-22 llave de trayecto sin biometría, registrada en una petición F+B, solo para el código rotativo y las posiciones.
-  - D-23 estado por reserva; el del viaje se deriva, sin transiciones nuevas.
-  - D-24 verificación fallida retiene el escrow con alerta (resuelve HU-20/HU-26).
-  - D-25 precio en múltiplos de 0,02 URC al publicar.
-  - D-26 la búsqueda oculta los viajes propios.
-  - D-27 cuenta suspendida no reserva ni recibe reservas nuevas.
-  - D-28 HU-10 sube a S3: volver a vincular (huella nueva o teléfono nuevo) con prueba de vida contra el carnet; la llave sigue anulándose con cada huella nueva.
-- Cambios sin commit en la raíz: specs de S3, `MEMORY.md`, `HEARTBEAT.md`, `roadmap.md`, `ssd.md`.
+- **Sprint 1 y Sprint 2 en `develop`** de los 5 repositorios. Specs y planes del Sprint 3 aprobados (08/11), tareas SP134–SP176 en el backlog.
+- **HU-10 en curso** en `feat/HU-10-cambio-dispositivo` (raíz PR #27, backend #16, mobile #16, de Smile-HD). **No fusionar todavía.**
+  - Backend (SP134–SP137): `backend` en `180ae4e`, sin push. Verificación completa en verde tras la revisión (524 e2e).
+  - Mobile (SP138–SP139): `mobile` en `6bc8777`, sin push. Lint, tipos y pruebas en verde.
+  - Punteros de `backend` y `mobile` en la raíz con commit; el de `contracts` apunta a HU-13 y no va en esta rama.
+  - **Pendiente de revisión por otro integrante** : llave desparejada si la app se cierra entre el 201 y `confirmarLlave()` (hoy se recupera revinculando) y el bloque de fallas de llave repetido en Billetera, Publicar, Recarga y Dispositivo.
+  - SP140 hecho en un Infinix X669 con huella nueva real.
 
-## Última sesión (08/11)
+## Última sesión (10/11)
 
-- Análisis completo del harness, documento técnico, `ssd.md`, `DESIGN_SYSTEM.md` §9–§10, contrato `EscrowUniRide`, `FirmaDispositivoGuard`, Prisma y módulo nativo de la llave.
-- Hallazgo: la llave de HU-09 exige huella en cada firma (`setUserAuthenticationParameters(0, …)`), incompatible con el QR rotativo y las posiciones cada 15 s → D-22.
-- Redactadas las specs, resueltas D-22 a D-28, PO aprobó las 6 specs; planes aprobados por el integrante con lo de §14, tareas SP134–SP176 en el backlog; PR de la raíz con todo.
-- HU-10 sube a S3 (D-28): causa del callejón sin salida en `LlaveDispositivoModule.kt` (anulación reducida a «Actualiza la app») y en `DispositivosService` (rechaza con dispositivo activo, `UNIQUE(usuario_id)`).
+- Revisión de código de lo no subido: corregidos el doble registro de cada fallo de rostro en auditoría, la identidad comprobada antes de Play Integrity (bloqueo de 24 h desde un emulador) y la pantalla que ofrecía «Vincular» tras un 409 sin consulta. Lo demás se descartó con motivo.
+
+- Verificación limpia de HU-10 (sesión que no implementó): regresión completa de backend y mobile en verde; cada CA con peticiones reales contra el backend de pruebas y MinIO real (detalle en MEMORY).
+- Corregido en el backend: auditoría también al pedir el desafío bloqueado o con el motor caído (CA-12), y sufijo del motor simulado aceptado solo en sesiones `sim-` (`86d6e54`, `8887527`). Las pruebas nuevas fallan sin la corrección.
+- Revisado `docker-compose.yml` del PR: solo da al contenedor del backend las URL de la base con el host `postgres` y el rol de la app; fuera del alcance de la historia pero correcto.
 
 ## Próximo paso concreto
 
-1. Implementar en orden, apilando ramas `feat/HU-xx-slug` desde `develop` en cada repositorio tocado: **HU-10 (SP134)** → HU-29 → HU-19 → HU-22 → HU-23 → HU-24.
-2. Dependencias autorizadas: `expo-camera` (SP161) y `expo-task-manager` (SP168), con `npx expo install`.
-3. Antes de HU-24 en Amoy: otorgar `ROL_OPERADOR`/`ROL_VERIFICADOR` (Ignition no lo hace) y fondear la cuenta verificadora.
+1. **HU-10:** push de `backend`, `mobile` y la raíz a los PR #16, #16 y #27 cuando el usuario lo diga; merge en orden backend → mobile → raíz. Los commits viejos dicen `SP03` en vez de SP134–SP140.
+2. Después, en orden: HU-29 → HU-19 → HU-22 → HU-23 → HU-24. Dependencias autorizadas: `expo-camera` (SP161) y `expo-task-manager` (SP168).
 
 ## Sin verificar
 
-- HU-10 depende de la prueba de vida nativa de HU-08, todavía pendiente en la app.
+- HU-10 CA-9 (llaves de trayecto) depende de HU-22.
+- HU-10: si la app se cierra entre el 201 y `confirmarLlave()`, el servidor queda con la llave nueva y el teléfono con la vieja; se recupera revinculando (riesgo aceptado en la revisión).
+- HU-10 depende de la prueba de vida nativa de HU-08, todavía pendiente en la app: en el teléfono se usó la simulada de desarrollo.
+- HU-10: `PRUEBA_VIDA_FALLIDA` y `CONFLICTO_CONCURRENTE` en la app solo con Jest (el backend los prueba en e2e); `ROSTRO_NO_COINCIDE` e `INTENTOS_AGOTADOS` vistos en el teléfono. Publicar con la llave anulada, solo con Jest (misma función que Billetera y Recarga, vistas en el teléfono).
 - Play Integrity real: simulada en desarrollo. HU-22 CA-7 no se declara verificado sin un teléfono físico con atestación real.
 - Polygon Amoy y SP23: billetera, saldo y escrow solo contra Hardhat local.
 - HU-13 en Amoy: contrato sin desplegar, relayer sin fondos; una confirmación por transacción hasta SP129.
-- StrongBox; invalidación de la llave al registrar una huella nueva.
-- Dev build con SDK 58 en teléfono físico (Keystore de HU-09).
+- StrongBox.
 - HU-17, fecha vieja al volver otro día: solo con Jest. Voz de TalkBack: solo la confirma una persona.
 - HU-18: OpenFreeMap sin garantía de servicio.
 
