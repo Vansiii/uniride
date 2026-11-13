@@ -213,15 +213,15 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP144 · Prueba en teléfono físico: huella ajena, cancelar, bloqueo — 0,5h — @[POR DEFINIR] · @agente 10/11 Infinix X669: CA-5 con dedo no registrado (nada firmado llega al servidor), CA-2, CA-8 sin huellas, resumen de crear la billetera, Movimientos → Billetera, sin PIN ni patrón en el diálogo; bloqueo del sistema no provocable en este teléfono (solo Jest)
 
 ### HU-19 · Reserva con escrow (25,5 h)
-- [ ] SP145 · Migración `014_reservas` (RLS, índices, FK) y modelos Prisma — 2h — @[POR DEFINIR]
-- [ ] SP146 · `EstadoViajeService.recalcular` con pruebas — 1,5h — @[POR DEFINIR]
-- [ ] SP147 · `ReservasService.reservar` + endpoints + Swagger — 4h — @[POR DEFINIR]
-- [ ] SP148 · `Cadena.bloquearReserva`/`estadoReservaEscrow` (real y simulada), permit con llave custodiada, worker por `operacion` — 4h — @[POR DEFINIR]
-- [ ] SP149 · HU-17: precio múltiplo de 0,02; HU-18: sin viajes propios — 1h — @[POR DEFINIR]
-- [ ] SP150 · Pruebas e2e y de ataque A-08, A-09, A-10, A-13 — 4h — @[POR DEFINIR]
-- [ ] SP151 · Mobile: confirmación de reserva, resultado y estado — 4h — @[POR DEFINIR]
-- [ ] SP152 · Mobile: pestaña «Mis viajes» y tarjeta del viaje activo — 4h — @[POR DEFINIR]
-- [ ] SP153 · Prueba real de bloqueo contra `EscrowUniRide` en Hardhat local — 1h — @[POR DEFINIR]
+- [x] SP145 · Migración `014_reservas` (RLS, índices, FK) y modelos Prisma — 2h — @[POR DEFINIR] · backend @agente 12/11: `reservas` con RLS forzado y UNIQUE parcial `(viaje, pasajero)` salvo `fallida`; FK de `movimientos_billetera.reserva_id`; el CHECK de `trabajos_onchain.operacion` admite `bloquear_reserva`; el rol de la API solo actualiza `estado` y `motivo` de la reserva y `cupos_disponibles` y `estado` del viaje. Sin diferencias entre esquema y migraciones
+- [x] SP146 · `EstadoViajeService.recalcular` con pruebas — 1,5h — @[POR DEFINIR] · backend @agente 12/11: solo `publicado → reservado` (lo único que HU-19 puede producir); HU-22, HU-23 y HU-24 agregan su transición en el mismo lugar
+- [x] SP147 · `ReservasService.reservar` + endpoints + Swagger — 4h — @[POR DEFINIR] · backend @agente 12/11: `POST /viajes/:id/reservas`, `GET /reservas/:id`, `GET /reservas/mias` y `GET /viajes/:id/pasajeros`; una transacción con candado por pasajero (advisory lock, no `FOR UPDATE`: el rol de la API no puede actualizar `billeteras`)
+- [x] SP148 · `Cadena.bloquearReserva`/`estadoReservaEscrow` (real y simulada), permit con llave custodiada, worker por `operacion` — 4h — @[POR DEFINIR] · backend @agente 12/11: permit EIP-2612 firmado en el worker con la llave descifrada solo para firmar; las reversiones permanentes se leen de los datos con el ABI (ethers no las decodifica al estimar el gas)
+- [x] SP149 · HU-17: precio múltiplo de 0,02; HU-18: sin viajes propios — 1h — @[POR DEFINIR] · backend @agente 12/11: `PRECIO_NO_MULTIPLO` al publicar y la búsqueda excluye `conductor_id = usuario`
+- [x] SP150 · Pruebas e2e y de ataque A-08, A-09, A-10, A-13 — 4h — @[POR DEFINIR] · backend @agente 12/11: CA-1 a CA-15 y los cuatro ataques, también en PostgreSQL con el rol de la API; la prueba de catálogo y la A-08 por acción ya incluyen `reserva.crear`
+- [x] SP151 · Mobile: confirmación de reserva, resultado y estado — 4h — @[POR DEFINIR] · mobile @agente 12/11: «Reservar y pagar» con huella en el detalle, faltante y «Recargar saldo», clave de idempotencia estable en los reintentos y pantalla de resultado que consulta mientras está pendiente; con Jest; sin probar en teléfono físico
+- [x] SP152 · Mobile: pestaña «Mis viajes» y tarjeta del viaje activo — 4h — @[POR DEFINIR] · mobile @agente 12/11: reservas del pasajero y viajes del conductor con sus pasajeros (nombre de pila y estado), y «Tu próximo viaje» en Inicio; con Jest; sin probar en teléfono físico
+- [x] SP153 · Prueba real de bloqueo contra `EscrowUniRide` en Hardhat local — 1h — @[POR DEFINIR] · backend @agente 12/11: `test/blockchain/escrow-hardhat.e2e-spec.ts` (se omite sin `HARDHAT_RPC_URL`): bloqueo con permit de un pasajero sin ETH, nonce que avanza, hash recuperado del evento y reversiones `ReservaExistente`, `ERC20InsufficientBalance` y `DatosInvalidos` como fallas permanentes
 
 ### HU-22 · Verificación de abordaje (25 h)
 - [ ] SP154 · Migración `015_presencia` (3 tablas, RLS) y modelos — 2h — @[POR DEFINIR]

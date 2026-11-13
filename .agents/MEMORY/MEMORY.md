@@ -1296,3 +1296,26 @@ Los dos se vieron en el teléfono físico.
 - Hecho en el Infinix X669 con `sin@`: resumen de crear la billetera, CA-1, CA-5 (meñique no registrado: 16 rechazos en `dumpsys fingerprint`, ningún `POST /billetera`; el nudillo no cuenta como intento en este lector), CA-2, Movimientos → «Ir a Billetera» y CA-8 (aviso `comun.biometria.sin_registrar`, sin peticiones). Sin huellas, Android anula la llave: al volver a registrar una, la app pide «Confirmar mi identidad» (HU-10).
 - La primera vez la persona puso el dedo registrado en la prueba de nudillo y la billetera se creó de verdad. Control: `/__bloquear` en el proxy de `HU-29/telefono/telefono.mjs`.
 - Bloqueo (RN-5) no provocable en el Infinix: sin `lockout` tras 16 rechazos dentro del diálogo; queda con Jest. El diálogo no ofrece PIN ni patrón (RN-4).
+
+## 2026-11-12 · HU-19 implementada (backend y app)
+
+**Evento:** Se implementa HU-19 (Reserva con escrow) en `feat/HU-19-reserva-escrow` de `backend`, `mobile` y la raíz, sobre `develop` con HU-10 y HU-29 ya fusionadas. Sin commits ni PR todavía. Autorizado por el plan aprobado el 08/11: migración `014`, estados de reserva y viaje derivado (D-23), bloqueo en el escrow, FK en el libro.
+
+**Decisiones al implementar** (detalle en `plan.md` §9; ninguna cambia la spec ni el contrato del escrow):
+1. **Candado por pasajero con `pg_advisory_xact_lock`**, no `FOR UPDATE` sobre `billeteras`: el rol de la API no puede actualizar esa tabla.
+2. **`recalcular` solo hace `publicado → reservado`**; HU-22, HU-23 y HU-24 agregan su transición en el mismo servicio.
+3. **El worker escribe con `comoSuperAdmin`** (RLS por organización) y despacha por `operacion`; el permit EIP-2612 se firma ahí con la llave custodiada descifrada solo para firmar.
+4. **Las reversiones permanentes se leen de los datos con el ABI** (`nombreDeReversion`): ethers deja `revert: null` al estimar el gas. Comprobado contra Hardhat.
+5. **Permisos nuevos del rol de la API:** `UPDATE (cupos_disponibles, estado)` en `viajes` y `UPDATE (estado, motivo, actualizado_en)` en `reservas`; sigue sin DELETE. `viajes` ya no es de solo lectura: se cambió la prueba A-13 que lo afirmaba.
+6. **FK `movimientos_billetera.reserva_id → reservas`:** las pruebas del libro que usaban un UUID suelto crean ahora una reserva de relleno (`asegurarReserva` en `ayudas-billetera.ts`).
+7. **Errores nuevos:** `CLAVE_IDEMPOTENCIA_EN_CONFLICTO` (la misma clave en otro viaje u otra persona no devuelve la reserva ajena) y `PRECIO_NO_MULTIPLO` (RN-11).
+8. **App:** el botón con huella vive abajo del detalle (el diálogo biométrico es la confirmación), con el faltante y «Recargar saldo»; la clave de idempotencia se conserva mientras la pantalla siga abierta; `mis-reservas` trae también las que no se completaron.
+
+**Verificación (12/11):** backend con 521 unitarias (cobertura 91,5 %) y 640 e2e en verde, lint, formato y build; ataques A-08, A-09, A-10, A-11 y A-13 en API y en PostgreSQL con el rol de la API. Bloqueo real contra `UniCoin` y `EscrowUniRide` en Hardhat local (`backend/test/blockchain/escrow-hardhat.e2e-spec.ts`, se omite sin `HARDHAT_RPC_URL`): permit de un pasajero sin ETH, nonce que avanza, hash recuperado del evento y las tres reversiones como fallas permanentes. Mobile con 439 pruebas, lint, formato, tipos y export de Android. Los fixtures `reservaReal` de la app salen de respuestas reales del backend (cadena simulada).
+
+**Entorno de esta sesión:** `node_modules` de `backend` estaba desactualizado (sin `ethers` ni `qrcode`): `npx npm@11 ci`. El puerto 5433 lo tomó otro contenedor de la PC (`mekano-postgres-1`), así que el PostgreSQL de UniRide se levantó en el 5434 solo para estas pruebas (`POSTGRES_PUERTO=5434`, variables `DATABASE_URL*` en el proceso). `contracts/artifacts` estaba viejo: se recompiló con `hardhat build`.
+
+**Sin verificar:** reservar en teléfono físico (SP151, SP152), `TalkBack`, Polygon Amoy (escrow sin desplegar, relayer sin fondos) y despliegue. Diagramas UML (secuencia, clases, estados) sin actualizar. Nadie revisó el código.
+
+**Archivos afectados:** `backend/prisma/{schema.prisma,migrations/014_reservas}`, `src/{reservas,viajes,blockchain,billetera,i18n}`, `test/{reservas,ataques,blockchain,viajes,billetera}`; `mobile/src/{api,app/reserva,app/(pestanas),app/viajes,componentes,hooks,i18n,pruebas,viajes,__tests__}`; `SPECS/features/sprint-3/HU-19-reserva-escrow/{spec,plan}.md`, `SPECS/ssd.md`, `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
+

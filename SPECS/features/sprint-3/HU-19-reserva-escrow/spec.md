@@ -85,10 +85,10 @@
 
 Marcar al cerrar la fase **Verify**. Referencia: `SPECS/constitution.md` Art. 12.
 
-- [ ] Todos los criterios de aceptación cumplidos.
-- [ ] Pruebas automatizadas del `plan.md` en verde; cobertura de backend ≥ 70 %.
-- [ ] Pruebas de ataque A-08, A-09, A-10, A-11 y A-13 en verde.
-- [ ] Bloqueo real contra `EscrowUniRide` en Hardhat local registrado.
+- [x] Todos los criterios de aceptación cumplidos. (CA-1 a CA-15 con prueba automatizada; en teléfono físico sin verificar)
+- [x] Pruebas automatizadas del `plan.md` en verde; cobertura de backend ≥ 70 %. (12/11: cobertura 91,5 %)
+- [x] Pruebas de ataque A-08, A-09, A-10, A-11 y A-13 en verde.
+- [x] Bloqueo real contra `EscrowUniRide` en Hardhat local registrado. (`backend/test/blockchain/escrow-hardhat.e2e-spec.ts`, 12/11)
 - [ ] PR revisado por otro integrante.
 - [ ] CI en verde (lint, pruebas, build).
 - [ ] Correctitud · Eficiencia · Fiabilidad · Facilidad de uso (paso 3 del flujo principal) · Mantenimiento · Seguridad e integridad · Portabilidad.
@@ -102,3 +102,4 @@ Marcar al cerrar la fase **Verify**. Referencia: `SPECS/constitution.md` Art. 12
 |---|---|---|
 | 2026-11-08 | Creación (borrador) | 2026-11-08 · Specs del Sprint 3 en borrador y decisiones D-22 a D-27 |
 | 2026-11-08 | Aprobada por el PO | 2026-11-08 · Specs del Sprint 3 aprobadas |
+| 2026-11-12 | Implementada en backend y app; DoD técnica marcada (falta revisión, CI, despliegue y aceptación) | 2026-11-12 · HU-19 implementada |
