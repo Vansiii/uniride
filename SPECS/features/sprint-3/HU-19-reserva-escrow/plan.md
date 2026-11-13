@@ -63,7 +63,7 @@ El DTO usa `whitelist` + `forbidNonWhitelisted`: un `monto`, `conductor` o `esta
 Sin transiciones nuevas, solo hacia adelante, con `UPDATE … WHERE estado = <anterior>`:
 `publicado → reservado` (≥ 1 confirmada) · `reservado → en_curso` (≥ 1 abordada, HU-22) · `en_curso → verificado` (ninguna `confirmada` ni `abordada`, ≥ 1 `verificada`/`pagada`, HU-23) · `verificado → pagado` (ninguna `verificada` sin pagar, HU-24).
 
-Swagger actualizado: [ ]
+Swagger actualizado: [x] (12/11: los cuatro endpoints, con sus errores; `POST` con el texto de firma biométrica)
 
 ## 4. Pantallas y voz
 
@@ -141,3 +141,23 @@ Metas de rendimiento: la reserva no espera a la cadena (responde con el asiento 
 | SP151 · Mobile: confirmación de reserva, resultado y estado | 4 | @[POR DEFINIR] |
 | SP152 · Mobile: pestaña «Mis viajes» y tarjeta del viaje activo | 4 | @[POR DEFINIR] |
 | SP153 · Prueba real de bloqueo contra `EscrowUniRide` en Hardhat local | 1 | @[POR DEFINIR] |
+
+## 9. Cambios al implementar (12/11/2026)
+
+Se registran en `MEMORY.md` («HU-19 implementada»). Ninguno cambia lo que dice la spec ni el contrato del escrow.
+
+| Plan | Se hizo | Por qué |
+|---|---|---|
+| `SELECT … FROM billeteras … FOR UPDATE` (§3, paso 1) | `pg_advisory_xact_lock` por pasajero | El rol de la API no puede actualizar `billeteras` (solo SELECT e INSERT) y `FOR UPDATE` exige ese privilegio; el candado serializa igual las reservas de una misma persona (CA-4, CA-5) |
+| `recalcular` con las cuatro transiciones (§3) | Solo `publicado → reservado` | Es lo único que HU-19 puede producir; HU-22, HU-23 y HU-24 agregan la suya en el mismo servicio, con su prueba |
+| `estadoReservaEscrow(idReserva)` | Devuelve `{ estado, pagador, conductor, monto }` y se agrega `hashDeBloqueo(idReserva)` | El worker compara los datos antes de confiar en un bloqueo previo y necesita el hash del evento si la respuesta se perdió |
+| Falla permanente por `ERC20InsufficientBalance`, `DatosInvalidos` o `ReservaExistente` | El nombre se lee de los datos de la reversión con el ABI (`nombreDeReversion`) | Al estimar el gas ethers deja `revert: null`; se comprobó contra Hardhat |
+| El worker escribe con la sesión normal | `comoSuperAdmin` en el worker | `reservas` y `viajes` tienen RLS por organización y el worker procesa trabajos de todas; solo toca la reserva del trabajo |
+| `GET /reservas/mias` solo activas primero | También trae las `fallida`, al final | La persona debe poder ver por qué no se le reservó el asiento |
+| `GET /reservas/:id` | `hashTx` y `exploradorUrl` solo para el pasajero | La transacción del bloqueo es del libro del pasajero |
+| Errores de la tabla §3 | Se agrega `CLAVE_IDEMPOTENCIA_EN_CONFLICTO` (409) y `PRECIO_NO_MULTIPLO` (400, publicar) | La misma clave en otro viaje u otra persona no devuelve la reserva ajena; RN-11 necesita su propio código |
+| Migración `014` | Además `GRANT UPDATE (cupos_disponibles, estado) ON viajes`, `GRANT UPDATE (estado, motivo, actualizado_en) ON reservas` y el CHECK de `trabajos_onchain.operacion` | Lo mínimo para retener y devolver asientos y para que la cola admita el bloqueo; el rol de la API sigue sin DELETE |
+| Confirmación en pantalla propia (§4) | El botón «Reservar y pagar» con la huella vive abajo del detalle, con «Saldo disponible después» | El diálogo biométrico es la confirmación (HU-29); una pantalla más sumaría un paso al flujo de 4 |
+| Móvil: `viajes/[id].tsx` y `reserva/[id].tsx` | Además `TarjetaReserva`, `ViajeActivo` y `nuevaClaveReserva` (UUID v4 del módulo nativo, sin `crypto`) | Reutilizadas por Mis viajes e Inicio |
+
+Diagramas UML por actualizar (no hechos): secuencia de reserva y bloqueo, clases `Reserva`, estados de la reserva y del viaje derivado.

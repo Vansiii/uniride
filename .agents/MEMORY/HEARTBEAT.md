@@ -2,40 +2,33 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-11-10
+**Última actualización:** 2026-11-12
 
 **Sprint actual:** Sprint 3 · Viaje completo verificado y pagado (37 PHU con HU-10, Release 1.0).
-**Foco:** HU-10 y HU-29 subidas y con PR; falta fusionar en orden (HU-10 primero) con revisión de otro integrante.
+**Foco:** HU-19 implementada y verificada en `feat/HU-19-reserva-escrow` (backend, mobile y raíz), **sin commits ni PR todavía**. Sigue HU-22.
 
 ## Estado actual
 
-- **Sprint 1 y Sprint 2 en `develop`** de los 5 repositorios. Specs y planes del Sprint 3 aprobados (08/11), tareas SP134–SP176 en el backlog.
-- **HU-10 en curso** en `feat/HU-10-cambio-dispositivo` (raíz PR #27, backend #16, mobile #16, de Smile-HD). **No fusionar todavía.**
-  - Backend (SP134–SP137): `backend` en `180ae4e`, subido. Verificación completa en verde tras la revisión (524 e2e).
-  - Mobile (SP138–SP139): `mobile` en `6bc8777`, subido. Lint, tipos y pruebas en verde.
-  - Punteros de `backend` y `mobile` en la raíz con commit; el de `contracts` apunta a HU-13 y no va en esta rama.
-  - **Pendiente de revisión por otro integrante** : llave desparejada si la app se cierra entre el 201 y `confirmarLlave()` (hoy se recupera revinculando) y el bloque de fallas de llave repetido en Billetera, Publicar, Recarga y Dispositivo.
-  - SP140 hecho en un Infinix X669 con huella nueva real.
-- **HU-29 en PR**: backend #17, mobile #17 y raíz #28, con base en `feat/HU-10-cambio-dispositivo`. Se fusiona después de HU-10, en orden backend → mobile → raíz.
-  - Backend (SP141–SP142): `backend` en `46822b0`, subido. Verificación completa en verde tras la revisión (543 e2e) y prueba real de API.
-  - Mobile (SP143): `mobile` en `1106de2`, subido. Verificación completa en verde tras la revisión (399 pruebas y build); mirada en teléfono físico hecha.
-  - Verificación limpia (10/11): regresión completa en verde (543 e2e, cobertura 92,3 %) y peticiones reales de los ataques en las tres acciones. Corregido CA-2 al crear la billetera. Crear la billetera pasa a un resumen con botón con huella (CA-1, a pedido del usuario); Movimientos lleva a Billetera.
-  - SP144 en el Infinix X669 (10/11): resumen y CA-1 al crear la billetera, CA-5 con un dedo no registrado (16 rechazos, nada firmado llegó al servidor), CA-2, RN-4/RN-5 sin PIN ni patrón en el diálogo, Movimientos → «Ir a Billetera» y CA-8 sin huellas ni rostro; tras volver a registrar la huella, la llave anulada lleva a «Confirmar mi identidad». Evidencias en `.harness/evidencias/HU-29/telefono/informe.md`.
+- **Sprint 1 y 2 en `develop`**; HU-10 y HU-29 también (punteros actualizados en la raíz, PR #29).
+- **HU-19 hecha en el árbol de trabajo** de las tres ramas `feat/HU-19-reserva-escrow` (creadas desde `develop`): SP145–SP153 marcadas en el backlog.
+  - Backend: migración `014_reservas`, `ReservasService`, worker por `operacion`, `Cadena.bloquearReserva` (real con permit y simulada), `EstadoViajeService`, RN-11 y RN-12. 521 unitarias (cobertura 91,5 %) y 640 e2e en verde; lint, formato y build.
+  - Contratos: **sin cambios**. Prueba real contra `EscrowUniRide` en Hardhat local: `backend/test/blockchain/escrow-hardhat.e2e-spec.ts` (con `HARDHAT_RPC_URL`).
+  - Mobile: «Reservar y pagar» en el detalle, pantalla `reserva/[id]`, pestaña «Mis viajes» y «Tu próximo viaje» en Inicio. 439 pruebas, lint, formato, tipos y export de Android.
+- **HU-10 y HU-29**: fusionadas; queda la revisión de otro integrante (ver «Sin verificar»).
 
-## Última sesión (10/11)
+## Última sesión (12/11)
 
-- HU-29 parte 4: `/code-review medium` sobre backend y mobile. Corregido en mobile `1106de2` y backend `46822b0`; los tres sin cambio, con su motivo en la tabla de la revisión.
-- Mobile: un toque durante una confirmación ya no borra el aviso (recarga) ni repite la validación (publicar); si el saldo falla justo tras crear la billetera, se ve la billetera nueva con el aviso y sin otra huella (Jest, que falla sin el arreglo).
-- Verificación tras corregir: backend completa en verde (543 e2e); mobile rápida en verde.
+- HU-19 completa en backend y app; cambios al plan registrados en `plan.md` §9 y `MEMORY.md`.
+- Entorno: `node_modules` de `backend` reinstalado con npm 11; PostgreSQL de UniRide en el puerto **5434** (el 5433 lo ocupa `mekano-postgres-1`); `contracts/artifacts` recompilado.
 
 ## Próximo paso concreto
 
-1. **HU-10:** subida a los PR #16, #16 y #27 (backend y mobile ya estaban; la raíz se subió el 10/11). Merge en orden backend → mobile → raíz, tras la revisión de otro integrante. Los commits viejos dicen `SP03` en vez de SP134–SP140.
-2. **HU-29:** revisión hecha (6 de 9 hallazgos corregidos) y PR abiertos. Tras fusionar HU-10, fusionar HU-29 y luego actualizar los punteros de `develop`. La fusión la hace otro integrante en GitHub; la instrucción nueva de recarga ya se vio en el teléfono.
-3. Después, en orden: HU-19 → HU-22 → HU-23 → HU-24. Dependencias autorizadas: `expo-camera` (SP161) y `expo-task-manager` (SP168).
+1. **HU-19:** que otra persona revise el código; commits `HU-19 SP145…SP153: …` en `backend`, `mobile` y la raíz, PR en ese orden (backend → mobile → raíz) y luego el puntero. Probar reservar en el teléfono físico (SP151/SP152) y actualizar los UML.
+2. Después, en orden: HU-22 → HU-23 → HU-24. Dependencias autorizadas: `expo-camera` (SP161) y `expo-task-manager` (SP168).
 
 ## Sin verificar
 
+- HU-19: reservar y «Mis viajes» solo con Jest y contra el backend de pruebas; falta el teléfono físico y TalkBack. El bloqueo real se probó en Hardhat local, no en Amoy. Las reservas `pendiente` se confirman con el worker de 5 s; si la cola falla, queda la alerta `reserva.bloqueo.atascado` (5 intentos).
 - HU-29: bloqueo del sistema tras intentos fallidos (`comun.biometria.bloqueada`) solo con Jest: el Infinix X669 no bloqueó tras 16 rechazos en el diálogo y desbloquear con patrón anula el bloqueo.
 - HU-10 CA-9 (llaves de trayecto) depende de HU-22.
 - HU-10: si la app se cierra entre el 201 y `confirmarLlave()`, el servidor queda con la llave nueva y el teléfono con la vieja; se recupera revinculando (riesgo aceptado en la revisión).
