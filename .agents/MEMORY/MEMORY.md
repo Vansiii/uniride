@@ -1346,3 +1346,18 @@ Los dos se vieron en el teléfono físico.
 **Sin verificar:** pantallas en el teléfono, CA-7 con Play Integrity real y el abordaje < 3 s: van en la parte con dos teléfonos (SP162). Diagramas UML del plan §5.
 
 **Archivos afectados:** `mobile/src/{viajes/abordaje.ts,app/abordaje/mostrar/[viajeId].tsx,__tests__/abordaje.test.tsx}`; `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-22 en el teléfono (SP162)
+
+**Evento:** Abordaje probado en el Infinix X669 como conductor y como pasajero. La otra persona fue un guion con llaves y firmas ECDSA reales; el usuario decidió que un teléfono basta.
+
+- **Conductor:** una huella registra la llave de trayecto; el Keystore firma los códigos y se renuevan sin huella (≈28 s con el GPS). La pasajera del guion aborda (`200`, 123 ms) y el teléfono ve «Verificado ✓» en ≈1,5 s; viaje «En curso».
+- **Pasajero:** lee el QR de la pantalla de la PC con `expo-camera`, una huella, `200` en 90 ms y «Abordaje verificado»; «Mis viajes» muestra «A bordo». Sin conexión, el aviso de la spec y nada verificado.
+- **Corregido (`mobile` `0a528a7`, `715ae78`):** sin teléfono vinculado, las dos pantallas mostraban un error genérico; ahora piden vincularlo y llevan a «Mi teléfono».
+
+**Sin verificar:** CA-7 con Play Integrity real (simulada en desarrollo; con el despliegue).
+
+**Anotado:** el aviso de cámara dice «ajustes» aunque el botón pide el permiso ahí; el aviso de vincular sigue al volver de «Mi teléfono» hasta tocar «Mostrar código».
+
+**Archivos afectados:** `mobile/src/{viajes/abordaje.ts,app/abordaje,i18n/es-BO.json,__tests__/abordaje.test.tsx}`; `backlog.md`, `HEARTBEAT.md`.
+

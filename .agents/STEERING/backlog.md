@@ -232,7 +232,7 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP159 · Módulo nativo: llave de trayecto sin biometría; `cabecerasFirmaTrayecto` — 2h — @[POR DEFINIR]
 - [x] SP160 · Mobile: «Mostrar código» del conductor — 3h — @[POR DEFINIR]
 - [x] SP161 · Mobile: «Escanear QR» con `expo-camera` (dependencia autorizada el 08/11) y resultados — 4h — @[POR DEFINIR]
-- [ ] SP162 · Prueba con dos teléfonos físicos y medición < 3 s — 1h — @[POR DEFINIR]
+- [x] SP162 · Prueba con dos teléfonos físicos y medición < 3 s — 1h — @[POR DEFINIR]
 
 ### HU-23 · Seguimiento y bajada (24 h)
 - [ ] SP163 · Migración `016_puntos_gps` y `reservas.evaluacion` — 1h — @[POR DEFINIR]
