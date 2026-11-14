@@ -1409,7 +1409,7 @@ Los dos se vieron en el teléfono físico.
 
 **Verificado:** `verificar.py --cambiados --todo` en verde (backend 727 e2e, cobertura 91,7 %; mobile 487); `verificar.py mobile --rapido` tras el cambio; 14 capturas a 360 y 412, miradas.
 
-**Sin verificar:** dos teléfonos moviéndose juntos por la calle (3b, SP170). Paridad N7 (tarjeta del viaje activo arriba en Buscar y Mis viajes) no cumple desde HU-22: decisión abierta.
+**Sin verificar:** dos teléfonos moviéndose juntos por la calle (3b, SP170). Paridad N7 (viaje activo anclado) a medias: «Tu próximo viaje» de HU-19 solo cubre al pasajero, sin la acción del momento y por una hora tras la salida; decisión abierta en HEARTBEAT.
 
 **Archivos afectados:** `mobile/src/app/viaje-activo/[id].tsx`, `mobile/src/__tests__/seguimiento.test.tsx`; `backlog.md`, `HEARTBEAT.md`.
 

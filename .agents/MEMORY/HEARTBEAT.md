@@ -54,7 +54,7 @@
 
 ## Decisiones abiertas
 
-- **Viaje activo anclado (DESIGN_SYSTEM N7):** con el viaje en curso, «Mis viajes» sigue con «Mostrar código de abordaje» como acción principal y Buscar no muestra la tarjeta del viaje activo. Ya faltaba desde HU-22. Decidir en qué historia va.
+- **Viaje activo anclado (DESIGN_SYSTEM N7), a medias:** Buscar tiene «Tu próximo viaje» de HU-19 (`ViajeActivo.tsx`), pero solo con reservas del pasajero, sin la acción del momento (lleva al detalle de la reserva) y desaparece una hora después de la salida aunque siga en curso. El conductor no tiene tarjeta en Buscar, y en Mis viajes nada se ancla arriba: con el viaje en curso, la acción principal sigue siendo «Mostrar código de abordaje». Ninguna spec (HU-19, HU-22, HU-23) lo pidió como criterio. Decidir en qué historia va.
 
 - **Billetera al volver de vincular:** sigue en «primero vincula este teléfono» hasta tocar actualizar (visto en SP144, ya era así antes de HU-29). Releer por foco abriría la huella sola si hay billetera. El usuario decidió dejarlo anotado.
 - **Accesibilidad:** TalkBack no lee los `Aviso` que aparecen; falta probar mover el foco. Decidir en qué historia va.
