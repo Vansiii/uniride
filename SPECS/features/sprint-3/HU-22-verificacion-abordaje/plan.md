@@ -108,25 +108,93 @@ Sin comandos de voz en esta historia (HU-28 agrega «¿dónde está mi conductor
 
 ## 5. Diagramas UML
 
-- [ ] Secuencia: abordaje (actualiza `ssd.md` §9).
-- [ ] Clases: `LlaveTrayecto`, `DesafioHandshake`, `PruebaPresencia`.
-- [ ] Despliegue: Play Integrity en la ruta del abordaje.
+- [x] Secuencia: abordaje (actualiza `ssd.md` §9, 14/11).
+- [x] Clases: `LlaveTrayecto`, `DesafioHandshake`, `PruebaPresencia`.
+- [x] Despliegue: Play Integrity en la ruta del abordaje.
 
 ```mermaid
 sequenceDiagram
   participant C as App conductor
   participant P as App pasajero
   participant API
+  participant PI as Play Integrity
   C->>API: POST /viajes/:id/llave-trayecto (F+B, integridad)
-  loop cada 25 s
+  API->>PI: veredicto del conductor
+  loop cada 25 s, o al ver un abordado (sondeo de 3 s a /pasajeros)
     C->>API: POST /viajes/:id/desafios (llave de trayecto, GPS)
-    API-->>C: nonce + QR
+    API-->>C: nonce + QR uniride://encuentro/<nonce> + pasajeros
   end
-  P->>P: escanea QR
-  P->>API: POST /reservas/:id/abordaje (F+B, GPS, integridad, llave de trayecto)
-  API->>API: consume nonce, distancia ≤ 50 m, sin simulada, integridad
+  P->>P: escanea QR (solo forma) y abre la huella
+  P->>API: POST /reservas/:id/abordaje (F+B, GPS, integridad con X-Nonce, llave de trayecto)
+  API->>API: Tx 1: consume el nonce (gastado aunque se rechace)
+  API->>API: reserva confirmada, GPS ≤ 50 m, ≤ 30 s, sin simulada
+  API->>PI: veredicto del pasajero
+  API->>API: Tx 2: prueba aceptada, reserva abordada, llave del pasajero, recalcular viaje
   API-->>P: abordada
-  API-->>C: (siguiente desafío) pasajero verificado
+  C->>API: GET /viajes/:id/pasajeros
+  API-->>C: pasajero verificado
+```
+
+```mermaid
+classDiagram
+  class Viaje
+  class Reserva
+  class Usuario
+  class Dispositivo
+  class LlaveTrayecto {
+    organizacionId
+    llavePublica
+    creadoEn
+    revocadaEn?
+  }
+  class DesafioHandshake {
+    organizacionId
+    tipo: abordaje|bajada
+    nonce UNIQUE
+    conductorLat, conductorLng, conductorPrecisionM, conductorTomadaEn
+    venceEn
+    usadoEn?
+  }
+  class PruebaPresencia {
+    organizacionId
+    tipo
+    pasajeroLat?, pasajeroLng?, pasajeroPrecisionM?
+    distanciaM?
+    veredictoIntegridad?
+    resultado: aceptada|rechazada
+    motivo?
+    hashPrueba?
+  }
+  Viaje "1" --> "*" LlaveTrayecto
+  Reserva "0..1" --> "*" LlaveTrayecto : del pasajero (nula = conductor)
+  Usuario "1" --> "*" LlaveTrayecto
+  Dispositivo "1" --> "*" LlaveTrayecto : firmó al registrarla
+  Viaje "1" --> "*" DesafioHandshake
+  Reserva "0..1" --> "*" DesafioHandshake : la que lo consumió
+  Reserva "1" --> "*" PruebaPresencia
+  DesafioHandshake "0..1" --> "*" PruebaPresencia : nulo si el código no existía o venció
+```
+
+```mermaid
+flowchart LR
+  subgraph Telefonos[Android]
+    C[App conductor
+Keystore: dispositivo + trayecto]
+    P[App pasajero
+Keystore: dispositivo + trayecto]
+  end
+  subgraph AWS
+    API[Backend NestJS en EC2]
+    DB[(RDS PostgreSQL
+RLS por organización)]
+  end
+  PI[Google Play Integrity]
+  C -- HTTPS firmado --> API
+  P -- HTTPS firmado --> API
+  C -. token de integridad .- PI
+  P -. token de integridad .- PI
+  API -- decodifica veredicto --> PI
+  API --> DB
 ```
 
 ## 6. Estrategia de pruebas
