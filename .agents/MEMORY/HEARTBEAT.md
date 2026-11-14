@@ -2,10 +2,10 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-11-14 (HU-23 parte 2: cliente móvil, probado en el teléfono)
+**Última actualización:** 2026-11-14 (HU-23 parte 3: verificación)
 
 **Sprint actual:** Sprint 3 · Viaje completo verificado y pagado (37 PHU con HU-10, Release 1.0).
-**Foco:** HU-23 con backend y app hechos y probados en el teléfono; sigue la verificación (parte 3). HU-22 espera revisión humana y merge.
+**Foco:** HU-23 verificada; sigue la 3b (dos teléfonos, SP170). HU-22 espera revisión humana y merge.
 
 ## Estado actual
 
@@ -13,15 +13,15 @@
 - **HU-22:** ramas `feat/HU-22-verificacion-abordaje` creadas el 14/11 desde `develop` en la raíz (`d62238f`), `backend` (`c341be0`) y `mobile` (`508eebc`). Ya no van apiladas: HU-19 está fusionada. Spec y plan aprobados el 08/11; SP154–SP162 en el backlog.
 - **Pendientes de HU-19 (no bloquean HU-22):** ver «Próximo paso» 2.
 
-## Última sesión (14/11, HU-23 parte 2: cliente móvil)
+## Última sesión (14/11, HU-23 parte 3: verificación)
 
-- **`mobile` `38b5ae7`, `956fa38`** en `feat/HU-23-seguimiento-bajada` (apilada sobre HU-22; orden de fusión: HU-22 y después HU-23). Seguimiento en segundo plano, alias de la llave de trayecto por rol, «Viaje en curso» y bajada de los dos roles. Detalle en MEMORY.
-- **Verificado:** `verificar.py mobile --rapido` en verde (487); navegador a 360 y 412 (`.harness/evidencias/HU-23/mirada/`); teléfono con los dos roles a la vez, pantalla apagada, sin señal, dos bajadas verificadas y parada con 409 (`.harness/evidencias/HU-23/telefono/informe.md`).
-- **Guiones del teléfono** reutilizables en `.harness/evidencias/HU-23/telefono/` (`compilar.py`, `lanzar.py`, `otra.mjs`, `abrir.py`).
+- **Los 15 CA de HU-23 cumplen**, con prueba automática y petición real o teléfono. Informe: `.harness/evidencias/HU-23/verificacion/informe.md`; peticiones reales: `verificacion/api-parte3.mjs` (41 comprobaciones, reutilizable).
+- **Corregido:** «Viaje en curso» sin `EtiquetaEstado` (DESIGN_SYSTEM §10.4): `mobile` `6cd4b8e`, con prueba y capturas a 360 y 412.
+- **Verificado:** `verificar.py --cambiados --todo` en verde (backend 727 e2e, cobertura 91,7 %; mobile 487). Ramas apiladas sobre HU-22; orden de fusión: HU-22 y después HU-23.
 
 ## Próximo paso concreto
 
-1. **HU-23 parte 3 (verificar), sesión limpia:** por criterio y por riesgo, `verificar.py --cambiados --todo`. Luego la 3b (dos teléfonos moviéndose juntos, SP170).
+1. **HU-23 parte 3b, sesión aparte:** dos teléfonos moviéndose juntos por la calle, con la pantalla apagada y un tramo sin señal (SP170). Medir la velocidad máxima y la coincidencia con GPS real (riesgo de falsos rechazos) y sentir la vibración del escáner. Guiones en `.harness/evidencias/HU-23/telefono/`. Luego la parte 4 (subir).
 2. **HU-22:** revisión de los PR por otro integrante y merge; tras el merge, punteros.
 3. **Pedido del usuario (14/11):** acelerar las e2e del backend en una sesión aparte, sin debilitar pruebas.
 4. **HU-19, pendiente si nadie lo hizo:** revisión, teléfono físico (SP151/SP152), TalkBack y UML del plan.
@@ -29,7 +29,7 @@
 
 ## Sin verificar
 
-- HU-23: falta la verificación (parte 3) y dos teléfonos moviéndose juntos (3b). Con el teléfono quieto bajo techo la velocidad entre puntos llegó a 82,9 km/h (límite 150): revisar con datos de la calle. Un lote del pasajero que llega en el mismo instante en que se confirma su bajada se guarda pero no se evalúa (límite aceptado en el plan). La liberación del pago la encola HU-24.
+- HU-23: verificada (parte 3); faltan dos teléfonos moviéndose juntos (3b). Con el teléfono quieto bajo techo la velocidad entre puntos llegó a 82,9 km/h (límite 150): revisar con datos de la calle. Un lote del pasajero que llega en el mismo instante en que se confirma su bajada se guarda pero no se evalúa (límite aceptado en el plan). La liberación del pago la encola HU-24.
 
 - HU-19: reservar y «Mis viajes» solo con Jest y contra el backend de pruebas; falta el teléfono físico y TalkBack. El bloqueo real se probó en Hardhat local, no en Amoy. Las reservas `pendiente` se confirman con el worker de 5 s; si la cola falla, queda la alerta `reserva.bloqueo.atascado` (5 intentos).
 - HU-29: bloqueo del sistema tras intentos fallidos (`comun.biometria.bloqueada`) solo con Jest: el Infinix X669 no bloqueó tras 16 rechazos en el diálogo y desbloquear con patrón anula el bloqueo.
@@ -53,6 +53,8 @@
 - Compilar `mobile` en nativo en Windows: `LongPathsEnabled=1` y CMake 3.31.6 (MEMORY, SP133).
 
 ## Decisiones abiertas
+
+- **Viaje activo anclado (DESIGN_SYSTEM N7):** con el viaje en curso, «Mis viajes» sigue con «Mostrar código de abordaje» como acción principal y Buscar no muestra la tarjeta del viaje activo. Ya faltaba desde HU-22. Decidir en qué historia va.
 
 - **Billetera al volver de vincular:** sigue en «primero vincula este teléfono» hasta tocar actualizar (visto en SP144, ya era así antes de HU-29). Releer por foco abriría la huella sola si hay billetera. El usuario decidió dejarlo anotado.
 - **Accesibilidad:** TalkBack no lee los `Aviso` que aparecen; falta probar mover el foco. Decidir en qué historia va.

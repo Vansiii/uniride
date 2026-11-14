@@ -241,7 +241,7 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP166 · Bajada: encuentro, evaluación, estados y alerta — 3h — @[POR DEFINIR] · @agente 14/11 backend `08e7fef`: el encuentro de HU-22 pasa a un método común con el `tipo`; la bajada evalúa en su transacción, deja `verificada`/`verificacion_fallida` con `evaluacion` y la alerta `presencia.verificacion_fallida`
 - [x] SP167 · Pruebas e2e y de ataque A-05, A-06, A-07, A-08, A-13 — 4h — @[POR DEFINIR] · @agente 14/11 backend `08e7fef`: `posiciones`, `bajada`, `a-07-trayecto`, `a-08-posiciones` y casos de bajada en A-05, A-06, A-13 y acciones sensibles. 554 unitarias, 727 e2e, cobertura 91,7 %; prueba real de la API en `entorno.py`
 - [x] SP168 · Mobile: seguimiento en segundo plano con `expo-task-manager` (dependencia autorizada el 08/11) y permisos — 5h — @[POR DEFINIR] · hecho y probado en el teléfono (14/11, `mobile` `38b5ae7`)
-- [x] SP169 · Mobile: viaje en curso y bajada — 3h — @[POR DEFINIR] · hecho, en navegador y en el teléfono (14/11)
+- [x] SP169 · Mobile: viaje en curso y bajada — 3h — @[POR DEFINIR] · hecho, en navegador y en el teléfono (14/11); verificación de la HU 14/11 (15 CA, regresión completa, 41 peticiones reales) y etiqueta de estado en «Viaje en curso» (`mobile` `6cd4b8e`)
 - [ ] SP170 · Viaje real con dos teléfonos (pantalla apagada, sin señal) — 2h — @[POR DEFINIR]
 
 ### HU-24 · Liberación del pago (16 h)

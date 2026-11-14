@@ -1397,3 +1397,19 @@ Los dos se vieron en el teléfono físico.
 **Sin verificar:** dos teléfonos moviéndose juntos por la calle (3b, SP170).
 
 **Archivos afectados:** `mobile/{app.json,package.json,modules/llave-dispositivo,src/viajes,src/app/{viaje-activo,abordaje,reserva,(pestanas)/viajes.tsx,_layout.tsx},src/api/cliente.ts,src/dispositivo,src/servicios/ubicacion.ts,src/i18n/es-BO.json,src/pruebas/respuestasApi.ts,src/__tests__}`; `backlog.md`, `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-23 verificada (parte 3)
+
+**Evento:** Verificación de HU-23 en una sesión que no la implementó, por criterio y por riesgo. Informe: `.harness/evidencias/HU-23/verificacion/informe.md`.
+
+- **Los 15 CA cumplen**, cada uno con su prueba automática y con petición real o teléfono. Peticiones reales con firmas ECDSA contra `entorno.py` (41 comprobaciones): bajada a 60 m, con ubicación simulada, desde un teléfono no íntegro y sin firma; código de abordaje usado para bajar y código de bajada gastado (A-05); persona ajena y otra organización igual que una reserva inexistente (A-13); `ubicacion_simulada`, `trayectos_separados` y `datos_insuficientes` con su alerta; viaje `verificado` con su único pasajero; auditoría sin coordenadas (RN-8).
+- **Plan contra lo hecho:** decisiones, amenazas, consultas y §7b se cumplen; las pruebas de HU-22 no se debilitaron (solo agregan `llaveTrayectoId`). Swagger completo. Bajada en 48–64 ms.
+- **Corregido:** «Viaje en curso» no tenía la `EtiquetaEstado` de DESIGN_SYSTEM §10.4. Ahora muestra el estado del viaje (conductor) o de la reserva (pasajero) y lo vuelve a consultar al volver a la pantalla (`mobile` `6cd4b8e`, con prueba).
+- **Revisado sin cambio:** el conductor también envía su cola antes de la bajada: al mostrar el código, `iniciarSeguimiento` llama a `enviarCola`.
+
+**Verificado:** `verificar.py --cambiados --todo` en verde (backend 727 e2e, cobertura 91,7 %; mobile 487); `verificar.py mobile --rapido` tras el cambio; 14 capturas a 360 y 412, miradas.
+
+**Sin verificar:** dos teléfonos moviéndose juntos por la calle (3b, SP170). Paridad N7 (tarjeta del viaje activo arriba en Buscar y Mis viajes) no cumple desde HU-22: decisión abierta.
+
+**Archivos afectados:** `mobile/src/app/viaje-activo/[id].tsx`, `mobile/src/__tests__/seguimiento.test.tsx`; `backlog.md`, `HEARTBEAT.md`.
+
