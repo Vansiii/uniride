@@ -1442,3 +1442,20 @@ Los dos se vieron en el teléfono físico.
 **Sin verificar:** lo corregido en la app, solo con Jest (sin teléfono).
 
 **Archivos afectados:** `backend/src/presencia/presencia.service.ts`, `backend/src/viajes/estado-viaje.service{,.spec}.ts`, `backend/test/presencia/bajada.e2e-spec.ts`; `mobile/src/app/abordaje/mostrar/[viajeId].tsx`, `mobile/src/viajes/seguimiento.ts`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/{seguimiento,abordaje}.test.tsx`; `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-24 backend: liberación del pago (SP171–SP174)
+
+**Evento:** Contrato de HU-24 en el backend: el pago se libera solo tras la bajada verificada. Rama `feat/HU-24-liberacion-pago` en raíz, `backend` y `mobile`, apilada sobre HU-23 (orden de fusión: HU-22, HU-23, HU-24). `backend` `b4cc7f9`, `379e0db`, `99faaa6`.
+
+- **Encolado (RN-3):** la Tx de la bajada que deja la reserva `verificada` registra el movimiento `liberacion_viaje` en la billetera del conductor (`pendiente`, clave `liberacion:<reservaId>`, `metadatos.hashPrueba`) y el trabajo `liberar_reserva`. Migración `017_liberar_reserva`: el CHECK de `trabajos_onchain.operacion` no lo admitía (el plan decía «sin migración»; corregido).
+- **Hash de la prueba (RN-4, CA-2):** `presencia/prueba.ts`, keccak256 de `{ reservaId, hashAbordaje, hashBajada, evaluacion }` con llaves ordenadas, porque `jsonb` las reordena: el recalculado desde la BD coincide.
+- **Worker:** solo reserva `verificada` (si no, movimiento `fallido` y `pago.rechazado`); el escrow debe tenerla `bloqueada` para ese conductor y monto (si no, `pago.liberacion.imposible`); `liberada` = respuesta perdida, recupera el hash de `PagoLiberado`. Éxito: movimiento `confirmado`, reserva `pagada`, viaje recalculado, `pago.liberado`. Red caída: reintento y `pago.liberacion.atascada` a los 5.
+- **Viaje `verificado → pagado`** en `EstadoViajeService` cuando no queda reserva sin pagar (D-23).
+- **`GET /reservas/:id`** agrega `pago: { estado, monto, hashTx, exploradorUrl }` para pasajero y conductor; `null` hasta la bajada verificada.
+- **Cadena:** `liberarReserva` firma con `VERIFICADOR_LLAVE_PRIVADA` (otra cuenta que el relayer; prohibida en producción, SP129). `CadenaSimulada` guarda el escrow en `CadenaSimulada.ESCROW` para que A-10 sume igual que en Hardhat.
+
+**Verificado:** `verificar.py backend` completo en verde (e2e nuevos: `viaje-completo`, `a-09-liberacion`, `a-10-viaje-completo`). Hardhat: `liberar` real con la cuenta verificadora, doble liberación revierte y el relayer es rechazado (`.harness`, lanzador local). Prueba real de la API de `entorno.py`: billetera, recarga, reserva, abordaje, trazas y bajada; pago `confirmado` a los ~5 s, reserva y viaje `pagado`, saldos 10.50 / 39.50 y 404 en cualquier ruta de liberar.
+
+**Sin verificar:** SP176 (backend contra Hardhat con el hash en el historial de la app) va en la parte 3; `grantRole` de `ROL_VERIFICADOR` sin documentar todavía en `contracts/README.md`. La app (SP175) es la parte 2.
+
+**Archivos afectados:** `backend/src/blockchain/{blockchain,trabajos-onchain}.service{,.spec}.ts`, `backend/src/presencia/{presencia.service,prueba,prueba.spec}.ts`, `backend/src/viajes/estado-viaje.service{,.spec}.ts`, `backend/src/reservas/{reservas.service,dto/reserva.dto}.ts`, `backend/prisma/migrations/017_liberar_reserva/`, `backend/test/{viajes/viaje-completo,ataques/a-09-liberacion,ataques/a-10-viaje-completo}.e2e-spec.ts`, `backend/test/{blockchain/escrow-hardhat.e2e-spec,presencia/ayudas-presencia,presencia/bajada.e2e-spec,billetera/ayudas-billetera}.ts`; `.env.example`, `plan.md` de HU-24, `backlog.md`, `HEARTBEAT.md`.

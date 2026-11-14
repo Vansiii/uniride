@@ -246,9 +246,9 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP177 · Mobile: viaje activo anclado arriba en Buscar y Mis viajes con la acción del momento, conductor y pasajero (DESIGN_SYSTEM N7) — 2h — @[POR DEFINIR] · @agente 14/11 `mobile` `864659b`: 492 pruebas, capturas a 360 y 412
 
 ### HU-24 · Liberación del pago (16 h)
-- [ ] SP171 · `Cadena.liberarReserva` con cuenta verificadora (real y simulada), `VERIFICADOR_LLAVE_PRIVADA` y bloqueo en producción — 3h — @[POR DEFINIR]
-- [ ] SP172 · `hashPruebaPresencia` y encolado en la bajada verificada — 2h — @[POR DEFINIR]
-- [ ] SP173 · Worker `liberar_reserva`: idempotencia, estados y auditoría — 3h — @[POR DEFINIR]
-- [ ] SP174 · Pruebas e2e y de ataque A-09, A-10, A-12; viaje completo — 4h — @[POR DEFINIR]
+- [x] SP171 · `Cadena.liberarReserva` con cuenta verificadora (real y simulada), `VERIFICADOR_LLAVE_PRIVADA` y bloqueo en producción — 3h — @[POR DEFINIR] · backend @agente 14/11: también `hashDeLiberacion` y escrow simulado con dirección propia
+- [x] SP172 · `hashPruebaPresencia` y encolado en la bajada verificada — 2h — @[POR DEFINIR] · backend @agente 14/11: keccak256 con llaves ordenadas; migración 017 amplía el CHECK de la cola
+- [x] SP173 · Worker `liberar_reserva`: idempotencia, estados y auditoría — 3h — @[POR DEFINIR] · backend @agente 14/11: `pago.liberado`, `pago.rechazado`, `pago.liberacion.imposible`, `pago.liberacion.atascada`
+- [x] SP174 · Pruebas e2e y de ataque A-09, A-10, A-12; viaje completo — 4h — @[POR DEFINIR] · backend @agente 14/11: `viaje-completo`, `a-09-liberacion`, `a-10-viaje-completo`, Hardhat en `escrow-hardhat`
 - [ ] SP175 · Mobile: estado del pago para conductor y pasajero — 2h — @[POR DEFINIR]
-- [ ] SP176 · Viaje completo real contra Hardhat local y documentación de roles del despliegue — 2h — @[POR DEFINIR]
+- [ ] SP176 · Viaje completo real contra Hardhat local y documentación de roles del despliegue — 2h — @[POR DEFINIR] · 14/11: `liberar` real contra `EscrowUniRide` en Hardhat hecho (e2e); falta el backend contra Hardhat con el hash en el historial de la app (parte 3) y `grantRole` en `contracts/README.md`
