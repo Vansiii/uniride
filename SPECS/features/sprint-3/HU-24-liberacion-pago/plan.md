@@ -98,7 +98,7 @@ sequenceDiagram
 |---|---|---|
 | CA-1, CA-10 viaje completo reserva → abordaje → bajada → pago | e2e (cadena simulada) | `backend/test/viajes/viaje-completo.e2e-spec.ts` |
 | CA-2 hash guardado = recalculado | unitaria + e2e | `backend/src/presencia/prueba.spec.ts`, `viaje-completo.e2e-spec.ts` |
-| CA-3 / A-09 reserva no verificada nunca se libera | ataque e2e | `backend/test/ataques/a-09-liberacion.e2e-spec.ts` |
+| CA-3 / A-09 reserva no verificada nunca se libera (`pendiente`, `confirmada`, `abordada`, `fallida`, `verificacion_fallida`; `cancelada` no existe hasta HU-20) | ataque e2e | `backend/test/ataques/a-09-liberacion.e2e-spec.ts` |
 | CA-4 / A-09 reintento, respuesta perdida, dos workers | ataque unitaria + e2e | `trabajos-onchain.service.spec.ts`, `a-09-liberacion.e2e-spec.ts` |
 | CA-5 / A-09 otra cuenta llama a `liberar` | Hardhat (ya existe en `contracts/test/EscrowUniRide.ts`; se agrega el caso del relayer si falta) | `contracts/test/EscrowUniRide.ts` |
 | CA-6 red caída | unitaria | `trabajos-onchain.service.spec.ts` |
@@ -106,7 +106,7 @@ sequenceDiagram
 | CA-8 conciliación sin diferencias | e2e | `viaje-completo.e2e-spec.ts` |
 | CA-9 / A-12 producción sin firmante KMS no arranca; la llave no aparece en logs ni respuestas | unitaria | `backend/src/blockchain/blockchain.service.spec.ts` |
 | Mobile: «Recibirás» → «Recibiste», pendiente → pagado | Jest | `mobile/src/__tests__/viaje-activo.test.tsx` |
-| Viaje completo contra `EscrowUniRide` en Hardhat local, hash en el historial | manual registrada en MEMORY | — |
+| Viaje completo contra `EscrowUniRide` en Hardhat local, hash en el historial | manual registrada en MEMORY (14/11, verificación) | — (guion local) |
 
 Metas de rendimiento: no aplica (asíncrona, `AGENTS.md` §5.8).
 
@@ -115,7 +115,7 @@ Metas de rendimiento: no aplica (asíncrona, `AGENTS.md` §5.8).
 | Riesgo | Probabilidad | Impacto | Mitigación |
 |---|---|---|---|
 | La cuenta verificadora sin gas en Amoy | Media | Alto | Alerta a los 5 intentos; fondear antes de la demo; Hardhat como respaldo (R-04) |
-| El despliegue no otorga `ROL_VERIFICADOR` a la cuenta del backend | Media | Alto | El módulo de Ignition deja los roles para después: documentar el `grantRole` en `contracts/README.md` y comprobarlo al arrancar (lectura de `hasRole`, solo aviso) |
+| El despliegue no otorga `ROL_VERIFICADOR` a la cuenta del backend | Media | Alto | El módulo de Ignition deja los roles para después: documentar el `grantRole` en `contracts/README.md` y comprobarlo al arrancar (lectura de `hasRole`, solo aviso). **Hecho en la verificación (14/11):** `CadenaReal.verificadorTieneRol` y aviso en `BlockchainService.onModuleInit` |
 | Viaje con una reserva `verificacion_fallida` nunca llega a `pagado` | Media | Bajo | Esperado hasta HU-20/HU-26 (D-24): las demás reservas se pagan igual |
 
 ## 8. Tareas propuestas (se copian a backlog.md al aprobar)

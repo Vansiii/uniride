@@ -1474,3 +1474,18 @@ Los dos se vieron en el teléfono físico.
 **Sin verificar:** enlace al explorador en el teléfono (la cadena simulada no da `exploradorUrl`; Jest sí); resultado de la bajada y código de bajada con el pago, solo con Jest (necesitan cámara y huella: 3b).
 
 **Archivos afectados:** `mobile/src/componentes/{EstadoPago,FilaMovimiento,TarjetaMiViaje}.tsx`, `mobile/src/app/{abordaje/escanear/[reservaId],abordaje/mostrar/[viajeId],viaje-activo/[id],reserva/[id]}.tsx`, `mobile/src/api/cliente.ts`, `mobile/src/i18n/es-BO.json`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/{estado-pago,reserva,seguimiento}.test.tsx`; `backlog.md`, `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-24 verificación: pago contra la cadena real (SP176)
+
+**Evento:** Verificación de HU-24 por criterio y por riesgo, en una sesión que no implementó. `backend` `d19d656`, `555720d`; `contracts` `b7e049e` (rama nueva `feat/HU-24-liberacion-pago`: hace falta su puntero en la raíz y su PR, base `develop`).
+
+- **Viaje completo contra UniCoin + EscrowUniRide en Hardhat** con el backend real (worker real) y un proxy RPC (guion local, fuera del repo): recarga acuñada, bloqueo con permit, abordaje, trazas y bajada. Red caída en la bajada → pago `pendiente`, trabajo con reintento (`ECONNRESET`) y nada movido en la cadena (CA-6); al volver se perdió la respuesta del envío y el reintento recuperó el hash del evento: un solo `PagoLiberado` (CA-4), firmado por la cuenta verificadora (CA-5). Hash de la prueba en la red = guardado = recalculado desde la BD (CA-2). Total pasajero + conductor + escrow 50 → 50 (CA-7); saldos de la API = cadena y sin `billetera.conciliacion` (CA-8); reserva y viaje `pagado` (CA-10); historial del conductor con el hash real de la red. Otra organización recibe el mismo 404 que una reserva inexistente; sin rutas de liberación; ninguna llave en el log del backend ni en la auditoría (A-12).
+- **Hallazgo del plan (§7, riesgo 2) sin hacer:** el aviso al arrancar si la cuenta verificadora no tiene `ROL_VERIFICADOR`. Hecho: `CadenaReal.verificadorTieneRol` y aviso en `BlockchainService.onModuleInit` (solo aviso; un nodo caído no detiene el arranque y el aviso no lleva la URL del nodo). `contracts/README.md` explica el `grantRole` de los tres roles; probado en un nodo local tras el despliegue de Ignition.
+- **CA-3 ampliado:** el ataque cubría `confirmada`, `abordada` y `verificacion_fallida`; ahora también `pendiente` y `fallida`. `cancelada` no existe en el esquema hasta HU-20.
+- **Cuenta verificadora sin gas** (spec §4) contra Hardhat: rechaza sin pagar ni resolver la reserva y no es falla permanente; con gas, el reintento paga.
+
+**Verificado:** `verificar.py --cambiados --todo` en verde sobre `555720d` (backend con e2e, mobile, contracts); e2e de escrow contra Hardhat (11).
+
+**Sin verificar:** enlace al explorador en el historial y en la app (solo Amoy, con el despliegue); resultado de la bajada y código de bajada con el pago en el teléfono (cámara y huella: 3b).
+
+**Archivos afectados:** `backend/src/blockchain/blockchain.service{,.spec}.ts`, `backend/test/{ataques/a-09-liberacion,blockchain/escrow-hardhat}.e2e-spec.ts`, `contracts/README.md`; `plan.md` de HU-24, `backlog.md`, `HEARTBEAT.md`.
