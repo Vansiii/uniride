@@ -9,7 +9,7 @@
 
 | Carpeta | Módulo / componente | Cambio |
 |---|---|---|
-| backend | `presencia` (nuevo) | `LlavesTrayectoService`, `DesafiosService`, `AbordajeService`, `geo.ts` (Haversine), controladores |
+| backend | `presencia` (nuevo) | `PresenciaService` (llave del conductor, desafíos y abordaje en un servicio: comparten validaciones y auditoría), `geo.ts` (Haversine, ventana, RN-4), `PresenciaController` |
 | backend | `comun/firma-dispositivo.guard.ts` | Se extrae la verificación (cabeceras, ventana, mensaje canónico, nonce) a `verificarFirmaPeticion(llavePem, …)`; la reutilizan `FirmaDispositivoGuard` y el nuevo `FirmaTrayectoGuard` |
 | backend | `comun/firma-trayecto.guard.ts` (nuevo) | Cabeceras `X-Llave-Trayecto-Id`, `X-Timestamp`, `X-Nonce`, `X-Firma`; la llave debe ser del usuario, estar vigente y su `dispositivo_id` seguir activo (HU-10 CA-9) |
 | backend | `viajes/estado-viaje.service.ts` (HU-19) | `reservado → en_curso` |
@@ -53,7 +53,40 @@ QR: `uniride://encuentro/<nonce>`. El nonce son 32 bytes aleatorios; el QR no ll
 
 Ventana (RN-3) en `llave-trayecto` y `desafios` de tipo `abordaje`: `fecha_hora_salida − 30 min ≤ now ≤ fecha_hora_salida + 15 min`.
 
-Swagger actualizado: [ ]
+Swagger actualizado: [x] (14/11: los tres endpoints con sus errores; `desafios` sin huella justificado en el catálogo de acciones sensibles)
+
+### Decisiones de diseño (14/11, al empezar el backend)
+
+- **El código se consume sin filtrar por viaje** (cambia el paso 1): la RLS ya lo limita a la organización y, si el código es de otro viaje, se responde `SIN_RESERVA` (CA-9) en vez de `CODIGO_INVALIDO`. Con el filtro por viaje el pasajero con reserva en otro viaje recibía «código inválido». Cumple RN-1: cada escaneo lo gasta.
+- **`llavePublicaTrayectoPem` se valida antes de consumir**: una petición mal formada no gasta el código del conductor.
+- **Las validaciones baratas van antes de Play Integrity** (paso 3 antes del 4): un rechazo por distancia o señal no llama a Google.
+- **`desafio_id` y `reserva_id` de `pruebas_presencia`:** el primero admite nulo (código inexistente o vencido: no hay desafío que citar). Un intento sin reserva propia no tiene fila en `pruebas_presencia` y queda solo en auditoría (CA-13).
+- **Posición del conductor:** se valida al emitir el desafío (precisión, antigüedad ≤ 30 s, simulada); al escanear ya está atada a ese desafío de ≤ 30 s.
+- **`tipo` del desafío:** la tabla admite `bajada` para HU-23, pero el DTO solo acepta `abordaje` hasta entonces.
+- **Reutiliza:** `ViajesService.pasajeros` para la lista del conductor (sin otra consulta), `EstadoViajeService.recalcular` con una segunda sentencia para `reservado → en_curso`, `normalizarLlavePublica`, `PlayIntegrityService`, `RegistroNonces` (clave `trayecto:<id>`) y `QRCode.toBuffer` como en recargas. Se descartó una llave por petición sin biometría para el conductor: es justo lo que D-22 resolvió con la llave de trayecto.
+- **`FirmaDispositivoGuard` deja `dispositivoId` en la petición**: la llave de trayecto se ata al dispositivo que firmó, sin otra consulta.
+
+### Consultas (sin N+1)
+
+| Endpoint | Consultas |
+|---|---|
+| `llave-trayecto` | 1 viaje con `EXISTS` de reserva confirmada o abordada · 1 `UPDATE` que revoca la anterior · 1 `INSERT` · auditoría |
+| `desafios` | guard: 1 consulta llave + dispositivo activo · 1 viaje · 1 `INSERT` · pasajeros: 1 consulta con `JOIN` a usuarios |
+| `abordaje` | Tx 1: 1 reserva + 1 `UPDATE … RETURNING` del desafío · Tx 2: `INSERT` prueba, `UPDATE` reserva, revoca e inserta llave, 2 sentencias de `recalcular`, auditoría. Ningún bucle por pasajero |
+
+Índices: `UNIQUE(nonce)` para el consumo; `(viaje_id, usuario_id)` parcial para la llave vigente; `(reserva_id, tipo)` parcial para la prueba aceptada.
+
+### Amenazas y su prueba de ataque
+
+| Amenaza | Qué la frena | Prueba |
+|---|---|---|
+| A-03 | Play Integrity del pasajero con el `X-Nonce` de su petición firmada; la del conductor al registrar la llave | `a-03-abordaje.e2e-spec.ts`: token `simulado:root` → 422 y la reserva sigue `confirmada` |
+| A-04 | Abordaje y llave del conductor son `@AccionSensible` (llave con huella) | `a-08-abordaje.e2e-spec.ts`: firma con otra llave → 401 |
+| A-05 | `UPDATE … WHERE usado_en IS NULL AND vence_en > now()` | `a-05-repeticion-handshake.e2e-spec.ts`: segundo uso y código de hace 31 s → `CODIGO_INVALIDO`; dos escaneos simultáneos, uno solo gana |
+| A-06 | Haversine ≤ 50 m entre dos posiciones del mismo desafío | `a-06-qr-lejos.e2e-spec.ts`: a 60 m → 422 con `distanciaM` y el código queda gastado |
+| A-07 | `simulada`, precisión ≤ 50 m y antigüedad ≤ 30 s en las dos posiciones | `a-07-abordaje.e2e-spec.ts` |
+| A-08 | `FirmaTrayectoGuard`: llave del usuario, vigente, de ese viaje y de su dispositivo activo; el estado solo lo fija el servidor | `a-08-abordaje.e2e-spec.ts`: firma alterada, llave ajena, dispositivo desactivado, `estado` en el cuerpo |
+| A-13 | `organizacion_id` + RLS en las tres tablas; el consumo corre en `enOrganizacion` | `a-13-presencia.e2e-spec.ts`: código de otra organización = código inválido; con el rol de la API no se ven filas ajenas |
 
 ## 4. Pantallas y voz
 
@@ -104,6 +137,14 @@ sequenceDiagram
 | Abordaje real < 3 s con dos teléfonos | manual en teléfonos físicos | checklist en MEMORY |
 
 Meta de rendimiento: **abordaje < 3 s** (medido en e2e sin integridad real y en el teléfono).
+
+## 7b. Con qué se cruza
+
+- **HU-09 / HU-10:** la llave de trayecto deja de valer si su dispositivo se desactiva al revincular (HU-10 CA-9).
+- **HU-19:** `recalcular` gana `reservado → en_curso`; «Mis viajes» y los pasajeros del conductor muestran `abordada`.
+- **HU-29:** abordaje y llave del conductor entran al catálogo de acciones sensibles (`a-11-catalogo-sensible`).
+- **HU-20:** la ventana de abordaje (RN-3) es la que usará la expiración.
+- **HU-23 / HU-24:** reutilizan la llave de trayecto, el desafío de tipo `bajada` y `hash_prueba`.
 
 ## 7. Riesgos
 

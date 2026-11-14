@@ -5,7 +5,7 @@
 **Última actualización:** 2026-11-14
 
 **Sprint actual:** Sprint 3 · Viaje completo verificado y pagado (37 PHU con HU-10, Release 1.0).
-**Foco:** HU-22 lista para empezar en `feat/HU-22-verificacion-abordaje` (backend, mobile y raíz), sin código todavía.
+**Foco:** HU-22, backend terminado (SP154–SP158) en `feat/HU-22-verificacion-abordaje`; sigue mobile (SP159–SP161).
 
 ## Estado actual
 
@@ -13,22 +13,27 @@
 - **HU-22:** ramas `feat/HU-22-verificacion-abordaje` creadas el 14/11 desde `develop` en la raíz (`d62238f`), `backend` (`c341be0`) y `mobile` (`508eebc`). Ya no van apiladas: HU-19 está fusionada. Spec y plan aprobados el 08/11; SP154–SP162 en el backlog.
 - **Pendientes de HU-19 (no bloquean HU-22):** ver «Próximo paso» 2.
 
-## Última sesión (14/11)
+## Última sesión (14/11, HU-22 backend)
 
-- Sincronizado con GitHub: `develop` local estaba 22 commits atrás; submódulos en los punteros de `develop`.
-- Comprobado en GitHub: los PR de HU-19 los abrió y fusionó la misma persona, solo con comentarios de Copilot; no hubo revisión de otro integrante.
+- **Backend `feat/HU-22-verificacion-abordaje`** (`d6203a2`…`8efbfe2`, sin push): migración `015_presencia` (`llaves_trayecto`, `desafios_handshake`, `pruebas_presencia`, RLS y GRANT sin DELETE); `verificarFirmaPeticion` compartida y `FirmaTrayectoGuard`; módulo `presencia` con `POST /viajes/:id/llave-trayecto` (F+B, integridad), `POST /viajes/:id/desafios` (llave de trayecto, QR de 30 s) y `POST /reservas/:id/abordaje` (F+B); `EstadoViajeService` pasa `reservado → en_curso`.
+- Decisiones de diseño en `plan.md` §3 (el código se gasta sin filtrar por viaje y otro viaje da `SIN_RESERVA`; la llave se valida antes de gastar el código; Play Integrity al final). Contrato para la app: abordaje responde `{ estado, yaVerificado }`; los errores en `plan.md` §3 y Swagger.
+- **Verificado:** `verificar.py backend` en verde (lint, formato, pruebas, e2e 692, build). Prueba real contra el backend de `entorno.py` (`.harness/evidencias/HU-22/api-real.txt`): llave 201, código 201 (30 s, sin huella), abordaje 200 en 96 ms, repetición idempotente, GPS simulado 422, otra llave 401; viaje `en_curso`.
+- Las e2e de concurrencia (A-09 recarga y reserva, creación de billetera) fallaron una vez por «Unable to start a transaction» con la PC cargada (otro PostgreSQL arriba y 1,6 GB libres); aisladas y en la corrida siguiente pasaron.
+- La semilla de `entorno.py` falló por la FK de HU-19 en `movimientos_billetera.reserva_id`: ahora crea una organización, un viaje y una reserva reales.
 
 ## Próximo paso concreto
 
-1. **HU-22, backend primero:** SP154 (migración `015_presencia`) → SP155 → SP156 → SP157 → SP158; después mobile SP159–SP161 y SP162 con dos teléfonos. Antes de escribir código, completar en `plan.md` las amenazas con su prueba de ataque, las consultas (sin N+1) y las decisiones con su porqué, si falta alguna. Dependencia autorizada: `expo-camera` (SP161).
-2. **HU-19, pendiente si nadie lo hizo:** revisión de código por otro integrante (PR ya fusionados: revisar sobre `develop`), probar reservar y «Mis viajes» en el teléfono físico (SP151/SP152) y TalkBack, y comprobar que los UML del plan estén actualizados.
-3. Después: HU-23 → HU-24. Dependencia autorizada: `expo-task-manager` (SP168).
+1. **HU-22 parte 2, mobile:** SP159 (llave de trayecto nativa sin biometría y `cabecerasFirmaTrayecto`) → SP160 «Mostrar código» → SP161 «Escanear QR» con `expo-camera` (autorizada). Luego parte 3 (verificar) y 3b con dos teléfonos (SP162, < 3 s).
+2. **Pedido del usuario (14/11):** acelerar las e2e del backend (≈5 min) con lo que ya funcionó en la plantilla; hacerlo en una sesión aparte, sin debilitar pruebas.
+3. **HU-19, pendiente si nadie lo hizo:** revisión de código por otro integrante, reservar y «Mis viajes» en el teléfono físico (SP151/SP152) y TalkBack, y UML del plan.
+4. Después: HU-23 → HU-24. Dependencia autorizada: `expo-task-manager` (SP168).
 
 ## Sin verificar
 
 - HU-19: reservar y «Mis viajes» solo con Jest y contra el backend de pruebas; falta el teléfono físico y TalkBack. El bloqueo real se probó en Hardhat local, no en Amoy. Las reservas `pendiente` se confirman con el worker de 5 s; si la cola falla, queda la alerta `reserva.bloqueo.atascado` (5 intentos).
 - HU-29: bloqueo del sistema tras intentos fallidos (`comun.biometria.bloqueada`) solo con Jest: el Infinix X669 no bloqueó tras 16 rechazos en el diálogo y desbloquear con patrón anula el bloqueo.
-- HU-10 CA-9 (llaves de trayecto) depende de HU-22.
+- HU-10 CA-9: la llave de trayecto deja de valer con el dispositivo desactivado (e2e `a-08-abordaje`); falta verlo en el teléfono.
+- HU-22: CA-7 con Play Integrity real y el abordaje < 3 s en dos teléfonos (SP162). Diagramas UML del plan §5 sin actualizar.
 - HU-10: si la app se cierra entre el 201 y `confirmarLlave()`, el servidor queda con la llave nueva y el teléfono con la vieja; se recupera revinculando (riesgo aceptado en la revisión).
 - HU-10 depende de la prueba de vida nativa de HU-08, todavía pendiente en la app: en el teléfono se usó la simulada de desarrollo.
 - HU-10: `PRUEBA_VIDA_FALLIDA` y `CONFLICTO_CONCURRENTE` en la app solo con Jest (el backend los prueba en e2e); `ROSTRO_NO_COINCIDE` e `INTENTOS_AGOTADOS` vistos en el teléfono. Publicar con la llave anulada, solo con Jest (misma función que Billetera y Recarga, vistas en el teléfono).
