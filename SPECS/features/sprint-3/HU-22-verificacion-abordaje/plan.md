@@ -1,7 +1,7 @@
 # HU-22 · Verificación de abordaje — Plan técnico
 
 > Fase SDD: **Plan** (Diseño). Cómo se construye lo que dice `spec.md`.
-> Estado: `aprobado (2026-11-08, integrante autorizado)` · Rama: `feat/HU-22-verificacion-abordaje` en `backend`, `mobile` y raíz, apilada sobre HU-19.
+> Estado: `aprobado (2026-11-08, integrante autorizado)` · Rama: `feat/HU-22-verificacion-abordaje` en `backend`, `mobile` y raíz (HU-19 ya en `develop`: ramas creadas desde `develop` el 14/11).
 > **Orden en S3: 4.ª.**
 > **Requiere confirmación humana (`AGENTS.md` §14):** capa de verificación nueva (encuentro y llave de trayecto, D-22), estados `abordada` / `en_curso`, tres tablas con RLS y una **dependencia nueva**: `expo-camera` (oficial de Expo, MIT) para escanear el QR.
 

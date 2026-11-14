@@ -2,29 +2,27 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-11-12
+**Última actualización:** 2026-11-14
 
 **Sprint actual:** Sprint 3 · Viaje completo verificado y pagado (37 PHU con HU-10, Release 1.0).
-**Foco:** HU-19 implementada y verificada en `feat/HU-19-reserva-escrow` (backend, mobile y raíz), **sin commits ni PR todavía**. Sigue HU-22.
+**Foco:** HU-22 lista para empezar en `feat/HU-22-verificacion-abordaje` (backend, mobile y raíz), sin código todavía.
 
 ## Estado actual
 
-- **Sprint 1 y 2 en `develop`**; HU-10 y HU-29 también (punteros actualizados en la raíz, PR #29).
-- **HU-19 hecha en el árbol de trabajo** de las tres ramas `feat/HU-19-reserva-escrow` (creadas desde `develop`): SP145–SP153 marcadas en el backlog.
-  - Backend: migración `014_reservas`, `ReservasService`, worker por `operacion`, `Cadena.bloquearReserva` (real con permit y simulada), `EstadoViajeService`, RN-11 y RN-12. 521 unitarias (cobertura 91,5 %) y 640 e2e en verde; lint, formato y build.
-  - Contratos: **sin cambios**. Prueba real contra `EscrowUniRide` en Hardhat local: `backend/test/blockchain/escrow-hardhat.e2e-spec.ts` (con `HARDHAT_RPC_URL`).
-  - Mobile: «Reservar y pagar» en el detalle, pantalla `reserva/[id]`, pestaña «Mis viajes» y «Tu próximo viaje» en Inicio. 439 pruebas, lint, formato, tipos y export de Android.
-- **HU-10 y HU-29**: fusionadas; queda la revisión de otro integrante (ver «Sin verificar»).
+- **En `develop`:** Sprint 1 y 2, HU-10 y HU-29 (PR #27, #28, punteros #29) y **HU-19** (raíz #30, backend #18, mobile #18; fusionada el 13/11).
+- **HU-22:** ramas `feat/HU-22-verificacion-abordaje` creadas el 14/11 desde `develop` en la raíz (`d62238f`), `backend` (`c341be0`) y `mobile` (`508eebc`). Ya no van apiladas: HU-19 está fusionada. Spec y plan aprobados el 08/11; SP154–SP162 en el backlog.
+- **Pendientes de HU-19 (no bloquean HU-22):** ver «Próximo paso» 2.
 
-## Última sesión (12/11)
+## Última sesión (14/11)
 
-- HU-19 completa en backend y app; cambios al plan registrados en `plan.md` §9 y `MEMORY.md`.
-- Entorno: `node_modules` de `backend` reinstalado con npm 11; PostgreSQL de UniRide en el puerto **5434** (el 5433 lo ocupa `mekano-postgres-1`); `contracts/artifacts` recompilado.
+- Sincronizado con GitHub: `develop` local estaba 22 commits atrás; submódulos en los punteros de `develop`.
+- Comprobado en GitHub: los PR de HU-19 los abrió y fusionó la misma persona, solo con comentarios de Copilot; no hubo revisión de otro integrante.
 
 ## Próximo paso concreto
 
-1. **HU-19:** que otra persona revise el código; commits `HU-19 SP145…SP153: …` en `backend`, `mobile` y la raíz, PR en ese orden (backend → mobile → raíz) y luego el puntero. Probar reservar en el teléfono físico (SP151/SP152) y actualizar los UML.
-2. Después, en orden: HU-22 → HU-23 → HU-24. Dependencias autorizadas: `expo-camera` (SP161) y `expo-task-manager` (SP168).
+1. **HU-22, backend primero:** SP154 (migración `015_presencia`) → SP155 → SP156 → SP157 → SP158; después mobile SP159–SP161 y SP162 con dos teléfonos. Antes de escribir código, completar en `plan.md` las amenazas con su prueba de ataque, las consultas (sin N+1) y las decisiones con su porqué, si falta alguna. Dependencia autorizada: `expo-camera` (SP161).
+2. **HU-19, pendiente si nadie lo hizo:** revisión de código por otro integrante (PR ya fusionados: revisar sobre `develop`), probar reservar y «Mis viajes» en el teléfono físico (SP151/SP152) y TalkBack, y comprobar que los UML del plan estén actualizados.
+3. Después: HU-23 → HU-24. Dependencia autorizada: `expo-task-manager` (SP168).
 
 ## Sin verificar
 
