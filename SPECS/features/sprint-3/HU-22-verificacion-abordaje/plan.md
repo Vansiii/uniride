@@ -17,7 +17,8 @@
 | mobile | `src/dispositivo/firma.ts` | `cabecerasFirmaTrayecto(...)` |
 | mobile | `src/app/abordaje/mostrar/[viajeId].tsx` (nuevo) | Conductor: pantalla completa con QR, cuenta regresiva y pasajeros (`DESIGN_SYSTEM.md` §10.4) |
 | mobile | `src/app/abordaje/escanear/[reservaId].tsx` (nuevo) | Pasajero: cámara con marco, placa del vehículo, resultado con vibración (`expo-haptics`, ya instalado) |
-| mobile | `src/viajes/ubicacion.ts` | `posicionParaEncuentro()`: posición fresca con `accuracy`, `timestamp` y `mocked` de `expo-location` |
+| mobile | `src/servicios/ubicacion.ts` | `posicionParaEncuentro()`: posición fresca con `accuracy`, `timestamp` y `mocked` de `expo-location` (la última de ≤ 10 s y ≤ 50 m, si no, una nueva con tope de 15 s) |
+| mobile | `src/viajes/abordaje.ts` | Lectura del QR, intervalos (renovar 25 s, sondeo 3 s) y textos de cada rechazo, compartidos por las dos pantallas |
 
 Reutiliza: `PlayIntegrityService.verificar(token, nonce)` con el `X-Nonce` de la misma petición firmada como nonce de integridad (sin ida y vuelta extra), `normalizarLlavePublica`, `RegistroNonces`, `qrcode` (ya en backend: el QR se dibuja en el servidor, sin librería de QR en el móvil), `@AccionSensible`, `enOrganizacion`.
 
@@ -65,6 +66,14 @@ Swagger actualizado: [x] (14/11: los tres endpoints con sus errores; `desafios` 
 - **`tipo` del desafío:** la tabla admite `bajada` para HU-23, pero el DTO solo acepta `abordaje` hasta entonces.
 - **Reutiliza:** `ViajesService.pasajeros` para la lista del conductor (sin otra consulta), `EstadoViajeService.recalcular` con una segunda sentencia para `reservado → en_curso`, `normalizarLlavePublica`, `PlayIntegrityService`, `RegistroNonces` (clave `trayecto:<id>`) y `QRCode.toBuffer` como en recargas. Se descartó una llave por petición sin biometría para el conductor: es justo lo que D-22 resolvió con la llave de trayecto.
 - **`FirmaDispositivoGuard` deja `dispositivoId` en la petición**: la llave de trayecto se ata al dispositivo que firmó, sin otra consulta.
+
+### Decisiones del cliente móvil (14/11)
+
+- **El token de integridad se pide con el `X-Nonce` de la misma petición:** `solicitarFirmado` acepta un `nonce` ya elegido (`OpcionesFirma.nonce`) y la app lo usa para Play Integrity antes de armar el cuerpo. Antes `cabecerasFirma` lo generaba adentro y no había cómo atarlo.
+- **Llave de trayecto en un alias propio** (`uniride.llave.trayecto`), sin `setUserAuthenticationRequired`; crear una nueva borra la anterior. Se reutiliza la generación y la comprobación de hardware de la llave del dispositivo (`crearEnHardware`).
+- **El conductor ve los escaneos con un sondeo de 3 s** a `GET /viajes/:id/pasajeros`: si aumenta el número de abordados, pide otro código enseguida. Un escaneo rechazado también gasta el código y ese no se ve: se renueva a los ≤ 25 s. Se descartó un aviso del servidor (push o socket) por ser infraestructura nueva.
+- **Al leer el QR se abre la huella sin otro toque:** el escaneo ya es la acción de la persona y el código vive 30 s. Posición y llave de trayecto se preparan a la vez.
+- **El QR se valida en la app solo por forma** (`uniride://encuentro/<43 caracteres>`): un QR ajeno no pide huella ni llama al servidor.
 
 ### Consultas (sin N+1)
 

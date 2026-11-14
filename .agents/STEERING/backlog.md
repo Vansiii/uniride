@@ -229,9 +229,9 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP156 · Llave de trayecto del conductor y desafíos con QR — 3h — @[POR DEFINIR]
 - [x] SP157 · Abordaje: consumo, validaciones, integridad, prueba con hash, estados — 4h — @[POR DEFINIR]
 - [x] SP158 · Pruebas e2e y de ataque A-03, A-05, A-06, A-07, A-08, A-13 — 4h — @[POR DEFINIR]
-- [ ] SP159 · Módulo nativo: llave de trayecto sin biometría; `cabecerasFirmaTrayecto` — 2h — @[POR DEFINIR]
-- [ ] SP160 · Mobile: «Mostrar código» del conductor — 3h — @[POR DEFINIR]
-- [ ] SP161 · Mobile: «Escanear QR» con `expo-camera` (dependencia autorizada el 08/11) y resultados — 4h — @[POR DEFINIR]
+- [x] SP159 · Módulo nativo: llave de trayecto sin biometría; `cabecerasFirmaTrayecto` — 2h — @[POR DEFINIR]
+- [x] SP160 · Mobile: «Mostrar código» del conductor — 3h — @[POR DEFINIR]
+- [x] SP161 · Mobile: «Escanear QR» con `expo-camera` (dependencia autorizada el 08/11) y resultados — 4h — @[POR DEFINIR]
 - [ ] SP162 · Prueba con dos teléfonos físicos y medición < 3 s — 1h — @[POR DEFINIR]
 
 ### HU-23 · Seguimiento y bajada (24 h)

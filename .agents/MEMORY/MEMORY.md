@@ -1319,3 +1319,16 @@ Los dos se vieron en el teléfono físico.
 
 **Archivos afectados:** `backend/prisma/{schema.prisma,migrations/014_reservas}`, `src/{reservas,viajes,blockchain,billetera,i18n}`, `test/{reservas,ataques,blockchain,viajes,billetera}`; `mobile/src/{api,app/reserva,app/(pestanas),app/viajes,componentes,hooks,i18n,pruebas,viajes,__tests__}`; `SPECS/features/sprint-3/HU-19-reserva-escrow/{spec,plan}.md`, `SPECS/ssd.md`, `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
 
+## 2026-11-14 · HU-22 mobile: llave de trayecto, «Mostrar código» y «Escanear QR» (SP159–SP161)
+
+**Evento:** Se construye el cliente móvil del abordaje en `mobile` `feat/HU-22-verificacion-abordaje` (`4af8952`, `df2e995`, `d5d5af5`, sin push).
+
+- **SP159:** `LlaveDispositivoModule.kt` gana `crearLlaveTrayecto()` y `firmarTrayecto()` (alias `uniride.llave.trayecto`, P-256 en hardware, sin biometría). `cabecerasFirmaTrayecto` en `firma.ts`; `solicitarFirmado` acepta el `X-Nonce` elegido antes para atar el token de integridad (RN-5); `registrarLlaveTrayecto`, `pedirDesafio` y `abordar` en `cliente.ts`.
+- **SP160:** `app/abordaje/mostrar/[viajeId].tsx`: una huella registra la llave; el QR se renueva cada 25 s firmado con la llave de trayecto y la posición del momento; sondeo de 3 s a los pasajeros para renovar apenas uno aborda. Acceso desde «Mis viajes» (viaje `reservado` o `en_curso`).
+- **SP161:** `app/abordaje/escanear/[reservaId].tsx` con `expo-camera` 58.0.14 (exacta, autorizada el 08/11): nombre del conductor y placa, huella al leer, resultado con vibración y anuncio; cada rechazo con su texto (§10.4). Acceso desde la reserva `confirmada`.
+
+**Verificado:** `verificar.py mobile --rapido` en verde (lint, tipos, 466 pruebas). `abordaje.test.tsx` (21): firma con la llave de trayecto verificada con la pública, token atado al `X-Nonce`, renovación sin huella, CA-3 a CA-7, CA-9, CA-11, CA-14, permisos, sin conexión y lectura repetida.
+
+**Sin verificar:** el Kotlin nuevo no se compiló (falta `expo run:android`); las pantallas no se vieron en un teléfono ni en web. El usuario decidió dejarlo para la siguiente sesión.
+
+**Archivos afectados:** `mobile/modules/llave-dispositivo/.../LlaveDispositivoModule.kt`, `mobile/src/{api/cliente.ts,dispositivo,servicios/ubicacion.ts,viajes/abordaje.ts,hooks/useAccionSensible.ts,app/abordaje,app/reserva,app/(pestanas)/viajes.tsx,i18n,pruebas,__tests__}`, `mobile/{app.json,package.json,package-lock.json}`; `plan.md` de HU-22, `backlog.md`, `HEARTBEAT.md`.
