@@ -16,16 +16,17 @@
 ## Última sesión (14/11, HU-23 parte 3: verificación)
 
 - **Los 15 CA de HU-23 cumplen**, con prueba automática y petición real o teléfono. Informe: `.harness/evidencias/HU-23/verificacion/informe.md`; peticiones reales: `verificacion/api-parte3.mjs` (41 comprobaciones, reutilizable).
-- **Corregido:** «Viaje en curso» sin `EtiquetaEstado` (DESIGN_SYSTEM §10.4): `mobile` `6cd4b8e`, con prueba y capturas a 360 y 412.
+- **Corregido:** «Viaje en curso» sin `EtiquetaEstado` (DESIGN_SYSTEM §10.4): `mobile` `6cd4b8e`. **Viaje activo anclado (N7, SP177, pedido del usuario):** arriba en Buscar y Mis viajes con la acción del momento para los dos roles, `mobile` `864659b`. Con pruebas y capturas a 360 y 412.
 - **Verificado:** `verificar.py --cambiados --todo` en verde (backend 727 e2e, cobertura 91,7 %; mobile 487). Ramas apiladas sobre HU-22; orden de fusión: HU-22 y después HU-23.
 
 ## Próximo paso concreto
 
-1. **HU-23 parte 3b, sesión aparte:** dos teléfonos moviéndose juntos por la calle, con la pantalla apagada y un tramo sin señal (SP170). Medir la velocidad máxima y la coincidencia con GPS real (riesgo de falsos rechazos) y sentir la vibración del escáner. Guiones en `.harness/evidencias/HU-23/telefono/`. Luego la parte 4 (subir).
-2. **HU-22:** revisión de los PR por otro integrante y merge; tras el merge, punteros.
-3. **Pedido del usuario (14/11):** acelerar las e2e del backend en una sesión aparte, sin debilitar pruebas.
-4. **HU-19, pendiente si nadie lo hizo:** revisión, teléfono físico (SP151/SP152), TalkBack y UML del plan.
-5. Después: HU-24.
+1. **HU-23 parte 4 (subir):** revisión de código, documentación y PR de raíz, `backend` y `mobile` (apilados sobre HU-22). SP170 (dos teléfonos) queda pendiente: el usuario todavía no puede hacerla; el merge espera esa prueba o la decisión del usuario.
+2. **HU-23 parte 3b cuando haya dos teléfonos:** viaje por la calle con pantalla apagada y un tramo sin señal; medir velocidad máxima y coincidencia con GPS real y sentir la vibración del escáner. Guiones en `.harness/evidencias/HU-23/telefono/`.
+3. **HU-22:** revisión de los PR por otro integrante y merge; tras el merge, punteros.
+4. **Pedido del usuario (14/11):** acelerar las e2e del backend en una sesión aparte, sin debilitar pruebas.
+5. **HU-19, pendiente si nadie lo hizo:** revisión, teléfono físico (SP151/SP152), TalkBack y UML del plan.
+6. Después: HU-24.
 
 ## Sin verificar
 
@@ -54,7 +55,7 @@
 
 ## Decisiones abiertas
 
-- **Viaje activo anclado (DESIGN_SYSTEM N7), a medias:** Buscar tiene «Tu próximo viaje» de HU-19 (`ViajeActivo.tsx`), pero solo con reservas del pasajero, sin la acción del momento (lleva al detalle de la reserva) y desaparece una hora después de la salida aunque siga en curso. El conductor no tiene tarjeta en Buscar, y en Mis viajes nada se ancla arriba: con el viaje en curso, la acción principal sigue siendo «Mostrar código de abordaje». Ninguna spec (HU-19, HU-22, HU-23) lo pidió como criterio. Decidir en qué historia va.
+- **Tarjeta anclada oscura (DESIGN_SYSTEM §3, «Tarjeta destacada»):** la tarjeta del viaje activo (N7, hecha en SP177) usa las tarjetas claras de Mis viajes, no el fondo `marcaProfundo`. Decidir si se cambia.
 
 - **Billetera al volver de vincular:** sigue en «primero vincula este teléfono» hasta tocar actualizar (visto en SP144, ya era así antes de HU-29). Releer por foco abriría la huella sola si hay billetera. El usuario decidió dejarlo anotado.
 - **Accesibilidad:** TalkBack no lee los `Aviso` que aparecen; falta probar mover el foco. Decidir en qué historia va.

@@ -1413,3 +1413,17 @@ Los dos se vieron en el teléfono físico.
 
 **Archivos afectados:** `mobile/src/app/viaje-activo/[id].tsx`, `mobile/src/__tests__/seguimiento.test.tsx`; `backlog.md`, `HEARTBEAT.md`.
 
+## 2026-11-14 · HU-23 viaje activo anclado (SP177)
+
+**Evento:** El usuario pidió hacer en HU-23 lo que faltaba de DESIGN_SYSTEM N7 antes de subir. `mobile` `864659b`.
+
+- `viajeAnclado` (`componentes/ViajeActivo.tsx`): primero el viaje en curso (el del conductor, luego la reserva a bordo) sin límite de hora; si no, la reserva `confirmada` o el viaje `reservado` desde 30 min antes hasta una hora después de la salida, el que sale primero.
+- `TarjetaAnclada` arriba en Buscar (antes del formulario) y en Mis viajes (sin repetirse en su lista), con «Tu viaje en curso» / «Tu próximo viaje». Pasajero: «Escanear código del conductor» o «Ver viaje en curso» (`AccionDeReserva`, también en el detalle de la reserva). Conductor: `TarjetaMiViaje` (sale de Mis viajes); en curso, «Ver viaje en curso» es la acción principal y «Mostrar código de abordaje» queda para quien falte subir.
+- Sin viaje del momento, Buscar sigue mostrando la próxima reserva de HU-19. Una reserva a bordo ya no desaparece una hora después de la salida.
+- **Corregido en la mirada:** el formulario de Buscar sube `espacio(6)` para montarse en la banda y tapaba la tarjeta; la tarjeta lo compensa con su margen inferior.
+
+**Verificado:** `verificar.py mobile --rapido` en verde (492 pruebas, 5 nuevas); Buscar y Mis viajes a 360 y 412, miradas. Los `DIV` que marca `medirEnAnchos` en Buscar ya estaban sin la tarjeta (filas que se desplazan a lo ancho).
+
+**Sin hacer:** tarjeta oscura «destacada» (`marcaProfundo`) para el viaje anclado: decisión abierta. SP170 (dos teléfonos) pendiente: el usuario todavía no puede hacerla.
+
+**Archivos afectados:** `mobile/src/componentes/{ViajeActivo,TarjetaMiViaje}.tsx`, `mobile/src/app/{(pestanas)/viajes.tsx,(pestanas)/index.tsx,reserva/[id].tsx}`, `mobile/src/i18n/es-BO.json`, `mobile/src/__tests__/mis-viajes.test.tsx`; `backlog.md`, `HEARTBEAT.md`.
