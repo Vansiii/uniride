@@ -1392,6 +1392,8 @@ Los dos se vieron en el teléfono físico.
 
 **Verificado:** `verificar.py mobile --rapido` en verde (487 pruebas, `seguimiento.test.tsx` nuevo); 7 pantallas en navegador a 360 y 412 sin desborde, miradas (`.harness/evidencias/HU-23/mirada/`). App de debug compilada e instalada en el Infinix con sesión iniciada.
 
-**Sin verificar:** en el teléfono, la notificación, la pantalla apagada, la firma real con el Keystore y el encuentro de bajada (sigue en la próxima sesión con `otra.mjs`); dos teléfonos moviéndose juntos, en la 3b.
+**Teléfono (Infinix, misma sesión):** el teléfono condujo un viaje y viajó en otro a la vez, con la otra parte de cada uno por guion (`.harness/evidencias/HU-23/telefono/informe.md`). Notificación del servicio correcta; dos rutas cada 15 s con las dos llaves del Keystore; 2 min con la pantalla apagada sin cortes; una desconexión real del USB dejó la cola en espera y luego se envió con la hora original; las dos bajadas quedaron `verificada` (100 %) y el 409 detuvo el servicio. Con el teléfono quieto bajo techo la velocidad máxima llegó a 82,9 km/h (límite 150): dato para el riesgo de GPS ruidoso.
+
+**Sin verificar:** dos teléfonos moviéndose juntos por la calle (3b, SP170).
 
 **Archivos afectados:** `mobile/{app.json,package.json,modules/llave-dispositivo,src/viajes,src/app/{viaje-activo,abordaje,reserva,(pestanas)/viajes.tsx,_layout.tsx},src/api/cliente.ts,src/dispositivo,src/servicios/ubicacion.ts,src/i18n/es-BO.json,src/pruebas/respuestasApi.ts,src/__tests__}`; `backlog.md`, `HEARTBEAT.md`.
