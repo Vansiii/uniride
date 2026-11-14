@@ -2,10 +2,10 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-11-14 (HU-23 parte 3: verificación)
+**Última actualización:** 2026-11-14 (HU-23 parte 4: revisión de código)
 
 **Sprint actual:** Sprint 3 · Viaje completo verificado y pagado (37 PHU con HU-10, Release 1.0).
-**Foco:** HU-23 verificada; sigue la 3b (dos teléfonos, SP170). HU-22 espera revisión humana y merge.
+**Foco:** HU-23 revisada y lista para subir (push y PR cuando el usuario lo diga); la 3b (dos teléfonos, SP170) sigue pendiente. HU-22 espera revisión humana y merge.
 
 ## Estado actual
 
@@ -13,15 +13,16 @@
 - **HU-22:** ramas `feat/HU-22-verificacion-abordaje` creadas el 14/11 desde `develop` en la raíz (`d62238f`), `backend` (`c341be0`) y `mobile` (`508eebc`). Ya no van apiladas: HU-19 está fusionada. Spec y plan aprobados el 08/11; SP154–SP162 en el backlog.
 - **Pendientes de HU-19 (no bloquean HU-22):** ver «Próximo paso» 2.
 
-## Última sesión (14/11, HU-23 parte 3: verificación)
+## Última sesión (14/11, HU-23 parte 4: revisión de código)
 
-- **Los 15 CA de HU-23 cumplen**, con prueba automática y petición real o teléfono. Informe: `.harness/evidencias/HU-23/verificacion/informe.md`; peticiones reales: `verificacion/api-parte3.mjs` (41 comprobaciones, reutilizable).
-- **Corregido:** «Viaje en curso» sin `EtiquetaEstado` (DESIGN_SYSTEM §10.4): `mobile` `6cd4b8e`. **Viaje activo anclado (N7, SP177, pedido del usuario):** arriba en Buscar y Mis viajes con la acción del momento para los dos roles, `mobile` `864659b`. Con pruebas y capturas a 360 y 412.
-- **Verificado:** `verificar.py --cambiados --todo` en verde (backend 727 e2e, cobertura 91,7 %; mobile 487). Ramas apiladas sobre HU-22; orden de fusión: HU-22 y después HU-23.
+- **Revisión de backend y mobile (diff sobre HU-22): 9 hallazgos, 5 corregidos.** Detalle en MEMORY (14/11, «HU-23 revisión de código antes de subir»).
+- **Corregido:** llave del conductor sin ventana con el viaje en curso (`backend` `7a0550d`); `recalcular` bloquea el viaje para dos bajadas simultáneas (`7a0550d`); la app reusa la llave del seguimiento en el código de abordaje y la cola descarta un lote rechazado sin perder puntos (`mobile` `af2206a`, `bf42d6c`).
+- **Sin cambio, por la spec (se avisa al usuario):** RN-2, RN-4 y RN-10 tal como están escritas.
+- **Verificado:** `verificar.py backend` y `verificar.py mobile` completos en verde. Ramas apiladas sobre HU-22; orden de fusión: HU-22 y después HU-23.
 
 ## Próximo paso concreto
 
-1. **HU-23 parte 4 (subir):** revisión de código, documentación y PR de raíz, `backend` y `mobile` (apilados sobre HU-22). SP170 (dos teléfonos) queda pendiente: el usuario todavía no puede hacerla; el merge espera esa prueba o la decisión del usuario.
+1. **HU-23 parte 4 (subir), punto exacto:** revisión hecha y corregida; falta push y PR de `backend`, `mobile` y raíz (apilados sobre HU-22: base `feat/HU-22-verificacion-abordaje`) cuando el usuario lo diga. SP170 (dos teléfonos) queda pendiente: el merge espera esa prueba o la decisión del usuario.
 2. **HU-23 parte 3b cuando haya dos teléfonos:** viaje por la calle con pantalla apagada y un tramo sin señal; medir velocidad máxima y coincidencia con GPS real y sentir la vibración del escáner. Guiones en `.harness/evidencias/HU-23/telefono/`.
 3. **HU-22:** revisión de los PR por otro integrante y merge; tras el merge, punteros.
 4. **Pedido del usuario (14/11):** acelerar las e2e del backend en una sesión aparte, sin debilitar pruebas.

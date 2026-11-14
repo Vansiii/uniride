@@ -1427,3 +1427,18 @@ Los dos se vieron en el teléfono físico.
 **Sin hacer:** tarjeta oscura «destacada» (`marcaProfundo`) para el viaje anclado: decisión abierta. SP170 (dos teléfonos) pendiente: el usuario todavía no puede hacerla.
 
 **Archivos afectados:** `mobile/src/componentes/{ViajeActivo,TarjetaMiViaje}.tsx`, `mobile/src/app/{(pestanas)/viajes.tsx,(pestanas)/index.tsx,reserva/[id].tsx}`, `mobile/src/i18n/es-BO.json`, `mobile/src/__tests__/mis-viajes.test.tsx`; `backlog.md`, `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-23 revisión de código antes de subir
+
+**Evento:** Revisión de código de backend y mobile de HU-23 (diff sobre HU-22): 9 hallazgos, 5 corregidos. `backend` `7a0550d`, `mobile` `af2206a` y `bf42d6c`.
+
+- **Llave del conductor con el viaje en curso:** `POST /viajes/:id/llave-trayecto` ya no pide la ventana de abordaje si el viaje está `en_curso` (RN-7): sin llave en el teléfono nadie podía bajar pasada la ventana. La app, con el viaje en curso, usa la llave del seguimiento también en el código de abordaje, sin crear otra.
+- **Viaje verificado con bajadas simultáneas:** `EstadoViajeService.recalcular` bloquea la fila del viaje (`FOR UPDATE`) antes de mirar las reservas.
+- **Cola del seguimiento:** un lote rechazado por su contenido (4xx salvo 401, 409, 429) se descarta; lo descartado por el tope mientras un lote viaja ya no borra puntos sin enviar.
+- **Sin cambio, por la spec:** RN-2 (punto del pasajero sin pareja = no coincide), RN-4 (velocidad sin mirar precisión), RN-10 (una reserva confirmada sin abordar deja el viaje en curso, HU-20).
+
+**Verificado:** `verificar.py backend` y `verificar.py mobile` completos en verde.
+
+**Sin verificar:** lo corregido en la app, solo con Jest (sin teléfono).
+
+**Archivos afectados:** `backend/src/presencia/presencia.service.ts`, `backend/src/viajes/estado-viaje.service{,.spec}.ts`, `backend/test/presencia/bajada.e2e-spec.ts`; `mobile/src/app/abordaje/mostrar/[viajeId].tsx`, `mobile/src/viajes/seguimiento.ts`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/{seguimiento,abordaje}.test.tsx`; `HEARTBEAT.md`.
