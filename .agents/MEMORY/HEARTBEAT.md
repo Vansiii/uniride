@@ -24,7 +24,7 @@
 1. **HU-24:** PR abiertos el 14/11 (backend #20 y mobile #20 con base `feat/HU-23-seguimiento-bajada`, contracts #2 a `develop`, raíz #32 con base `feat/HU-23-seguimiento-bajada`). Revisión de otro integrante y merge en orden HU-22, HU-23, HU-24 (solo con `fusionar.py`); tras el merge, punteros.
 2. **HU-23:** PR abiertos el 14/11 (backend #21, mobile #21, raíz #33, base `feat/HU-22-verificacion-abordaje`); revisión de otro integrante y merge después de HU-22; 3b con dos teléfonos (SP170) pendiente.
 3. **HU-22:** revisión de los PR por otro integrante y merge; tras el merge, punteros.
-4. **Pedido del usuario (14/11):** acelerar las e2e del backend en una sesión aparte, sin debilitar pruebas. **HU-19, pendiente si nadie lo hizo:** revisión, teléfono físico (SP151/SP152), TalkBack y UML del plan.
+4. **Pedido del usuario (14/11):** acelerar las e2e del backend en una sesión aparte, sin debilitar pruebas. **HU-19, pendiente si nadie lo hizo:** revisión y UML del plan. **Teléfono físico (SP151/SP152) y TalkBack: preparado el 14/11** para una sesión aparte con un teléfono (1–1,5 h): guía, guion de datos y lista por criterio en la carpeta local de evidencias de HU-19 (`GUIA.md`); el guion se comprobó sin teléfono.
 
 ## Sin verificar
 
