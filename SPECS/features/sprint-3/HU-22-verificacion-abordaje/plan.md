@@ -40,6 +40,7 @@ Migración: `015_presencia`. No borra ni transforma datos. Cambia de `ssd.md` §
 |---|---|---|---|---|---|
 | POST | `/api/v1/viajes/:id/llave-trayecto` | conductor del viaje | F + B (`@AccionSensible`) | `{ llavePublicaPem, tokenIntegridad }` → 201 `{ llaveTrayectoId }` | `FUERA_DE_VENTANA` 409, `SIN_RESERVAS` 409, `DISPOSITIVO_NO_INTEGRO` 422, `LLAVE_INVALIDA` 400 |
 | POST | `/api/v1/viajes/:id/desafios` | conductor del viaje | llave de trayecto | `{ tipo, posicion: {lat, lng, precisionM, tomadaEn, simulada} }` → 201 `{ nonce, venceEn, qrImagenBase64, pasajeros: [...] }` | `FUERA_DE_VENTANA` 409, `SENAL_GPS` 422, `UBICACION_SIMULADA` 422, `FIRMA_TRAYECTO_INVALIDA` 401 |
+| GET | `/api/v1/viajes/:id/desafios/:nonce` | conductor del viaje | — | → 200 `{ vigente, pasajeros }` (14/11, revisión) | `VIAJE_NO_ENCONTRADO` 404 |
 | POST | `/api/v1/reservas/:id/abordaje` | pasajero de la reserva | F + B (`@AccionSensible`) | `{ nonce, posicion, tokenIntegridad, llavePublicaTrayectoPem }` → 200 `{ estado: "abordada" }` | `CODIGO_INVALIDO` 409, `DISTANCIA` 422 (con `distanciaM`), `UBICACION_SIMULADA` 422, `SENAL_GPS` 422, `DISPOSITIVO_NO_INTEGRO` 422, `SIN_RESERVA` 409, `SERVICIO_NO_DISPONIBLE` 503 |
 
 QR: `uniride://encuentro/<nonce>`. El nonce son 32 bytes aleatorios; el QR no lleva datos personales. La app del conductor pide uno nuevo cada 25 s y apenas un escaneo lo consume (lo ve en `pasajeros`).
@@ -71,7 +72,7 @@ Swagger actualizado: [x] (14/11: los tres endpoints con sus errores; `desafios` 
 
 - **El token de integridad se pide con el `X-Nonce` de la misma petición:** `solicitarFirmado` acepta un `nonce` ya elegido (`OpcionesFirma.nonce`) y la app lo usa para Play Integrity antes de armar el cuerpo. Antes `cabecerasFirma` lo generaba adentro y no había cómo atarlo.
 - **Llave de trayecto en un alias propio** (`uniride.llave.trayecto`), sin `setUserAuthenticationRequired`; crear una nueva borra la anterior. Se reutiliza la generación y la comprobación de hardware de la llave del dispositivo (`crearEnHardware`).
-- **El conductor ve los escaneos con un sondeo de 3 s** a `GET /viajes/:id/pasajeros`: si aumenta el número de abordados, pide otro código enseguida. Un escaneo rechazado también gasta el código y ese no se ve: se renueva a los ≤ 25 s. Se descartó un aviso del servidor (push o socket) por ser infraestructura nueva.
+- **El conductor ve los escaneos con un sondeo de 3 s** a `GET /viajes/:id/desafios/:nonce` (cambiado en la revisión del 14/11; antes era `/pasajeros` y un rechazo dejaba el código gastado ≤ 25 s): si el código ya no está vigente o aumentan los abordados, pide otro enseguida (RN-1). Se descartó un aviso del servidor (push o socket) por ser infraestructura nueva.
 - **Al leer el QR se abre la huella sin otro toque:** el escaneo ya es la acción de la persona y el código vive 30 s. Posición y llave de trayecto se preparan a la vez.
 - **El QR se valida en la app solo por forma** (`uniride://encuentro/<43 caracteres>`): un QR ajeno no pide huella ni llama al servidor.
 
