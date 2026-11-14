@@ -2,7 +2,7 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-11-14 (HU-24 parte 4: revisión de código)
+**Última actualización:** 2026-11-14 (HU-19 en el teléfono físico)
 
 **Sprint actual:** Sprint 3 · Viaje completo verificado y pagado (37 PHU con HU-10, Release 1.0).
 **Foco:** HU-24 subida con PR abiertos (backend #20, mobile #20, contracts #2, raíz #32), sin merge. HU-23 con PR abiertos (backend #21, mobile #21, raíz #33), sin merge; su 3b (dos teléfonos, SP170) sigue pendiente. HU-22 espera revisión humana y merge.
@@ -13,25 +13,25 @@
 - **Ramas apiladas:** HU-22 (`feat/HU-22-verificacion-abordaje`, PR abiertos) → HU-23 (`feat/HU-23-seguimiento-bajada`, subida) → **HU-24** (`feat/HU-24-liberacion-pago`, con PR, creada el 14/11 en raíz, `backend`, `mobile` y, desde la verificación, `contracts`). Orden de fusión: HU-22, HU-23, HU-24.
 - **Pendientes de HU-19 (no bloquean):** ver «Próximo paso» 5.
 
-## Última sesión (14/11, HU-24 parte 4: revisión de código)
+## Última sesión (14/11, HU-19 en el teléfono físico)
 
-- **Hecho:** revisión de backend, mobile y `contracts`: 10 hallazgos, 6 corregidos (aviso sin cuenta verificadora, misma llave de relayer y verificador rechazada, alerta de pago atascado con su organización, liberación sin prueba de abordaje revierte, pasajero con verificación fallida sin «Escanear», saldos simulados por un solo camino). Detalle en MEMORY (14/11, «HU-24 revisión»).
-- **Verificado:** `verificar.py backend` completo en verde (e2e 367 s con el cargador puesto), `verificar.py mobile --rapido` en verde.
-- **Commits:** `backend` `43dbd3c`, `mobile` `8c8fe74`.
+- **Hecho:** reservar y «Mis viajes» en el Infinix X669 con huella y Keystore reales, sobre la punta de `feat/HU-24-liberacion-pago`: 16 filas por criterio (CA-1 a CA-4, CA-9 a CA-15, saldo e Inicio), 15 bien en pantalla y en la base; CA-12 «fallida» solo como pantalla (estado por SQL). Detalle en MEMORY (14/11, «HU-19 en el teléfono»).
+- **Hallazgos, pendientes por decisión del usuario (no bloquean):** (1) el detalle de un viaje ya reservado ofrece «Recargar saldo» o «Reservar y pagar» y pide la huella; recién el servidor responde «Ya tienes una reserva en este viaje»; (2) tras «Ya no quedan asientos» el botón de reservar sigue activo (con el viaje vencido sí se desactiva); (3) la lista de resultados no se refresca al volver del detalle.
+- **TalkBack:** pendiente por pedido del usuario.
 
 ## Próximo paso concreto
 
 1. **HU-24:** PR abiertos el 14/11 (backend #20 y mobile #20 con base `feat/HU-23-seguimiento-bajada`, contracts #2 a `develop`, raíz #32 con base `feat/HU-23-seguimiento-bajada`). Revisión de otro integrante y merge en orden HU-22, HU-23, HU-24 (solo con `fusionar.py`); tras el merge, punteros.
 2. **HU-23:** PR abiertos el 14/11 (backend #21, mobile #21, raíz #33, base `feat/HU-22-verificacion-abordaje`); revisión de otro integrante y merge después de HU-22; 3b con dos teléfonos (SP170) pendiente.
 3. **HU-22:** revisión de los PR por otro integrante y merge; tras el merge, punteros.
-4. **Pedido del usuario (14/11):** acelerar las e2e del backend en una sesión aparte, sin debilitar pruebas. **HU-19, pendiente si nadie lo hizo:** revisión y UML del plan. **Teléfono físico (SP151/SP152) y TalkBack: preparado el 14/11** para una sesión aparte con un teléfono (1–1,5 h): guía, guion de datos y lista por criterio en la carpeta local de evidencias de HU-19 (`GUIA.md`); el guion se comprobó sin teléfono.
+4. **Pedido del usuario (14/11):** acelerar las e2e del backend en una sesión aparte, sin debilitar pruebas. **HU-19, pendiente si nadie lo hizo:** revisión y UML del plan; TalkBack en el teléfono (detalle y confirmación, resultado, saldo insuficiente, Mis viajes e Inicio); los tres hallazgos del teléfono (14/11), si el equipo decide corregirlos (rama `fix/HU-19-telefono` sobre la punta de HU-24).
 
 ## Sin verificar
 
 - HU-24: el enlace al explorador del pago (historial y app) solo existe en Amoy: con Jest y pendiente del despliegue; en Hardhat el hash se verificó en la API y contra el recibo. `cancelada` en CA-3 llega con HU-20.
 - HU-23: verificada (parte 3); faltan dos teléfonos moviéndose juntos (3b). Con el teléfono quieto bajo techo la velocidad entre puntos llegó a 82,9 km/h (límite 150): revisar con datos de la calle. Un lote del pasajero que llega en el mismo instante en que se confirma su bajada se guarda pero no se evalúa (límite aceptado en el plan). La liberación del pago la encola la bajada (HU-24, hecho en el backend).
 
-- HU-19: reservar y «Mis viajes» solo con Jest y contra el backend de pruebas; falta el teléfono físico y TalkBack. El bloqueo real se probó en Hardhat local, no en Amoy. Las reservas `pendiente` se confirman con el worker de 5 s; si la cola falla, queda la alerta `reserva.bloqueo.atascado` (5 intentos).
+- HU-19: reservar y «Mis viajes» vistos en el teléfono físico el 14/11; falta TalkBack. CA-12 «fallida» en el teléfono solo como pantalla. El bloqueo real se probó en Hardhat local, no en Amoy. Las reservas `pendiente` se confirman con el worker de 5 s; si la cola falla, queda la alerta `reserva.bloqueo.atascado` (5 intentos).
 - HU-29: bloqueo del sistema tras intentos fallidos (`comun.biometria.bloqueada`) solo con Jest: el Infinix X669 no bloqueó tras 16 rechazos en el diálogo y desbloquear con patrón anula el bloqueo.
 - HU-10 CA-9: la llave de trayecto deja de valer con el dispositivo desactivado (e2e `a-08-abordaje`); falta verlo en el teléfono.
 - HU-22: CA-7 con Play Integrity real (simulada en desarrollo; con el despliegue). El encuentro se probó con un teléfono y la otra parte en un guion de firmas reales. La renovación del código tras un escaneo rechazado (sondeo de 3 s, `9e4ce34`) solo con Jest y e2e, sin teléfono. La posición del conductor se valida al emitir el código: al verificar puede tener hasta ≈60 s (decisión del plan). Ser conductor de un viaje y pasajero de otro a la vez comparte el alias de la llave de trayecto: va en HU-23 parte 2.

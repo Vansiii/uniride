@@ -1526,3 +1526,20 @@ Los dos se vieron en el teléfono físico.
 **Trampa:** con la laptop a batería la e2e pasó el tope de 600 s tres veces y las mismas pruebas agotaron sus 5 s; con el cargador, 367 s. Además, al pasar el tope el `vitest` de la e2e siguió vivo y hubo que detenerlo por PID.
 
 **Archivos afectados:** `backend/src/blockchain/{blockchain,trabajos-onchain}.service{,.spec}.ts`, `backend/src/presencia/presencia.service.ts`; `mobile/src/app/viaje-activo/[id].tsx`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/seguimiento.test.tsx`; `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-19 en el teléfono (SP151, SP152)
+
+**Qué se probó:** reservar y «Mis viajes» en el Infinix X669 con huella y Keystore reales, sobre la punta de `feat/HU-24-liberacion-pago`, contra el backend del entorno de pruebas y un proxy que registra cada petición y si iba firmada.
+
+**Visto bien:** doble toque en «Reservar y pagar» → una sola reserva firmada (CA-1, CA-4); faltante y «Recargar saldo», y al volver de la recarga la misma confirmación (CA-2); *Pendiente* que pasa sola a *Confirmada* al liberar el bloqueo retenido (CA-12); «Ya no quedan asientos» sin bloqueo (CA-3); «Ya tienes una reserva en este viaje» (CA-10); «Este viaje ya no admite reservas» con el botón desactivado (CA-11); diálogo de huella cancelado sin petición firmada; el viaje propio no aparece en la búsqueda (CA-9); el viaje reservado sigue en la búsqueda con sus asientos libres (CA-13); Mis viajes de pasajero y de conductor con el pasajero por nombre de pila (CA-14); «Tu próximo viaje» en Inicio; Billetera con disponible y garantía iguales a la base; total de URC cambiado solo por las recargas (CA-15). «No se completó» (CA-12) solo como pantalla: el estado lo puso SQL.
+
+**Hallazgos, pendientes por decisión del usuario:**
+1. El detalle de un viaje ya reservado no lo sabe: con saldo corto ofrece «Recargar saldo»; con saldo suficiente, «Reservar y pagar» y la huella. El rechazo llega recién del servidor.
+2. Tras «Ya no quedan asientos» y la nueva lectura del viaje con 0 libres, el botón sigue activo; con el viaje vencido sí se desactiva.
+3. La lista de resultados no se refresca al volver del detalle (un viaje vencido seguía listado).
+
+**Trampa:** la prueba de cancelar la huella terminó en una reserva real (dedo por costumbre) porque no se activó antes el bloqueo del proxy. Repetida con el bloqueo, bien.
+
+**Sin verificar:** TalkBack (pendiente por pedido del usuario).
+
+**Archivos afectados:** `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
