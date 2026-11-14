@@ -1489,3 +1489,19 @@ Los dos se vieron en el teléfono físico.
 **Sin verificar:** enlace al explorador en el historial y en la app (solo Amoy, con el despliegue); resultado de la bajada y código de bajada con el pago en el teléfono (cámara y huella: 3b).
 
 **Archivos afectados:** `backend/src/blockchain/blockchain.service{,.spec}.ts`, `backend/test/{ataques/a-09-liberacion,blockchain/escrow-hardhat}.e2e-spec.ts`, `contracts/README.md`; `plan.md` de HU-24, `backlog.md`, `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-24 teléfono: bajada y código de bajada con el pago (SP175)
+
+**Evento:** Pasada en el Infinix X669 con huella y cámara, entorno de pruebas con la cadena simulada. Reservas reales por la API; el pago se retuvo en la cola on-chain para ver Pendiente y después se soltó al worker. `mobile` `cf76721`.
+
+- **Pasajero (B):** abordaje y bajada escaneando el QR del conductor (en la PC) con huella. El resultado de la bajada mostró «Pago al conductor: 10,50 URC · Pendiente» y pasó solo a «Pagado»; la consulta cada 5 s se detuvo al llegar. Viaje en curso pagado: sin bajada y sin compartir ubicación.
+- **Conductor (A):** código de abordaje con huella; código de bajada sin huella (llave del seguimiento). Con la bajada de la pasajera: «Ana · Verificada», «Recibirás 10,50 URC · Pendiente» → «Recibiste 10,50 URC · Pagado».
+- **Corregido:** con el viaje terminado, el código de bajada ofrecía «Reintentar» ante `VIAJE_NO_EN_CURSO`, sin salida posible. Ahora es una falla final sin botón (`final` en `FallaAbordaje`); prueba en `seguimiento.test.tsx` y visto en el teléfono con un viaje nuevo.
+- **Firmas sin huella pedida:** dos firmas salieron sin que la persona notara el diálogo. Con el teléfono sobre la mesa, el diálogo esperó 20 s sin firmar: el lector lateral se toca al sostener el teléfono. La llave sigue exigiendo biometría fuerte por operación.
+- El primer escaneo de bajada dio `CODIGO_INVALIDO`: la página del QR de la PC aún mostraba la imagen anterior; la app dejó volver a escanear.
+
+**Verificado:** `verificar.py mobile` completo en verde (505 pruebas, build, dependencias).
+
+**Sin verificar:** enlace al explorador del pago (solo Amoy, con el despliegue).
+
+**Archivos afectados:** `mobile/src/viajes/abordaje.ts`, `mobile/src/app/abordaje/mostrar/[viajeId].tsx`, `mobile/src/__tests__/seguimiento.test.tsx`.
