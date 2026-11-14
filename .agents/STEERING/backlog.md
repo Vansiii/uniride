@@ -235,11 +235,11 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP162 · Prueba con dos teléfonos físicos y medición < 3 s — 1h — @[POR DEFINIR]
 
 ### HU-23 · Seguimiento y bajada (24 h)
-- [ ] SP163 · Migración `016_puntos_gps` y `reservas.evaluacion` — 1h — @[POR DEFINIR]
-- [ ] SP164 · `evaluarTrayecto` con pruebas de borde — 3h — @[POR DEFINIR]
-- [ ] SP165 · Endpoints de posiciones (lotes, filtros, idempotencia) — 3h — @[POR DEFINIR]
-- [ ] SP166 · Bajada: encuentro, evaluación, estados y alerta — 3h — @[POR DEFINIR]
-- [ ] SP167 · Pruebas e2e y de ataque A-05, A-06, A-07, A-08, A-13 — 4h — @[POR DEFINIR]
+- [x] SP163 · Migración `016_puntos_gps` y `reservas.evaluacion` — 1h — @[POR DEFINIR] · @agente 14/11 backend `94c5d6a`: `puntos_gps` con RLS forzado, `UNIQUE(viaje, usuario, tomada_en)` y solo SELECT/INSERT para la API; `reservas.evaluacion` JSONB
+- [x] SP164 · `evaluarTrayecto` con pruebas de borde — 3h — @[POR DEFINIR] · @agente 14/11 backend `94c5d6a`: función pura en `presencia/trayecto.ts`; bordes 150/151 km/h, 16 vs 15 de 20 y 31 de 39, 4/3 pares, Δt 15/16 s, un punto simulado; `recalcular` gana `en_curso → verificado`
+- [x] SP165 · Endpoints de posiciones (lotes, filtros, idempotencia) — 3h — @[POR DEFINIR] · @agente 14/11 backend `08e7fef`: `POST /viajes/:id/posiciones` y `/reservas/:id/posiciones` con la llave de trayecto (1–60 puntos, 202 con aceptados e ignorados); el abordaje devuelve `llaveTrayectoId`
+- [x] SP166 · Bajada: encuentro, evaluación, estados y alerta — 3h — @[POR DEFINIR] · @agente 14/11 backend `08e7fef`: el encuentro de HU-22 pasa a un método común con el `tipo`; la bajada evalúa en su transacción, deja `verificada`/`verificacion_fallida` con `evaluacion` y la alerta `presencia.verificacion_fallida`
+- [x] SP167 · Pruebas e2e y de ataque A-05, A-06, A-07, A-08, A-13 — 4h — @[POR DEFINIR] · @agente 14/11 backend `08e7fef`: `posiciones`, `bajada`, `a-07-trayecto`, `a-08-posiciones` y casos de bajada en A-05, A-06, A-13 y acciones sensibles. 554 unitarias, 727 e2e, cobertura 91,7 %; prueba real de la API en `entorno.py`
 - [ ] SP168 · Mobile: seguimiento en segundo plano con `expo-task-manager` (dependencia autorizada el 08/11) y permisos — 5h — @[POR DEFINIR]
 - [ ] SP169 · Mobile: viaje en curso y bajada — 3h — @[POR DEFINIR]
 - [ ] SP170 · Viaje real con dos teléfonos (pantalla apagada, sin señal) — 2h — @[POR DEFINIR]

@@ -11,7 +11,7 @@
 |---|---|---|
 | backend | `presencia/posiciones` | `PosicionesService` y controlador: recibe lotes firmados con la llave de trayecto |
 | backend | `presencia/trayecto.ts` (nuevo) | `evaluarTrayecto(pasajero[], conductor[])`, función pura: pares, coincidencia, velocidad máxima, simulada, resultado y motivo |
-| backend | `presencia/bajada` | `BajadaService`: el mismo encuentro de HU-22 con `tipo = 'bajada'`, luego evalúa, deja la reserva `verificada` o `verificacion_fallida` y, si se verificó, encola la liberación de HU-24 en la misma transacción |
+| backend | `presencia/presencia.service.ts` | Bajada: el mismo encuentro de HU-22 con `tipo = 'bajada'` (método común, ver «Decisiones de diseño»), luego evalúa y deja la reserva `verificada` o `verificacion_fallida`. La liberación de HU-24 se encola en esa transacción desde HU-24 (SP172) |
 | backend | `viajes/estado-viaje.service.ts` | `en_curso → verificado` |
 | mobile | `src/viajes/seguimiento.ts` (nuevo) | Tarea en segundo plano: `Location.startLocationUpdatesAsync` cada 15 s con servicio en primer plano y notificación; cola en memoria; lotes firmados con `firmarTrayecto` |
 | mobile | `src/app/viaje-activo/[id].tsx` (nuevo) | «En viaje a {destino}», indicador «Compartiendo tu ubicación cada 15 s», acción «Verificar bajada» (conductor, reutiliza «Mostrar código») / «Escanear QR de bajada» (pasajero, reutiliza el escáner), resultado «Viaje verificado» |
@@ -52,7 +52,47 @@ Un punto se ignora (CA-9) si `tomadaEn` es anterior al abordaje de esa persona o
 
 La bajada rechazada por el encuentro (código, distancia, integridad) no evalúa ni cambia la reserva: se puede volver a escanear. La evaluación solo corre con la bajada aceptada y es definitiva. Una `verificacion_fallida` deja el escrow intacto y registra la alerta `presencia.verificacion_fallida` en auditoría (D-24).
 
-Swagger actualizado: [ ]
+### Decisiones de diseño (14/11, al empezar el backend)
+
+- **La bajada reutiliza el encuentro del abordaje dentro de `PresenciaService`**, no en un `BajadaService` aparte: consumir el código, validar reserva, posición, distancia e integridad y calcular el hash pasan a un método común con el `tipo` (`abordaje` / `bajada`). Cada uno conserva su transacción final. Se descartó un servicio nuevo porque duplicaba la validación de A-05, A-06 y A-07 (lo que `copias` de `verificar.py` frena).
+- **Un código de bajada no sirve para abordar y viceversa:** el consumo filtra por `tipo`. El de bajada no tiene ventana horaria (RN-7) pero exige el viaje `en_curso`; si no, `VIAJE_NO_EN_CURSO` 409.
+- **Estado previo de cada encuentro:** abordaje exige `confirmada`; bajada, `abordada` (si no, `RESERVA_NO_ABORDADA` 409). Bajada repetida sobre una reserva ya evaluada responde su estado con `yaVerificado`, sin otra prueba ni otra evaluación.
+- **La evaluación corre en la transacción de la bajada aceptada**: `UPDATE reservas … WHERE estado = 'abordada'` con el resultado y `evaluacion`; dos bajadas a la vez, gana una. `evaluarTrayecto` es una función pura en `trayecto.ts` (sin base), con las pruebas de borde.
+- **Orden de los motivos** cuando hay varios: `ubicacion_simulada`, `salto_imposible`, `datos_insuficientes`, `trayectos_separados`. El primero que aplica es el que se guarda; `evaluacion` guarda igual porcentaje, pares y velocidad máxima.
+- **Intervalo del conductor:** del abordaje aceptado de esa reserva a su bajada, ±15 s para emparejar los bordes (RN-2).
+- **Posiciones del conductor** solo mientras el viaje está `en_curso` y tiene al menos una reserva `abordada` (RN-8: sin pasajeros a bordo no hay nada que verificar); si no, `VIAJE_NO_EN_CURSO` 409. Las del pasajero, solo con su reserva `abordada` (CA-12).
+- **Se ignora sin error** (CA-9) el punto con `tomadaEn` anterior al primer abordaje aceptado (pasajero: el suyo; conductor: el primero del viaje) o posterior a `now + 30 s`, y el repetido (`createMany` con `skipDuplicates`). La respuesta cuenta `aceptados` e `ignorados`.
+- **La llave de trayecto decide quién envía:** la del conductor (`reservaId` nulo) solo para `/viajes/:id/posiciones` de su viaje; la del pasajero solo para `/reservas/:id/posiciones` de esa reserva. Cualquier otra combinación es `FIRMA_TRAYECTO_INVALIDA` 401, igual que una llave de otra organización (A-13, sin oráculo).
+- **Viaje `verificado` (D-23, RN-10)** en `EstadoViajeService.recalcular`: `en_curso → verificado` con alguna reserva `verificada`/`pagada` y ninguna `pendiente`, `confirmada`, `abordada` o `verificacion_fallida`. Una fallida deja el viaje `en_curso` (lo resuelve D-24) sin frenar el pago de las demás, que es por reserva.
+- **La liberación del pago no se encola aquí:** queda en HU-24 (SP172), que la agrega a la transacción de la bajada verificada. HU-23 deja la reserva `verificada` y su `hash_prueba` de bajada.
+- **Límite conocido:** un lote del pasajero que pasa la comprobación de estado en el mismo instante en que se confirma su bajada se guarda pero no entra en la evaluación (ponytail: sin candado; agregar `FOR SHARE` de la reserva si las pruebas reales lo muestran).
+- **El abordaje devuelve `llaveTrayectoId`** (agregado al contrato de HU-22, compatible): el pasajero lo necesita para firmar sus posiciones (`X-Llave-Trayecto-Id`). También al volver a escanear ya abordada y cuando otro escaneo simultáneo ganó: la llave de esa petición queda vigente.
+- **La bajada repetida no necesita código nuevo:** si la reserva ya se evaluó, responde su resultado antes de mirar el código. Con un solo pasajero el viaje ya está `verificado` y el conductor no puede emitir otro; la app reintenta con el mismo.
+- **Velocidad redondeada a 0,1 km/h antes de decidir:** se guarda y se decide con el mismo valor (150 exactos daban 150,0000001 en coma flotante).
+- **Alias de la llave de trayecto en el teléfono** (anotado en HU-22): ser conductor de un viaje y pasajero de otro a la vez comparte el alias `uniride.llave.trayecto`. En el servidor no choca (una vigente por persona y viaje); se resuelve en la parte del cliente.
+
+### Consultas (sin N+1)
+
+| Endpoint | Consultas |
+|---|---|
+| `POST /viajes/:id/posiciones` | guard: 1 llave + dispositivo · 1 consulta: el primer abordaje aceptado de un viaje suyo, en curso y con alguna reserva abordada · 1 `INSERT … ON CONFLICT DO NOTHING` del lote |
+| `POST /reservas/:id/posiciones` | guard · 1 reserva con su prueba de abordaje aceptada · 1 `INSERT` del lote |
+| `POST /viajes/:id/desafios` (`bajada`) | las de HU-22, con el estado del viaje en la misma consulta |
+| `POST /reservas/:id/bajada` | Tx 1 como el abordaje · Tx 2: 1 `SELECT` de la hora de abordaje · 1 `SELECT` de los puntos de las dos personas en el intervalo (`usuario_id IN (…)`, ordenado) · `UPDATE` reserva · `INSERT` prueba · `recalcular` (3 sentencias) · auditoría |
+
+Índice: `UNIQUE(viaje_id, usuario_id, tomada_en)` sirve a la vez para ignorar repetidos y para el rango de la evaluación. La evaluación es en memoria sobre ≤ unos cientos de puntos (240 en una hora por persona).
+
+### Amenazas y su prueba de ataque
+
+| Amenaza | Qué la frena | Prueba |
+|---|---|---|
+| A-05 | Código de bajada de un uso y 30 s, consumido por `tipo` | `a-05-repeticion-handshake.e2e-spec.ts`: segundo uso del código de bajada y código de abordaje usado para bajar → `CODIGO_INVALIDO` |
+| A-06 | ≤ 50 m entre las posiciones del desafío de bajada | `a-06-qr-lejos.e2e-spec.ts`: bajada a 60 m → 422 y la reserva sigue `abordada` |
+| A-07 | `evaluarTrayecto`: saltos > 150 km/h, punto simulado, separación, pocos datos | `trayecto.spec.ts` (bordes) y `a-07-trayecto.e2e-spec.ts`: trazas falsas enviadas por la API → `verificacion_fallida` con su motivo |
+| A-08 | `FirmaTrayectoGuard` + la llave del rol correcto; bajada `@AccionSensible` | `a-08-posiciones.e2e-spec.ts`: sin firma, firma alterada, llave del pasajero en la ruta del conductor y al revés, llave de otra reserva, persona ajena; bajada sin huella en `a-08-acciones-sensibles` |
+| A-13 | `organizacion_id` + RLS en `puntos_gps`; todo en `enOrganizacion` | `a-13-presencia.e2e-spec.ts`: posiciones y bajada sobre una reserva de otra organización = inexistente; el rol de la API no ve puntos ajenos |
+
+Swagger actualizado: [x] (14/11: bajada, posiciones del conductor y del pasajero con sus errores; `tipo: bajada` en desafíos; `llaveTrayectoId` en el abordaje; posiciones justificadas sin huella en el catálogo de acciones sensibles)
 
 ## 4. Pantallas y voz
 
@@ -100,6 +140,15 @@ sequenceDiagram
 | Viaje real con dos teléfonos y pantalla apagada | manual en teléfonos físicos | checklist en MEMORY |
 
 Metas de rendimiento: la bajada responde < 3 s (la evaluación es en memoria sobre ≤ unos cientos de puntos).
+
+## 7b. Con qué se cruza
+
+- **HU-22:** el encuentro se vuelve común a abordaje y bajada (mismo método); sus pruebas e2e y de ataque deben seguir en verde sin cambios. El DTO de desafíos acepta `bajada`.
+- **HU-19:** «Mis viajes» y los pasajeros del conductor muestran `verificada` y `verificacion_fallida`; `recalcular` gana `en_curso → verificado`.
+- **HU-29:** la bajada entra al catálogo de acciones sensibles (`a-11-catalogo-sensible`, `a-08-acciones-sensibles`).
+- **HU-24:** encola la liberación en la transacción de la bajada verificada y usa su `hash_prueba`.
+- **HU-20 / HU-26 (D-24):** resuelven la `verificacion_fallida`; el viaje queda `en_curso` mientras tanto.
+- **HU-25 / HU-28:** leerán `puntos_gps` (RN-8: solo para verificar y esas historias).
 
 ## 7. Riesgos
 

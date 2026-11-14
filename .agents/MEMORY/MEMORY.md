@@ -1361,3 +1361,20 @@ Los dos se vieron en el teléfono físico.
 
 **Archivos afectados:** `mobile/src/{viajes/abordaje.ts,app/abordaje,i18n/es-BO.json,__tests__/abordaje.test.tsx}`; `backlog.md`, `HEARTBEAT.md`.
 
+
+## 2026-11-14 · HU-23 backend: posiciones, bajada y evaluación del trayecto (SP163–SP167)
+
+**Evento:** Contrato de HU-23 en el backend, en la rama `feat/HU-23-seguimiento-bajada` apilada sobre HU-22 (raíz, `backend`, `mobile`). Antes de escribir código se completó el plan: decisiones de diseño, consultas sin N+1, amenazas con su prueba y §7b.
+
+- **Migración `016_puntos_gps`** (`94c5d6a`): puntos por viaje y persona con RLS forzado; la del conductor sirve a todas sus reservas. `reservas.evaluacion` guarda pares, coincidencia, velocidad máxima y motivo (CA-15).
+- **`evaluarTrayecto`** (`presencia/trayecto.ts`, función pura): la coincidencia se compara en enteros (5·coincidentes ≥ 4·total) y la velocidad redondeada a 0,1 km/h, para que 80 % y 150 km/h exactos no fallen por coma flotante.
+- **Bajada = encuentro de HU-22** (`08e7fef`): consumo, validaciones, integridad y hash pasan a un método común con el `tipo`; un código de abordaje no sirve para bajar ni al revés. La bajada aceptada evalúa en su transacción y es definitiva. La repetida responde su resultado sin código nuevo.
+- **Posiciones** con la llave de trayecto (sin huella): la del conductor solo en `/viajes/:id/posiciones` mientras lleva a alguien `abordada`; la del pasajero solo en su reserva `abordada`. Se ignoran sin error los repetidos, los del futuro y los anteriores al abordaje.
+- **Contrato de HU-22 ampliado:** el abordaje devuelve `llaveTrayectoId`, que el pasajero necesita para firmar sus posiciones.
+- **Viaje `verificado`** (D-23): sin reservas pendientes, confirmadas, abordadas ni con verificación fallida. Una fallida deja el viaje `en_curso` (D-24) y queda la alerta `presencia.verificacion_fallida`.
+
+**Verificado:** backend completo (lint, formato, 554 unitarias, 727 e2e, build), cobertura 91,7 %. Prueba real contra el backend de `entorno.py` (`.harness/evidencias/HU-23/api-real.txt`): dos pasajeros, uno `verificada` y el otro `verificacion_fallida` por un salto de 510 km/h, repetidos ignorados, 401 con la llave cambiada de ruta, 409 tras bajar y sin nadie a bordo; ninguna coordenada en el log del backend (RN-8).
+
+**Sin verificar:** HU-24 encola la liberación (SP172). Todo lo del teléfono va en la parte 2.
+
+**Archivos afectados:** `backend/prisma/{schema.prisma,migrations/016_puntos_gps}`, `backend/src/presencia/*`, `backend/src/viajes/estado-viaje.service*.ts`, `backend/src/i18n/es-BO.json`, `backend/test/{presencia,ataques}/*`, `backend/test/ayudas-organizaciones.ts`; plan de HU-23, `backlog.md`, `HEARTBEAT.md`.
