@@ -1505,3 +1505,24 @@ Los dos se vieron en el teléfono físico.
 **Sin verificar:** enlace al explorador del pago (solo Amoy, con el despliegue).
 
 **Archivos afectados:** `mobile/src/viajes/abordaje.ts`, `mobile/src/app/abordaje/mostrar/[viajeId].tsx`, `mobile/src/__tests__/seguimiento.test.tsx`.
+
+## 2026-11-14 · HU-24 revisión de código antes de subir
+
+**Evento:** Revisión de código de backend y mobile de HU-24 (diff sobre HU-23) y del README de `contracts`: 10 hallazgos, 6 corregidos. `backend` `43dbd3c`, `mobile` `8c8fe74`.
+
+| # | Hallazgo | Tipo | Qué se hizo |
+|---|---|---|---|
+| 1 | Sin `VERIFICADOR_LLAVE_PRIVADA` no salía ningún aviso al arrancar | otro | `verificadorTieneRol` da `false` con escrow y sin verificador; el aviso lo nombra |
+| 2 | Relayer y verificador podían ser la misma llave (A-09) | entrada-sin-validar | `crearCadena` lo rechaza; prueba |
+| 3 | La alerta `pago.liberacion.atascada` quedaba sin organización | otro | lleva `organizacionId` de la reserva; prueba |
+| 4 | Sin prueba de abordaje aceptada, el hash de la prueba se calculaba con `''` (RN-4) | otro | la liberación falla y revierte la bajada |
+| 5 | Pasajero con `verificacion_fallida` seguía viendo «Escanear QR de bajada» | cruce | la bajada cuenta como hecha; prueba en `seguimiento.test.tsx` |
+| 6 | Saldos de la cadena simulada actualizados en tres lugares | copia | todos por `sumar()` |
+
+- **Sin cambio:** pago de pasajeros de otra organización en Mis viajes (la lista de pasajeros ya está limitada a la organización activa, así que `EstadoPago` no llega a mostrarse); reservas verificadas antes del despliegue sin liberar (HU-23 no está en `develop` ni en producción); liberación imposible deja la reserva `verificada` y el viaje sin `pagado` (sí, el conductor no cobró y queda la alerta para revisión); `EstadoPago` consulta otra vez la reserva que la pantalla ya tiene (una petición de más, aceptado).
+
+**Verificado:** `verificar.py backend` completo en verde (e2e en 367 s) y `verificar.py mobile --rapido` (506 pruebas).
+
+**Trampa:** con la laptop a batería la e2e pasó el tope de 600 s tres veces y las mismas pruebas agotaron sus 5 s; con el cargador, 367 s. Además, al pasar el tope el `vitest` de la e2e siguió vivo y hubo que detenerlo por PID.
+
+**Archivos afectados:** `backend/src/blockchain/{blockchain,trabajos-onchain}.service{,.spec}.ts`, `backend/src/presencia/presencia.service.ts`; `mobile/src/app/viaje-activo/[id].tsx`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/seguimiento.test.tsx`; `HEARTBEAT.md`.

@@ -2,10 +2,10 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-11-14 (HU-24 parte 3b: teléfono)
+**Última actualización:** 2026-11-14 (HU-24 parte 4: revisión de código)
 
 **Sprint actual:** Sprint 3 · Viaje completo verificado y pagado (37 PHU con HU-10, Release 1.0).
-**Foco:** HU-24 en curso (partes 1, 2, 3 y 3b hechas; sigue la 4, subir). HU-23 subida, PR pendiente cuando el usuario lo diga; su 3b (dos teléfonos, SP170) sigue pendiente. HU-22 espera revisión humana y merge.
+**Foco:** HU-24 revisada (parte 4 a medias: falta push y PR cuando el usuario lo diga). HU-23 subida, PR pendiente cuando el usuario lo diga; su 3b (dos teléfonos, SP170) sigue pendiente. HU-22 espera revisión humana y merge.
 
 ## Estado actual
 
@@ -13,16 +13,15 @@
 - **Ramas apiladas:** HU-22 (`feat/HU-22-verificacion-abordaje`, PR abiertos) → HU-23 (`feat/HU-23-seguimiento-bajada`, subida) → **HU-24** (`feat/HU-24-liberacion-pago`, local, creada el 14/11 en raíz, `backend`, `mobile` y, desde la verificación, `contracts`). Orden de fusión: HU-22, HU-23, HU-24.
 - **Pendientes de HU-19 (no bloquean):** ver «Próximo paso» 5.
 
-## Última sesión (14/11, HU-24 parte 3b: teléfono)
+## Última sesión (14/11, HU-24 parte 4: revisión de código)
 
-- **Hecho:** en el Infinix X669, con huella y cámara: resultado de la bajada del pasajero y código de bajada del conductor, los dos pasan solos de Pendiente a Pagado y dejan de consultar. Detalle en MEMORY (14/11, «HU-24 teléfono»).
-- **Corregido:** el código de bajada ofrecía «Reintentar» con el viaje ya terminado (`VIAJE_NO_EN_CURSO`); ahora es final, sin botón. Visto en el teléfono.
-- **Verificado:** `verificar.py mobile` completo en verde (505 pruebas).
-- **Commits:** `mobile` `cf76721`.
+- **Hecho:** revisión de backend, mobile y `contracts`: 10 hallazgos, 6 corregidos (aviso sin cuenta verificadora, misma llave de relayer y verificador rechazada, alerta de pago atascado con su organización, liberación sin prueba de abordaje revierte, pasajero con verificación fallida sin «Escanear», saldos simulados por un solo camino). Detalle en MEMORY (14/11, «HU-24 revisión»).
+- **Verificado:** `verificar.py backend` completo en verde (e2e 367 s con el cargador puesto), `verificar.py mobile --rapido` en verde.
+- **Commits:** `backend` `43dbd3c`, `mobile` `8c8fe74`.
 
 ## Próximo paso concreto
 
-1. **HU-24 parte 4, punto exacto:** revisión de código, PR cuando el usuario lo diga; `contracts` tiene rama nueva (PR a `develop` y su puntero en la raíz).
+1. **HU-24 parte 4, punto exacto:** revisión hecha; falta push de raíz, `backend`, `mobile` y `contracts` y abrir los PR cuando el usuario lo diga (base de backend y mobile: `feat/HU-23-seguimiento-bajada`; `contracts`, a `develop`, con su puntero en la raíz).
 2. **HU-23:** abrir los PR (base `feat/HU-22-verificacion-abordaje`) cuando el usuario lo diga; 3b con dos teléfonos (SP170) pendiente.
 3. **HU-22:** revisión de los PR por otro integrante y merge; tras el merge, punteros.
 4. **Pedido del usuario (14/11):** acelerar las e2e del backend en una sesión aparte, sin debilitar pruebas. **HU-19, pendiente si nadie lo hizo:** revisión, teléfono físico (SP151/SP152), TalkBack y UML del plan.
