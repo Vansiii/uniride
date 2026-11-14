@@ -5,7 +5,7 @@
 **Última actualización:** 2026-11-14 (HU-23 parte 4: revisión de código)
 
 **Sprint actual:** Sprint 3 · Viaje completo verificado y pagado (37 PHU con HU-10, Release 1.0).
-**Foco:** HU-23 revisada y lista para subir (push y PR cuando el usuario lo diga); la 3b (dos teléfonos, SP170) sigue pendiente. HU-22 espera revisión humana y merge.
+**Foco:** HU-23 revisada y subida a GitHub (PR cuando el usuario lo diga); se puede seguir con HU-24 apilada; la 3b (dos teléfonos, SP170) sigue pendiente. HU-22 espera revisión humana y merge.
 
 ## Estado actual
 
@@ -22,7 +22,7 @@
 
 ## Próximo paso concreto
 
-1. **HU-23 parte 4 (subir), punto exacto:** revisión hecha y corregida; falta push y PR de `backend`, `mobile` y raíz (apilados sobre HU-22: base `feat/HU-22-verificacion-abordaje`) cuando el usuario lo diga. SP170 (dos teléfonos) queda pendiente: el merge espera esa prueba o la decisión del usuario.
+1. **HU-23 parte 4 (subir), punto exacto:** revisión hecha y corregida; ramas subidas a GitHub el 14/11 (`backend`, `mobile` y raíz); falta abrir los PR (base `feat/HU-22-verificacion-abordaje`, apilados sobre HU-22) cuando el usuario lo diga. SP170 (dos teléfonos) queda pendiente: el merge espera esa prueba o la decisión del usuario.
 2. **HU-23 parte 3b cuando haya dos teléfonos:** viaje por la calle con pantalla apagada y un tramo sin señal; medir velocidad máxima y coincidencia con GPS real y sentir la vibración del escáner. Guiones en `.harness/evidencias/HU-23/telefono/`.
 3. **HU-22:** revisión de los PR por otro integrante y merge; tras el merge, punteros.
 4. **Pedido del usuario (14/11):** acelerar las e2e del backend en una sesión aparte, sin debilitar pruebas.
