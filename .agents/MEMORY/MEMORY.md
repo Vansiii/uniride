@@ -1319,3 +1319,45 @@ Los dos se vieron en el teléfono físico.
 
 **Archivos afectados:** `backend/prisma/{schema.prisma,migrations/014_reservas}`, `src/{reservas,viajes,blockchain,billetera,i18n}`, `test/{reservas,ataques,blockchain,viajes,billetera}`; `mobile/src/{api,app/reserva,app/(pestanas),app/viajes,componentes,hooks,i18n,pruebas,viajes,__tests__}`; `SPECS/features/sprint-3/HU-19-reserva-escrow/{spec,plan}.md`, `SPECS/ssd.md`, `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
 
+## 2026-11-14 · HU-22 mobile: llave de trayecto, «Mostrar código» y «Escanear QR» (SP159–SP161)
+
+**Evento:** Se construye el cliente móvil del abordaje en `mobile` `feat/HU-22-verificacion-abordaje` (`4af8952`, `df2e995`, `d5d5af5`, sin push).
+
+- **SP159:** `LlaveDispositivoModule.kt` gana `crearLlaveTrayecto()` y `firmarTrayecto()` (alias `uniride.llave.trayecto`, P-256 en hardware, sin biometría). `cabecerasFirmaTrayecto` en `firma.ts`; `solicitarFirmado` acepta el `X-Nonce` elegido antes para atar el token de integridad (RN-5); `registrarLlaveTrayecto`, `pedirDesafio` y `abordar` en `cliente.ts`.
+- **SP160:** `app/abordaje/mostrar/[viajeId].tsx`: una huella registra la llave; el QR se renueva cada 25 s firmado con la llave de trayecto y la posición del momento; sondeo de 3 s a los pasajeros para renovar apenas uno aborda. Acceso desde «Mis viajes» (viaje `reservado` o `en_curso`).
+- **SP161:** `app/abordaje/escanear/[reservaId].tsx` con `expo-camera` 58.0.14 (exacta, autorizada el 08/11): nombre del conductor y placa, huella al leer, resultado con vibración y anuncio; cada rechazo con su texto (§10.4). Acceso desde la reserva `confirmada`.
+
+**Verificado:** `verificar.py mobile --rapido` en verde (lint, tipos, 466 pruebas). `abordaje.test.tsx` (21): firma con la llave de trayecto verificada con la pública, token atado al `X-Nonce`, renovación sin huella, CA-3 a CA-7, CA-9, CA-11, CA-14, permisos, sin conexión y lectura repetida.
+
+**Sin verificar:** el Kotlin nuevo no se compiló (falta `expo run:android`); las pantallas no se vieron en un teléfono ni en web. El usuario decidió dejarlo para la siguiente sesión.
+
+**Archivos afectados:** `mobile/modules/llave-dispositivo/.../LlaveDispositivoModule.kt`, `mobile/src/{api/cliente.ts,dispositivo,servicios/ubicacion.ts,viajes/abordaje.ts,hooks/useAccionSensible.ts,app/abordaje,app/reserva,app/(pestanas)/viajes.tsx,i18n,pruebas,__tests__}`, `mobile/{app.json,package.json,package-lock.json}`; `plan.md` de HU-22, `backlog.md`, `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-22 verificada en backend y app (salvo teléfonos)
+
+**Evento:** Se verifica HU-22 por criterio y por riesgo, sin cambiar el contrato.
+
+- **Build nativa:** `expo prebuild` (faltaba el permiso de cámara de `expo-camera`) y `gradlew assembleDebug` en verde (29 min); `LlaveDispositivoModule` compilado con `crearLlaveTrayecto` y `firmarTrayecto`. El prebuild borra `cmake.dir` de `android/local.properties`: se repone.
+- **Criterios:** CA-1 a CA-14 y A-03, A-05, A-06, A-07, A-08, A-13 cada uno con su prueba e2e o Jest. Revisión de amenazas sin hallazgos bloqueantes.
+- **Corregido (`mobile` `16ae4a6`):** «Mostrar código» daba por verificado a un pasajero en `verificacion_fallida`; ahora solo `abordada`, `verificada` y `pagada`.
+
+**Verificado:** `verificar.py --cambiados --todo` en verde (backend con e2e, mobile con build).
+
+**Sin verificar:** pantallas en el teléfono, CA-7 con Play Integrity real y el abordaje < 3 s: van en la parte con dos teléfonos (SP162). Diagramas UML del plan §5.
+
+**Archivos afectados:** `mobile/src/{viajes/abordaje.ts,app/abordaje/mostrar/[viajeId].tsx,__tests__/abordaje.test.tsx}`; `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-22 en el teléfono (SP162)
+
+**Evento:** Abordaje probado en el Infinix X669 como conductor y como pasajero. La otra persona fue un guion con llaves y firmas ECDSA reales; el usuario decidió que un teléfono basta.
+
+- **Conductor:** una huella registra la llave de trayecto; el Keystore firma los códigos y se renuevan sin huella (≈28 s con el GPS). La pasajera del guion aborda (`200`, 123 ms) y el teléfono ve «Verificado ✓» en ≈1,5 s; viaje «En curso».
+- **Pasajero:** lee el QR de la pantalla de la PC con `expo-camera`, una huella, `200` en 90 ms y «Abordaje verificado»; «Mis viajes» muestra «A bordo». Sin conexión, el aviso de la spec y nada verificado.
+- **Corregido (`mobile` `0a528a7`, `715ae78`):** sin teléfono vinculado, las dos pantallas mostraban un error genérico; ahora piden vincularlo y llevan a «Mi teléfono».
+
+**Sin verificar:** CA-7 con Play Integrity real (simulada en desarrollo; con el despliegue).
+
+**Anotado:** el aviso de cámara dice «ajustes» aunque el botón pide el permiso ahí; el aviso de vincular sigue al volver de «Mi teléfono» hasta tocar «Mostrar código».
+
+**Archivos afectados:** `mobile/src/{viajes/abordaje.ts,app/abordaje,i18n/es-BO.json,__tests__/abordaje.test.tsx}`; `backlog.md`, `HEARTBEAT.md`.
+

@@ -224,15 +224,15 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP153 · Prueba real de bloqueo contra `EscrowUniRide` en Hardhat local — 1h — @[POR DEFINIR] · backend @agente 12/11: `test/blockchain/escrow-hardhat.e2e-spec.ts` (se omite sin `HARDHAT_RPC_URL`): bloqueo con permit de un pasajero sin ETH, nonce que avanza, hash recuperado del evento y reversiones `ReservaExistente`, `ERC20InsufficientBalance` y `DatosInvalidos` como fallas permanentes
 
 ### HU-22 · Verificación de abordaje (25 h)
-- [ ] SP154 · Migración `015_presencia` (3 tablas, RLS) y modelos — 2h — @[POR DEFINIR]
-- [ ] SP155 · Extraer `verificarFirmaPeticion` y crear `FirmaTrayectoGuard` — 2h — @[POR DEFINIR]
-- [ ] SP156 · Llave de trayecto del conductor y desafíos con QR — 3h — @[POR DEFINIR]
-- [ ] SP157 · Abordaje: consumo, validaciones, integridad, prueba con hash, estados — 4h — @[POR DEFINIR]
-- [ ] SP158 · Pruebas e2e y de ataque A-03, A-05, A-06, A-07, A-08, A-13 — 4h — @[POR DEFINIR]
-- [ ] SP159 · Módulo nativo: llave de trayecto sin biometría; `cabecerasFirmaTrayecto` — 2h — @[POR DEFINIR]
-- [ ] SP160 · Mobile: «Mostrar código» del conductor — 3h — @[POR DEFINIR]
-- [ ] SP161 · Mobile: «Escanear QR» con `expo-camera` (dependencia autorizada el 08/11) y resultados — 4h — @[POR DEFINIR]
-- [ ] SP162 · Prueba con dos teléfonos físicos y medición < 3 s — 1h — @[POR DEFINIR]
+- [x] SP154 · Migración `015_presencia` (3 tablas, RLS) y modelos — 2h — @[POR DEFINIR]
+- [x] SP155 · Extraer `verificarFirmaPeticion` y crear `FirmaTrayectoGuard` — 2h — @[POR DEFINIR]
+- [x] SP156 · Llave de trayecto del conductor y desafíos con QR — 3h — @[POR DEFINIR]
+- [x] SP157 · Abordaje: consumo, validaciones, integridad, prueba con hash, estados — 4h — @[POR DEFINIR]
+- [x] SP158 · Pruebas e2e y de ataque A-03, A-05, A-06, A-07, A-08, A-13 — 4h — @[POR DEFINIR]
+- [x] SP159 · Módulo nativo: llave de trayecto sin biometría; `cabecerasFirmaTrayecto` — 2h — @[POR DEFINIR]
+- [x] SP160 · Mobile: «Mostrar código» del conductor — 3h — @[POR DEFINIR]
+- [x] SP161 · Mobile: «Escanear QR» con `expo-camera` (dependencia autorizada el 08/11) y resultados — 4h — @[POR DEFINIR]
+- [x] SP162 · Prueba con dos teléfonos físicos y medición < 3 s — 1h — @[POR DEFINIR]
 
 ### HU-23 · Seguimiento y bajada (24 h)
 - [ ] SP163 · Migración `016_puntos_gps` y `reservas.evaluacion` — 1h — @[POR DEFINIR]
