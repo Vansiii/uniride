@@ -5,12 +5,12 @@
 **Última actualización:** 2026-11-14 (HU-24 parte 4: revisión de código)
 
 **Sprint actual:** Sprint 3 · Viaje completo verificado y pagado (37 PHU con HU-10, Release 1.0).
-**Foco:** HU-24 revisada (parte 4 a medias: falta push y PR cuando el usuario lo diga). HU-23 subida, PR pendiente cuando el usuario lo diga; su 3b (dos teléfonos, SP170) sigue pendiente. HU-22 espera revisión humana y merge.
+**Foco:** HU-24 subida con PR abiertos (backend #20, mobile #20, contracts #2, raíz con su PR), sin merge. HU-23 subida, PR pendiente cuando el usuario lo diga; su 3b (dos teléfonos, SP170) sigue pendiente. HU-22 espera revisión humana y merge.
 
 ## Estado actual
 
 - **En `develop`:** Sprint 1 y 2, HU-10 y HU-29 (PR #27, #28, punteros #29) y **HU-19** (raíz #30, backend #18, mobile #18; fusionada el 13/11).
-- **Ramas apiladas:** HU-22 (`feat/HU-22-verificacion-abordaje`, PR abiertos) → HU-23 (`feat/HU-23-seguimiento-bajada`, subida) → **HU-24** (`feat/HU-24-liberacion-pago`, local, creada el 14/11 en raíz, `backend`, `mobile` y, desde la verificación, `contracts`). Orden de fusión: HU-22, HU-23, HU-24.
+- **Ramas apiladas:** HU-22 (`feat/HU-22-verificacion-abordaje`, PR abiertos) → HU-23 (`feat/HU-23-seguimiento-bajada`, subida) → **HU-24** (`feat/HU-24-liberacion-pago`, con PR, creada el 14/11 en raíz, `backend`, `mobile` y, desde la verificación, `contracts`). Orden de fusión: HU-22, HU-23, HU-24.
 - **Pendientes de HU-19 (no bloquean):** ver «Próximo paso» 5.
 
 ## Última sesión (14/11, HU-24 parte 4: revisión de código)
@@ -21,7 +21,7 @@
 
 ## Próximo paso concreto
 
-1. **HU-24 parte 4, punto exacto:** revisión hecha; falta push de raíz, `backend`, `mobile` y `contracts` y abrir los PR cuando el usuario lo diga (base de backend y mobile: `feat/HU-23-seguimiento-bajada`; `contracts`, a `develop`, con su puntero en la raíz).
+1. **HU-24:** PR abiertos el 14/11 (backend #20 y mobile #20 con base `feat/HU-23-seguimiento-bajada`, contracts #2 a `develop`, raíz con base `feat/HU-23-seguimiento-bajada`). Revisión de otro integrante y merge en orden HU-22, HU-23, HU-24 (solo con `fusionar.py`); tras el merge, punteros.
 2. **HU-23:** abrir los PR (base `feat/HU-22-verificacion-abordaje`) cuando el usuario lo diga; 3b con dos teléfonos (SP170) pendiente.
 3. **HU-22:** revisión de los PR por otro integrante y merge; tras el merge, punteros.
 4. **Pedido del usuario (14/11):** acelerar las e2e del backend en una sesión aparte, sin debilitar pruebas. **HU-19, pendiente si nadie lo hizo:** revisión, teléfono físico (SP151/SP152), TalkBack y UML del plan.
