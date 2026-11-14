@@ -2,10 +2,10 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-11-14 (HU-24 parte 1: contrato en el backend)
+**Última actualización:** 2026-11-14 (HU-24 parte 2: la app)
 
 **Sprint actual:** Sprint 3 · Viaje completo verificado y pagado (37 PHU con HU-10, Release 1.0).
-**Foco:** HU-24 en curso (parte 1 hecha; sigue la parte 2, la app). HU-23 subida, PR pendiente cuando el usuario lo diga; su 3b (dos teléfonos, SP170) sigue pendiente. HU-22 espera revisión humana y merge.
+**Foco:** HU-24 en curso (partes 1 y 2 hechas; sigue la parte 3, verificar). HU-23 subida, PR pendiente cuando el usuario lo diga; su 3b (dos teléfonos, SP170) sigue pendiente. HU-22 espera revisión humana y merge.
 
 ## Estado actual
 
@@ -13,24 +13,23 @@
 - **Ramas apiladas:** HU-22 (`feat/HU-22-verificacion-abordaje`, PR abiertos) → HU-23 (`feat/HU-23-seguimiento-bajada`, subida) → **HU-24** (`feat/HU-24-liberacion-pago`, local, creada el 14/11 en raíz, `backend` y `mobile`). Orden de fusión: HU-22, HU-23, HU-24.
 - **Pendientes de HU-19 (no bloquean):** ver «Próximo paso» 5.
 
-## Última sesión (14/11, HU-24 parte 1: contrato)
+## Última sesión (14/11, HU-24 parte 2: app)
 
-- **Hecho (SP171–SP174):** liberación automática tras la bajada verificada: movimiento y trabajo `liberar_reserva` en la misma Tx, hash de la prueba (keccak256, llaves ordenadas), worker con las defensas de A-09, viaje `verificado → pagado`, `pago` en `GET /reservas/:id`, migración 017 (CHECK de la cola; el plan decía «sin migración», corregido). Detalle en MEMORY (14/11, «HU-24 backend»).
-- **Plan completado al empezar:** consultas sin N+1, decisiones con su porqué y amenazas con su prueba de ataque (§3 del plan).
-- **Verificado:** `verificar.py backend` completo en verde; Hardhat con `liberar` real (lanzador local); prueba real de la API de `entorno.py` con el viaje completo y el pago confirmado en ~5 s.
-- **Commits:** `backend` `b4cc7f9`, `379e0db`, `99faaa6`.
+- **Hecho (SP175):** `EstadoPago` en el resultado de la bajada, el código de bajada del conductor, Viaje en curso, la reserva y Mis viajes: conductor «Recibirás» → «Recibiste», pasajero *Pendiente* → *Pagado*, con sondeo de 5 s que para al confirmarse. Viaje en curso ya no ofrece la bajada hecha. Detalle en MEMORY (14/11, «HU-24 app»).
+- **Verificado:** `verificar.py mobile --rapido` en verde (504); en el teléfono con dos viajes completos por la API real y el pago retenido: Pendiente → Pagado sin tocar nada para los dos roles. Dos defectos vistos ahí y corregidos (cabecera «Verificada» con el pago hecho; bajada ofrecida tras hacerla).
+- **Commits:** `mobile` `80d5b17`, `360d3c2`, `358d8c6`, `571e5cd`.
 
 ## Próximo paso concreto
 
-1. **HU-24 parte 2 (app, SP175), punto exacto:** contrato listo. `GET /reservas/:id` trae `pago` (`null` hasta verificar; `pendiente` → «Recibirás {monto} URC» / pago *Pendiente*; `confirmado` → «Recibiste {monto} URC» con `exploradorUrl`). Pantallas: resultado de la bajada y `viaje-activo/[id].tsx`, Mis viajes, `FilaMovimiento` (`liberacion_viaje`); claves `billetera.pago.*`. Toca dinero: modelo fuerte.
-2. **HU-24 parte 3:** sesión limpia; incluye SP176 (backend contra Hardhat con el hash en el historial) y el `grantRole` de `ROL_VERIFICADOR` en `contracts/README.md`.
+1. **HU-24 parte 3, punto exacto:** sesión limpia que no implementó, `verificaciones.md` por criterio y riesgo; incluye SP176 (backend contra Hardhat con el hash en el historial) y el `grantRole` de `ROL_VERIFICADOR` en `contracts/README.md`.
+2. **HU-24 3b (teléfono):** resultado de la bajada y código de bajada con el pago (cámara y huella); el guion local de esta parte siembra los dos viajes con el pago retenido.
 3. **HU-23:** abrir los PR (base `feat/HU-22-verificacion-abordaje`) cuando el usuario lo diga; 3b con dos teléfonos (SP170) pendiente.
 4. **HU-22:** revisión de los PR por otro integrante y merge; tras el merge, punteros.
 5. **Pedido del usuario (14/11):** acelerar las e2e del backend en una sesión aparte, sin debilitar pruebas. **HU-19, pendiente si nadie lo hizo:** revisión, teléfono físico (SP151/SP152), TalkBack y UML del plan.
 
 ## Sin verificar
 
-- HU-24: SP176 (backend contra Hardhat con el hash en el historial de la app) va en la parte 3; la app (SP175), parte 2. `liberar` real solo en el e2e de Hardhat.
+- HU-24: SP176 (backend contra Hardhat con el hash en el historial de la app) va en la parte 3. `liberar` real solo en el e2e de Hardhat. App: el enlace al explorador del pago solo con Jest (la cadena simulada no lo da); resultado de la bajada y código de bajada con el pago solo con Jest (3b).
 - HU-23: verificada (parte 3); faltan dos teléfonos moviéndose juntos (3b). Con el teléfono quieto bajo techo la velocidad entre puntos llegó a 82,9 km/h (límite 150): revisar con datos de la calle. Un lote del pasajero que llega en el mismo instante en que se confirma su bajada se guarda pero no se evalúa (límite aceptado en el plan). La liberación del pago la encola la bajada (HU-24, hecho en el backend).
 
 - HU-19: reservar y «Mis viajes» solo con Jest y contra el backend de pruebas; falta el teléfono físico y TalkBack. El bloqueo real se probó en Hardhat local, no en Amoy. Las reservas `pendiente` se confirman con el worker de 5 s; si la cola falla, queda la alerta `reserva.bloqueo.atascado` (5 intentos).

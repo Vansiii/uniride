@@ -250,5 +250,5 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP172 · `hashPruebaPresencia` y encolado en la bajada verificada — 2h — @[POR DEFINIR] · backend @agente 14/11: keccak256 con llaves ordenadas; migración 017 amplía el CHECK de la cola
 - [x] SP173 · Worker `liberar_reserva`: idempotencia, estados y auditoría — 3h — @[POR DEFINIR] · backend @agente 14/11: `pago.liberado`, `pago.rechazado`, `pago.liberacion.imposible`, `pago.liberacion.atascada`
 - [x] SP174 · Pruebas e2e y de ataque A-09, A-10, A-12; viaje completo — 4h — @[POR DEFINIR] · backend @agente 14/11: `viaje-completo`, `a-09-liberacion`, `a-10-viaje-completo`, Hardhat en `escrow-hardhat`
-- [ ] SP175 · Mobile: estado del pago para conductor y pasajero — 2h — @[POR DEFINIR]
+- [x] SP175 · Mobile: estado del pago para conductor y pasajero — 2h — @[POR DEFINIR] · 14/11: `EstadoPago` en el resultado de la bajada, el código de bajada, Viaje en curso, la reserva y Mis viajes; visto en el teléfono (Pendiente → Pagado)
 - [ ] SP176 · Viaje completo real contra Hardhat local y documentación de roles del despliegue — 2h — @[POR DEFINIR] · 14/11: `liberar` real contra `EscrowUniRide` en Hardhat hecho (e2e); falta el backend contra Hardhat con el hash en el historial de la app (parte 3) y `grantRole` en `contracts/README.md`

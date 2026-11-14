@@ -1459,3 +1459,18 @@ Los dos se vieron en el teléfono físico.
 **Sin verificar:** SP176 (backend contra Hardhat con el hash en el historial de la app) va en la parte 3; `grantRole` de `ROL_VERIFICADOR` sin documentar todavía en `contracts/README.md`. La app (SP175) es la parte 2.
 
 **Archivos afectados:** `backend/src/blockchain/{blockchain,trabajos-onchain}.service{,.spec}.ts`, `backend/src/presencia/{presencia.service,prueba,prueba.spec}.ts`, `backend/src/viajes/estado-viaje.service{,.spec}.ts`, `backend/src/reservas/{reservas.service,dto/reserva.dto}.ts`, `backend/prisma/migrations/017_liberar_reserva/`, `backend/test/{viajes/viaje-completo,ataques/a-09-liberacion,ataques/a-10-viaje-completo}.e2e-spec.ts`, `backend/test/{blockchain/escrow-hardhat.e2e-spec,presencia/ayudas-presencia,presencia/bajada.e2e-spec,billetera/ayudas-billetera}.ts`; `.env.example`, `plan.md` de HU-24, `backlog.md`, `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-24 app: estado del pago (SP175)
+
+**Evento:** La app muestra el pago de cada reserva verificada. `mobile` `80d5b17`, `360d3c2`, `358d8c6`, `571e5cd`.
+
+- **`EstadoPago` (nuevo):** lee `GET /reservas/:id` cada 5 s hasta `confirmado` o `fallido` (el worker corre cada 5 s). Conductor: «Recibirás {monto} URC» → «Recibiste»; pasajero: «Pago al conductor: {monto} URC», *Pendiente* → *Pagado*; texto de la red mientras está pendiente; enlace al explorador si la API lo trae. `alLeer` le pasa cada lectura a la pantalla que lo contiene, así la cabecera pasa a *Pagada* sin otro sondeo.
+- **Dónde:** resultado de la bajada del pasajero, código de bajada del conductor (por pasajero verificado), Viaje en curso (pasajero, y conductor por pasajero vía `GET /viajes/:id/pasajeros`), detalle de la reserva (sin «En garantía» desde verificada) y Mis viajes › Ver pasajeros.
+- **Viaje en curso sin acción de bajada** cuando la reserva (pasajero) o el viaje (conductor) ya está verificado o pagado.
+- **`EnlaceExplorador`** extraído de `FilaMovimiento` y reutilizado. Claves `billetera.pago.*`.
+
+**Verificado:** `verificar.py mobile --rapido` en verde (504 pruebas, 9 nuevas). En el teléfono, con dos viajes completos por la API real y el pago retenido en la cola: Pendiente → Pagado sin tocar nada, para conductor y pasajero, en Mis viajes, reserva y Viaje en curso, y el sondeo para al confirmarse (capturas revisadas). Dos defectos encontrados ahí y corregidos: la cabecera seguía «Verificada» con el pago confirmado, y Viaje en curso ofrecía la bajada ya hecha.
+
+**Sin verificar:** enlace al explorador en el teléfono (la cadena simulada no da `exploradorUrl`; Jest sí); resultado de la bajada y código de bajada con el pago, solo con Jest (necesitan cámara y huella: 3b).
+
+**Archivos afectados:** `mobile/src/componentes/{EstadoPago,FilaMovimiento,TarjetaMiViaje}.tsx`, `mobile/src/app/{abordaje/escanear/[reservaId],abordaje/mostrar/[viajeId],viaje-activo/[id],reserva/[id]}.tsx`, `mobile/src/api/cliente.ts`, `mobile/src/i18n/es-BO.json`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/{estado-pago,reserva,seguimiento}.test.tsx`; `backlog.md`, `HEARTBEAT.md`.
