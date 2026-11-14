@@ -1332,3 +1332,17 @@ Los dos se vieron en el teléfono físico.
 **Sin verificar:** el Kotlin nuevo no se compiló (falta `expo run:android`); las pantallas no se vieron en un teléfono ni en web. El usuario decidió dejarlo para la siguiente sesión.
 
 **Archivos afectados:** `mobile/modules/llave-dispositivo/.../LlaveDispositivoModule.kt`, `mobile/src/{api/cliente.ts,dispositivo,servicios/ubicacion.ts,viajes/abordaje.ts,hooks/useAccionSensible.ts,app/abordaje,app/reserva,app/(pestanas)/viajes.tsx,i18n,pruebas,__tests__}`, `mobile/{app.json,package.json,package-lock.json}`; `plan.md` de HU-22, `backlog.md`, `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-22 verificada en backend y app (salvo teléfonos)
+
+**Evento:** Se verifica HU-22 por criterio y por riesgo, sin cambiar el contrato.
+
+- **Build nativa:** `expo prebuild` (faltaba el permiso de cámara de `expo-camera`) y `gradlew assembleDebug` en verde (29 min); `LlaveDispositivoModule` compilado con `crearLlaveTrayecto` y `firmarTrayecto`. El prebuild borra `cmake.dir` de `android/local.properties`: se repone.
+- **Criterios:** CA-1 a CA-14 y A-03, A-05, A-06, A-07, A-08, A-13 cada uno con su prueba e2e o Jest. Revisión de amenazas sin hallazgos bloqueantes.
+- **Corregido (`mobile` `16ae4a6`):** «Mostrar código» daba por verificado a un pasajero en `verificacion_fallida`; ahora solo `abordada`, `verificada` y `pagada`.
+
+**Verificado:** `verificar.py --cambiados --todo` en verde (backend con e2e, mobile con build).
+
+**Sin verificar:** pantallas en el teléfono, CA-7 con Play Integrity real y el abordaje < 3 s: van en la parte con dos teléfonos (SP162). Diagramas UML del plan §5.
+
+**Archivos afectados:** `mobile/src/{viajes/abordaje.ts,app/abordaje/mostrar/[viajeId].tsx,__tests__/abordaje.test.tsx}`; `HEARTBEAT.md`.
