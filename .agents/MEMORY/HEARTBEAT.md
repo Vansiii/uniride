@@ -5,7 +5,7 @@
 **Última actualización:** 2026-11-14 (HU-24 parte 4: revisión de código)
 
 **Sprint actual:** Sprint 3 · Viaje completo verificado y pagado (37 PHU con HU-10, Release 1.0).
-**Foco:** HU-24 subida con PR abiertos (backend #20, mobile #20, contracts #2, raíz #32), sin merge. HU-23 subida, PR pendiente cuando el usuario lo diga; su 3b (dos teléfonos, SP170) sigue pendiente. HU-22 espera revisión humana y merge.
+**Foco:** HU-24 subida con PR abiertos (backend #20, mobile #20, contracts #2, raíz #32), sin merge. HU-23 con PR abiertos (backend #21, mobile #21, raíz #33), sin merge; su 3b (dos teléfonos, SP170) sigue pendiente. HU-22 espera revisión humana y merge.
 
 ## Estado actual
 
@@ -22,7 +22,7 @@
 ## Próximo paso concreto
 
 1. **HU-24:** PR abiertos el 14/11 (backend #20 y mobile #20 con base `feat/HU-23-seguimiento-bajada`, contracts #2 a `develop`, raíz #32 con base `feat/HU-23-seguimiento-bajada`). Revisión de otro integrante y merge en orden HU-22, HU-23, HU-24 (solo con `fusionar.py`); tras el merge, punteros.
-2. **HU-23:** abrir los PR (base `feat/HU-22-verificacion-abordaje`) cuando el usuario lo diga; 3b con dos teléfonos (SP170) pendiente.
+2. **HU-23:** PR abiertos el 14/11 (backend #21, mobile #21, raíz #33, base `feat/HU-22-verificacion-abordaje`); revisión de otro integrante y merge después de HU-22; 3b con dos teléfonos (SP170) pendiente.
 3. **HU-22:** revisión de los PR por otro integrante y merge; tras el merge, punteros.
 4. **Pedido del usuario (14/11):** acelerar las e2e del backend en una sesión aparte, sin debilitar pruebas. **HU-19, pendiente si nadie lo hizo:** revisión, teléfono físico (SP151/SP152), TalkBack y UML del plan.
 
