@@ -2,10 +2,10 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-11-14 (HU-23 parte 1: backend)
+**Última actualización:** 2026-11-14 (HU-23 parte 2: cliente móvil, falta el teléfono)
 
 **Sprint actual:** Sprint 3 · Viaje completo verificado y pagado (37 PHU con HU-10, Release 1.0).
-**Foco:** HU-23 con el backend hecho (parte 1); sigue el cliente móvil (parte 2). HU-22 espera revisión humana y merge.
+**Foco:** HU-23 con backend y app hechos; falta mirar la app en el teléfono (parte 2). HU-22 espera revisión humana y merge.
 
 ## Estado actual
 
@@ -13,24 +13,23 @@
 - **HU-22:** ramas `feat/HU-22-verificacion-abordaje` creadas el 14/11 desde `develop` en la raíz (`d62238f`), `backend` (`c341be0`) y `mobile` (`508eebc`). Ya no van apiladas: HU-19 está fusionada. Spec y plan aprobados el 08/11; SP154–SP162 en el backlog.
 - **Pendientes de HU-19 (no bloquean HU-22):** ver «Próximo paso» 2.
 
-## Última sesión (14/11, HU-23 parte 1: backend)
+## Última sesión (14/11, HU-23 parte 2: cliente móvil)
 
-- **Ramas `feat/HU-23-seguimiento-bajada`** en raíz, `backend` y `mobile`, apiladas sobre HU-22 (sin fusionar). **Orden de fusión:** primero HU-22 (raíz, backend, mobile y punteros), después HU-23.
-- **Plan completado** antes del código: decisiones de diseño, consultas sin N+1, amenazas con su prueba y §7b.
-- **Backend** `94c5d6a` (migración `016_puntos_gps`, `evaluarTrayecto`, viaje `verificado`) y `08e7fef` (posiciones con la llave de trayecto, bajada con el encuentro común, pruebas e2e y de ataque). El abordaje ahora devuelve `llaveTrayectoId`.
-- **Verificado:** backend completo en verde (554 unitarias, 727 e2e, build; cobertura 91,7 %) y prueba real de la API (`.harness/evidencias/HU-23/api-real.txt`).
+- **`mobile` `38b5ae7`, `956fa38`** en `feat/HU-23-seguimiento-bajada` (apilada sobre HU-22; orden de fusión: HU-22 y después HU-23). Seguimiento en segundo plano, alias de la llave de trayecto por rol, «Viaje en curso» y bajada de los dos roles. Detalle en MEMORY.
+- **Verificado:** `verificar.py mobile --rapido` en verde (487); mirada en navegador a 360 y 412 (`.harness/evidencias/HU-23/mirada/revisadas.md`); app de debug con los permisos nuevos instalada en el Infinix.
+- **Punto exacto:** el teléfono quedó con sesión de `vacio@prueba.test` en una base de prueba ya borrada (hay que volver a entrar). Guiones listos en `.harness/evidencias/HU-23/telefono/`: `lanzar.py` (proxy con registro + Metro), `otra.mjs` (`sembrar`, `abordar`, `qr [abordaje|bajada]`, `seguir N`, `bajar`, `ver`), `abrir.py` (abre la app sin pantalla azul). No hace falta recompilar.
 
 ## Próximo paso concreto
 
-1. **HU-23 parte 2 (cliente móvil, SP168 y SP169):** seguimiento en segundo plano con `expo-task-manager` (autorizada), lotes firmados con `firmarTrayecto` y `X-Llave-Trayecto-Id` = `llaveTrayectoId` del abordaje, cola sin señal, parar al recibir 409; «Viaje en curso» y bajada (conductor «Mostrar código» con `tipo: bajada`, pasajero escáner → resultado). Enviar la cola **antes** de la bajada: lo que llega después no entra en la evaluación. Resolver el alias compartido de la llave de trayecto (conductor de un viaje y pasajero de otro).
-2. **HU-22:** revisión de los PR por otro integrante y merge (raíz, backend, mobile); tras el merge, punteros. El aviso de vincular que queda al volver de «Mi teléfono» es la decisión abierta de Billetera.
-3. **Pedido del usuario (14/11):** acelerar las e2e del backend (≈5 min) con lo que ya funcionó en la plantilla; hacerlo en una sesión aparte, sin debilitar pruebas.
-4. **HU-19, pendiente si nadie lo hizo:** revisión de código por otro integrante, reservar y «Mis viajes» en el teléfono físico (SP151/SP152) y TalkBack, y UML del plan.
-5. Después: HU-23 partes 3 (verificar) y 3b (dos teléfonos, pantalla apagada, SP170) → HU-24.
+1. **HU-23 parte 2, teléfono (misma parte, sesión nueva):** `entorno.py subir backend` → `lanzar.py` en segundo plano (hasta `LISTO`) → `lanzar.py otra.mjs sembrar` → `abrir.py --limpiar` → entrar con `vacio@` y vincular el teléfono (huella). Luego: A «Mostrar código» (huella) + `otra.mjs abordar` → notificación del servicio; B `otra.mjs qr` + escanear (huella) → los dos roles a la vez; `otra.mjs seguir 4` con 1–2 min de pantalla apagada y `otra.mjs ver` (puntos recibidos cada 15 s); `otra.mjs qr bajada` + «Escanear QR de bajada» → «Viaje verificado» y la notificación se va; A «Mostrar código de bajada» (sin huella) + `otra.mjs bajar`. Capturas con `cap.py` y `wm density reset` al final.
+2. **HU-22:** revisión de los PR por otro integrante y merge; tras el merge, punteros.
+3. **Pedido del usuario (14/11):** acelerar las e2e del backend en una sesión aparte, sin debilitar pruebas.
+4. **HU-19, pendiente si nadie lo hizo:** revisión, teléfono físico (SP151/SP152), TalkBack y UML del plan.
+5. Después: HU-23 partes 3 (verificar) y 3b (dos teléfonos, SP170) → HU-24.
 
 ## Sin verificar
 
-- HU-23: solo el backend (e2e y API real). Un lote del pasajero que llega en el mismo instante en que se confirma su bajada se guarda pero no se evalúa (límite aceptado en el plan). La liberación del pago la encola HU-24.
+- HU-23: backend (e2e y API real) y app (Jest y navegador); falta el teléfono (parte 2) y dos teléfonos (3b). Un lote del pasajero que llega en el mismo instante en que se confirma su bajada se guarda pero no se evalúa (límite aceptado en el plan). La liberación del pago la encola HU-24.
 
 - HU-19: reservar y «Mis viajes» solo con Jest y contra el backend de pruebas; falta el teléfono físico y TalkBack. El bloqueo real se probó en Hardhat local, no en Amoy. Las reservas `pendiente` se confirman con el worker de 5 s; si la cola falla, queda la alerta `reserva.bloqueo.atascado` (5 intentos).
 - HU-29: bloqueo del sistema tras intentos fallidos (`comun.biometria.bloqueada`) solo con Jest: el Infinix X669 no bloqueó tras 16 rechazos en el diálogo y desbloquear con patrón anula el bloqueo.

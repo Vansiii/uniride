@@ -1378,3 +1378,20 @@ Los dos se vieron en el teléfono físico.
 **Sin verificar:** HU-24 encola la liberación (SP172). Todo lo del teléfono va en la parte 2.
 
 **Archivos afectados:** `backend/prisma/{schema.prisma,migrations/016_puntos_gps}`, `backend/src/presencia/*`, `backend/src/viajes/estado-viaje.service*.ts`, `backend/src/i18n/es-BO.json`, `backend/test/{presencia,ataques}/*`, `backend/test/ayudas-organizaciones.ts`; plan de HU-23, `backlog.md`, `HEARTBEAT.md`.
+
+
+## 2026-11-14 · HU-23 app: seguimiento en segundo plano y bajada (SP168, SP169)
+
+**Evento:** Cliente móvil de HU-23 sobre el contrato de la parte 1, en `mobile` `feat/HU-23-seguimiento-bajada` (`38b5ae7`, `956fa38`).
+
+- **Seguimiento** (`src/viajes/seguimiento.ts`): una tarea de `expo-task-manager` 58.0.13 con `startLocationUpdatesAsync` cada 15 s y servicio en primer plano («Compartiendo tu ubicación cada 15 s»). Una cola por ruta (viaje del conductor, reserva del pasajero), lotes de hasta 60 firmados con la llave de trayecto, sin huella; sin señal espera y envía con la hora original; un 409 detiene esa ruta; un 401 conserva los puntos hasta la llave nueva. Lo activo se guarda en el almacén seguro para la tarea con la app cerrada; la cola, en memoria (riesgo del plan).
+- **Alias por rol:** la llave de trayecto es `uniride.llave.trayecto.conductor` / `.pasajero` (Kotlin, `keystore.ts`, `firma.ts`). Conducir un viaje e ir de pasajero en otro ya no se pisan (pendiente de HU-22).
+- **Pantallas:** «Viaje en curso» (`app/viaje-activo/[id].tsx`) con avisos de señal, ubicación apagada y permiso «Todo el tiempo»; «Mostrar código» y el escáner aceptan `tipo=bajada` (el conductor firma con la llave del seguimiento, sin otra huella; el pasajero envía la cola antes de bajar y ve «Viaje verificado» o el motivo, sin decir cómo se detectó). Entradas en «Mis viajes» (en curso) y en la reserva abordada.
+- **Permisos:** `app.json` con ubicación en segundo plano y servicio en primer plano; el prebuild los dejó en el manifiesto fusionado (`ACCESS_BACKGROUND_LOCATION`, `FOREGROUND_SERVICE_LOCATION`).
+- **Corregido en la mirada:** «Viaje en curso» no cargaba en web: `useSyncExternalStore` necesita `getServerSnapshot` en el render del servidor.
+
+**Verificado:** `verificar.py mobile --rapido` en verde (487 pruebas, `seguimiento.test.tsx` nuevo); 7 pantallas en navegador a 360 y 412 sin desborde, miradas (`.harness/evidencias/HU-23/mirada/`). App de debug compilada e instalada en el Infinix con sesión iniciada.
+
+**Sin verificar:** en el teléfono, la notificación, la pantalla apagada, la firma real con el Keystore y el encuentro de bajada (sigue en la próxima sesión con `otra.mjs`); dos teléfonos moviéndose juntos, en la 3b.
+
+**Archivos afectados:** `mobile/{app.json,package.json,modules/llave-dispositivo,src/viajes,src/app/{viaje-activo,abordaje,reserva,(pestanas)/viajes.tsx,_layout.tsx},src/api/cliente.ts,src/dispositivo,src/servicios/ubicacion.ts,src/i18n/es-BO.json,src/pruebas/respuestasApi.ts,src/__tests__}`; `backlog.md`, `HEARTBEAT.md`.
