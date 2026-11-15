@@ -252,3 +252,48 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP174 · Pruebas e2e y de ataque A-09, A-10, A-12; viaje completo — 4h — @[POR DEFINIR] · backend @agente 14/11: `viaje-completo`, `a-09-liberacion`, `a-10-viaje-completo`, Hardhat en `escrow-hardhat`
 - [x] SP175 · Mobile: estado del pago para conductor y pasajero — 2h — @[POR DEFINIR] · 14/11: `EstadoPago` en el resultado de la bajada, el código de bajada, Viaje en curso, la reserva y Mis viajes; visto en el teléfono (Pendiente → Pagado); 14/11 en el teléfono con huella y cámara: resultado de la bajada del pasajero y código de bajada del conductor pasan solos de Pendiente a Pagado; sin «Reintentar» con el viaje ya terminado
 - [x] SP176 · Viaje completo real contra Hardhat local y documentación de roles del despliegue — 2h — @[POR DEFINIR] · 14/11: backend real contra UniCoin + EscrowUniRide en Hardhat (red caída, respuesta perdida, hash de la prueba en la red = BD, total conservado, conciliación); `grantRole` en `contracts/README.md` (rama `feat/HU-24-liberacion-pago` en `contracts`) y aviso al arrancar sin `ROL_VERIFICADOR`
+
+## Sprint 4 · 11/11 – 17/11/2026 · Voz, cancelaciones y calidad
+
+### HU-20 · Cancelación con reembolso (20 h)
+- [ ] SP178 · Migración `018_cancelaciones`, `politicaCancelacion` y `EstadoViajeService.cancelar`/`expirar` — 2h — @[POR DEFINIR]
+- [ ] SP179 · `Cadena.reembolsarReserva`/`hashDeReembolso` (real y simulada) y worker `reembolsar_reserva` — 3h — @[POR DEFINIR]
+- [ ] SP180 · Cancelar reserva y viaje: endpoints, vista previa en `GET /reservas/:id`, correo, abordaje que relee — 4h — @[POR DEFINIR]
+- [ ] SP181 · Tic de vencimientos (expiración, viaje cancelado, viaje sin abordaje, verificación fallida 24 h) — 3h — @[POR DEFINIR]
+- [ ] SP182 · Pruebas e2e y de ataque A-08, A-09, A-10, A-11, A-13; Hardhat — 4h — @[POR DEFINIR]
+- [ ] SP183 · Mobile: pantalla de cancelación, botones, estados y movimientos nuevos — 4h — @[POR DEFINIR]
+
+### HU-27 · Reservar por voz (15 h)
+- [ ] SP184 · Instalar `expo-speech` y `expo-speech-recognition` (versión exacta, scripts revisados), plugin y compilación nativa — 2h — @[POR DEFINIR]
+- [ ] SP185 · Backend: filtro `destino` en la búsqueda con pruebas — 2h — @[POR DEFINIR]
+- [ ] SP186 · `interpretar` y `resolverHora` con pruebas de todas las formas — 3h — @[POR DEFINIR]
+- [ ] SP187 · `useVoz`, `BotonVoz` y `PanelVoz` en las pantallas de RN-1 — 4h — @[POR DEFINIR]
+- [ ] SP188 · Buscar y reservar por voz: resultados leídos y detalle con la huella; pruebas A-11 — 3h — @[POR DEFINIR]
+- [ ] SP189 · Prueba en el teléfono físico con ruido moderado — 1h — @[POR DEFINIR]
+
+### HU-28 · Consultas por voz (12 h)
+- [ ] SP190 · Backend: `GET /reservas/:id/conductor` con pruebas y ataques A-08, A-13 — 3h — @[POR DEFINIR]
+- [ ] SP191 · Intérprete y respuestas de las intenciones nuevas con pruebas — 3h — @[POR DEFINIR]
+- [ ] SP192 · Acciones por voz: saldo, conductor, estado y ayuda (pantalla `ayuda.tsx`) — 3h — @[POR DEFINIR]
+- [ ] SP193 · «Cancela mi viaje»: cancelables, elección y confirmación de HU-20; prueba A-11 — 2h — @[POR DEFINIR]
+- [ ] SP194 · Prueba en el teléfono físico — 1h — @[POR DEFINIR]
+
+### HU-25 · Detección de anomalías (10 h)
+- [ ] SP195 · Migración `019_anomalias` y funciones puras P-1, P-2, P-3 con bordes — 2h — @[POR DEFINIR]
+- [ ] SP196 · Módulo `fraude`: tic, alertas por organización y bloqueos — 3h — @[POR DEFINIR]
+- [ ] SP197 · Aplicar bloqueos en reservar, publicar, recargar y búsqueda — 2h — @[POR DEFINIR]
+- [ ] SP198 · Pruebas e2e y de ataque A-07, A-08, A-10, A-13; textos en la app — 3h — @[POR DEFINIR]
+
+### PB-05 · Suite de ataques (15 h)
+- [ ] SP199 · Guion `suite-ataques.mjs`, `amenazas.json`, informe y su prueba; inventario real — 4h — @[POR DEFINIR]
+- [ ] SP200 · `esperarSinCambios` y su uso en los ataques de dinero, estado y verificación — 4h — @[POR DEFINIR]
+- [ ] SP201 · Huecos: `a-12-llaves`, `a-13-rutas`, A-03, A-04, A-05/A-06 en la bajada — 4h — @[POR DEFINIR]
+- [ ] SP202 · Contratos: casos y títulos `A-09` — 1h — @[POR DEFINIR]
+- [ ] SP203 · Lista manual en el teléfono (A-03 real si hay despliegue, A-04, A-07) e informe final versionado — 2h — @[POR DEFINIR]
+
+### HU-30 · Prueba de usabilidad (SUS) (9 h)
+- [ ] SP204 · Protocolo, consentimiento, cuestionario y hoja de registro; aprobación del PO — 2h — @[POR DEFINIR]
+- [ ] SP205 · `sus.mjs` con su prueba — 1h — @[POR DEFINIR]
+- [ ] SP206 · Reclutar 5 personas y preparar el entorno — 2h — @[POR DEFINIR]
+- [ ] SP207 · 5 sesiones — 2h — @[POR DEFINIR]
+- [ ] SP208 · Informe y hallazgos en el backlog y Trello — 2h — @[POR DEFINIR]

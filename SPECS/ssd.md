@@ -113,7 +113,7 @@ Un módulo NestJS por responsabilidad, cada uno con controlador / servicio / rep
 - Registro y unión a organizaciones (sin organización todavía): la función `organizacion_por_dominio(dominio)` es `SECURITY DEFINER` y devuelve solo el id de la organización activa dueña del dominio.
 - Las políticas RLS se escriben en SQL dentro de las migraciones de Prisma (`backend/prisma/migrations/*/migration.sql`), porque Prisma no las modela.
 - La API se conecta con un rol de PostgreSQL que **no** es dueño de las tablas ni superusuario, para que RLS no se omita. Las migraciones usan otro rol.
-- Excepción de lectura: la política de `SELECT` de `viajes` admite organizaciones vinculadas en `vinculos_organizacion` (HU-04). Ninguna otra tabla cruza organizaciones.
+- Excepción de lectura: ninguna. HU-04 (viajes entre organizaciones vinculadas) se descartó (D-31): ninguna tabla cruza organizaciones.
 - Datos personales (D-07): `usuarios`, `codigos_otp`, `tokens_refresco`, `verificaciones_identidad`, `dispositivos`, `billeteras`, `ordenes_recarga`, `movimientos`, `vehiculos`. No llevan `organizacion_id`: el backend los filtra por el usuario del token y a terceros solo expone proyecciones mínimas (`VehiculoPublico`, nombre y correo institucional ante el admin de su organización).
 - Tablas internas sin acceso de usuarios: `correos_salientes`, `trabajos_onchain`.
 
@@ -147,9 +147,10 @@ Claves primarias UUID. Todas las tablas tienen `creado_en`. En Prisma, cada `mod
 | `puntos_gps` | organizacion_id, viaje_id, usuario_id, lat, lng, precision_m, tomada_en, simulada | `UNIQUE(viaje_id, usuario_id, tomada_en)`; la firma se verifica por lote (HU-23) | sí |
 | `billeteras` | usuario_id, direccion, llave_custodia_ref | `UNIQUE(usuario_id)`, `UNIQUE(direccion)`; la llave privada solo cifrada, nunca legible | persona |
 | `ordenes_recarga` | usuario_id, billetera_id, monto, estado (`pendiente`/`procesando`/`completada`/`expirada`), hash_tx, expira_en, completada_en | `monto BETWEEN 10 AND 500` | persona |
-| `movimientos_billetera` | billetera_id, tipo (`recarga`/`bloqueo_reserva`/`liberacion_viaje`/`reembolso_reserva`; `retiro` y `subsidio` se agregan con HU-16 y HU-24), monto, reserva_id, clave_idempotencia, estado (`pendiente`/`confirmado`/`fallido`), hash_tx | `UNIQUE(clave_idempotencia)`; solo inserción (un trigger permite cambiar únicamente `estado` y `hash_tx`) | persona |
+| `movimientos_billetera` | billetera_id, tipo (`recarga`/`bloqueo_reserva`/`liberacion_viaje`/`reembolso_reserva`; HU-20 agrega `compensacion_cancelacion` (50 % al conductor); `retiro` y `subsidio` se agregan con HU-16 y HU-15), monto, reserva_id, clave_idempotencia, estado (`pendiente`/`confirmado`/`fallido`), hash_tx | `UNIQUE(clave_idempotencia)`; solo inserción (un trigger permite cambiar únicamente `estado` y `hash_tx`) | persona |
 | `invitaciones` | organizacion_id, correo, nombre, hash_token, vence_en (72 h), usada_en, reemplazada_en, creado_por | `UNIQUE(hash_token)` | sí |
 | `correos_salientes` | destinatario, plantilla, datos JSONB, estado (`pendiente`/`enviado`/`fallido`), intentos, proximo_intento_en, ultimo_error, referencia_tipo, referencia_id | — | interna |
+| `bloqueos_preventivos` | tipo (`par`/`cuenta`), usuario_id, usuario_par_id, patron, reserva_id, vence_en | solo inserción; `UNIQUE(reserva_id, patron)`; vigente si `vence_en > now()` (HU-25) | persona |
 | `trabajos_onchain` | movimiento_id, operacion, intentos, proximo_intento_en, ultimo_error, estado | `UNIQUE(movimiento_id)` | — |
 | `registros_auditoria` | organizacion_id (nulo en eventos personales), actor_id, accion, entidad, entidad_id, resultado, detalle JSONB | solo inserción; filas sin organización solo para super admin | sí |
 
@@ -230,11 +231,9 @@ Prefijo `/api/v1`. **F** = exige firma de dispositivo + atestación (`FirmaDispo
 | POST | `/reservas/{id}/abordaje` | pasajero verificado | F B | HU-22 |
 | POST | `/reservas/{id}/bajada` | pasajero verificado | F B | HU-23 |
 | POST | `/viajes/{id}/posiciones`, `/reservas/{id}/posiciones` | conductor / pasajero | llave de trayecto | HU-23 |
-| GET | `/reservas/{id}` | participante | F | HU-28 |
+| GET | `/reservas/{id}/conductor` | pasajero con reserva confirmada | | HU-28 (distancia al punto de encuentro; sin firma, ver MEMORY 15/11) |
 | POST | `/reservas/{id}/cancelar` | pasajero | F B | HU-20 |
 | POST | `/viajes/{id}/cancelar` | conductor | F B | HU-20 |
-| PUT | `/organizaciones/{id}/tarifas` | admin. org | | HU-04 |
-| PUT | `/organizaciones/{id}/vinculos` | admin. org | | HU-04 |
 | POST | `/billetera/retiros` | conductor | F B | HU-16 |
 | POST | `/organizaciones/{id}/subsidios` | admin. org | | HU-15 |
 | GET | `/organizaciones/{id}/alertas-fraude` | admin. org | | HU-26 |

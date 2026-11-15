@@ -70,7 +70,7 @@
 - Reservar por voz → HU-27 (S4); esta HU deja la confirmación lista para que la voz llegue a ella.
 - Reservar varios asientos en una sola reserva.
 - Impedir que un pasajero reserve dos viajes a la misma hora (solo inmoviliza su propio saldo).
-- Viajes entre organizaciones vinculadas → HU-04.
+- Viajes entre organizaciones vinculadas → HU-04, descartada (D-31).
 
 ## 6. Dependencias
 

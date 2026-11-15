@@ -23,7 +23,7 @@
 
 1. Todo registro de datos de una organización lleva su `organizacion_id`; toda consulta y operación se filtra por organización.
 2. El filtro se aplica en el backend y además PostgreSQL lo refuerza con Row-Level Security. Nunca se confía solo en el cliente.
-3. Ningún dato cruza entre organizaciones. La única excepción es la visibilidad de viajes que **ambas** organizaciones autorizan explícitamente (HU-04), y también la decide el servidor.
+3. Ningún dato cruza entre organizaciones, sin excepciones (la visibilidad entre organizaciones de HU-04 se descartó, D-31).
 4. Un endpoint o consulta nueva sin filtro por organización es un defecto y bloquea el PR.
 5. Toda HU que toque datos de organización incluye una prueba que intenta leer o modificar datos de otra organización y demuestra que falla.
 6. Los datos personales (cuenta, identidad, dispositivo, billetera, vehículo) no llevan `organizacion_id`: son de la persona y se protegen por dueño. Solo la propia persona los ve completos; a terceros se les expone únicamente la proyección mínima que defina la spec (D-07).
