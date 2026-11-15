@@ -21,7 +21,7 @@ Reutiliza: cola `trabajos_onchain` y su alerta a los 5 intentos, `MovimientosSer
 
 ## 2. Cambios al modelo de datos
 
-Ninguna tabla nueva. `movimientos_billetera.tipo` ya admite `liberacion_viaje`. Sin migración.
+Ninguna tabla nueva. `movimientos_billetera.tipo` ya admite `liberacion_viaje`. **Corrección al empezar la parte 1 (14/11):** `trabajos_onchain_operacion_chk` solo admite `acunar_recarga` y `bloquear_reserva`; la migración `017_liberar_reserva` lo amplía con `liberar_reserva` (no borra ni transforma datos).
 
 ## 3. Endpoints
 
@@ -36,7 +36,33 @@ No hay endpoint para liberar (CA-3, `ssd.md` §8). Lo visible se lee con lo exis
 
 La doble liberación la impiden tres capas: `UNIQUE(clave_idempotencia)` (`liberacion:<reservaId>`), el estado de la reserva y `ReservaNoBloqueada` del contrato.
 
-Swagger actualizado: [ ]
+Swagger actualizado: [x] (`PagoReservaDto` en `GET /reservas/:id`)
+
+### Consultas (sin N+1)
+
+| Dónde | Consultas |
+|---|---|
+| Bajada verificada (misma Tx de HU-23) | +1 lectura de la reserva con su monto, el conductor del viaje y el hash de la prueba de abordaje (índice único `reserva_id, tipo`); +1 billetera del conductor por `usuario_id` (único); +1 `INSERT … ON CONFLICT DO NOTHING` del movimiento y su relectura; +1 trabajo. Constante por bajada |
+| Worker `liberar_reserva` | 1 movimiento con su billetera (como los otros trabajos), 1 reserva con la dirección del conductor; la Tx final escribe 4 filas y recalcula el viaje (3 `UPDATE` condicionales). Uno por trabajo, sin bucles sobre filas |
+| `GET /reservas/:id` | La consulta de HU-19 del bloqueo pasa a una sola de los movimientos de la reserva (`bloqueo_reserva` y `liberacion_viaje`, índice `reserva_id`): las mismas 2 consultas que hoy |
+
+### Decisiones de diseño (parte 1)
+
+- **Hash de la prueba = keccak256 de un JSON con llaves ordenadas** de `{ reservaId, hashAbordaje, hashBajada, evaluacion }`. `jsonb` reordena las llaves al guardar `evaluacion`: sin ordenarlas, el hash calculado en la bajada no coincidiría con el recalculado desde la BD (CA-2). keccak256 porque es el `bytes32` que guarda el contrato; los hashes de cada prueba siguen en sha256 (HU-22).
+- **Se encola en la Tx de la bajada**, no en el worker de HU-23 ni en un sondeo: RN-3 (automática) y la reserva `verificada` nunca existe sin su trabajo. Reutiliza `MovimientosService.registrar` (clave `liberacion:<reservaId>`, idempotente) y la cola de HU-13.
+- **`ReservaNoBloqueada` al liberar no es permanente:** solo pasa si dos workers se cruzan; el reintento lee `liberada` y recupera el hash del evento `PagoLiberado`. Descartado: una clase de error nueva para ese caso.
+- **Escrow en otro estado (`ninguno`, `reembolsada`) o con otro conductor o monto:** falla permanente, movimiento `fallido` y alerta `pago.liberacion.imposible`; reintentar no lo arregla y pagar a otra dirección sería A-09.
+- **`pago` en `GET /reservas/:id` para pasajero y conductor:** la transacción de la liberación es pública en la red y es lo que muestra CA-1 a ambos. El hash del bloqueo sigue solo para el pasajero.
+- **`CadenaSimulada` guarda el escrow en una dirección fija** para que A-10 sume pasajero + conductor + escrow igual que en Hardhat.
+
+### Amenazas y su prueba de ataque
+
+| Amenaza | Prueba que demuestra que falla |
+|---|---|
+| A-09 liberar sin verificar | `a-09-liberacion.e2e-spec.ts`: trabajo forzado sobre reservas `confirmada`, `abordada`, `verificacion_fallida` → sin pago, `pago.rechazado`; ninguna ruta de liberación en el catálogo |
+| A-09 cobrar dos veces | mismo archivo: reintento, respuesta perdida y dos workers a la vez → un solo pago en cadena y en el libro; Hardhat: relayer y operador sin `ROL_VERIFICADOR` revierten (ya en `contracts/test`) |
+| A-10 saldo creado | `a-10-viaje-completo.e2e-spec.ts`: pasajero + conductor + escrow iguales antes de reservar y después de pagar |
+| A-12 llave del verificador | `blockchain.service.spec.ts`: producción no arranca con `VERIFICADOR_LLAVE_PRIVADA`; el error del nodo con la llave no llega a la auditoría ni al log |
 
 ## 4. Pantallas y voz
 
@@ -72,7 +98,7 @@ sequenceDiagram
 |---|---|---|
 | CA-1, CA-10 viaje completo reserva → abordaje → bajada → pago | e2e (cadena simulada) | `backend/test/viajes/viaje-completo.e2e-spec.ts` |
 | CA-2 hash guardado = recalculado | unitaria + e2e | `backend/src/presencia/prueba.spec.ts`, `viaje-completo.e2e-spec.ts` |
-| CA-3 / A-09 reserva no verificada nunca se libera | ataque e2e | `backend/test/ataques/a-09-liberacion.e2e-spec.ts` |
+| CA-3 / A-09 reserva no verificada nunca se libera (`pendiente`, `confirmada`, `abordada`, `fallida`, `verificacion_fallida`; `cancelada` no existe hasta HU-20) | ataque e2e | `backend/test/ataques/a-09-liberacion.e2e-spec.ts` |
 | CA-4 / A-09 reintento, respuesta perdida, dos workers | ataque unitaria + e2e | `trabajos-onchain.service.spec.ts`, `a-09-liberacion.e2e-spec.ts` |
 | CA-5 / A-09 otra cuenta llama a `liberar` | Hardhat (ya existe en `contracts/test/EscrowUniRide.ts`; se agrega el caso del relayer si falta) | `contracts/test/EscrowUniRide.ts` |
 | CA-6 red caída | unitaria | `trabajos-onchain.service.spec.ts` |
@@ -80,7 +106,7 @@ sequenceDiagram
 | CA-8 conciliación sin diferencias | e2e | `viaje-completo.e2e-spec.ts` |
 | CA-9 / A-12 producción sin firmante KMS no arranca; la llave no aparece en logs ni respuestas | unitaria | `backend/src/blockchain/blockchain.service.spec.ts` |
 | Mobile: «Recibirás» → «Recibiste», pendiente → pagado | Jest | `mobile/src/__tests__/viaje-activo.test.tsx` |
-| Viaje completo contra `EscrowUniRide` en Hardhat local, hash en el historial | manual registrada en MEMORY | — |
+| Viaje completo contra `EscrowUniRide` en Hardhat local, hash en el historial | manual registrada en MEMORY (14/11, verificación) | — (guion local) |
 
 Metas de rendimiento: no aplica (asíncrona, `AGENTS.md` §5.8).
 
@@ -89,7 +115,7 @@ Metas de rendimiento: no aplica (asíncrona, `AGENTS.md` §5.8).
 | Riesgo | Probabilidad | Impacto | Mitigación |
 |---|---|---|---|
 | La cuenta verificadora sin gas en Amoy | Media | Alto | Alerta a los 5 intentos; fondear antes de la demo; Hardhat como respaldo (R-04) |
-| El despliegue no otorga `ROL_VERIFICADOR` a la cuenta del backend | Media | Alto | El módulo de Ignition deja los roles para después: documentar el `grantRole` en `contracts/README.md` y comprobarlo al arrancar (lectura de `hasRole`, solo aviso) |
+| El despliegue no otorga `ROL_VERIFICADOR` a la cuenta del backend | Media | Alto | El módulo de Ignition deja los roles para después: documentar el `grantRole` en `contracts/README.md` y comprobarlo al arrancar (lectura de `hasRole`, solo aviso). **Hecho en la verificación (14/11):** `CadenaReal.verificadorTieneRol` y aviso en `BlockchainService.onModuleInit` |
 | Viaje con una reserva `verificacion_fallida` nunca llega a `pagado` | Media | Bajo | Esperado hasta HU-20/HU-26 (D-24): las demás reservas se pagan igual |
 
 ## 8. Tareas propuestas (se copian a backlog.md al aprobar)

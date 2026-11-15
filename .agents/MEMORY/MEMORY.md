@@ -1442,3 +1442,104 @@ Los dos se vieron en el teléfono físico.
 **Sin verificar:** lo corregido en la app, solo con Jest (sin teléfono).
 
 **Archivos afectados:** `backend/src/presencia/presencia.service.ts`, `backend/src/viajes/estado-viaje.service{,.spec}.ts`, `backend/test/presencia/bajada.e2e-spec.ts`; `mobile/src/app/abordaje/mostrar/[viajeId].tsx`, `mobile/src/viajes/seguimiento.ts`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/{seguimiento,abordaje}.test.tsx`; `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-24 backend: liberación del pago (SP171–SP174)
+
+**Evento:** Contrato de HU-24 en el backend: el pago se libera solo tras la bajada verificada. Rama `feat/HU-24-liberacion-pago` en raíz, `backend` y `mobile`, apilada sobre HU-23 (orden de fusión: HU-22, HU-23, HU-24). `backend` `b4cc7f9`, `379e0db`, `99faaa6`.
+
+- **Encolado (RN-3):** la Tx de la bajada que deja la reserva `verificada` registra el movimiento `liberacion_viaje` en la billetera del conductor (`pendiente`, clave `liberacion:<reservaId>`, `metadatos.hashPrueba`) y el trabajo `liberar_reserva`. Migración `017_liberar_reserva`: el CHECK de `trabajos_onchain.operacion` no lo admitía (el plan decía «sin migración»; corregido).
+- **Hash de la prueba (RN-4, CA-2):** `presencia/prueba.ts`, keccak256 de `{ reservaId, hashAbordaje, hashBajada, evaluacion }` con llaves ordenadas, porque `jsonb` las reordena: el recalculado desde la BD coincide.
+- **Worker:** solo reserva `verificada` (si no, movimiento `fallido` y `pago.rechazado`); el escrow debe tenerla `bloqueada` para ese conductor y monto (si no, `pago.liberacion.imposible`); `liberada` = respuesta perdida, recupera el hash de `PagoLiberado`. Éxito: movimiento `confirmado`, reserva `pagada`, viaje recalculado, `pago.liberado`. Red caída: reintento y `pago.liberacion.atascada` a los 5.
+- **Viaje `verificado → pagado`** en `EstadoViajeService` cuando no queda reserva sin pagar (D-23).
+- **`GET /reservas/:id`** agrega `pago: { estado, monto, hashTx, exploradorUrl }` para pasajero y conductor; `null` hasta la bajada verificada.
+- **Cadena:** `liberarReserva` firma con `VERIFICADOR_LLAVE_PRIVADA` (otra cuenta que el relayer; prohibida en producción, SP129). `CadenaSimulada` guarda el escrow en `CadenaSimulada.ESCROW` para que A-10 sume igual que en Hardhat.
+
+**Verificado:** `verificar.py backend` completo en verde (e2e nuevos: `viaje-completo`, `a-09-liberacion`, `a-10-viaje-completo`). Hardhat: `liberar` real con la cuenta verificadora, doble liberación revierte y el relayer es rechazado (`.harness`, lanzador local). Prueba real de la API de `entorno.py`: billetera, recarga, reserva, abordaje, trazas y bajada; pago `confirmado` a los ~5 s, reserva y viaje `pagado`, saldos 10.50 / 39.50 y 404 en cualquier ruta de liberar.
+
+**Sin verificar:** SP176 (backend contra Hardhat con el hash en el historial de la app) va en la parte 3; `grantRole` de `ROL_VERIFICADOR` sin documentar todavía en `contracts/README.md`. La app (SP175) es la parte 2.
+
+**Archivos afectados:** `backend/src/blockchain/{blockchain,trabajos-onchain}.service{,.spec}.ts`, `backend/src/presencia/{presencia.service,prueba,prueba.spec}.ts`, `backend/src/viajes/estado-viaje.service{,.spec}.ts`, `backend/src/reservas/{reservas.service,dto/reserva.dto}.ts`, `backend/prisma/migrations/017_liberar_reserva/`, `backend/test/{viajes/viaje-completo,ataques/a-09-liberacion,ataques/a-10-viaje-completo}.e2e-spec.ts`, `backend/test/{blockchain/escrow-hardhat.e2e-spec,presencia/ayudas-presencia,presencia/bajada.e2e-spec,billetera/ayudas-billetera}.ts`; `.env.example`, `plan.md` de HU-24, `backlog.md`, `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-24 app: estado del pago (SP175)
+
+**Evento:** La app muestra el pago de cada reserva verificada. `mobile` `80d5b17`, `360d3c2`, `358d8c6`, `571e5cd`.
+
+- **`EstadoPago` (nuevo):** lee `GET /reservas/:id` cada 5 s hasta `confirmado` o `fallido` (el worker corre cada 5 s). Conductor: «Recibirás {monto} URC» → «Recibiste»; pasajero: «Pago al conductor: {monto} URC», *Pendiente* → *Pagado*; texto de la red mientras está pendiente; enlace al explorador si la API lo trae. `alLeer` le pasa cada lectura a la pantalla que lo contiene, así la cabecera pasa a *Pagada* sin otro sondeo.
+- **Dónde:** resultado de la bajada del pasajero, código de bajada del conductor (por pasajero verificado), Viaje en curso (pasajero, y conductor por pasajero vía `GET /viajes/:id/pasajeros`), detalle de la reserva (sin «En garantía» desde verificada) y Mis viajes › Ver pasajeros.
+- **Viaje en curso sin acción de bajada** cuando la reserva (pasajero) o el viaje (conductor) ya está verificado o pagado.
+- **`EnlaceExplorador`** extraído de `FilaMovimiento` y reutilizado. Claves `billetera.pago.*`.
+
+**Verificado:** `verificar.py mobile --rapido` en verde (504 pruebas, 9 nuevas). En el teléfono, con dos viajes completos por la API real y el pago retenido en la cola: Pendiente → Pagado sin tocar nada, para conductor y pasajero, en Mis viajes, reserva y Viaje en curso, y el sondeo para al confirmarse (capturas revisadas). Dos defectos encontrados ahí y corregidos: la cabecera seguía «Verificada» con el pago confirmado, y Viaje en curso ofrecía la bajada ya hecha.
+
+**Sin verificar:** enlace al explorador en el teléfono (la cadena simulada no da `exploradorUrl`; Jest sí); resultado de la bajada y código de bajada con el pago, solo con Jest (necesitan cámara y huella: 3b).
+
+**Archivos afectados:** `mobile/src/componentes/{EstadoPago,FilaMovimiento,TarjetaMiViaje}.tsx`, `mobile/src/app/{abordaje/escanear/[reservaId],abordaje/mostrar/[viajeId],viaje-activo/[id],reserva/[id]}.tsx`, `mobile/src/api/cliente.ts`, `mobile/src/i18n/es-BO.json`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/{estado-pago,reserva,seguimiento}.test.tsx`; `backlog.md`, `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-24 verificación: pago contra la cadena real (SP176)
+
+**Evento:** Verificación de HU-24 por criterio y por riesgo, en una sesión que no implementó. `backend` `d19d656`, `555720d`; `contracts` `b7e049e` (rama nueva `feat/HU-24-liberacion-pago`: hace falta su puntero en la raíz y su PR, base `develop`).
+
+- **Viaje completo contra UniCoin + EscrowUniRide en Hardhat** con el backend real (worker real) y un proxy RPC (guion local, fuera del repo): recarga acuñada, bloqueo con permit, abordaje, trazas y bajada. Red caída en la bajada → pago `pendiente`, trabajo con reintento (`ECONNRESET`) y nada movido en la cadena (CA-6); al volver se perdió la respuesta del envío y el reintento recuperó el hash del evento: un solo `PagoLiberado` (CA-4), firmado por la cuenta verificadora (CA-5). Hash de la prueba en la red = guardado = recalculado desde la BD (CA-2). Total pasajero + conductor + escrow 50 → 50 (CA-7); saldos de la API = cadena y sin `billetera.conciliacion` (CA-8); reserva y viaje `pagado` (CA-10); historial del conductor con el hash real de la red. Otra organización recibe el mismo 404 que una reserva inexistente; sin rutas de liberación; ninguna llave en el log del backend ni en la auditoría (A-12).
+- **Hallazgo del plan (§7, riesgo 2) sin hacer:** el aviso al arrancar si la cuenta verificadora no tiene `ROL_VERIFICADOR`. Hecho: `CadenaReal.verificadorTieneRol` y aviso en `BlockchainService.onModuleInit` (solo aviso; un nodo caído no detiene el arranque y el aviso no lleva la URL del nodo). `contracts/README.md` explica el `grantRole` de los tres roles; probado en un nodo local tras el despliegue de Ignition.
+- **CA-3 ampliado:** el ataque cubría `confirmada`, `abordada` y `verificacion_fallida`; ahora también `pendiente` y `fallida`. `cancelada` no existe en el esquema hasta HU-20.
+- **Cuenta verificadora sin gas** (spec §4) contra Hardhat: rechaza sin pagar ni resolver la reserva y no es falla permanente; con gas, el reintento paga.
+
+**Verificado:** `verificar.py --cambiados --todo` en verde sobre `555720d` (backend con e2e, mobile, contracts); e2e de escrow contra Hardhat (11).
+
+**Sin verificar:** enlace al explorador en el historial y en la app (solo Amoy, con el despliegue); resultado de la bajada y código de bajada con el pago en el teléfono (cámara y huella: 3b).
+
+**Archivos afectados:** `backend/src/blockchain/blockchain.service{,.spec}.ts`, `backend/test/{ataques/a-09-liberacion,blockchain/escrow-hardhat}.e2e-spec.ts`, `contracts/README.md`; `plan.md` de HU-24, `backlog.md`, `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-24 teléfono: bajada y código de bajada con el pago (SP175)
+
+**Evento:** Pasada en el Infinix X669 con huella y cámara, entorno de pruebas con la cadena simulada. Reservas reales por la API; el pago se retuvo en la cola on-chain para ver Pendiente y después se soltó al worker. `mobile` `cf76721`.
+
+- **Pasajero (B):** abordaje y bajada escaneando el QR del conductor (en la PC) con huella. El resultado de la bajada mostró «Pago al conductor: 10,50 URC · Pendiente» y pasó solo a «Pagado»; la consulta cada 5 s se detuvo al llegar. Viaje en curso pagado: sin bajada y sin compartir ubicación.
+- **Conductor (A):** código de abordaje con huella; código de bajada sin huella (llave del seguimiento). Con la bajada de la pasajera: «Ana · Verificada», «Recibirás 10,50 URC · Pendiente» → «Recibiste 10,50 URC · Pagado».
+- **Corregido:** con el viaje terminado, el código de bajada ofrecía «Reintentar» ante `VIAJE_NO_EN_CURSO`, sin salida posible. Ahora es una falla final sin botón (`final` en `FallaAbordaje`); prueba en `seguimiento.test.tsx` y visto en el teléfono con un viaje nuevo.
+- **Firmas sin huella pedida:** dos firmas salieron sin que la persona notara el diálogo. Con el teléfono sobre la mesa, el diálogo esperó 20 s sin firmar: el lector lateral se toca al sostener el teléfono. La llave sigue exigiendo biometría fuerte por operación.
+- El primer escaneo de bajada dio `CODIGO_INVALIDO`: la página del QR de la PC aún mostraba la imagen anterior; la app dejó volver a escanear.
+
+**Verificado:** `verificar.py mobile` completo en verde (505 pruebas, build, dependencias).
+
+**Sin verificar:** enlace al explorador del pago (solo Amoy, con el despliegue).
+
+**Archivos afectados:** `mobile/src/viajes/abordaje.ts`, `mobile/src/app/abordaje/mostrar/[viajeId].tsx`, `mobile/src/__tests__/seguimiento.test.tsx`.
+
+## 2026-11-14 · HU-24 revisión de código antes de subir
+
+**Evento:** Revisión de código de backend y mobile de HU-24 (diff sobre HU-23) y del README de `contracts`: 10 hallazgos, 6 corregidos. `backend` `43dbd3c`, `mobile` `8c8fe74`.
+
+| # | Hallazgo | Tipo | Qué se hizo |
+|---|---|---|---|
+| 1 | Sin `VERIFICADOR_LLAVE_PRIVADA` no salía ningún aviso al arrancar | otro | `verificadorTieneRol` da `false` con escrow y sin verificador; el aviso lo nombra |
+| 2 | Relayer y verificador podían ser la misma llave (A-09) | entrada-sin-validar | `crearCadena` lo rechaza; prueba |
+| 3 | La alerta `pago.liberacion.atascada` quedaba sin organización | otro | lleva `organizacionId` de la reserva; prueba |
+| 4 | Sin prueba de abordaje aceptada, el hash de la prueba se calculaba con `''` (RN-4) | otro | la liberación falla y revierte la bajada |
+| 5 | Pasajero con `verificacion_fallida` seguía viendo «Escanear QR de bajada» | cruce | la bajada cuenta como hecha; prueba en `seguimiento.test.tsx` |
+| 6 | Saldos de la cadena simulada actualizados en tres lugares | copia | todos por `sumar()` |
+
+- **Sin cambio:** pago de pasajeros de otra organización en Mis viajes (la lista de pasajeros ya está limitada a la organización activa, así que `EstadoPago` no llega a mostrarse); reservas verificadas antes del despliegue sin liberar (HU-23 no está en `develop` ni en producción); liberación imposible deja la reserva `verificada` y el viaje sin `pagado` (sí, el conductor no cobró y queda la alerta para revisión); `EstadoPago` consulta otra vez la reserva que la pantalla ya tiene (una petición de más, aceptado).
+
+**Verificado:** `verificar.py backend` completo en verde (e2e en 367 s) y `verificar.py mobile --rapido` (506 pruebas).
+
+**Trampa:** con la laptop a batería la e2e pasó el tope de 600 s tres veces y las mismas pruebas agotaron sus 5 s; con el cargador, 367 s. Además, al pasar el tope el `vitest` de la e2e siguió vivo y hubo que detenerlo por PID.
+
+**Archivos afectados:** `backend/src/blockchain/{blockchain,trabajos-onchain}.service{,.spec}.ts`, `backend/src/presencia/presencia.service.ts`; `mobile/src/app/viaje-activo/[id].tsx`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/seguimiento.test.tsx`; `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-19 en el teléfono (SP151, SP152)
+
+**Qué se probó:** reservar y «Mis viajes» en el Infinix X669 con huella y Keystore reales, sobre la punta de `feat/HU-24-liberacion-pago`, contra el backend del entorno de pruebas y un proxy que registra cada petición y si iba firmada.
+
+**Visto bien:** doble toque en «Reservar y pagar» → una sola reserva firmada (CA-1, CA-4); faltante y «Recargar saldo», y al volver de la recarga la misma confirmación (CA-2); *Pendiente* que pasa sola a *Confirmada* al liberar el bloqueo retenido (CA-12); «Ya no quedan asientos» sin bloqueo (CA-3); «Ya tienes una reserva en este viaje» (CA-10); «Este viaje ya no admite reservas» con el botón desactivado (CA-11); diálogo de huella cancelado sin petición firmada; el viaje propio no aparece en la búsqueda (CA-9); el viaje reservado sigue en la búsqueda con sus asientos libres (CA-13); Mis viajes de pasajero y de conductor con el pasajero por nombre de pila (CA-14); «Tu próximo viaje» en Inicio; Billetera con disponible y garantía iguales a la base; total de URC cambiado solo por las recargas (CA-15). «No se completó» (CA-12) solo como pantalla: el estado lo puso SQL.
+
+**Hallazgos, pendientes por decisión del usuario:**
+1. El detalle de un viaje ya reservado no lo sabe: con saldo corto ofrece «Recargar saldo»; con saldo suficiente, «Reservar y pagar» y la huella. El rechazo llega recién del servidor.
+2. Tras «Ya no quedan asientos» y la nueva lectura del viaje con 0 libres, el botón sigue activo; con el viaje vencido sí se desactiva.
+3. La lista de resultados no se refresca al volver del detalle (un viaje vencido seguía listado).
+
+**Trampa:** la prueba de cancelar la huella terminó en una reserva real (dedo por costumbre) porque no se activó antes el bloqueo del proxy. Repetida con el bloqueo, bien.
+
+**Sin verificar:** TalkBack (pendiente por pedido del usuario).
+
+**Archivos afectados:** `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
