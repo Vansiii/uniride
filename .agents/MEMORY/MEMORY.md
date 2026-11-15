@@ -1361,3 +1361,84 @@ Los dos se vieron en el teléfono físico.
 
 **Archivos afectados:** `mobile/src/{viajes/abordaje.ts,app/abordaje,i18n/es-BO.json,__tests__/abordaje.test.tsx}`; `backlog.md`, `HEARTBEAT.md`.
 
+
+## 2026-11-14 · HU-23 backend: posiciones, bajada y evaluación del trayecto (SP163–SP167)
+
+**Evento:** Contrato de HU-23 en el backend, en la rama `feat/HU-23-seguimiento-bajada` apilada sobre HU-22 (raíz, `backend`, `mobile`). Antes de escribir código se completó el plan: decisiones de diseño, consultas sin N+1, amenazas con su prueba y §7b.
+
+- **Migración `016_puntos_gps`** (`94c5d6a`): puntos por viaje y persona con RLS forzado; la del conductor sirve a todas sus reservas. `reservas.evaluacion` guarda pares, coincidencia, velocidad máxima y motivo (CA-15).
+- **`evaluarTrayecto`** (`presencia/trayecto.ts`, función pura): la coincidencia se compara en enteros (5·coincidentes ≥ 4·total) y la velocidad redondeada a 0,1 km/h, para que 80 % y 150 km/h exactos no fallen por coma flotante.
+- **Bajada = encuentro de HU-22** (`08e7fef`): consumo, validaciones, integridad y hash pasan a un método común con el `tipo`; un código de abordaje no sirve para bajar ni al revés. La bajada aceptada evalúa en su transacción y es definitiva. La repetida responde su resultado sin código nuevo.
+- **Posiciones** con la llave de trayecto (sin huella): la del conductor solo en `/viajes/:id/posiciones` mientras lleva a alguien `abordada`; la del pasajero solo en su reserva `abordada`. Se ignoran sin error los repetidos, los del futuro y los anteriores al abordaje.
+- **Contrato de HU-22 ampliado:** el abordaje devuelve `llaveTrayectoId`, que el pasajero necesita para firmar sus posiciones.
+- **Viaje `verificado`** (D-23): sin reservas pendientes, confirmadas, abordadas ni con verificación fallida. Una fallida deja el viaje `en_curso` (D-24) y queda la alerta `presencia.verificacion_fallida`.
+
+**Verificado:** backend completo (lint, formato, 554 unitarias, 727 e2e, build), cobertura 91,7 %. Prueba real contra el backend de `entorno.py` (`.harness/evidencias/HU-23/api-real.txt`): dos pasajeros, uno `verificada` y el otro `verificacion_fallida` por un salto de 510 km/h, repetidos ignorados, 401 con la llave cambiada de ruta, 409 tras bajar y sin nadie a bordo; ninguna coordenada en el log del backend (RN-8).
+
+**Sin verificar:** HU-24 encola la liberación (SP172). Todo lo del teléfono va en la parte 2.
+
+**Archivos afectados:** `backend/prisma/{schema.prisma,migrations/016_puntos_gps}`, `backend/src/presencia/*`, `backend/src/viajes/estado-viaje.service*.ts`, `backend/src/i18n/es-BO.json`, `backend/test/{presencia,ataques}/*`, `backend/test/ayudas-organizaciones.ts`; plan de HU-23, `backlog.md`, `HEARTBEAT.md`.
+
+
+## 2026-11-14 · HU-23 app: seguimiento en segundo plano y bajada (SP168, SP169)
+
+**Evento:** Cliente móvil de HU-23 sobre el contrato de la parte 1, en `mobile` `feat/HU-23-seguimiento-bajada` (`38b5ae7`, `956fa38`).
+
+- **Seguimiento** (`src/viajes/seguimiento.ts`): una tarea de `expo-task-manager` 58.0.13 con `startLocationUpdatesAsync` cada 15 s y servicio en primer plano («Compartiendo tu ubicación cada 15 s»). Una cola por ruta (viaje del conductor, reserva del pasajero), lotes de hasta 60 firmados con la llave de trayecto, sin huella; sin señal espera y envía con la hora original; un 409 detiene esa ruta; un 401 conserva los puntos hasta la llave nueva. Lo activo se guarda en el almacén seguro para la tarea con la app cerrada; la cola, en memoria (riesgo del plan).
+- **Alias por rol:** la llave de trayecto es `uniride.llave.trayecto.conductor` / `.pasajero` (Kotlin, `keystore.ts`, `firma.ts`). Conducir un viaje e ir de pasajero en otro ya no se pisan (pendiente de HU-22).
+- **Pantallas:** «Viaje en curso» (`app/viaje-activo/[id].tsx`) con avisos de señal, ubicación apagada y permiso «Todo el tiempo»; «Mostrar código» y el escáner aceptan `tipo=bajada` (el conductor firma con la llave del seguimiento, sin otra huella; el pasajero envía la cola antes de bajar y ve «Viaje verificado» o el motivo, sin decir cómo se detectó). Entradas en «Mis viajes» (en curso) y en la reserva abordada.
+- **Permisos:** `app.json` con ubicación en segundo plano y servicio en primer plano; el prebuild los dejó en el manifiesto fusionado (`ACCESS_BACKGROUND_LOCATION`, `FOREGROUND_SERVICE_LOCATION`).
+- **Corregido en la mirada:** «Viaje en curso» no cargaba en web: `useSyncExternalStore` necesita `getServerSnapshot` en el render del servidor.
+
+**Verificado:** `verificar.py mobile --rapido` en verde (487 pruebas, `seguimiento.test.tsx` nuevo); 7 pantallas en navegador a 360 y 412 sin desborde, miradas (`.harness/evidencias/HU-23/mirada/`). App de debug compilada e instalada en el Infinix con sesión iniciada.
+
+**Teléfono (Infinix, misma sesión):** el teléfono condujo un viaje y viajó en otro a la vez, con la otra parte de cada uno por guion (`.harness/evidencias/HU-23/telefono/informe.md`). Notificación del servicio correcta; dos rutas cada 15 s con las dos llaves del Keystore; 2 min con la pantalla apagada sin cortes; una desconexión real del USB dejó la cola en espera y luego se envió con la hora original; las dos bajadas quedaron `verificada` (100 %) y el 409 detuvo el servicio. Con el teléfono quieto bajo techo la velocidad máxima llegó a 82,9 km/h (límite 150): dato para el riesgo de GPS ruidoso.
+
+**Sin verificar:** dos teléfonos moviéndose juntos por la calle (3b, SP170).
+
+**Archivos afectados:** `mobile/{app.json,package.json,modules/llave-dispositivo,src/viajes,src/app/{viaje-activo,abordaje,reserva,(pestanas)/viajes.tsx,_layout.tsx},src/api/cliente.ts,src/dispositivo,src/servicios/ubicacion.ts,src/i18n/es-BO.json,src/pruebas/respuestasApi.ts,src/__tests__}`; `backlog.md`, `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-23 verificada (parte 3)
+
+**Evento:** Verificación de HU-23 en una sesión que no la implementó, por criterio y por riesgo. Informe: `.harness/evidencias/HU-23/verificacion/informe.md`.
+
+- **Los 15 CA cumplen**, cada uno con su prueba automática y con petición real o teléfono. Peticiones reales con firmas ECDSA contra `entorno.py` (41 comprobaciones): bajada a 60 m, con ubicación simulada, desde un teléfono no íntegro y sin firma; código de abordaje usado para bajar y código de bajada gastado (A-05); persona ajena y otra organización igual que una reserva inexistente (A-13); `ubicacion_simulada`, `trayectos_separados` y `datos_insuficientes` con su alerta; viaje `verificado` con su único pasajero; auditoría sin coordenadas (RN-8).
+- **Plan contra lo hecho:** decisiones, amenazas, consultas y §7b se cumplen; las pruebas de HU-22 no se debilitaron (solo agregan `llaveTrayectoId`). Swagger completo. Bajada en 48–64 ms.
+- **Corregido:** «Viaje en curso» no tenía la `EtiquetaEstado` de DESIGN_SYSTEM §10.4. Ahora muestra el estado del viaje (conductor) o de la reserva (pasajero) y lo vuelve a consultar al volver a la pantalla (`mobile` `6cd4b8e`, con prueba).
+- **Revisado sin cambio:** el conductor también envía su cola antes de la bajada: al mostrar el código, `iniciarSeguimiento` llama a `enviarCola`.
+
+**Verificado:** `verificar.py --cambiados --todo` en verde (backend 727 e2e, cobertura 91,7 %; mobile 487); `verificar.py mobile --rapido` tras el cambio; 14 capturas a 360 y 412, miradas.
+
+**Sin verificar:** dos teléfonos moviéndose juntos por la calle (3b, SP170). Paridad N7 (viaje activo anclado) a medias: «Tu próximo viaje» de HU-19 solo cubre al pasajero, sin la acción del momento y por una hora tras la salida; decisión abierta en HEARTBEAT.
+
+**Archivos afectados:** `mobile/src/app/viaje-activo/[id].tsx`, `mobile/src/__tests__/seguimiento.test.tsx`; `backlog.md`, `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-23 viaje activo anclado (SP177)
+
+**Evento:** El usuario pidió hacer en HU-23 lo que faltaba de DESIGN_SYSTEM N7 antes de subir. `mobile` `864659b`.
+
+- `viajeAnclado` (`componentes/ViajeActivo.tsx`): primero el viaje en curso (el del conductor, luego la reserva a bordo) sin límite de hora; si no, la reserva `confirmada` o el viaje `reservado` desde 30 min antes hasta una hora después de la salida, el que sale primero.
+- `TarjetaAnclada` arriba en Buscar (antes del formulario) y en Mis viajes (sin repetirse en su lista), con «Tu viaje en curso» / «Tu próximo viaje». Pasajero: «Escanear código del conductor» o «Ver viaje en curso» (`AccionDeReserva`, también en el detalle de la reserva). Conductor: `TarjetaMiViaje` (sale de Mis viajes); en curso, «Ver viaje en curso» es la acción principal y «Mostrar código de abordaje» queda para quien falte subir.
+- Sin viaje del momento, Buscar sigue mostrando la próxima reserva de HU-19. Una reserva a bordo ya no desaparece una hora después de la salida.
+- **Corregido en la mirada:** el formulario de Buscar sube `espacio(6)` para montarse en la banda y tapaba la tarjeta; la tarjeta lo compensa con su margen inferior.
+
+**Verificado:** `verificar.py mobile --rapido` en verde (492 pruebas, 5 nuevas); Buscar y Mis viajes a 360 y 412, miradas. Los `DIV` que marca `medirEnAnchos` en Buscar ya estaban sin la tarjeta (filas que se desplazan a lo ancho).
+
+**Sin hacer:** tarjeta oscura «destacada» (`marcaProfundo`) para el viaje anclado: decisión abierta. SP170 (dos teléfonos) pendiente: el usuario todavía no puede hacerla.
+
+**Archivos afectados:** `mobile/src/componentes/{ViajeActivo,TarjetaMiViaje}.tsx`, `mobile/src/app/{(pestanas)/viajes.tsx,(pestanas)/index.tsx,reserva/[id].tsx}`, `mobile/src/i18n/es-BO.json`, `mobile/src/__tests__/mis-viajes.test.tsx`; `backlog.md`, `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-23 revisión de código antes de subir
+
+**Evento:** Revisión de código de backend y mobile de HU-23 (diff sobre HU-22): 9 hallazgos, 5 corregidos. `backend` `7a0550d`, `mobile` `af2206a` y `bf42d6c`.
+
+- **Llave del conductor con el viaje en curso:** `POST /viajes/:id/llave-trayecto` ya no pide la ventana de abordaje si el viaje está `en_curso` (RN-7): sin llave en el teléfono nadie podía bajar pasada la ventana. La app, con el viaje en curso, usa la llave del seguimiento también en el código de abordaje, sin crear otra.
+- **Viaje verificado con bajadas simultáneas:** `EstadoViajeService.recalcular` bloquea la fila del viaje (`FOR UPDATE`) antes de mirar las reservas.
+- **Cola del seguimiento:** un lote rechazado por su contenido (4xx salvo 401, 409, 429) se descarta; lo descartado por el tope mientras un lote viaja ya no borra puntos sin enviar.
+- **Sin cambio, por la spec:** RN-2 (punto del pasajero sin pareja = no coincide), RN-4 (velocidad sin mirar precisión), RN-10 (una reserva confirmada sin abordar deja el viaje en curso, HU-20).
+
+**Verificado:** `verificar.py backend` y `verificar.py mobile` completos en verde.
+
+**Sin verificar:** lo corregido en la app, solo con Jest (sin teléfono).
+
+**Archivos afectados:** `backend/src/presencia/presencia.service.ts`, `backend/src/viajes/estado-viaje.service{,.spec}.ts`, `backend/test/presencia/bajada.e2e-spec.ts`; `mobile/src/app/abordaje/mostrar/[viajeId].tsx`, `mobile/src/viajes/seguimiento.ts`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/{seguimiento,abordaje}.test.tsx`; `HEARTBEAT.md`.
