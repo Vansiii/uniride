@@ -1543,3 +1543,78 @@ Los dos se vieron en el teléfono físico.
 **Sin verificar:** TalkBack (pendiente por pedido del usuario).
 
 **Archivos afectados:** `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
+
+## 2026-11-15 · Specs del Sprint 4 en borrador y decisiones D-29 a D-31
+
+**Evento:** Se redactan en borrador las 7 specs de S4 (`SPECS/features/sprint-4/`), en orden de dependencia: HU-20, HU-27, HU-28, HU-25, HU-04, PB-05, HU-30 (34 PHU). Falta la aprobación del PO y, después, los planes. Se revisaron contra el código de `develop` (S3 fusionado): el contrato `EscrowUniRide.reembolsar` ya reparte entre pasajero y conductor, así que HU-20 **no cambia el contrato**; `EstadoViaje` ya tiene `cancelado` y `expirado`; `usuarios.suspendida_en` existe pero nada lo escribe; la búsqueda (HU-18) no filtra por destino.
+
+**Valores nuevos propuestos en las specs (los aprueba el PO):** cancelación del pasajero con > 30 min estricto = 100 % (30:00 exacto ya es 50 %), hora del servidor; vista previa del reembolso calculada por el servidor y rechazo si al confirmar rige un porcentaje menor (resuelve P-06); expiración procesada < 1 min tras salida + 15 min; el viaje no vuelve a `publicado` al cancelarse su única reserva; correo a los pasajeros si cancela el conductor. Voz: hora sin franja = próxima ocurrencia desde 30 min antes de ahora, mostrada antes de buscar; destino por palabras contenidas, filtrado en el servidor; 2 fallos → teclado; silencio 5 s. «¿Dónde está mi conductor?»: distancia al punto de encuentro con la última posición ≤ 60 s que el servidor ya recibe (código de abordaje o trayecto), nunca coordenadas. HU-25: P-1 ≥ 3 pagadas del par en 24 h, P-2 < 1 km o < 3 min (2 en 7 días bloquean), P-3 ≥ 3 verificaciones fallidas en 7 días; par bloqueado 7 días, cuenta 72 h, levantamiento automático. HU-04: precio máximo 1,00–500,00 URC sin efecto retroactivo. PB-05: informe generado de las pruebas, 13/13, < 15 min. HU-30: una cuenta de prueba compartida en el teléfono del equipo; la huella la pone un integrante.
+
+**Decisiones abiertas, con recomendación (ninguna se toma sin el equipo):**
+
+| ID | Tema | Recomendación | Alternativa |
+|---|---|---|---|
+| D-29 | Verificación fallida sin HU-26 (D-24 dejó el escrow retenido) | Reembolso 100 % al pasajero 24 h después: sin prueba de viaje no se paga; el abuso repetido lo frena HU-25 P-3 | Retener hasta HU-26 (dinero inmóvil sin fecha) · 50/50 (paga sin prueba, también a quien falsificó el GPS) |
+| D-30 | Módulo de reconocimiento y lectura en voz alta (P-04) | Decidir en el plan de HU-27 un módulo que use el reconocedor de Android y el TTS del sistema, sin servicio externo nuevo (dependencia nueva: §14) | — |
+| D-31 | Alcance de HU-04 | El ciclo completo de un viaje entre organizaciones cruza RLS en reserva, encuentro, trayecto y pago: reestimar a 8 PHU o pasar HU-04 a Reserva. No entregar vínculos sin reserva | Entregar solo tarifas (CA-1 a CA-3) |
+
+**Riesgo de calendario:** hoy es 15/11 y S4 cierra el 17/11; HU-22 a HU-24 recién se fusionaron. La regla del roadmap permite pasar los *Should* (HU-25, HU-04) a Reserva; PB-05 y HU-30 dependen de lo demás y HU-30 necesita cinco personas antes de la Review.
+
+**Archivos afectados:** `SPECS/features/sprint-4/*/spec.md`, `SPECS/roadmap.md`, `.agents/MEMORY/MEMORY.md`.
+
+## 2026-11-15 · Resuelve D-29 y D-31
+
+**Decisión del PO:**
+1. **D-29:** se aprueba la recomendación: una reserva en *Verificación fallida* se reembolsa 100 % al pasajero 24 h después (HU-20 RN-11, CA-9). Reemplaza la retención indefinida de D-24.
+2. **D-31:** **HU-04 se descarta por completo** (ni S4 ni Reserva). S4 queda en 31 PHU. Consecuencias: ningún dato cruza entre organizaciones, sin excepciones (`constitution.md` Art. 2.3 y `ssd.md` §5 corregidos; se quitan de `ssd.md` §8 las rutas de tarifas y vínculos); el precio máximo por asiento solo se fija en el alta (HU-01) y no hay pantalla para cambiarlo; el requisito 1 sigue cubierto por PB-02, HU-01–HU-03, HU-05–HU-07 y HU-34. HU-01 RN-9 y §5 mencionan HU-04 como historia futura: quedan como historial. Se borra la spec en borrador `SPECS/features/sprint-4/HU-04-tarifas-vinculos/` (nunca se versionó). PB-05 ya no lleva ataques de vínculos.
+
+**Sigue abierta:** D-30 (módulo de voz).
+
+**Archivos afectados:** `SPECS/features/sprint-4/{HU-20,HU-25,PB-05}/spec.md`, `SPECS/features/sprint-3/HU-19-reserva-escrow/spec.md`, `SPECS/roadmap.md`, `SPECS/ssd.md`, `SPECS/constitution.md`, `.agents/MEMORY/MEMORY.md`.
+
+## 2026-11-15 · Resuelve D-30: voz con librerías existentes
+
+**Decisión del integrante:** «usar lo que ya está hecho», sin módulo nativo propio. Para HU-27 y HU-28: `expo-speech` (oficial de Expo, MIT, 58.0.4 en npm) para leer las respuestas en voz alta y `expo-speech-recognition` (jamsch, MIT, 58.0.1, peer `expo: *`, actualizada el 29/10/2026) para el reconocedor de Android. Resuelve DESIGN_SYSTEM P-04.
+
+**Para el plan de HU-27:** fijar versiones exactas, revisar los scripts de instalación (`allowScripts`, `AGENTS.md` §9), compilar en nativo y probar en el Infinix que el reconocedor de Google en español esté disponible (HU-27 CA-13 si no).
+
+**Archivos afectados:** `SPECS/features/sprint-4/HU-27-reservar-por-voz/spec.md`, `.agents/MEMORY/MEMORY.md`.
+
+## 2026-11-15 · Specs del Sprint 4 aprobadas
+
+**Evento:** El PO aprueba las 6 specs de S4 (HU-20, HU-27, HU-28, HU-25, PB-05, HU-30) con D-29, D-30 y D-31 resueltas. Siguen los `plan.md` en borrador, para revisión del equipo por PR.
+
+**Archivos afectados:** `SPECS/features/sprint-4/*/spec.md`, `SPECS/roadmap.md`, `.agents/MEMORY/MEMORY.md`.
+
+## 2026-11-15 · Corrección de HU-28 CA-13 antes del plan
+
+**Hallazgo al planificar:** la spec aprobada pedía la firma del teléfono para consultar la distancia del conductor (CA-13, RN-6). La llave del teléfono exige huella en cada firma (HU-09, HU-29 RN-3) y el pasajero *Confirmado* todavía no tiene llave de trayecto (se registra al abordar, D-22): cumplir CA-13 obligaría a poner la huella en una consulta, contra HU-29 RN-2.
+
+**Corrección (`constitution.md` Art. 1.4):** la consulta se protege como `GET /reservas/:id` (HU-19): sesión, membresía aprobada y ser el pasajero de esa reserva *Confirmada*; solo devuelve la distancia al punto de encuentro, nunca coordenadas (A-13 igual). A-08 queda acotado: sin la app, alguien con la sesión del pasajero solo obtiene esa distancia de su propio viaje.
+
+**Archivos afectados:** `SPECS/features/sprint-4/HU-28-consultas-por-voz/spec.md`, `.agents/MEMORY/MEMORY.md`.
+
+## 2026-11-15 · Planes del Sprint 4 en borrador
+
+**Evento:** Se redactan los 6 `plan.md` de S4 en borrador. Orden y fusión: HU-20 → HU-27 → HU-28 (apilada sobre las dos) → HU-25 (sobre HU-20) → PB-05 → HU-30. Tareas propuestas SP178–SP208 (todavía no van al backlog). Se alinea el «Orden en S4» de las specs con este orden.
+
+**Hallazgos en el código que entran a los planes:**
+1. El índice único parcial `reservas_viaje_pasajero_activa_key` solo excluye `fallida` y «ya reservado» igual: tras cancelar no se podría volver a reservar. HU-20 rehace el índice en la migración `018` (sin tocar datos).
+2. El abordaje, si su `UPDATE` condicional pierde, responde «ya abordada» sin releer: con HU-20 la que gana puede ser una cancelación. HU-20 lo corrige (relee y rechaza).
+3. `CuentaActivaGuard` protege también saldo, abordaje, bajada y posiciones: el bloqueo preventivo de HU-25 no va ahí (el bloqueado debe completar lo reservado) sino en publicar, reservar y recargar. Cancelar no lleva ese guard.
+4. La búsqueda no filtra por destino: HU-27 agrega `destino` opcional en el servidor.
+5. Cada repositorio ya corre sus ataques en CI: PB-05 no necesita tocar workflows.
+
+**Desvíos de `ssd.md` (aplicados en §6 y §8):** `bloqueos_preventivos` (HU-25), tipo `compensacion_cancelacion` (HU-20), `GET /reservas/{id}/conductor` sin firma (HU-28) en lugar de `GET /reservas/{id}` con F.
+
+**Dependencias:** `expo-speech` y `expo-speech-recognition` (D-30), versión exacta y scripts en SP184.
+
+**Archivos afectados:** `SPECS/features/sprint-4/*/{spec,plan}.md`, `SPECS/ssd.md`, `SPECS/roadmap.md`, `.agents/MEMORY/MEMORY.md`.
+
+## 2026-11-15 · Planes del Sprint 4 aprobados
+
+**Evento:** El integrante aprueba los 6 planes de S4 y, con ellos, lo que exige `AGENTS.md` §14: migraciones `018_cancelaciones` y `019_anomalias` (no destructivas; `018` rehace un índice único parcial), estados `cancelada`/`expirada` de reserva y transiciones del viaje a `cancelado`/`expirado`, lógica de reembolso (100 %, 50/50 y verificación fallida a las 24 h, D-29), dependencias `expo-speech` y `expo-speech-recognition` (D-30; versión exacta y scripts en SP184), endpoint `GET /reservas/{id}/conductor` y filtro `destino` en la búsqueda. También queda aceptada la corrección de HU-28 CA-13. Tareas SP178–SP208 (81 h) cargadas en `backlog.md`.
+
+**Riesgo:** 81 h para un sprint que cierra el 17/11, con HU-30 dependiendo de cinco personas y de HU-27/HU-28 en el teléfono.
+
+**Archivos afectados:** `SPECS/features/sprint-4/*/plan.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/MEMORY.md`.
