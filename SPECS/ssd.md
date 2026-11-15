@@ -141,7 +141,7 @@ Claves primarias UUID. Todas las tablas tienen `creado_en`. En Prisma, cada `mod
 | `vehiculos` | propietario_id, placa, marca, modelo, color, capacidad, clave_s3_foto, consentimiento_foto_en | `UNIQUE(placa)`, `UNIQUE(propietario_id)` (v1), `capacidad BETWEEN 1 AND 6`, placa `^[0-9]{3,4}[A-Z]{3}$` | persona |
 | `viajes` | organizacion_id, conductor_id, vehiculo_id, origen, destino, sale_en, cupos_totales, cupos_disponibles, precio_urc, estado | `0 ≤ cupos_disponibles ≤ cupos_totales ≤ vehiculo.capacidad`; `precio_urc ≤ organizaciones.precio_maximo_urc` | sí |
 | `reservas` | organizacion_id, viaje_id, pasajero_id, monto, motivo (por qué no se completó), estado (`pendiente`/`confirmada`/`abordada`/`verificada`/`pagada`/`fallida`/`verificacion_fallida`; HU-20 agrega `cancelada`/`expirada`, D-23), clave_idempotencia, llave_trayecto_pasajero | `UNIQUE(viaje_id, pasajero_id)` para reservas activas, `UNIQUE(clave_idempotencia)` | sí |
-| `llaves_trayecto` | organizacion_id, viaje_id, reserva_id (nulo para el conductor), usuario_id, llave_publica, vence_en | una activa por participante y viaje; se registra en una petición F+B (D-22) | sí |
+| `llaves_trayecto` | organizacion_id, viaje_id, reserva_id (nulo para el conductor), usuario_id, dispositivo_id, llave_publica, revocada_en | una activa por participante y viaje; se registra en una petición F+B (D-22) | sí |
 | `desafios_handshake` | organizacion_id, viaje_id, tipo (`abordaje`/`bajada`), nonce, posición del conductor, vence_en, usado_en, reserva_id (quién lo usó) | `UNIQUE(nonce)`; vence 30 s; un solo uso (HU-22) | sí |
 | `pruebas_presencia` | organizacion_id, reserva_id, desafio_id, tipo, posición del pasajero, distancia_m, veredicto_integridad, resultado, motivo, hash_prueba | `distancia_m ≤ 50` para aceptar; una aceptada por reserva y tipo | sí |
 | `puntos_gps` | organizacion_id, viaje_id, usuario_id, lat, lng, precision_m, tomada_en, simulada | `UNIQUE(viaje_id, usuario_id, tomada_en)`; la firma se verifica por lote (HU-23) | sí |
@@ -253,12 +253,12 @@ sequenceDiagram
   participant SC as EscrowUniRide
   P->>API: reserva firmada (F+B)
   API->>SC: bloquear(idReserva, pasajero, conductor, monto, permit)
-  C->>API: pide desafío (F)
-  API-->>C: nonce (30 s, un uso)
-  C->>P: QR {nonce, GPS conductor, firma conductor}
-  P->>API: handshake {QR, GPS pasajero, firma pasajero, atestación}
-  API->>API: valida firmas, nonce, atestación, distancia ≤ 50 m
-  API-->>C: viaje En curso
+  C->>API: llave de trayecto (F+B, integridad)
+  C->>API: pide desafío (llave de trayecto, GPS conductor)
+  API-->>C: nonce (30 s, un uso) + QR uniride://encuentro/<nonce>
+  P->>API: abordaje {nonce, GPS pasajero, atestación, llave de trayecto} (F+B)
+  API->>API: consume el nonce, distancia ≤ 50 m, GPS sin simular, atestación
+  API-->>P: reserva abordada; viaje En curso
   loop cada 15 s
     C->>API: posición firmada
     P->>API: posición firmada
