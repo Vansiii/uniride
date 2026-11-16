@@ -2,29 +2,30 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-11-14 (HU-19 en el teléfono físico)
+**Última actualización:** 2026-11-15 (Cierre de HU-20 · Cancelación con reembolso)
 
-**Sprint actual:** Sprint 3 · Viaje completo verificado y pagado (37 PHU con HU-10, Release 1.0).
-**Foco:** HU-24 subida con PR abiertos (backend #20, mobile #20, contracts #2, raíz #32), sin merge. HU-23 con PR abiertos (backend #21, mobile #21, raíz #33), sin merge; su 3b (dos teléfonos, SP170) sigue pendiente. HU-22 espera revisión humana y merge.
+**Sprint actual:** Sprint 4 · Voz, cancelaciones y calidad (81 h estimadas).
+**Foco:** HU-20 completada íntegramente (SP178..SP183). Siguiente historia: HU-27 · Reservar por voz.
 
 ## Estado actual
 
-- **En `develop`:** Sprint 1 y 2, HU-10 y HU-29 (PR #27, #28, punteros #29) y **HU-19** (raíz #30, backend #18, mobile #18; fusionada el 13/11).
-- **Ramas apiladas:** HU-22 (`feat/HU-22-verificacion-abordaje`, PR abiertos) → HU-23 (`feat/HU-23-seguimiento-bajada`, subida) → **HU-24** (`feat/HU-24-liberacion-pago`, con PR, creada el 14/11 en raíz, `backend`, `mobile` y, desde la verificación, `contracts`). Orden de fusión: HU-22, HU-23, HU-24.
-- **Pendientes de HU-19 (no bloquean):** ver «Próximo paso» 5.
+- **En `develop`:** Sprints 1, 2 y 3 completos con todos los PRs fusionados.
+- **Ramas activas:** `feat/HU-20-cancelacion-reembolso` en raíz, `backend` y `mobile` (listas para revisión y PR).
+- **Pendientes previos (no bloquean):** SP170 (viaje con 2 teléfonos en la calle); TalkBack en el teléfono; aceleración e2e backend en sesión aparte.
 
-## Última sesión (14/11, HU-19 en el teléfono físico)
+## Última sesión (15/11, HU-20 Completa)
 
-- **Hecho:** reservar y «Mis viajes» en el Infinix X669 con huella y Keystore reales, sobre la punta de `feat/HU-24-liberacion-pago`: 16 filas por criterio (CA-1 a CA-4, CA-9 a CA-15, saldo e Inicio), 15 bien en pantalla y en la base; CA-12 «fallida» solo como pantalla (estado por SQL). Detalle en MEMORY (14/11, «HU-19 en el teléfono»).
-- **Hallazgos, pendientes por decisión del usuario (no bloquean):** (1) el detalle de un viaje ya reservado ofrece «Recargar saldo» o «Reservar y pagar» y pide la huella; recién el servidor responde «Ya tienes una reserva en este viaje»; (2) tras «Ya no quedan asientos» el botón de reservar sigue activo (con el viaje vencido sí se desactiva); (3) la lista de resultados no se refresca al volver del detalle.
-- **TalkBack:** pendiente por pedido del usuario.
+- **SP178:** Migración `018_cancelaciones` (CHECK reservas, movimientos, trabajos y UNIQUE parcial reservas), función pura `politicaCancelacion` con pruebas y `EstadoViajeService.cancelar`/`expirar` con FOR UPDATE.
+- **SP179:** `Cadena.reembolsarReserva`/`hashDeReembolso` (real y simulada) y worker `reembolsar_reserva` con reintentos e idempotencia.
+- **SP180:** Endpoints `POST /reservas/:id/cancelar` y `POST /viajes/:id/cancelar` con firma biométrica y `@AccionSensible`, vista previa de cancelación y reembolso en `GET /reservas/:id`, plantilla `viaje_cancelado` y catálogo de acciones sensibles.
+- **SP181:** `VencimientosService` con temporizador configurable y manual: expiración de reservas y viajes sin abordar pasados 15 min, resolución de reservas pendientes en viajes cancelados/expirados con correo (CA-19), y reembolso 100 % tras 24 h en verificación fallida (CA-9, D-29). 8 pruebas unitarias en verde.
+- **SP182:** Pruebas e2e (`cancelar`, `cancelar-viaje`, `vencimientos`), suite de ataques A-08 (monto/política alterada), A-09 (doble reembolso), A-10 (conservación contable URC), A-13 (aislamiento org/usuario) y casos Hardhat de reembolso 100 % y 50/50.
+- **SP183:** Mobile: pantalla `/cancelar` para reservas y viajes, vista previa de política (100% y 50/50), manejo de `POLITICA_CAMBIO`, compensación, biometría, botones en detalle de reserva y Mis viajes, soporte a `compensacion_cancelacion` y 6 pruebas Jest en verde.
 
 ## Próximo paso concreto
 
-1. **HU-24:** PR abiertos el 14/11 (backend #20 y mobile #20 con base `feat/HU-23-seguimiento-bajada`, contracts #2 a `develop`, raíz #32 con base `feat/HU-23-seguimiento-bajada`). Revisión de otro integrante y merge en orden HU-22, HU-23, HU-24 (solo con `fusionar.py`); tras el merge, punteros.
-2. **HU-23:** PR abiertos el 14/11 (backend #21, mobile #21, raíz #33, base `feat/HU-22-verificacion-abordaje`); revisión de otro integrante y merge después de HU-22; 3b con dos teléfonos (SP170) pendiente.
-3. **HU-22:** revisión de los PR por otro integrante y merge; tras el merge, punteros.
-4. **Pedido del usuario (14/11):** acelerar las e2e del backend en una sesión aparte, sin debilitar pruebas. **HU-19, pendiente si nadie lo hizo:** revisión y UML del plan; TalkBack en el teléfono (detalle y confirmación, resultado, saldo insuficiente, Mis viajes e Inicio); los tres hallazgos del teléfono (14/11), si el equipo decide corregirlos (rama `fix/HU-19-telefono` sobre la punta de HU-24).
+1. Crear PR de `feat/HU-20-cancelacion-reembolso` en `backend` y `mobile`, y actualizar punteros en el repo principal.
+2. Continuar con **HU-27 · Reservar por voz** (SP184 a SP189).
 
 ## Sin verificar
 

@@ -256,12 +256,12 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 ## Sprint 4 · 11/11 – 17/11/2026 · Voz, cancelaciones y calidad
 
 ### HU-20 · Cancelación con reembolso (20 h)
-- [ ] SP178 · Migración `018_cancelaciones`, `politicaCancelacion` y `EstadoViajeService.cancelar`/`expirar` — 2h — @[POR DEFINIR]
-- [ ] SP179 · `Cadena.reembolsarReserva`/`hashDeReembolso` (real y simulada) y worker `reembolsar_reserva` — 3h — @[POR DEFINIR]
-- [ ] SP180 · Cancelar reserva y viaje: endpoints, vista previa en `GET /reservas/:id`, correo, abordaje que relee — 4h — @[POR DEFINIR]
-- [ ] SP181 · Tic de vencimientos (expiración, viaje cancelado, viaje sin abordaje, verificación fallida 24 h) — 3h — @[POR DEFINIR]
-- [ ] SP182 · Pruebas e2e y de ataque A-08, A-09, A-10, A-11, A-13; Hardhat — 4h — @[POR DEFINIR]
-- [ ] SP183 · Mobile: pantalla de cancelación, botones, estados y movimientos nuevos — 4h — @[POR DEFINIR]
+- [x] SP178 · Migración `018_cancelaciones`, `politicaCancelacion` y `EstadoViajeService.cancelar`/`expirar` — 2h — @agente · migración 018 (CHECK reservas, movimientos, trabajos y UNIQUE parcial reservas), política de cancelación con bordes y EstadoViajeService.cancelar/expirar con FOR UPDATE
+- [x] SP179 · `Cadena.reembolsarReserva`/`hashDeReembolso` (real y simulada) y worker `reembolsar_reserva` — 3h — @agente · ABI_ESCROW, CadenaReal, CadenaSimulada (100% y 50/50) y worker reembolsar_reserva con auditoría, reintentos e idempotencia
+- [x] SP180 · Cancelar reserva y viaje: endpoints, vista previa en `GET /reservas/:id`, correo, abordaje que relee — 4h — @agente · CancelacionesService (reserva y viaje), vista previa y reembolso en GET /reservas/:id, abordaje con releído defensivo, plantilla viaje_cancelado y catálogo de acciones sensibles
+- [x] SP181 · Tic de vencimientos (expiración, viaje cancelado, viaje sin abordaje, verificación fallida 24 h) — 3h — @agente · VencimientosService con expiracion de reservas y viajes pasados 15 min, resolucion de reservas pendientes en viajes cancelados/expirados con correo y devolucion al 100 % tras 24 h de verificacion fallida; 8 pruebas unitarias
+- [x] SP182 · Pruebas e2e y de ataque A-08, A-09, A-10, A-11, A-13; Hardhat — 4h — @agente · e2e cancelar, cancelar-viaje, vencimientos, ataques A-08 (monto/politica alterada), A-09 (doble reembolso), A-10 (conservacion contable URC), A-13 (aislamiento org/usuario) y casos Hardhat de reembolso 100 % y 50/50
+- [x] SP183 · Mobile: pantalla de cancelación, botones, estados y movimientos nuevos — 4h — @agente · pantalla /cancelar para reserva y viaje con vista previa de politica (100% y 50/50), compensacion, boton con huella, manejo de POLITICA_CAMBIO, botones en detalle de reserva y Mis viajes, soporte a compensacion_cancelacion y 6 pruebas Jest en verde
 
 ### HU-27 · Reservar por voz (15 h)
 - [ ] SP184 · Instalar `expo-speech` y `expo-speech-recognition` (versión exacta, scripts revisados), plugin y compilación nativa — 2h — @[POR DEFINIR]
