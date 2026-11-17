@@ -2,30 +2,27 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-11-16 (HU-27 Reservar por voz completada en backend y mobile)
+**Última actualización:** 2026-11-17 (Inicio de HU-28 · Consultas por voz)
 
 **Sprint actual:** Sprint 4 · Casos de borde, expiración y voz (31 PHU).
-**Foco:** HU-27 terminada y verificada técnicamente en `feat/HU-27-reservar-por-voz` (backend y mobile con CI verde: lint, pruebas y build). Siguiente en backlog: HU-28 (apilada sobre HU-27) o HU-20.
+**Foco:** HU-28 en desarrollo en `feat/HU-28-consultas-por-voz` (apilada sobre HU-27 y HU-20).
 
 ## Estado actual
 
-- **Sprint 4:** HU-27 completada técnicamente en la rama `feat/HU-27-reservar-por-voz` (backend commit `16f70bb`, mobile commits `0113b7f`, `5a64a0e`, `d0118d4`, `980d291`). Todas las pruebas (unitarias, e2e, de ataque A-11 y A-13) en verde. Falta prueba física con ruido (SP189).
+- **Sprint 4:** HU-20 y HU-27 completadas técnicamente en sus respectivas ramas. HU-28 iniciada integrando ambas bases.
 - **Ramas previas:** HU-22, HU-23, HU-24 pendientes de revisión/merge humano.
 
+## Última sesión (17/11, HU-28 inicio)
 
-## Última sesión (16/11, HU-27 Reservar por voz)
-
-- **Hecho:** HU-27 (Sprint 4, Must, 5 PHU) completada en backend y mobile sobre `feat/HU-27-reservar-por-voz`.
-  - Backend: filtro `destino` opcional en `GET /viajes/buscar` con normalización en PostgreSQL (`translate` + `unnest`), Swagger, pruebas unitarias y e2e, más prueba de ataque A-13.
-  - Mobile: `expo-speech` y `expo-speech-recognition`, hook `useVoz`, funciones puras `interpretar` y `resolverHora`, componentes `BotonVoz` y `PanelVoz` integrados en encabezados (RN-1), búsqueda y reserva por voz en `buscar.tsx` y `viajes/[id].tsx`.
-  - Pruebas y suites de seguridad: 27 suites de mobile pasando al 100% (563 pruebas), suite de amenaza A-11 en verde (la voz no autoriza ni mueve dinero sin biometría). Build y lint limpios en mobile y backend.
-- **Pendiente de HU-27:** SP189 prueba en teléfono físico Infinix X669 con ruido ambiental moderado.
+- **Hecho:** Creación de rama `feat/HU-28-consultas-por-voz` en raíz, `backend` y `mobile`, integrando las ramas de HU-27 (voz) y HU-20 (cancelaciones).
+- **En curso:** HU-28 (Sprint 4, Must, 5 PHU): SP190 (backend: `GET /reservas/:id/conductor`), SP191, SP192, SP193.
 
 ## Próximo paso concreto
 
-1. **HU-27:** Punteros de submódulos en el repositorio principal y preparación de PRs.
-2. **Backlog Sprint 4:** Continuar con HU-28 (`feat/HU-28-consultas-voz`) o HU-20 (`feat/HU-20-expiracion-reservas`).
-3. **HU-24, HU-23, HU-22:** Revisión de PRs previos pendientes de merge humano.
+1. **SP190:** Backend: `GET /reservas/:id/conductor` con pruebas unitarias, e2e y suites de ataque A-08 y A-13.
+2. **SP191:** Mobile: intérprete de voz con intenciones nuevas (`saldo`, `conductor`, `estado_viaje`, `cancelar`, `ayuda`) y formateador de respuestas puras.
+3. **SP192:** Mobile: acciones por voz y pantalla `ayuda.tsx`.
+4. **SP193:** Mobile: integración de cancelación por voz con HU-20 y prueba de ataque A-11.
 
 ## Sin verificar
 
