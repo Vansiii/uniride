@@ -35,7 +35,7 @@ Ninguno.
 
 **Filtro de destino (RN-3):** el servidor normaliza el texto (minúsculas, sin tildes, solo `[a-z0-9ñ ]`), quita `la, el, los, las, al, a, de, del` y exige que `translate(lower(destino_nombre), 'áéíóúü', 'aeiouu')` contenga cada palabra que queda (`NOT EXISTS (SELECT 1 FROM unnest($palabras) p WHERE … NOT LIKE '%' || p || '%')`). Las palabras ya no tienen `%` ni `_`. Sin palabras útiles, el filtro no se aplica. El orden y el tope de resultados no cambian (RN-5).
 
-Swagger actualizado: [ ]
+Swagger actualizado: [x]
 
 ## 4. Pantallas y voz
 
@@ -105,11 +105,11 @@ Metas de rendimiento: búsqueda < 2 s (HU-18), medida desde la interpretación.
 
 ## 8. Tareas propuestas (se copian a backlog.md al aprobar)
 
-| Tarea | Horas | Responsable |
-|---|---|---|
-| SP184 · Instalar `expo-speech` y `expo-speech-recognition` (versión exacta, scripts revisados), plugin y compilación nativa | 2 | @[POR DEFINIR] |
-| SP185 · Backend: filtro `destino` en la búsqueda con pruebas | 2 | @[POR DEFINIR] |
-| SP186 · `interpretar` y `resolverHora` con pruebas de todas las formas | 3 | @[POR DEFINIR] |
-| SP187 · `useVoz`, `BotonVoz` y `PanelVoz` en las pantallas de RN-1 | 4 | @[POR DEFINIR] |
-| SP188 · Buscar y reservar por voz: resultados leídos y detalle con la huella; pruebas A-11 | 3 | @[POR DEFINIR] |
-| SP189 · Prueba en el teléfono físico con ruido moderado | 1 | @[POR DEFINIR] |
+| Tarea | Horas | Estado | Responsable |
+|---|---|---|---|
+| SP184 · Instalar `expo-speech` y `expo-speech-recognition` (versión exacta, scripts revisados), plugin y compilación nativa | 2 | Completada (commit `0113b7f`) | @equipo |
+| SP185 · Backend: filtro `destino` en la búsqueda con pruebas | 2 | Completada (commit `16f70bb`) | @equipo |
+| SP186 · `interpretar` y `resolverHora` con pruebas de todas las formas | 3 | Completada (commit `5a64a0e`) | @equipo |
+| SP187 · `useVoz`, `BotonVoz` y `PanelVoz` en las pantallas de RN-1 | 4 | Completada (commit `d0118d4`) | @equipo |
+| SP188 · Buscar y reservar por voz: resultados leídos y detalle con la huella; pruebas A-11 | 3 | Completada (commit `980d291`) | @equipo |
+| SP189 · Prueba en el teléfono físico con ruido moderado | 1 | Pendiente de hardware | @equipo |
