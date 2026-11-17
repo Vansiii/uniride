@@ -2,27 +2,30 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-11-17 (Inicio de HU-28 · Consultas por voz)
+**Última actualización:** 2026-11-17 (HU-28 · Consultas por voz implementada)
 
 **Sprint actual:** Sprint 4 · Casos de borde, expiración y voz (31 PHU).
-**Foco:** HU-28 en desarrollo en `feat/HU-28-consultas-por-voz` (apilada sobre HU-27 y HU-20).
+**Foco:** HU-28 implementada en `feat/HU-28-consultas-por-voz` (apilada sobre HU-27 y HU-20). Pendiente prueba en teléfono (SP194).
 
 ## Estado actual
 
-- **Sprint 4:** HU-20 y HU-27 completadas técnicamente en sus respectivas ramas. HU-28 iniciada integrando ambas bases.
+- **Sprint 4:** HU-20, HU-27 y HU-28 completadas técnicamente en sus respectivas ramas.
 - **Ramas previas:** HU-22, HU-23, HU-24 pendientes de revisión/merge humano.
 
-## Última sesión (17/11, HU-28 inicio)
+## Última sesión (17/11, HU-28 implementación)
 
-- **Hecho:** Creación de rama `feat/HU-28-consultas-por-voz` en raíz, `backend` y `mobile`, integrando las ramas de HU-27 (voz) y HU-20 (cancelaciones).
-- **En curso:** HU-28 (Sprint 4, Must, 5 PHU): SP190 (backend: `GET /reservas/:id/conductor`), SP191, SP192, SP193.
+- **Hecho:**
+  - SP190 (Backend): `GET /reservas/:id/conductor` con cálculo Haversine redondeado a decenas de metros, límite 60 s, umbral 50 m, suites de ataque A-08 y A-13. Commit `6aaf7b2`.
+  - SP191 (Mobile): Intérprete y respuestas puras para `saldo`, `conductor`, `estado_viaje`, `cancelar`, `ayuda` y `elegir`. 96 pruebas Jest pasando. Commit `c3368b6`.
+  - SP192 / SP193 (Mobile): Acciones por voz (`acciones.ts`), pantalla `ayuda.tsx`, integración en `useVoz.ts`, detalle de reserva con distancia del conductor en tiempo real, cancelación por voz con huella y prueba de ataque A-11 (`voz-cancelar.test.tsx` y `voz-consultas.test.tsx`). Commit `70fca15`.
+- **En curso / Próximo:**
+  - SP194: Prueba en el teléfono Android físico (Infinix X669) con comandos de voz reales en español boliviano (`es-BO`).
+  - Siguiente historia del Sprint 4: **HU-25** (Detección de anomalías, 10 h).
 
 ## Próximo paso concreto
 
-1. **SP190:** Backend: `GET /reservas/:id/conductor` con pruebas unitarias, e2e y suites de ataque A-08 y A-13.
-2. **SP191:** Mobile: intérprete de voz con intenciones nuevas (`saldo`, `conductor`, `estado_viaje`, `cancelar`, `ayuda`) y formateador de respuestas puras.
-3. **SP192:** Mobile: acciones por voz y pantalla `ayuda.tsx`.
-4. **SP193:** Mobile: integración de cancelación por voz con HU-20 y prueba de ataque A-11.
+1. **SP194:** Prueba en teléfono físico de las 5 intenciones de voz de HU-28.
+2. Preparar inicio de **HU-25** (Detección de anomalías / fraude de colusión en carpooling).
 
 ## Sin verificar
 

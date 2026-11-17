@@ -1618,3 +1618,19 @@ Los dos se vieron en el teléfono físico.
 **Riesgo:** 81 h para un sprint que cierra el 17/11, con HU-30 dependiendo de cinco personas y de HU-27/HU-28 en el teléfono.
 
 **Archivos afectados:** `SPECS/features/sprint-4/*/plan.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/MEMORY.md`.
+
+---
+
+## 2026-11-17 · Implementación de HU-28 (Consultas por voz)
+
+**Evento:** Se completan las tareas técnicas de backend y mobile de HU-28 (SP190, SP191, SP192, SP193) en la rama `feat/HU-28-consultas-por-voz`, apilada sobre HU-27 y HU-20.
+
+**Hecho:**
+1. **SP190 (Backend):** Endpoint `GET /reservas/:id/conductor` con `OrganizacionGuard`, cálculo de distancia Haversine redondeado a decenas de metros (o km desde 1 km), umbral de llegada a 50 m (`enPuntoDeEncuentro`), ventana de vigencia de 60 s para última posición conocida del conductor (desafíos o puntos GPS de HU-22/HU-23). Suites unitarias, e2e y suites de ataque A-08 (sin coordenadas, requiere membresía y sesión) y A-13 (aislamiento multi-org y reserva no confirmada) en verde. Commit `6aaf7b2`.
+2. **SP191 (Mobile):** Intérprete `interprete.ts` ampliado con intenciones `saldo`, `conductor`, `estado_viaje`, `cancelar` (con soporte a ordinales y números), `ayuda` y `elegir`. Prioridad fija: cancelar > conductor > estado_viaje > saldo > ayuda > elegir > reservar > buscar. Módulo de respuestas puras `respuestas.ts` con una frase por estado (RN-5) y formato de distancias/montos. 96 pruebas Jest pasando al 100%. Commit `c3368b6`.
+3. **SP192 / SP193 (Mobile):** Orquestador de acciones `acciones.ts`, pantalla de ayuda `app/ayuda.tsx` con ejemplos y accesos táctiles, integración en perfil (`app/(pestanas)/perfil.tsx`), visualización de distancia en `app/reserva/[id].tsx`, flujo de cancelación por voz con huella de HU-20 (`app/cancelar.tsx`) y prueba de ataque A-11 (`voz-cancelar.test.tsx`: la voz nunca envía petición firmada ni ejecuta mutaciones de cancelación sin biometría). Commit `70fca15`.
+4. **Verificación:** `oxlint` y `nest build` en backend limpios. `expo lint` y `prettier --check` en mobile limpios. 641 tests pasando en backend; 31 suites (656 tests) pasando en mobile (incluyendo 144 tests específicos de voz).
+
+**Pendiente:** SP194 (prueba en teléfono Android físico Infinix X669 con comandos reales). Siguiente historia: HU-25 (Detección de anomalías).
+
+**Archivos afectados:** `backend/src/presencia/*`, `backend/test/*`, `mobile/src/voz/*`, `mobile/src/app/ayuda.tsx`, `mobile/src/app/reserva/[id].tsx`, `mobile/src/__tests__/voz-*`, `SPECS/features/sprint-4/HU-28-consultas-por-voz/*`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{HEARTBEAT,MEMORY}.md`.

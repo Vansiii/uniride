@@ -272,10 +272,10 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [ ] SP189 · Prueba en el teléfono físico con ruido moderado — 1h — @[POR DEFINIR]
 
 ### HU-28 · Consultas por voz (12 h)
-- [ ] SP190 · Backend: `GET /reservas/:id/conductor` con pruebas y ataques A-08, A-13 — 3h — @[POR DEFINIR]
-- [ ] SP191 · Intérprete y respuestas de las intenciones nuevas con pruebas — 3h — @[POR DEFINIR]
-- [ ] SP192 · Acciones por voz: saldo, conductor, estado y ayuda (pantalla `ayuda.tsx`) — 3h — @[POR DEFINIR]
-- [ ] SP193 · «Cancela mi viaje»: cancelables, elección y confirmación de HU-20; prueba A-11 — 2h — @[POR DEFINIR]
+- [x] SP190 · Backend: `GET /reservas/:id/conductor` con pruebas y ataques A-08, A-13 — 3h — @agente
+- [x] SP191 · Intérprete y respuestas de las intenciones nuevas con pruebas — 3h — @agente
+- [x] SP192 · Acciones por voz: saldo, conductor, estado y ayuda (pantalla `ayuda.tsx`) — 3h — @agente
+- [x] SP193 · «Cancela mi viaje»: cancelables, elección y confirmación de HU-20; prueba A-11 — 2h — @agente
 - [ ] SP194 · Prueba en el teléfono físico — 1h — @[POR DEFINIR]
 
 ### HU-25 · Detección de anomalías (10 h)
