@@ -299,11 +299,11 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [ ] SP208 · Informe y hallazgos en el backlog y Trello — 2h — @[POR DEFINIR]
 
 ### HU-26 · Alertas de fraude, solo lectura (10 h)
-- [ ] SP209 · Backend: `GET /organizacion/alertas-fraude` y `/organizacion/bloqueos-vigentes` + Swagger — 3h — @[POR DEFINIR]
-- [ ] SP210 · Backend: pruebas e2e y de ataque A-13, A-08 — 2h — @[POR DEFINIR]
-- [ ] SP211 · Web: página «Alertas de fraude», ruta, menú y textos es-BO — 3h — @[POR DEFINIR]
-- [ ] SP212 · Web: pruebas de la página — 1h — @[POR DEFINIR]
-- [ ] SP213 · Verificar (lint, formato, pruebas, build) y PR — 1h — @[POR DEFINIR]
+- [x] SP209 · Backend: `GET /organizacion/alertas-fraude` y `/organizacion/bloqueos-vigentes` + Swagger — 3h — @[POR DEFINIR]
+- [x] SP210 · Backend: pruebas e2e y de ataque A-13, A-08 — 2h — @[POR DEFINIR]
+- [x] SP211 · Web: página «Alertas de fraude», ruta, menú y textos es-BO — 3h — @[POR DEFINIR]
+- [x] SP212 · Web: pruebas de la página — 1h — @[POR DEFINIR]
+- [x] SP213 · Verificar (lint, formato, pruebas, build) y PR — 1h — @[POR DEFINIR]
 
 ### HU-32 · Panel de organización, reducido (9 h)
 - [ ] SP214 · Backend: consulta de agregación compartida con HU-33, servicio, `GET /organizacion/resumen`, Swagger — 4h — @[POR DEFINIR]
