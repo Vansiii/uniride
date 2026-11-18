@@ -84,15 +84,15 @@
 
 Marcar al cerrar la fase **Verify**. Referencia: `SPECS/constitution.md` Art. 12.
 
-- [ ] Todos los criterios de aceptación cumplidos.
-- [ ] Pruebas automatizadas del `plan.md` en verde (todas las formas de RN-1 en el intérprete; respuestas por estado de RN-5); cobertura de backend ≥ 70 %.
-- [ ] Pruebas de ataque A-08, A-11 y A-13 en verde.
+- [x] Todos los criterios de aceptación cumplidos.
+- [x] Pruebas automatizadas del `plan.md` en verde (todas las formas de RN-1 en el intérprete; respuestas por estado de RN-5); cobertura de backend ≥ 70 %.
+- [x] Pruebas de ataque A-08, A-11 y A-13 en verde.
 - [ ] Probado en un teléfono Android físico.
 - [ ] PR revisado por otro integrante.
 - [ ] CI en verde (lint, pruebas, build).
 - [ ] Correctitud · Eficiencia · Fiabilidad · Facilidad de uso · Mantenimiento · Seguridad e integridad · Portabilidad.
 - [ ] Desplegada en AWS y documentada en Swagger.
-- [ ] Esta spec refleja lo realmente construido.
+- [x] Esta spec refleja lo realmente construido.
 - [ ] Aceptada por el PO en la Sprint Review.
 
 ## 8. Historial de cambios

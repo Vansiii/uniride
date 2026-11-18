@@ -2,29 +2,30 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-11-14 (HU-19 en el teléfono físico)
+**Última actualización:** 2026-11-17 (HU-28 · Consultas por voz implementada)
 
-**Sprint actual:** Sprint 3 · Viaje completo verificado y pagado (37 PHU con HU-10, Release 1.0).
-**Foco:** HU-24 subida con PR abiertos (backend #20, mobile #20, contracts #2, raíz #32), sin merge. HU-23 con PR abiertos (backend #21, mobile #21, raíz #33), sin merge; su 3b (dos teléfonos, SP170) sigue pendiente. HU-22 espera revisión humana y merge.
+**Sprint actual:** Sprint 4 · Casos de borde, expiración y voz (31 PHU).
+**Foco:** HU-20, HU-27 y HU-28 fusionadas en `develop` de backend y mobile (17/11, CI verde); punteros actualizados en el principal. Pendiente prueba en teléfono (SP194).
 
 ## Estado actual
 
-- **En `develop`:** Sprint 1 y 2, HU-10 y HU-29 (PR #27, #28, punteros #29) y **HU-19** (raíz #30, backend #18, mobile #18; fusionada el 13/11).
-- **Ramas apiladas:** HU-22 (`feat/HU-22-verificacion-abordaje`, PR abiertos) → HU-23 (`feat/HU-23-seguimiento-bajada`, subida) → **HU-24** (`feat/HU-24-liberacion-pago`, con PR, creada el 14/11 en raíz, `backend`, `mobile` y, desde la verificación, `contracts`). Orden de fusión: HU-22, HU-23, HU-24.
-- **Pendientes de HU-19 (no bloquean):** ver «Próximo paso» 5.
+- **Sprint 4:** HU-20, HU-27 y HU-28 completadas y fusionadas en `develop` de backend y mobile.
+- **Ramas previas:** HU-22, HU-23, HU-24 pendientes de revisión/merge humano.
 
-## Última sesión (14/11, HU-19 en el teléfono físico)
+## Última sesión (17/11, HU-28 implementación)
 
-- **Hecho:** reservar y «Mis viajes» en el Infinix X669 con huella y Keystore reales, sobre la punta de `feat/HU-24-liberacion-pago`: 16 filas por criterio (CA-1 a CA-4, CA-9 a CA-15, saldo e Inicio), 15 bien en pantalla y en la base; CA-12 «fallida» solo como pantalla (estado por SQL). Detalle en MEMORY (14/11, «HU-19 en el teléfono»).
-- **Hallazgos, pendientes por decisión del usuario (no bloquean):** (1) el detalle de un viaje ya reservado ofrece «Recargar saldo» o «Reservar y pagar» y pide la huella; recién el servidor responde «Ya tienes una reserva en este viaje»; (2) tras «Ya no quedan asientos» el botón de reservar sigue activo (con el viaje vencido sí se desactiva); (3) la lista de resultados no se refresca al volver del detalle.
-- **TalkBack:** pendiente por pedido del usuario.
+- **Hecho:**
+  - SP190 (Backend): `GET /reservas/:id/conductor` con cálculo Haversine redondeado a decenas de metros, límite 60 s, umbral 50 m, suites de ataque A-08 y A-13. Commit `6aaf7b2`.
+  - SP191 (Mobile): Intérprete y respuestas puras para `saldo`, `conductor`, `estado_viaje`, `cancelar`, `ayuda` y `elegir`. 96 pruebas Jest pasando. Commit `c3368b6`.
+  - SP192 / SP193 (Mobile): Acciones por voz (`acciones.ts`), pantalla `ayuda.tsx`, integración en `useVoz.ts`, detalle de reserva con distancia del conductor en tiempo real, cancelación por voz con huella y prueba de ataque A-11 (`voz-cancelar.test.tsx` y `voz-consultas.test.tsx`). Commit `70fca15`.
+- **En curso / Próximo:**
+  - SP194: Prueba en el teléfono Android físico (Infinix X669) con comandos de voz reales en español boliviano (`es-BO`).
+  - Siguiente historia del Sprint 4: **HU-25** (Detección de anomalías, 10 h).
 
 ## Próximo paso concreto
 
-1. **HU-24:** PR abiertos el 14/11 (backend #20 y mobile #20 con base `feat/HU-23-seguimiento-bajada`, contracts #2 a `develop`, raíz #32 con base `feat/HU-23-seguimiento-bajada`). Revisión de otro integrante y merge en orden HU-22, HU-23, HU-24 (solo con `fusionar.py`); tras el merge, punteros.
-2. **HU-23:** PR abiertos el 14/11 (backend #21, mobile #21, raíz #33, base `feat/HU-22-verificacion-abordaje`); revisión de otro integrante y merge después de HU-22; 3b con dos teléfonos (SP170) pendiente.
-3. **HU-22:** revisión de los PR por otro integrante y merge; tras el merge, punteros.
-4. **Pedido del usuario (14/11):** acelerar las e2e del backend en una sesión aparte, sin debilitar pruebas. **HU-19, pendiente si nadie lo hizo:** revisión y UML del plan; TalkBack en el teléfono (detalle y confirmación, resultado, saldo insuficiente, Mis viajes e Inicio); los tres hallazgos del teléfono (14/11), si el equipo decide corregirlos (rama `fix/HU-19-telefono` sobre la punta de HU-24).
+1. **SP194:** Prueba en teléfono físico de las 5 intenciones de voz de HU-28.
+2. Preparar inicio de **HU-25** (Detección de anomalías / fraude de colusión en carpooling).
 
 ## Sin verificar
 

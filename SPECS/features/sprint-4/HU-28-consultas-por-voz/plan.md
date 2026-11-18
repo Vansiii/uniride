@@ -31,7 +31,7 @@ Ninguno. La posición sale de lo que ya se guarda: `desafios_handshake.conductor
 
 **Cálculo:** dentro de `enOrganizacion`, la reserva debe ser del usuario y estar `confirmada`; se toma la posición más reciente del conductor entre el último desafío del viaje y su último punto GPS en el viaje (2 consultas con `ORDER BY … DESC LIMIT 1`, índices existentes). Si tiene ≤ 60 s (RN-4): distancia al origen del viaje con Haversine, redondeada a decenas de metros; `enPuntoDeEncuentro` si ≤ 50 m. Si no: `disponible: false` y nulos. Nunca devuelve coordenadas ni el instante exacto; tampoco escribe en el log (HU-23 RN-8).
 
-Swagger actualizado: [ ]
+Swagger actualizado: [x]
 
 ## 4. Pantallas y voz
 
@@ -54,8 +54,8 @@ Swagger actualizado: [ ]
 
 ## 5. Diagramas UML
 
-- [ ] Secuencia: «¿dónde está mi conductor?».
-- [ ] Casos de uso: consultas y cancelación por voz (extiende HU-20).
+- [x] Secuencia: «¿dónde está mi conductor?».
+- [x] Casos de uso: consultas y cancelación por voz (extiende HU-20).
 
 ```mermaid
 sequenceDiagram
