@@ -1,0 +1,15 @@
+[
+  { "id": "A-01", "ataque": "Registrarse con foto o video de otro", "contramedida": "Prueba de vida + comparación con carnet", "capa": "Identidad", "historia": "HU-08" },
+  { "id": "A-02", "ataque": "Varias cuentas por persona", "contramedida": "Carnet único, rostro duplicado, un dispositivo por cuenta", "capa": "Identidad", "historia": "HU-08, HU-09" },
+  { "id": "A-03", "ataque": "Emulador, root o app modificada", "contramedida": "Play Integrity validada en el servidor", "capa": "Dispositivo", "historia": "HU-09", "nota": "simulada en desarrollo" },
+  { "id": "A-04", "ataque": "Teléfono robado o prestado", "contramedida": "La llave exige la biometría del dueño", "capa": "Dispositivo", "historia": "HU-09, HU-29" },
+  { "id": "A-05", "ataque": "Repetir un handshake capturado", "contramedida": "Desafío de un solo uso, vence en 30 s", "capa": "Encuentro", "historia": "HU-22" },
+  { "id": "A-06", "ataque": "Enviar foto del QR a alguien lejos", "contramedida": "Doble firma + ambos GPS a ≤ 50 m en el mismo desafío", "capa": "Encuentro", "historia": "HU-22" },
+  { "id": "A-07", "ataque": "Falsificar GPS", "contramedida": "Atestación, ubicación simulada, cruce de trazas, límite de velocidad", "capa": "Encuentro / Trayecto", "historia": "HU-22, HU-23, HU-25" },
+  { "id": "A-08", "ataque": "Llamar a la API sin la app", "contramedida": "Firma del dispositivo en toda petición sensible; estados controlados por el servidor", "capa": "Dispositivo", "historia": "HU-09" },
+  { "id": "A-09", "ataque": "Liberar pago sin viaje o cobrar dos veces", "contramedida": "Solo el verificador libera, solo viajes verificados, una vez", "capa": "Dinero", "historia": "HU-24" },
+  { "id": "A-10", "ataque": "Colusión para simular viajes", "contramedida": "Los viajes no crean saldo; detección de patrones", "capa": "Dinero", "historia": "HU-25" },
+  { "id": "A-11", "ataque": "Mover dinero con un comando de voz", "contramedida": "La voz nunca autoriza; acción sensible pide biometría", "capa": "Dispositivo", "historia": "HU-29" },
+  { "id": "A-12", "ataque": "Robar llaves del servidor", "contramedida": "Relayer y verificador en AWS KMS; llaves de usuario solo cifradas (AES-256-GCM)", "capa": "Dinero", "historia": "HU-12" },
+  { "id": "A-13", "ataque": "Ver o modificar datos de otra organización", "contramedida": "Id de organización en cada registro + RLS", "capa": "Aislamiento", "historia": "HU-01, HU-02" }
+]

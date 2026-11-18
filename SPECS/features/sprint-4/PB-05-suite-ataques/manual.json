@@ -1,0 +1,32 @@
+[
+  {
+    "amenaza": "A-03",
+    "prueba": "Vincular y abordar con la integridad real de Google en un teléfono físico",
+    "pasos": "Instalar la versión de la app firmada por Play, vincular el teléfono y abordar un viaje; repetir con la app en un emulador o con root.",
+    "esperado": "En el teléfono original el servidor acepta; en el emulador o con root rechaza con INTEGRIDAD_INVALIDA.",
+    "fecha": null,
+    "telefono": null,
+    "persona": null,
+    "resultado": null
+  },
+  {
+    "amenaza": "A-04",
+    "prueba": "Huella ajena en una acción sensible",
+    "pasos": "Con la huella de otra persona (no registrada en el teléfono) intentar reservar y recargar.",
+    "esperado": "El sistema operativo rechaza la huella ajena y la llave no firma; no se envía la petición.",
+    "fecha": null,
+    "telefono": null,
+    "persona": null,
+    "resultado": null
+  },
+  {
+    "amenaza": "A-07",
+    "prueba": "App de ubicación falsa en el encuentro",
+    "pasos": "Activar una app de ubicación simulada en el teléfono del pasajero y escanear el código del conductor.",
+    "esperado": "El abordaje se rechaza con ubicación simulada; la reserva sigue confirmada.",
+    "fecha": null,
+    "telefono": null,
+    "persona": null,
+    "resultado": null
+  }
+]
