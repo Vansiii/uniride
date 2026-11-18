@@ -318,11 +318,11 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP221 · Verificar y PR — 1h — @[POR DEFINIR]
 
 ### HU-21 · Calificación mutua (14 h) — migración con RLS y función `SECURITY DEFINER` confirmada por el PO (17/11)
-- [ ] SP222 · Migración `020_calificaciones` (tabla, RLS, función de promedio) y Prisma — 2h — @[POR DEFINIR]
-- [ ] SP223 · Backend: servicio, controlador, plazo de 7 días, calificación ciega y promedio en la búsqueda — 4h — @[POR DEFINIR]
-- [ ] SP224 · Backend: pruebas e2e y de ataque A-08, A-10, A-13 — 3h — @[POR DEFINIR]
-- [ ] SP225 · Mobile: pantalla «Calificar», botón en Mis viajes e insignia con promedio — 4h — @[POR DEFINIR]
-- [ ] SP226 · Verificar y PR — 1h — @[POR DEFINIR]
+- [x] SP222 · Migración `020_calificaciones` (tabla, RLS, función de promedio) y Prisma — 2h — @[POR DEFINIR]
+- [x] SP223 · Backend: servicio, controlador, plazo de 7 días, calificación ciega y promedio en la búsqueda — 4h — @[POR DEFINIR]
+- [x] SP224 · Backend: pruebas e2e y de ataque A-08, A-10, A-13 — 3h — @[POR DEFINIR]
+- [x] SP225 · Mobile: pantalla «Calificar», botón en Mis viajes e insignia con promedio — 4h — @[POR DEFINIR]
+- [x] SP226 · Verificar y PR — 1h — @[POR DEFINIR]
 
 ### HU-31 · Accesibilidad (17 h) — alcance: flujo principal; el resto queda «solo claro» (aprobado 17/11)
 - [ ] SP227 · Paletas oscuro y alto contraste + prueba de contraste — 2h — @[POR DEFINIR]
