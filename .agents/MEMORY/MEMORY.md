@@ -86,7 +86,7 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 | D-07 | Registros de alcance plataforma | `AGENTS.md` §5.3 dice "todo registro lleva organization_id", pero usuario, dispositivo, identidad, billetera y vehículo son únicos por persona (un CI, un rostro, una placa) y la persona puede estar en varias organizaciones (HU-07) | SP10 (PB-02) | Tensión `AGENTS.md` ↔ documento técnico |
 | D-08 | Voz en el panel web | El documento solo define voz en la app móvil (Android). ¿Los paneles admin también llevan voz (p. ej. Web Speech API) o el requisito 4 se cumple solo en móvil? | HU de web | Requisito 4 del docente |
 | D-09 | Entornos AWS | ¿Solo un entorno de demo o también staging? ¿Panel web en S3 o junto al backend? Impacta costos (R-03) | SP08 | No definido |
-| D-10 | Cola de reintentos on-chain | Propuesta: tabla PostgreSQL + worker. Alternativa: SQS | HU-12 | No definido |
+| D-10 | Cola de reintentos on-chain | **Resuelta el 07/11:** tabla PostgreSQL + worker (entrada "HU-13: alineación") | HU-13 | `ssd.md` §10 |
 | D-11 | HU-17 (S1) antes que HU-08 (S2) | HU-08 y la constitución exigen verificación para publicar, pero publicar viaje está en S1 y la verificación en S2. Opciones: mover HU-17 a S2; o implementarla en S1 con el `VerifiedMemberGuard` activado desde S2 (no se despliega a usuarios reales antes) | HU-17 | Documento técnico §4–§6 |
 | D-12 | Tope de precio en HU-17 | HU-17 exige "precio ≤ tope de la organización", pero las tarifas se configuran en HU-04 (S4). Propuesta: campo `price_cap_urc` cargado en el alta (HU-01) | HU-17 | Documento técnico §6 |
 | D-13 | Biometría en recarga (HU-13, S2) | HU-29 (S3) pide biometría para recargar. Propuesta: la firma con la llave biométrica de HU-09 ya cubre la recarga; HU-29 completa la UI y la regla para voz | HU-13 | Documento técnico §6 |
@@ -96,6 +96,13 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 | D-17 | Calificación en HU-18 | Los resultados de búsqueda muestran calificación, pero HU-21 (calificaciones) está en Reserva. Opciones: ocultar hasta HU-21 o subir HU-21 | HU-18 | Documento §5–§6 |
 | D-18 | 50 % retenido en cancelación tardía | HU-20: si el pasajero cancela con < 30 min recibe el 50 %. No se define a dónde va el otro 50 % (¿al conductor?) | HU-20, PB-04 (función `refund`) | Documento §6 |
 | D-19 | Idioma de identificadores | Propuesta: inglés en código; español en textos de usuario y documentación | SP02–SP05 | `AGENTS.md` §7 |
+| D-22 | Llave de trayecto (S3) | **Resuelta el 08/11** (entrada «Resuelve D-22 a D-27»). La llave de HU-09 pide huella en cada firma; el código rotativo (HU-22) y las posiciones cada 15 s (HU-23) no pueden pedirla. Ver entrada 2026-11-08 | HU-22, HU-23 | Prototipo S2 · `AGENTS.md` §14 |
+| D-23 | Estados de reserva vs. viaje (S3) | **Resuelta el 08/11** (entrada «Resuelve D-22 a D-27»). La máquina de estados es por viaje, pero un viaje tiene varios pasajeros con abordaje, bajada y pago propios | HU-19, HU-22, HU-23, HU-24 | `AGENTS.md` §5.9, §14 |
+| D-24 | Verificación fallida (S3) | **Resuelta el 08/11** (entrada «Resuelve D-22 a D-27»). Ninguna fuente dice qué pasa con el escrow si la bajada o la traza no se verifican | HU-23, HU-20 | `AGENTS.md` §14 |
+| D-25 | Centavos impares en el 50 % | **Resuelta el 08/11** (entrada «Resuelve D-22 a D-27»). `reembolsar` al 50 % de 12,35 da 6,175; el libro guarda 2 decimales (HEARTBEAT 07/11) | HU-19, HU-20 | MEMORY 2026-11-07 HU-14 |
+| D-26 | Viajes propios en la búsqueda | **Resuelta el 08/11** (entrada «Resuelve D-22 a D-27»). La búsqueda muestra al conductor sus propios viajes (HEARTBEAT 07/11) | HU-19 | HU-18 |
+| D-27 | Cuenta suspendida con viajes o reservas | **Resuelta el 08/11** (entrada «Resuelve D-22 a D-27»). Sus viajes no salen en la búsqueda pero siguen `publicado` y las reservas siguen activas (HEARTBEAT 07/11) | HU-19, HU-20 | `AGENTS.md` §14 |
+| D-28 | Salida a la llave anulada por huella nueva | **Resuelta el 08/11**: HU-10 sube a S3 (entrada «Resuelve D-28») | HU-10, HU-29 | HEARTBEAT 07/11 |
 
 **Archivos afectados:** `SPECS/ssd.md`, `SPECS/roadmap.md`, `.agents/MEMORY/HEARTBEAT.md`.
 
@@ -543,7 +550,7 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 1. **Algoritmo ECDSA P-256 en hardware:** Las llaves del dispositivo se generan en el chip seguro (StrongBox / TEE de Android Keystore) con curva NIST P-256. Genera firmas compactas de ~64 bytes en Base64 idóneas para encabezados HTTP `X-Firma`.
 2. **Alcance de la firma en `FirmaDispositivoGuard`:** La firma del dispositivo se exige estrictamente en endpoints sensibles (billetera, recarga, publicar viaje, reservar y handshakes). Consultas públicas y login inicial usan JWT estándar para no romper la web.
 3. **Protección contra repetición (Replay):** Firma canónica sobre `METHOD + PATH + TIMESTAMP + NONCE + SHA256(BODY)` con ventana de 30 segundos y caché de nonces de un solo uso.
-4. **Play Integrity y bypass en desarrollo:** Obligatorio nivel `MEETS_DEVICE_INTEGRITY`. En desarrollo local se usa `INTEGRITY_MODO=simulado`; en producción (`NODE_ENV=production`), el bypass está estrictamente prohibido y bloquea el sistema si se intenta encender.
+4. **Play Integrity y bypass en desarrollo:** Obligatorio nivel `MEETS_DEVICE_INTEGRITY`. En desarrollo local se usa `MODO_EMULADOR_DEV=true` (corregido el 2026-11-05; antes figuraba `INTEGRITY_MODO`); en producción (`NODE_ENV=production`), el bypass está estrictamente prohibido y bloquea el sistema si se intenta encender.
 
 **Tareas acordadas (Sprint 2):** `SP93` (modelo Prisma y migración `007_dispositivos`), `SP94` (`PlayIntegrityService`), `SP95` (endpoints de atestación y vinculación), `SP96` (`FirmaDispositivoGuard`), `SP97` (pruebas de ataque A-03, A-04, A-08) y `SP98` (módulo móvil de Keystore en Expo).
 
@@ -633,3 +640,1015 @@ Las tareas viven solo en `.agents/STEERING/backlog.md`; no hay `tasks.md` por HU
 
 
 
+
+---
+
+## 2026-11-07 · Vulnerabilidades de dependencias: `npm audit fix` sin `--force` (SP131, SP132)
+
+**Evento:** El integrante autoriza cambiar dependencias (AGENTS.md §14) solo con `npm audit fix` sin `--force` en `backend` y `mobile`, en ramas `fix/dependencias-audit` creadas desde `develop`, no apiladas sobre HU-18.
+
+**Hallazgo:** Las vulnerabilidades ya estaban en `develop`: el audit del lockfile de `develop` y el de `feat/HU-18-buscar-viajes` da lo mismo en `backend` (14, 7 altas). En `mobile`, HU-18 suma una moderada en `@maplibre/maplibre-react-native` (SP130), que hereda del `expo` del que depende; se va con SP133. Las dependencias que agregaron las HU no tienen avisos propios.
+
+**Decisión:**
+1. **Backend:** body-parser, multer, deepmerge-ts, mysql2, fast-uri y qs corregidos; de 14 a 3 moderadas. Prisma sube de 7.10.0 a 7.10.1 dentro del arreglo, y `allowScripts` pasa a aprobar esa versión (mismos paquetes ya aprobados).
+2. **Mobile:** zod, node-forge, uuid y parches de Expo dentro del SDK 57, sin tocar `package.json`; de 31 (6 altas) a 23 (3 altas). Lo que queda solo sale con `--force`, y npm propone versiones mayores que en varios casos bajan de versión (expo 52, jest 25, eslint-config-expo 6): no se aplica.
+3. **Backend, después (SP132, pedido por el integrante):** `vitest` y `@vitest/coverage-v8` a 4.1.12 (`audit fix` no los subía); `backend` queda con 0 vulnerabilidades.
+4. **Verificación:** regresión completa en verde en los dos repositorios tras cada cambio (backend con e2e, mobile con build Android).
+5. **Pendiente:** SP133 (actualizar el SDK de Expo para lo que pide `--force`; versión mayor, requiere confirmación).
+
+**Archivos afectados:** `backend/package.json`, `backend/package-lock.json`, `mobile/package-lock.json`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+## 2026-11-07 · Expo SDK 57 → 58 en `mobile` (SP133)
+
+**Evento:** El integrante confirma la subida de versión mayor (AGENTS.md §14) para quitar las 3 vulnerabilidades altas que quedaron tras SP131 (`expo-router` 57: decode-uri-component, query-string). Va en la misma rama `fix/dependencias-audit` de `mobile`.
+
+**Decisión:**
+1. **Versiones:** las que pide `expo install --fix` para el SDK 58: expo 58.0.23, React Native 0.88.1, React 19.3.0, gesture-handler 3.3, reanimated 4.7.1, worklets 0.13, Jest 30.5, jest-expo y eslint-config-expo 58. `expo install --fix` falla por un conflicto de pares con el árbol viejo; las versiones se escriben en `package.json` y se instala con `npm install`. No cambia código de la app.
+2. **Resultado del audit en producción:** 22 moderadas y 1 baja, todas dentro del propio `expo` (glob, minimatch); `--force` solo propone bajar a expo 52.
+3. **`testTimeout` a 15 s:** con la caché de Jest vacía (como en el CI), la primera prueba de `vehiculo` e `identidad` tarda 3 s sola y más de 5 s con las suites en paralelo, porque carga React Native 0.88 al renderizar. No cambia ninguna aserción ni ningún `waitFor`.
+4. **Compilación nativa en Windows:** gesture-handler 3 trae C++ propio (shadow node de Fabric) y un objeto intermedio mide 334 caracteres desde cualquier carpeta. Hace falta `LongPathsEnabled=1` (administrador) y CMake 3.31.6 del SDK de Android (ninja 1.12), con `cmake.dir` en `android/local.properties`. Cada integrante que compile la app en Windows lo hace una vez; el CI, Mac, Linux y EAS Build no lo necesitan.
+5. **Verificación:** lint, formato, tipos, 163 pruebas (también en frío), bundle Android, audit y `assembleDebug` con Gradle en verde. Sin probar en teléfono.
+
+**Archivos afectados:** `mobile/package.json`, `mobile/package-lock.json`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+## 2026-11-06 · HU-12: se alinean los documentos con la custodia cifrada
+
+**Decisión:** el integrante confirma la custodia aprobada por el PO el 02/11: llaves de billetera de usuario cifradas con AES-256-GCM en `billeteras.llave_custodia_ref`, con la clave en `WALLET_ENCRYPTION_KEY`. Relayer y verificador siguen en KMS. Solo se añade `ethers` ^6.17 al backend (`AGENTS.md` §14); `@aws-sdk/client-kms` no, porque el modo KMS opcional no se implementa. Se usan las variables que ya existían (`CADENA_RPC_URL`, `DIRECCION_TOKEN_URC`) en vez de las del plan.
+
+**Razón:** el plan aprobado contradecía `AGENTS.md` §6 y §11, `constitution.md` Art. 6, `ssd.md` §10 y la RN-3 de la spec, que decían "solo en KMS, nunca en la BD". Riesgo aceptado: quien obtenga a la vez la base de datos y esa variable descifra las llaves; el token no tiene valor real.
+
+**Archivos afectados:** `AGENTS.md`, `SPECS/constitution.md`, `SPECS/ssd.md`, `SPECS/features/sprint-2/HU-12-creacion-billetera/{spec,plan}.md`, `SPECS/roadmap.md`, `.env.example`.
+
+---
+
+## 2026-11-06 · HU-12 Creación de billetera y SP125 Keystore nativo: implementadas
+
+**Decisiones:**
+1. Se agrega SP125 (HU-09): la firma de dispositivo no podía funcionar en un teléfono real porque el Keystore nativo no estaba instalado, y los endpoints de billetera la exigen. Módulo local de Expo en `mobile/modules/llave-dispositivo` (Kotlin, ECDSA P-256 no exportable, huella en cada firma con `BiometricPrompt` y `CryptoObject`); única dependencia nativa nueva: `androidx.biometric`. Sin paquetes npm de terceros en la firma.
+2. `usuarios.suspendida_en` (`TIMESTAMPTZ NULL`) para el caso "cuenta suspendida" de la spec §4: POST y GET responden 403 `CUENTA_SUSPENDIDA`. Nada la escribe hasta una HU de administración.
+3. La billetera se crea al aprobarse la identidad; si falla no revierte la verificación, queda auditado y `POST /billetera` reintenta. La cadena se comprueba antes de insertar. `exploradorUrl` es `null` fuera de Amoy.
+4. `GET /billetera/mia` también va firmado (`ssd.md` §8), así que leer el saldo pide huella: la pantalla lee una vez al entrar y con un botón de actualizar, no en cada foco. Solo la vista sin billetera relee al recuperar el foco, porque esa consulta no pide firma.
+5. El saldo se muestra en formato es-BO sobre el texto de la API, sin pasar por `Number` (`src/formato.ts`). Se añade `expo-clipboard` y la barra de pestañas `src/app/(pestanas)/`. Recargar y Movimientos llegan con HU-13 y HU-14.
+
+**Verificado:** backend 360 unitarias y 241 e2e, cobertura 95,9 %, peticiones reales contra Hardhat local. Móvil 209 pruebas. En teléfono físico (Infinix X669, Android 12, TEE): firma real aceptada por el backend; firma repetida o ajena, 401; cancelar y dedo rechazado no firman; billetera creada; saldo acuñado visto como 1.234,56 URC; nodo apagado da 503 y el reintento funciona.
+
+**Sin verificar:** Polygon Amoy y SP23 (despliegue), enlace a Polygonscan en el teléfono, vista con datos a 412 dp, CI real, Play Integrity real (simulado en desarrollo; en producción la vinculación falla a propósito), StrongBox, invalidación al registrar una huella nueva.
+
+**Pendientes sin bloquear:** pedir huella al vincular (prototipo `m-biometria`); alias de llave por cuenta (hoy, una segunda cuenta en el mismo teléfono deja sin firma a la primera; con HU-10); el texto "Actualiza la app" de `keystore_no_disponible` confunde; UML de despliegue, paquetes y secuencia de creación; prueba `afiliacion CA-8` falló una vez por timeout de 5 s y no se repitió.
+
+**Archivos afectados:** `backend/src/{billetera,blockchain,identidad}`, `backend/prisma/migrations/008_billeteras`, `mobile/modules/llave-dispositivo`, `mobile/src/app/(pestanas)`, `mobile/src/dispositivo`, `mobile/src/formato.ts`, `SPECS/features/sprint-2/HU-12-creacion-billetera/plan.md`.
+
+---
+
+## 2026-11-06 · HU-14 Saldo e historial: implementada
+
+**Evento:** Backend y móvil implementados, apilados sobre HU-12, que aún no está en `develop` (autorizado por el integrante). Pendientes: PR, revisión, CI y aceptación del PO.
+
+**Decisión:**
+1. **`/billetera/saldo` y `/billetera/movimientos` van sin firma de dispositivo** (decisión del integrante): token, cuenta activa e identidad verificada. Cada firma pide huella, y el refresco y el scroll infinito (CA-5) no pueden pedirla en cada lectura. Riesgo aceptado: un token robado puede leer saldo e historial, sin mover dinero. `POST /billetera` y `GET /billetera/mia` conservan la firma, así que abrir la pestaña Billetera pide una huella. Corrige `ssd.md` §8.
+2. **Fórmula del saldo:** disponible = `balanceOf` y total = `balanceOf` + bloqueado. Corrige el plan, que restaba el escrow: `EscrowUniRide.bloquear` ya saca los tokens de la billetera (`ssd.md` §10).
+3. **Libro mayor:** sin `saldo_posterior`, porque el trigger de solo inserción no deja actualizarlo; el saldo contable se calcula sobre los movimientos confirmados. El trigger y el GRANT dejan cambiar solo `estado` y `hash_tx`, y un movimiento `confirmado` ya no cambia: una corrección es un movimiento nuevo.
+4. **Conciliación:** en cada lectura real de la cadena sin movimientos pendientes; una diferencia va a `registros_auditoria` y al log, sin cambiar la respuesta. El proceso periódico de `ssd.md` §10 y la alerta quedan fuera de esta HU. Una diferencia persistente agrega hasta 4 filas por minuto por billetera consultada.
+5. **Bloqueado:** bloqueos confirmados cuya `reserva_id` no tiene liberación ni reembolso confirmados, en cualquier billetera. `reserva_id` es obligatoria salvo en `recarga`; su llave foránea llega con HU-19.
+6. **Desvíos menores:** `tipo` y `estado` son `TEXT` + `CHECK`, como el resto del esquema, no ENUM; CHECK de formato de hash y de hash obligatorio al confirmar; filtro `?tipo=` por los chips del prototipo; `limite` máximo 100. HU-16 y HU-24 deben ampliar los CHECK al agregar `retiro` y `subsidio`.
+7. **Móvil:** "Actualizar" relee solo `/saldo`. Con `/mia` en 503 se ve el saldo con el aviso y sin dirección. Etiqueta Pendiente neutra y fecha "mié 21 oct", según `DESIGN_SYSTEM.md`. Sin fila "Billetera creada": no existe ese tipo de movimiento. Sin aviso de recarga pendiente en Billetera ni botón Recargar: llegan con HU-13. Saldo en Inicio: con HU-18.
+
+**Verificado:** backend 394 unitarias y 316 e2e, cobertura 95,7 %, ataques A-09 y A-10, peticiones reales contra Hardhat con nodo caído, colgado y con error (200 y `enLinea: false`). Móvil 246 pruebas y `expo export` de Android. En teléfono físico (Infinix X669): 46 movimientos, filtros, scroll, sin verificar, historial vacío y nodo caído.
+
+**Sin verificar:** Polygon Amoy y SP23, enlace a Polygonscan en pantalla, vistas a 412 dp y web de la billetera, bloqueo real del escrow (HU-19), CI real. El diálogo de huella no sale en el volcado de pantalla: que refrescar y paginar no firman está probado por Jest, no contando diálogos.
+
+**Pendientes sin bloquear:** UML de clases (`MovimientoBilletera`), secuencia de saldo y componentes de mobile. `fallido` → `confirmado` directo sigue permitido. Timeouts de 5 s que no se repitieron: 2 e2e de HU-34 y 2 unitarias de billetera y blockchain en una corrida temprana; causa no demostrada. Otras pantallas sin banda de marca podrían tener la barra de estado blanca sobre blanco.
+
+**Archivos afectados:** `backend/prisma/migrations/009_movimientos_billetera`, `backend/src/{billetera,blockchain}`, `mobile/src/app/movimientos.tsx`, `mobile/src/app/(pestanas)/billetera.tsx`, `mobile/src/componentes/{TarjetaSaldo,FilaMovimiento,Mensajes}.tsx`, `mobile/src/{formato,enlaces}.ts`, `SPECS/ssd.md`, `SPECS/features/sprint-2/HU-14-saldo-historial/plan.md`.
+
+---
+
+## 2026-11-07 · HU-14: verificación con escrow real, web y huellas
+
+**Evento:** Se hicieron las pruebas que la entrada del 06/11 dejó sin verificar. Sin push; pendientes: `/code-review`, PR, revisión, CI y aceptación del PO.
+
+**Decisión:**
+1. **Un movimiento confirmado invalida el caché de `/saldo`.** La prueba real mostró que, tras bloquear 15 URC de 150, `/saldo` daba total 165 y disponible 150 durante 15 s: el bloqueado salía de la BD y el `balanceOf` del caché. El caché ahora guarda cuántos movimientos confirmados tenía la billetera y se relee si ese número cambia. Funciona con varias instancias y no agrega lecturas mientras nada cambie. Un movimiento pendiente no gasta otra lectura.
+2. **El resumen del libro se lee antes que la cadena.** Así, un movimiento que se confirma entre las dos lecturas sigue contando como pendiente y no genera una diferencia falsa.
+3. **Queda abierto para HU-19, sin corregir:** `reembolsar` al 50 % sobre 12,35 URC reparte 6,175 en la cadena y `monto` es `NUMERIC(12,2)`. La diferencia es permanente, en pasajero y conductor, y agrega una fila de auditoría en cada lectura real. Hay que decidir antes de HU-19 si se redondea en el contrato o se limitan los montos.
+
+**Verificado:**
+- **Escrow real en Hardhat:** `UniCoin` y `EscrowUniRide` desplegados, `bloquear` con permit firmado, `liberar`, `reembolsar` al 100 % y al 50 %. En cada paso `/saldo` coincidió con `balanceOf`, sin diferencias auditadas salvo el caso impar de arriba. Los hash del historial existen en la cadena con estado exitoso y el escrow terminó en 0 tras los casos resueltos. El backend real leyó la cadena; la prueba llamó al contrato y escribió los asientos por su cuenta, porque ese flujo llega con HU-19.
+- **Web a 360 y 412 (Edge headless):** Movimientos sin desborde, 4 chips en una fila, Pendiente y No se completó, 46 de 46 montos únicos al bajar, filtros, historial vacío y CA-6. 26 lecturas de `/saldo` y `/movimientos`, ninguna con firma.
+- **Teléfono físico (Infinix X669):** el integrante vio una sola huella al abrir Billetera, y el registro de peticiones muestra una sola firmada (`/mia`). Refrescar, paginar hasta la página 3 y volver no firmaron. Billetera y Movimientos correctas a 412 dp. El enlace abre Chrome en `amoy.polygonscan.com/tx/<hash>`, con la URL agregada por un proxy de prueba.
+- **Suites sobre el código final:** backend lint, build, 395 unitarias y 318 e2e, cobertura 95,7 %; mobile lint, build y 246 pruebas.
+
+**Sin verificar:** Polygon Amoy y SP23, explorador con una transacción real, CI real, Billetera con datos en web (sin Keystore no hay firma).
+
+**Archivos afectados:** `backend/src/billetera/{conciliacion,movimientos}.service.ts`, `backend/src/blockchain/blockchain.service.ts`, sus pruebas y `backend/test/billetera/saldo.e2e-spec.ts`; `SPECS/features/sprint-2/HU-14-saldo-historial/{spec,plan}.md`.
+
+---
+
+## 2026-11-07 · HU-14: revisión de código antes de subir
+
+**Evento:** `/code-review` de la rama de HU-14 en `backend` y `mobile`, con 10 hallazgos contrastados contra el código y las decisiones ya tomadas.
+
+**Decisión:**
+1. **Corregidos en `mobile`:** reintentar en Movimientos vuelve a crear la billetera si la creación falló (`yaCreo` se marcaba antes de terminar), y recargar Billetera limpia el aviso rojo de refresco.
+2. **Se mantienen, ya decididos:** `/saldo` y `/movimientos` sin firma (riesgo aceptado). Una diferencia persistente agrega hasta 4 filas de auditoría por minuto; la revisión añade que cualquiera puede provocarla enviando una fracción de URC a una dirección pública, porque `UniCoin` admite transferencias.
+3. **Para definir en HU-13, primer uso del libro:** una clave repetida con otros datos devuelve el original (`a-09-libro-mayor.e2e-spec.ts` lo exige, también de otra billetera); `monto` con más de 2 decimales se redondea en silencio; `fallido` puede pasar a `confirmado`, y un reintento con otra clave contaría doble; con un movimiento `pendiente` atascado la billetera deja de conciliarse.
+4. **Sin corregir, no bloquean:** con el nodo caído, `/mia` pide huella y da 503, porque lee la cadena para devolver datos de la BD; el aviso de sincronización sigue tras un refresco en línea si la dirección no cargó; el caché de saldo no guarda fallas ni lecturas en curso; `formatearHoraLocal` y `fallaDe` duplican lógica de `@/i18n` y `billetera.tsx`.
+
+**Verificado:** backend lint, build, 395 unitarias y 318 e2e en Node 24, antes de los arreglos de `mobile`, que no lo tocan; mobile lint, tipos y 247 pruebas en Node 24. Prettier marca 114 archivos de `backend` en Windows: solo difieren los finales de línea (con `--end-of-line auto` pasa).
+
+**Sin verificar:** CI real. Los arreglos de `mobile` no se probaron en el teléfono ni en web; la prueba nueva cubre el reintento y el aviso rojo no tiene prueba propia.
+
+**Archivos afectados:** `mobile/src/app/movimientos.tsx`, `mobile/src/app/(pestanas)/billetera.tsx`, `mobile/src/__tests__/movimientos.test.tsx`.
+
+---
+
+## 2026-11-07 · HU-13: alineación de spec, plan y ssd antes de implementar (Resuelve D-10)
+
+**Evento:** El plan aprobado el 02/11 contradecía a su propia spec y a `ssd.md`. El integrante toma las decisiones pendientes. El ajuste de spec y plan queda por aprobar antes de escribir código.
+
+**Decisión:**
+1. **D-10, cola:** tabla `trabajos_onchain` y worker. Confirmar responde 202 "procesando" y la app consulta `GET /recargas/:id`. Se descarta acuñar dentro de la petición: un corte dejaría el movimiento pendiente sin nadie que lo retome, y `spec.md` §4 pide reintento automático.
+2. **Doble acuñación (A-09):** `UniCoin.acunar` no tiene id, así que reintentar tras una respuesta perdida acuñaría dos veces. Se agrega `acunarRecarga(destino, monto, idOrden)`, que revierte si el id ya se usó (autorizado, `AGENTS.md` §14). `acunar` queda para subsidios.
+3. **Relayer:** `RELAYER_LLAVE_PRIVADA` solo en Hardhat y desarrollo. En producción el arranque falla mientras no exista el firmante KMS, que queda en SP129, al desplegar. Se autoriza `qrcode` en backend.
+4. **Libro mayor:** una clave repetida con otros datos falla; un monto con más de 2 decimales se rechaza; `fallido` es final; un `pendiente` atascado se sigue reintentando y alerta en auditoría a los 5 intentos; la conciliación no cambia. Cambian a propósito dos pruebas de `a-09-libro-mayor.e2e-spec.ts`.
+5. **Endpoints (lo responde CA-4):** `POST /recargas` sin firma y `POST /recargas/:id/confirmar` con firma. `/simular-pago` sale de `ssd.md`.
+
+**Tareas nuevas:** SP126 (contrato), SP127 (worker), SP128 (libro mayor), SP129 (firmante KMS, al desplegar).
+
+**Archivos afectados:** `SPECS/features/sprint-2/HU-13-recarga-saldo/{spec,plan}.md`, `SPECS/ssd.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+---
+
+## 2026-11-07 · HU-13: backend y contrato implementados (SP109–SP113, SP126–SP128)
+
+**Evento:** El integrante aprueba el ajuste de spec y plan, y se implementan el contrato y el backend. Rama `feat/HU-13-recarga-saldo` en `contracts` (desde `develop`) y en `backend` (apilada sobre HU-14). Falta móvil (SP114).
+
+**Decisión:**
+1. **Respuesta perdida:** el worker consulta `ordenAcunada` antes de enviar y, si ya está acuñada, toma el hash del evento. Es más simple que interpretar el error del envío, porque ethers no decodifica un error propio al estimar gas. El contrato sigue revirtiendo con `OrdenYaAcunada` si dos intentos se cruzan. Se agregó el getter público `ordenAcunada`.
+2. **Sin transacción abierta durante la cadena:** a diferencia de la cola de correos, tomar un trabajo lo reserva 5 min en un solo `UPDATE` con `SKIP LOCKED`. Un corte se retoma solo; `idOrden` evita acuñar dos veces.
+3. **Caché del proveedor apagada:** con los 250 ms de ethers, dos acuñaciones seguidas leían el mismo nonce y la segunda daba `NONCE_EXPIRED`. Lo encontró la prueba real, no las pruebas con cadena simulada; esta corrección no tiene prueba automatizada.
+4. **`monto` no numérico:** responde `VALIDACION_FALLIDA`. `MONTO_INVALIDO` queda para más de 2 decimales.
+5. **`@types/qrcode`** se agrega como dependencia de desarrollo junto con `qrcode`, autorizada el 07/11.
+
+**Verificado:** `backend` lint, formato, 434 unitarias (cobertura 92,79 %), 375 e2e y build; `contracts` lint, 18 pruebas y build; `prisma migrate diff` sin diferencias. Prueba real con el backend en su proceso, `UniCoin` en un nodo Hardhat y firmas P-256: montos rechazados, confirmar sin firma da 401, acuñación con `balanceOf` y evento, repetir da 200 con el mismo hash, respuesta perdida sin doble acuñación, dos órdenes seguidas sin reintentos, orden vencida da 410 y nodo caído deja la orden en `procesando`. Tras caer el nodo no se comprobó que la orden termine acreditada contra Hardhat: esa recuperación está probada con la cadena simulada.
+
+**Sin verificar:** Polygon Amoy (`queryFilter` sin `fromBlock` puede chocar con el límite de rango de un RPC público; si pasa, el worker reintenta y alerta). El firmante KMS no existe: **con HU-13 fusionada, producción no arranca hasta SP129**. La firma real con huella se prueba con el móvil.
+
+**Observado:** `test/membresias/decision.e2e-spec.ts` (HU-03) falló una vez con un timeout de 10 s en `beforeAll`, tras colgarse 135 s. Pasó sola y en las dos corridas completas siguientes; no se encontró la causa y no toca código de HU-13. `npm audit` de `backend` sigue en 7 altas, igual que antes de `qrcode`; `contracts` reporta 14 altas, sin revisar. Un `npm audit fix` no se aplicó.
+
+**Diagramas a actualizar:** secuencia de recarga (ya en `plan.md` §5); clases, con `OrdenRecarga` y `TrabajoOnchain`.
+
+**Archivos afectados:** `contracts/contracts/UniCoin.sol`, `contracts/test/UniCoin.ts`; `backend/prisma/`, `backend/src/billetera/`, `backend/src/blockchain/`, `backend/src/i18n/es-BO.json`, `backend/test/`; `.env.example`; `SPECS/features/sprint-2/HU-13-recarga-saldo/{spec,plan}.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+---
+
+## 2026-11-07 · HU-13: pantalla de recarga en el móvil (SP114)
+
+**Decisión:** `src/app/recargar.tsx` es una sola ruta con pasos en memoria (monto, QR, en camino, acreditada, vencida), así "atrás" nunca vuelve a un QR ya pagado. El QR es la imagen del servidor con `Image`, sin dependencias nuevas. Al llegar a cero, la pantalla consulta `GET /billetera/recargas/:id` antes de decir "no se cobró nada". Billetera muestra un aviso por cada recarga pendiente de la primera página de movimientos, sin sumarlas, y relee saldo y pendientes al recuperar el foco, sin firma.
+
+**Razón:** una confirmación cuya respuesta se perdió ya no vence en el servidor, así que el reloj del teléfono no puede afirmar que no hubo cobro. Sumar montos obligaría a pasar por `Number`. Releer sin firma actualiza el saldo sin gastar una huella (CA-1).
+
+**Verificado:** `mobile` lint, tipos y 282 pruebas. En navegador contra el backend con cadena simulada, a 360 y 412 dp, con una llave P-256 de prueba inyectada como módulo nativo, de modo que el servidor validó firmas reales: monto, errores de rango y decimales, QR, una sola firma al confirmar, en camino, acreditada, saldo actualizado sin otra firma, movimiento en el historial, orden vencida (410), pago repetido (CA-3) y sin identidad (CA-6). El aviso de pendiente se vio con un movimiento insertado por SQL, y el pago repetido y el vencimiento se forzaron por SQL.
+
+**Sin verificar:** huella real en el teléfono y contra `UniCoin` en Hardhat desde la app. Falla de red al confirmar y QR que llega a cero: solo con Jest. Build de `mobile` sin correr en esta parte.
+
+**Diferencia con el prototipo:** "Recarga en camino" no lleva la tarjeta con la fila del movimiento y Billetera no agrega "1 URC = 1 Bs". Decidir en la verificación.
+
+**Archivos afectados:** `mobile/src/app/recargar.tsx`, `mobile/src/app/(pestanas)/billetera.tsx`, `mobile/src/app/movimientos.tsx`, `mobile/src/api/cliente.ts`, `mobile/src/i18n/es-BO.json`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/`.
+
+---
+
+## 2026-11-07 · HU-13: verificación en sesión limpia
+
+**Evento:** Se verifican CA-1 a CA-6 y las amenazas A-08 a A-13 contra `UniCoin` en un nodo Hardhat, con el worker real y un proxy RPC que apaga el nodo y pierde respuestas, por API y desde la app con una llave P-256 de prueba.
+
+**Defectos corregidos:**
+1. **Orden atascada en Amoy (`backend`, `c608dff`):** el RPC público de Amoy rechaza `eth_getLogs` desde el bloque 0 con `exceed maximum block range: 10000`. Con una respuesta perdida, los tokens quedaban acuñados y la orden en `procesando` sin salida. Ahora el hash se busca hacia atrás por ventanas de 1000 bloques, hasta 500 ventanas (unos 11 días en Amoy). Más allá, el worker sigue reintentando con su alerta.
+2. **Swagger:** el 401 de `confirmar` no nombraba `FIRMA_DISPOSITIVO_INVALIDA` ni `PETICION_EXPIRADA`.
+3. **Nonce:** el arreglo de la caché del proveedor ya tiene prueba automatizada; se comprobó que falla sin el arreglo.
+4. **Paridad (`mobile`, `8f51fb3`):** "Recarga en camino" lleva la fila del movimiento y Billetera agrega "1 URC = 1 Bs".
+
+**Verificado:** `backend` lint, formato, 436 unitarias (cobertura 92,98 %), 375 e2e y build; `mobile` lint, formato, tipos, 282 pruebas y build; `contracts` lint, 18 pruebas y build. Contra el contrato: contrato, API y libro mayor coinciden en cada paso; 8 confirmaciones simultáneas dejan un movimiento y un evento; respuesta perdida de verdad sin doble acuñación; con el nodo caído la orden sigue en `procesando`, alerta una vez al quinto intento y termina acreditada al volver el nodo. Desde la app: falla de red al confirmar, QR que llega a cero (pagado y sin pagar), pago repetido sin tocar la base, huella cancelada, sin identidad e historial vacío, a 360 y 412 dp. Con eso sale de "sin verificar" lo que había quedado solo con Jest.
+
+**Diferencias con el prototipo que quedan:** el diálogo de huella es el nativo genérico, sin el monto; el aviso "Tu pago quedó registrado" se ve siempre, porque la API no distingue un nodo caído de una espera normal; "Otro monto" no lleva el sufijo Bs; la etiqueta Pendiente usa reloj de arena (viene de HU-14).
+
+**Sin verificar:** huella y Keystore reales, en el teléfono. Acuñar en Amoy: contrato sin desplegar y relayer sin fondos (SP23, SP129); del RPC solo se comprobó la ventana de bloques. Montos rápidos con TalkBack: usan `selected` sobre `radio`, igual que Movimientos.
+
+**Dependencias:** altas en `backend` 7 y `mobile` 6, sin cambio por esta historia. `contracts` reportó 14 en la implementación, sin revisar. No se tocó ninguna dependencia.
+
+**Archivos afectados:** `backend/src/blockchain/blockchain.service.ts`, `backend/src/blockchain/blockchain.service.spec.ts`, `backend/src/billetera/recargas.controller.ts`; `mobile/src/app/recargar.tsx`, `mobile/src/i18n/es-BO.json`, `mobile/src/__tests__/`; `SPECS/features/sprint-2/HU-13-recarga-saldo/spec.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+---
+
+## 2026-11-07 · HU-13: huella real en el teléfono
+
+**Evento:** Se prueba la recarga en el teléfono físico (Infinix X669, Android 12, TEE) contra `UniCoin` en un nodo Hardhat, con la huella del integrante y un proxy que cuenta las peticiones firmadas. Sin cambios de código.
+
+**Verificado:** Una firma por confirmación: el integrante vio 2 huellas (abrir Billetera y pagar) y el registro muestra 2 firmadas. Crear la orden, consultarla y volver a Billetera no firman. Recargar 50 Bs acredita: contrato, libro y app coinciden. Cancelar la huella no llama a `confirmar`, no cobra y deja reintentar la misma orden, que acredita 20 Bs (contrato, libro y app en 70, 2 eventos). Cerrar un QR sin pagar no crea movimiento. Billetera, monto y QR sin desbordes a 412 dp.
+
+**TalkBack, montos rápidos:** el elegido dice "Seleccionado, 20 Bs, botón de selección, tocar 2 veces para seleccionar"; los demás no dicen "Seleccionado". Se distinguen. El elegido repite la pista de tocar 2 veces, igual que en Movimientos; queda sin corregir.
+
+**Sin verificar:** dedo no registrado en esta pantalla (probado con el mismo módulo en SP125, sin firma). "Recarga en camino" en el teléfono: Hardhat acuña antes de la consulta de 3 s; vista en web con el nodo caído. Invalidación al registrar una huella nueva, StrongBox, Play Integrity real y Amoy.
+
+**Archivos afectados:** `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+---
+
+## 2026-11-07 · HU-13: revisión de código y últimas pruebas en el teléfono
+
+**Evento:** Revisión de todo el cambio de HU-13 en `backend`, `mobile` y `contracts`, antes de subirlo. 10 hallazgos, comprobados contra el código.
+
+**Corregidos:**
+1. Una falla de la BD después de acuñar detenía el lote y nunca sumaba intentos, así que la alerta no salía (`backend` `c6a67e8`).
+2. La misma clave de idempotencia con otra reserva pasaba como la misma operación (`backend` `b15640a`, A-09).
+3. Billetera no se actualizaba sola con una recarga pendiente: ahora consulta cada 5 s mientras la pantalla está a la vista y hay pendientes, sin huella (`mobile` `5cb8227`, también lo siguiente).
+4. Movimientos no recargaba al volver de recargar y seguía invitando a recargar.
+5. Consultar una orden aún pendiente borraba el error a la vista.
+6. Un rechazo del servidor al consultar se reintentaba sin fin y sin aviso: ahora se muestra y deja de consultar.
+7. "Seguimos intentando" salía en toda recarga: ahora solo si tarda más de 30 s (RN-6).
+
+**Pasan a SP129:** esperar N confirmaciones antes de dar por acuñada una recarga, y reemplazar con más gas una transacción atascada. Solo importan con el firmante real.
+
+**Sin cambio:** producción no arranca sin SP129, aprobado el 07/11. La revisión propone una opción más estrecha: arrancar sin relayer y dejar que las recargas reintenten. Queda a decisión del integrante.
+
+**Verificado en el teléfono** (Infinix X669, `UniCoin` en Hardhat, sin compilar el APK): un dedo no registrado dice "no reconocido", y al cancelar no hay petición a `confirmar`, ni evento, ni cambio en el contrato. Con el nodo cortado por un proxy RPC: "Recarga en camino" con su fila, el aviso de reintento a los 30 s y Billetera con la recarga pendiente. Al devolver el nodo, Billetera pasa a 50,00 URC y quita el aviso sin tocar nada y sin otra huella: contrato, libro y app coinciden, 1 evento; después deja de consultar. Desde el historial vacío, recargar y cerrar muestra el movimiento nuevo.
+
+**Regresión:** `backend`, `mobile` y `contracts`: lint, formato, pruebas, e2e y build en verde.
+
+**Sin verificar:** invalidación al registrar una huella nueva, StrongBox, Play Integrity real, Amoy y CI real.
+
+**Archivos afectados:** `backend/src/blockchain/`, `backend/src/billetera/movimientos.service.ts`; `mobile/src/app/recargar.tsx`, `mobile/src/app/movimientos.tsx`, `mobile/src/app/(pestanas)/billetera.tsx`, `mobile/src/__tests__/`; `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+---
+
+## 2026-11-07 · HU-17: contrato del backend y ajustes al plan
+
+**Evento:** Se implementan SP115 a SP118 en `backend`, rama `feat/HU-17-publicar-viaje`, apilada sobre HU-13: tabla `viajes` con RLS, validaciones, `POST /viajes`, `GET /viajes/mis-viajes` y `GET /viajes/:id`.
+
+**Ajustes al plan aprobado** (la spec y `ssd.md` los responden; no cambia ningún criterio):
+1. **Precio:** el plan fijaba `CHECK (precio_por_asiento BETWEEN 1.00 AND 20.00)`, pero CA-3 da 20 URC solo como ejemplo del tope de cada organización y `organizaciones.precio_maximo_urc` admite otros valores. Con el CHECK fijo, una organización con tope 50 respondería 500 al publicar a 30. Queda `CHECK (>= 1)` y la API valida contra el tope de la organización.
+2. **Solape entre organizaciones:** el conductor es la misma persona en todas sus organizaciones (HU-07), y RLS le escondería un viaje suyo de otra. Dentro de la transacción, el contexto de plataforma se abre solo para leer sus propios viajes y se cierra antes del INSERT, que sigue sujeto a RLS. No cambia ninguna política. Un candado por conductor evita que dos publicaciones simultáneas pasen juntas la comprobación.
+3. **`mis-viajes`:** el plan pide solo sesión; devuelve los viajes de la persona en todas sus organizaciones, siempre filtrados por conductor. Tiene un tope de 100, sin paginar.
+4. **Detalle:** el plan omitía `fechaHoraSalida`; se agrega.
+
+**Interpretaciones de la spec:** un viaje ocupa al conductor en `publicado`, `reservado` y `en_curso`; con exactamente 2 horas entre salidas no hay solape. `verificado` y `pagado` ya no ocupan.
+
+**Permisos:** el rol de la API solo tiene SELECT e INSERT sobre `viajes`. Las historias que cambien estado o cupos deben otorgar UPDATE de esas columnas.
+
+**Verificado:** regresión de `backend` en verde (lint, formato, pruebas con cobertura, e2e y build). Prueba real por HTTP contra un backend en marcha, con firma ECDSA de una llave de prueba: CA-1 a CA-7, repetir una petición capturada, el tope de otra organización, el solape entre organizaciones y las 3 rutas en Swagger. En PostgreSQL, con el rol de la API: otra organización no ve ni inserta, sin contexto no se ve nada, no puede actualizar ni borrar, y los CHECK rechazan cupos, precio y coordenadas fuera de rango.
+
+**Sin verificar:** verificación en sesión limpia, móvil y teléfono real.
+
+**Sin decidir:** si una cuenta suspendida puede publicar, y qué rol exige `GET /viajes/{id}` (`ssd.md` pide miembro verificado con firma; el plan, solo miembro). Están en `HEARTBEAT.md`.
+
+**Archivos afectados:** `backend/prisma/schema.prisma`, `backend/prisma/migrations/011_viajes/`, `backend/src/viajes/`, `backend/src/aplicacion.module.ts`, `backend/src/i18n/es-BO.json`, `backend/test/viajes/`, `backend/test/ataques/a-08-publicar-viaje.e2e-spec.ts`, `backend/test/ataques/a-13-viajes.e2e-spec.ts`, `backend/test/ayudas-organizaciones.ts`, `backend/test/billetera/ayudas-billetera.ts`; `SPECS/features/sprint-2/HU-17-publicar-viaje/{spec,plan}.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/HEARTBEAT.md`.
+
+---
+## 2026-11-07 · HU-17: pantalla móvil
+
+**Evento:** Se implementa SP119 en `mobile`, rama `feat/HU-17-publicar-viaje`, apilada sobre HU-13: pestaña Publicar con los requisitos que faltan (CA-6), formulario firmado con la huella (CA-7) y pantalla de resultado.
+
+**Ajustes al plan aprobado** (no cambia ningún criterio):
+1. **`GET /viajes/limites`:** `DESIGN_SYSTEM.md` §9.2 y el prototipo piden mostrar el tope de la organización antes de fallar, y ningún endpoint de miembro lo daba. Es un agregado compatible; no se amplió `GET /yo`, que se limita a sus campos por HU-06 CA-7.
+2. **Ruta:** la pantalla es la pestaña `app/(pestanas)/publicar.tsx`, como pide el prototipo, no `app/viajes/publicar.tsx`.
+3. **Mapa sin librería:** agregar una requiere autorización (`AGENTS.md` §14). Es un mapa fijo con teselas de OpenStreetMap y su atribución, que no se puede mover.
+4. **Búsqueda de lugar:** la política de Nominatim prohíbe autocompletar, así que se busca al pedirlo. Solo vale un lugar elegido de la lista, que trae coordenadas.
+5. **Fecha y hora:** en vez de los dos campos del prototipo, un chip por cada fecha posible (hoy y 7 días) y la hora escrita con teclado numérico. No hace falta un diálogo nativo, y una fecha fuera de rango no se puede elegir. Es diferencia con el prototipo, a revisar en la paridad.
+6. **Validar antes de firmar:** horario y precio se revisan también en la app para no gastar una huella en algo que el servidor rechazará. Decide el servidor.
+
+**Limitaciones:** el aviso de solape no dice con qué viaje choca, porque la API solo devuelve `margenHoras`. La búsqueda cubre toda Bolivia, sin priorizar la ciudad de la organización: un nombre común trae lugares de otros pueblos y se distinguen por la dirección completa.
+
+**Verificado:** pruebas de `mobile` en verde (lint, formato, tipos, Jest y build) y regresión de `backend` con e2e. En navegador, contra un backend real con una llave P-256 inyectada: requisitos, límites, errores, Nominatim y teselas reales, CA-1 con fila en la base, una firma por publicación y CA-5, a 360 y 412 dp.
+
+**Sin verificar:** verificación en sesión limpia y teléfono físico: huella real, Keystore, y Nominatim y teselas desde Android, donde el `User-Agent` sí se envía.
+
+**Archivos afectados:** `mobile/src/app/(pestanas)/{publicar,_layout,index}.tsx`, `mobile/src/componentes/{SelectorLugar,MapaRuta,Mensajes}.tsx`, `mobile/src/servicios/geocoding.ts`, `mobile/src/api/cliente.ts`, `mobile/src/i18n/es-BO.json`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/publicar.test.tsx`; `backend/src/viajes/`, `backend/test/viajes/publicar.e2e-spec.ts`; `SPECS/features/sprint-2/HU-17-publicar-viaje/{spec,plan}.md`, `SPECS/roadmap.md`, `DESIGN_SYSTEM.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/HEARTBEAT.md`.
+
+---
+
+## 2026-11-07 · HU-17: una cuenta suspendida no publica
+
+**Decisión del integrante:** una cuenta suspendida no puede publicar viajes. Con la billetera bloqueada no podría cobrarlos, y los pasajeros verían una oferta de alguien sancionado.
+
+**Cómo queda:** `POST /viajes` y `GET /viajes/limites` responden 403 `CUENTA_SUSPENDIDA`, con el `CuentaActivaGuard` de la billetera, después de la membresía y antes de identidad y firma. Se exige también en `limites` porque firmar pide la huella antes de enviar: así la app lo sabe al abrir la pestaña y no muestra el formulario. El texto del backend deja de nombrar la billetera, porque ya no es exclusivo de ella.
+
+**Sin decidir:** qué pasa con los viajes ya publicados por alguien que luego es suspendido; siguen activos. Toca la máquina de estados (`AGENTS.md` §14). Está en `HEARTBEAT.md`.
+
+**Verificado:** e2e de `backend` y pruebas de `mobile`. Sin mirar todavía en navegador: entra en la verificación en sesión limpia.
+
+**Archivos afectados:** `backend/src/viajes/viajes.{controller,module}.ts`, `backend/src/i18n/es-BO.json`, `backend/test/viajes/publicar.e2e-spec.ts`, `mobile/src/app/(pestanas)/publicar.tsx`, `mobile/src/i18n/es-BO.json`, `mobile/src/__tests__/publicar.test.tsx`; `SPECS/features/sprint-2/HU-17-publicar-viaje/{spec,plan}.md`, `.agents/MEMORY/HEARTBEAT.md`.
+
+---
+
+## 2026-11-07 · HU-17: verificación en sesión limpia
+
+**Evento:** Se verifican CA-1 a CA-7, A-08, A-13 y la cuenta suspendida por criterio y por riesgo, contra el backend real y en la app a 360 y 412 dp.
+
+**Defectos corregidos en `mobile`:**
+1. Tras tocar Publicar sin lugar, el error genérico tapaba lo que respondía la búsqueda.
+2. Al fallar, la pantalla subía al principio y un error de precio u hora quedaba fuera de la vista. Ahora lleva al primer campo con error, con foco, y avisa arriba si hay más de dos (`DESIGN_SYSTEM.md` §9.2.4).
+3. Con la membresía revocada en la organización activa y aprobada en otra decía "No hay conexión". Ahora lo dice y deja elegir otra.
+4. Al intercambiar quedaba el error sobre el lugar ya lleno.
+5. Al volver de resolver un requisito quedaba el aviso viejo.
+6. "Tu vehículo tiene 1 asientos".
+
+**Paridad con el prototipo:** el vehículo hecho muestra la placa, el resultado lleva los puntos del trayecto, y el error de hora dice desde cuándo se puede salir. El rechazo por solape dice con qué viaje choca, para lo que `VIAJE_SOLAPADO` agrega `salidaExistente`: es un viaje del propio conductor y es un agregado compatible.
+
+**Diferencias que quedan:** el micrófono apagado llega con `BotonVoz` (HU-27, HU-28), y "Te avisaremos cuando alguien reserve" no se promete mientras no haya esa notificación. La X del resultado y ocultar las pestañas no cambian el flujo. Fecha en chips con hora escrita, y origen y destino fuera de la tarjeta del mapa, están en `HEARTBEAT.md` para que decida el integrante.
+
+**Verificado:** peticiones reales de cada error del plan, datos forzados, 8 publicaciones simultáneas (entra 1), la misma firma 5 veces a la vez (entra 1), RLS con el rol de la API, Swagger y esquema de Prisma sin diferencias con la base. En la app, cada rechazo del servidor con el formulario abierto, huella cancelada simulada, sin red, cuenta suspendida, datos largos, teclado y foco. Regresión en verde: `backend` 452 unitarias, 455 e2e y cobertura de 92 %; `mobile` 321 pruebas y build.
+
+**Sin verificar:** teléfono físico: huella y Keystore reales, Nominatim y teselas desde Android, TalkBack.
+
+**Sin decidir:** están en `HEARTBEAT.md`.
+
+**Archivos afectados:** `backend/src/viajes/viajes.{controller,service,service.spec}.ts`, `backend/test/viajes/publicar.e2e-spec.ts`, `mobile/src/app/(pestanas)/publicar.tsx`, `mobile/src/componentes/{Campo,SelectorLugar}.tsx`, `mobile/src/i18n/es-BO.json`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/publicar.test.tsx`; `SPECS/features/sprint-2/HU-17-publicar-viaje/{spec,plan}.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/HEARTBEAT.md`.
+
+---
+
+## 2026-11-07 · HU-17: prueba en teléfono físico
+
+**Evento:** Se prueba en un Infinix X669 (Android 12, TEE) publicar con huella y Keystore reales, cancelar, solape, error de hora, Nominatim y teselas reales, TalkBack en chips y asientos, y 412 dp, contando las firmas en un registro.
+
+**Defectos corregidos, que no se veían en navegador:**
+1. Con un campo con foco, Android devolvía el desplazamiento a ese campo y el aviso de arriba quedaba fuera de la vista. Ahora se suelta el foco.
+2. Dos huellas. La hora se firmaba antes de abrir el aviso: tardar más de 30 s daba 401, y el cliente reintentaba cualquier 401 con otra huella.
+3. Hueco de 48 dp sobre las pestañas en Publicar e Inicio: `ZonaAccion` contaba otra vez el margen del sistema. Nueva propiedad `enPestanas`.
+4. Un nombre de lugar largo se veía sin su comienzo.
+
+**Decisión técnica (firma, a pedido del integrante):** el módulo nativo recibe el mensaje en dos partes y toma la hora tras la huella, con lo que `firmar` devuelve firma y marca. El mensaje canónico, la ventana de 30 s y el servidor no cambian. Un 401 solo se reintenta si es `NO_AUTENTICADO`, y con la misma firma: `JwtGuard` rechaza antes de que `FirmaDispositivoGuard` gaste el nonce (prueba de ataque en `a-08-publicar-viaje.e2e-spec.ts`). `PETICION_EXPIRADA` y `FIRMA_DISPOSITIVO_INVALIDA` van a la pantalla sin otra huella. Vale para toda petición firmada, también billetera y recargas. Exige recompilar el APK.
+
+**Comprobado tras el cambio:** aviso abierto 44 s: 1 firma y 201. Token vencido de verdad: 401, renovación y 201 con 1 solo aviso. Billetera: 1 huella.
+
+**Pruebas:** la animación de `Ilustracion` dejaba un temporizador que rompía otra suite al azar; `publicar.test.tsx` activa "reducir movimiento".
+
+**Segunda pasada en el teléfono:** recarga con la firma nueva (cadena simulada), firma vencida con un proxy que retiene la petición, dedo no registrado, hora con teclas de dígitos, cambio de selección en TalkBack y huella nueva que anula la llave.
+
+**Defectos abiertos:** TalkBack no lee los `Aviso` que aparecen (región viva y `announceForAccessibility` no bastaron, y se revirtió). Tras una huella nueva no hay cómo volver a vincular, y el aviso dice "Actualiza la app" (HU-10).
+
+## 2026-11-07 · HU-17: revisión del código
+
+Revisión de `backend` y `mobile` contra HU-13, con el cambio de firma como grado 5: 25 hallazgos. En la firma no salió ningún defecto: la hora tras la huella y el reenvío solo con `NO_AUTENTICADO` se sostienen.
+
+**Decisiones del integrante:** origen y destino con las mismas coordenadas se rechazan (`LUGARES_IGUALES` 400; la app lo dice antes de la huella). Un viaje en `publicado` cuya salida ya pasó no cuenta para el solape; `reservado` y `en_curso` sí. La billetera no es requisito para publicar: importa al cobrar. Organización suspendida: se resuelve en la historia que implemente la suspensión, porque hoy ningún código pone ese estado.
+
+**Corregido:**
+1. El lugar elegido tenía el cursor fijo en 0: Backspace no borraba y no se podía mover. Ahora se fija solo sin foco, y elegir cierra el teclado.
+2. Asientos por encima de la capacidad tras cambiar de vehículo: se gastaba una huella en un rechazo seguro.
+3. Tras un rechazo por precio o asientos, la pantalla vuelve a leer los datos, para no quedarse con el tope viejo.
+4. La fecha por omisión de otro día ya no queda sin chip elegido.
+5. Búsqueda: no se repite si hay una en camino, y su respuesta se descarta si cambió el texto.
+6. Al intercambiar lugares no quedan el aviso ni los resultados de la búsqueda anterior.
+7. `730` queda `07:30`.
+8. La hora sugerida lleva un minuto de holgura.
+9. "Listo" a la misma altura que el botón del formulario.
+10. El carácter NUL en un texto daba 500: `recortar()` lo quita, y vale para todos los DTO que lo usan.
+11. Comentario de la barra de pestañas que ya no era cierto.
+
+**Descartado:** `selected` en los radios, porque el integrante oyó "seleccionado" en TalkBack. Huella nueva que anula la llave: ya es defecto abierto de HU-10.
+
+**Sin cambiar, por ser limpieza:** `BilleteraModule` importado solo por el guard de cuenta; tres booleanos de bloqueo en Publicar; `con` frente a `.replace`; consulta del tope duplicada; cuatro lecturas al volver a la pestaña; `mensajeCanonico` usado solo en pruebas; condición de reintento en línea. **Sin cambiar, por tocar más que esta historia:** `app.super_admin` en viajes y sesión muerta en la app (ver `HEARTBEAT.md`).
+
+**Probado en el teléfono (solo JS, sin recompilar):** Backspace y cursor en un lugar elegido, nombre largo desde el inicio, mismo lugar sin huella ni petición, hora tecleada 7-3-0, hora sugerida con holgura, intercambiar con aviso a la vista, capacidad bajada de 4 a 2, tope bajado de 20 a 15 con el formulario abierto (400 y aviso con 15), y publicar con 1 firma. Al intercambiar, el campo que queda vacío vuelve a mostrar lo que se había escrito en él; no impide nada y se dejó así.
+
+---
+
+## 2026-11-07 · HU-18: contrato de búsqueda
+
+**Evento:** `GET /viajes/buscar` implementado en `backend`, en `feat/HU-18-buscar-viajes`, apilada sobre HU-17 (SP120-SP122).
+
+**Decisiones del integrante:**
+1. `GET /viajes/buscar` y `GET /viajes/{id}` piden membresía aprobada, sin firma: buscar no pide huella. Se corrigió `ssd.md`.
+2. El pasajero ve el nombre de pila, también en el detalle, que antes daba el nombre completo. Resuelve P-09: la base solo guarda `nombre_completo` y no distingue un nombre compuesto del apellido.
+3. Los viajes de un conductor con la cuenta suspendida no aparecen en la búsqueda. El viaje no cambia de estado; qué pasa con quien ya reservó se decide en HU-19.
+4. La búsqueda no filtra por destino, como dice la spec. Agregarlo después no rompe el contrato.
+
+**Diferencias con el plan:**
+1. El `acos` del plan daba `input is out of range` en PostgreSQL con coordenadas reales, por redondeo: ocurre al buscar desde el punto exacto de salida (-17.698356) y desde el punto opuesto del planeta. El argumento quedó acotado a [-1, 1], con prueba de cada caso.
+2. Sin utilidad `GeoDistance`: la distancia se calcula solo en SQL.
+3. `idx_viajes_busqueda` reemplaza al índice de HU-17, que empezaba por las mismas columnas.
+4. Se agregó `conductor.miembroDesde`, porque RN-5 pide exponer la antigüedad. El plan no lo tenía.
+5. Tope de 50 resultados, por hora de salida.
+
+**Comportamiento:** una coordenada vacía en la URL es inválida, no 0. Una hora que Date no entiende o del año 0000 da `VALIDACION_FALLIDA`. Una hora pasada o más allá de lo publicable da lista vacía sin consultar la base.
+
+**Verificado:** `verificar.py backend` en verde con e2e completas, y prueba real por HTTP (`.harness` local): 13 casos y CA-6 con 40 500 viajes, 26 ms como máximo, usando el índice.
+
+---
+
+## 2026-11-07 · HU-18: pantallas móviles
+
+**Evento:** SP123 en `mobile`, `feat/HU-18-buscar-viajes`, apilada sobre HU-17.
+
+**Decisión del integrante:** se agrega `expo-location` (`AGENTS.md` §14) y se permite mejorar el mapa. Es un módulo nativo: la app se recompila.
+
+**Cómo quedó:**
+1. La pestaña Inicio pasa a llamarse Buscar, como en el prototipo. «Tu cuenta» y Cerrar sesión siguen debajo hasta que exista Perfil.
+2. Sin campo «Hacia»: la búsqueda no filtra por destino. El título de resultados es «Viajes cerca de ti», no «A UAGRM».
+3. El diálogo de ubicación sale solo al tocar «Mi ubicación». Con permiso ya dado, el origen se llena solo sin pisar lo elegido. Negado para siempre: «Abrir ajustes».
+4. Mapa propio con las teselas de `MapaRuta`, sin librería nueva: se mueve bajo un pin fijo, con botones de zoom y «Mi ubicación». Sin pellizco; agregarlo pide una librería de mapas (HU-23).
+5. Placa en la tarjeta: la spec CA-2 manda sobre `DESIGN_SYSTEM.md` §8.7, como en el prototipo.
+6. Nombre de pila tal como llega («María»), no «Carlos J.». «Conductor verificado» en vez de «Verificada»: la app no conoce el género.
+7. Saldo: fila con «Saldo disponible» que lleva a Billetera, sin huella, como en el prototipo; sin saldo legible no se muestra. `TarjetaSaldo` sigue solo en Billetera: es para la banda de marca.
+8. Membresía: la API responde `NO_AUTORIZADO`; la pantalla muestra «Pendiente de aprobación» si la activa lo está, con aviso y «Elegir organización».
+9. Distancia e insignias no vienen en `GET /viajes/{id}`: el detalle las toma de lo último encontrado en memoria, no de la ruta, para que un enlace no pueda inventar una insignia. Entrando por enlace no se muestran.
+
+**Limitaciones:** los resultados no traen coordenadas, así que no hay mapa de resultados sin cambiar el contrato. El saldo de la fila no avisa si el nodo está caído (`enLinea: false`); Billetera sí.
+
+**Defectos hallados al mirarlo:** al entrar por enlace la búsqueda salía antes de restaurar la sesión y mostraba un error genérico; el botón de cerrar el mapa usaba una clave de texto inexistente.
+
+**Verificado:** en navegador contra el backend real, a 360 y 412, con GPS fijado: 42 comprobaciones de la búsqueda y 6 de lo afectado (Publicar, cerrar el mapa, entrada a Billetera, salir). Falta el teléfono físico.
+
+## 2026-11-07 · HU-18: teléfono físico y decisión del mapa
+
+**Evento:** Se prueba en un Infinix X669 (Android 12) con GPS real, permiso, avisos, arrastre con el dedo, zoom, atrás de Android, teclado de la hora, Nominatim y 412 dp.
+
+**Defecto corregido:** con la ubicación apagada, abrir la pantalla pedía la posición y salía sola la ventana de Google para activarla. `obtenerUbicacion` ya no lo hace si la persona no tocó el botón (`mobile` `8db8a8b`, con prueba).
+
+**Decisión del integrante:** el mapa se queda corto. Pide las funciones habituales de un mapa, con estilo propio y sin copiar otra app: pellizco, doble toque, rotar y brújula, punto de mi ubicación y tipos de mapa si hacen falta. Autoriza `@maplibre/maplibre-react-native` (`AGENTS.md` §14) y pide revisar que quede bien tanto en móvil como en web, si la web muestra mapa. Queda como `SP130`.
+
+**Razón:** con teselas propias, rotar y pellizcar habría que escribirlo y mantenerlo a mano. MapLibre es MIT y npm declara compatibilidad con Expo 57 y React Native 0.86; falta probarlo aquí. Es nativa: hay que recompilar y resolver qué se ve en navegador. `MapaRuta` y Publicar (HU-17) comparten estas teselas: entran en la prueba. Antes de usar satélite o relieve se revisan las condiciones de uso de esos servicios.
+
+**Verificado:** informe de la parte en teléfono; regresión de `mobile` en verde. TalkBack confirmado de oído por el integrante en búsqueda, resultados y detalle («Reservar» se oye inhabilitado). El tope de 15 s se midió en el teléfono con la llamada de Android forzada a no responder; no se vio ocurrir bajo techo.
+
+**Sin verificar:** verificación en sesión limpia de la historia y el mapa nuevo.
+
+## 2026-11-07 · HU-18: mapa con MapLibre (SP130)
+
+**Evento:** `@maplibre/maplibre-react-native` 11.5.1 en `mobile`, sin scripts de instalación; APK de debug recompilado.
+
+**Cómo quedó:**
+1. Teselas vectoriales de OpenFreeMap (datos de OpenStreetMap, sin clave) con un estilo propio hecho con `tokens.ts`. El servidor de teselas de OSM no se usa con MapLibre: su política prohíbe el User-Agent por defecto de una librería.
+2. Tipos de mapa: calles y relieve (sombreado de Terrain Tiles de AWS, sin clave). Satélite no: no hay proveedor gratuito que lo permita sin clave ni cuenta; si se quiere, decide el integrante.
+3. Elegir punto: tocar deja el pin ahí; mover, rotar o acercar no lo mueve, y queda de pie al rotar. «Mi ubicación» mueve pin y cámara. Pin dibujado en SVG (`assets/images/pin-mapa.svg`) que muestra `expo-image`. Forma pedida por el integrante: cabeza de 34 y punta larga, sin borde blanco, con un solo contorno.
+4. Trayecto (detalle y Publicar): recuadro fijo dentro de la pantalla, que se reencuadra al cambiar un lugar; al tocarlo se abre a pantalla completa con los gestos.
+5. Créditos: visibles al abrir, a los 5 s se pliegan en una «i» que los vuelve a mostrar, como permiten las pautas de atribución de OSM. Al cambiar de tipo se muestran de nuevo.
+6. Navegador: MapLibre para React Native no dibuja en web; `MapaRuta.web.tsx` y `SelectorMapa.web.tsx` conservan las teselas anteriores. `web/` no muestra mapas.
+
+**Verificado:** en el teléfono, arrastre y zoom medidos por el proxy (187 m, 94 m y 748 m frente a ≈195, 97 y 780), relieve, atrás de Android, trayecto en detalle, pantalla completa, Publicar al cambiar destino, pin al tocar y créditos plegables. En navegador, las 42 comprobaciones de búsqueda y las 6 de lo afectado. Lint, tipos y pruebas de `mobile` en verde.
+
+Rotar, pellizco, doble toque, «Mi ubicación» y TalkBack sobre el mapa los probó el integrante en el teléfono (07/11, sin detalle por punto).
+
+**Sin verificar:** OpenFreeMap y las teselas de relieve no dan garantía de servicio.
+
+## 2026-11-07 · HU-18: verificación en sesión limpia
+
+**Evento:** verificación de toda la historia sobre `backend` `f281a2e` y `mobile` `a42d564`.
+
+**Verificado:** regresión completa de `backend`, `mobile` y `contracts` en verde (459 unitarias, 509 e2e, cobertura de backend 92,4 %; 360 pruebas de `mobile`). CA-1 a CA-6 contra la API real, incluido CA-6 con 40 500 viajes (máximo 25 ms, con `idx_viajes_busqueda`). Errores de spec §4: coordenadas repetidas, vacías o `Infinity` dan `COORDENADAS_INVALIDAS`, y una hora sin zona da `VALIDACION_FALLIDA`. A-13: el detalle de otra organización responde 404, igual que uno inexistente. Swagger con 200, 400, 401 y 403. Amenazas sin hallazgos. En navegador, pantallas a 360 y 412, lo afectado de HU-17 y recorrido con teclado (foco visible, nombres, Enter abre el detalle). Paridad con el prototipo, punto por punto.
+
+**Corregido:**
+1. «Nuevo» llevaba el mismo sello con visto que «Conductor verificado» (`new_releases` se dibuja igual que `verified`) y parecía otra verificación. Ahora usa `auto_awesome`.
+2. El auto del detalle no tenía el ícono del prototipo. Ahora lleva `directions_car`.
+
+Los dos se vieron en el teléfono físico.
+
+**Diferencias nuevas con el prototipo, para decidir:** el subtítulo del saludo («Busca viajes de tu comunidad cerca de ti» en lugar de «¿A dónde vas hoy?», coherente sin destino) y el nombre sin la inicial del apellido («María» frente a «Carlos J.»; RN-4 pide nombre de pila). El botón de voz desactivado de la banda es de HU-27.
+
+**Teléfono:** `dumpsys` lista una ventana «Application Not Responding» de la app, con superficie de 0 × 0, que retiene el foco. No hay `am_anr` en esta sesión; el único archivo de `/data/anr` es de las 16:56. No impide tocar la app y «atrás» no la cierra.
+
+**Ajustes al prototipo (decisión del integrante, 07/11):** el saludo usa el nombre de pila y el subtítulo «¿A dónde vas hoy?». En la banda hay un micrófono desactivado («Hablar con UniRide, disponible pronto»; la voz es de HU-27). «Mi ubicación» y «En el mapa» quedan en una fila a 360: el relleno de los botones de texto sale del borde de la tarjeta. El detalle muestra «2 de 4» asientos, porque `GET /viajes/:id` ahora da `cuposTotales` (backend `7b61c44`, con prueba e2e). Se aceptan sin «Hacia», el título genérico, el nombre de pila sin inicial del apellido (RN-4) y las fechas en chips. Todo verificado en navegador y en el teléfono a 360 dp; regresión completa en verde (459 unitarias, 510 e2e, 361 de móvil).
+
+## 2026-11-07 · HU-18: revisión de código
+
+**Evento:** revisión del diff de `backend` y `mobile` contra HU-17. Correcciones en `mobile` `a71e3db`; `backend` sin cambios.
+
+**Corregido, con pruebas de Jest:**
+1. Resultados por un enlace sin hora o sin coordenadas: la pantalla se caía (`RangeError`). Ahora dice «No pudimos leer ese punto de salida» y no consulta.
+2. Una hora de hoy con toda su ventana en el pasado decía «Sin resultados». Ahora el formulario dice «Esa hora ya pasó. Elige una más tarde.», y al volver a la pestaña una salida vencida vuelve a la próxima media hora.
+3. El detalle de un viaje cancelado, en curso o que ya salió se veía como disponible. Ahora avisa «Este viaje ya no está disponible.».
+4. Las insignias y la distancia de la última búsqueda se borran al cerrar sesión y al cambiar de organización.
+5. El tope de 15 s del GPS limpia su temporizador; 999,6 m ya no se lee «1000 m»; la ventana de ± 30 min sale de una sola función (`ventanaDe`).
+
+**No se cambió:** el conductor que se encuentra a sí mismo y el detalle de un conductor suspendido (decisiones abiertas para HU-19). El índice `idx_viajes_busqueda` con `cupos_disponibles` al final: filtra en el índice sin leer la tabla; quitarlo no compensa (se midió con 40 500 viajes). En «Elegir en el mapa», sin ubicación, el pin empieza en el centro de Santa Cruz y se puede confirmar sin moverlo: queda para decidir.
+
+**Verificado:** `verificar.py mobile --rapido` en verde (lint, tipos, pruebas). Los textos nuevos se comprobaron con Jest y no se vieron en el navegador.
+
+
+---
+
+## 2026-11-08 · Specs del Sprint 3 en borrador y decisiones D-22 a D-27
+
+**Evento:** Se redactan en borrador las specs de HU-29, HU-19, HU-22, HU-23 y HU-24 (`SPECS/features/sprint-3/`), en ese orden de dependencia (32 PHU). Faltan la aprobación del PO y, después, los planes. Al revisar el estado se comprobó que todo S2 (HU-12, HU-13, HU-14, HU-17, HU-18) y `fix/dependencias-audit` ya están fusionados en `develop` de `backend` (`dd0b63f`); el HEARTBEAT del 07/11 los da como PR abiertos.
+
+**Valores nuevos propuestos en las specs (los aprueba el PO):** ventana de abordaje de −30 min a +15 min de la hora de salida; posición válida con precisión ≤ 50 m y tomada hace ≤ 30 s; reservar hasta la hora de salida; pares de puntos a ≤ 15 s; mínimo 4 pares; un punto con ubicación simulada invalida la reserva; 100 % al conductor sin comisión.
+
+**Decisiones abiertas, con recomendación (ninguna se toma sin el equipo):**
+
+| ID | Recomendación | Alternativa |
+|---|---|---|
+| D-22 | Segunda llave de hardware no exportable **sin** biometría, creada por viaje: el conductor al abrir «Mostrar código» y el pasajero al abordar la registran con una petición firmada por la llave biométrica; firma el código rotativo y las posiciones, y vence al terminar la reserva. Mantiene la cadena de confianza y no exige volver a vincular | Ventana de validez de la llave biométrica (p. ej. 30 min): más simple, pero debilita HU-29 RN-3 para todas las acciones. Riesgo ya anotado en el prototipo de S2 |
+| D-23 | La reserva lleva su propio estado (`pendiente` → `confirmada` → `abordada` → `verificada` → `pagada`, más `fallida` y `verificacion_fallida`; HU-20 agrega `cancelada` y `expirada`). El viaje se deriva: `reservado` con ≥ 1 confirmada, `en_curso` con el primer abordaje, `verificado` cuando todas las abordadas se verificaron y no queda ninguna confirmada sin abordar, `pagado` cuando todas las verificadas se pagaron. El escrow se libera por reserva | Estado solo por viaje: no representa a dos pasajeros con bajadas distintas |
+| D-24 | Retener el escrow con alerta en auditoría y resolver en HU-20 (regla) o HU-26 (revisión del admin). Así un teléfono sin batería no regala ni quita el dinero | Reembolso automático del 100 % al pasajero: perjudica al conductor honesto |
+| D-25 | Exigir precio por asiento en múltiplos de 0,02 URC al publicar (cambio menor en HU-17); sin tocar el contrato | Redondear en el contrato (contrato desplegado, §14) o ampliar decimales del libro |
+| D-26 | Ocultar los viajes propios en la búsqueda; reservar el propio se rechaza siempre (HU-19 CA-9; el contrato ya revierte si pagador = conductor) | Mostrarlos marcados como «Tu viaje» |
+| D-27 | En S3: una cuenta suspendida no reserva y su viaje no admite reservas nuevas. Lo ya reservado se resuelve con HU-20 | Cancelar en cascada ahora (máquina de estados, §14) |
+
+**Riesgos detectados para el plan:** Play Integrity sigue simulada (HU-22 CA-7 no se declara verificado sin la real); seguimiento con pantalla apagada exige servicio en primer plano y permiso de ubicación en segundo plano en Android; la cuenta verificadora necesita llave propia en desarrollo (hoy solo existe `RELAYER_LLAVE_PRIVADA`) y en producción entra a SP129; huella nueva anula la llave (HU-10) y puede romper la demo; el guard de firma no valida atestación por petición, solo al vincular.
+
+**Archivos afectados:** `SPECS/features/sprint-3/*/spec.md`, `SPECS/roadmap.md`, `.agents/MEMORY/MEMORY.md`.
+
+---
+
+## 2026-11-08 · Resuelve D-22 a D-27 (delegadas por el integrante)
+
+**Evento:** El integrante delega las seis decisiones al criterio del agente («tú eres el experto»). Se adoptan las recomendaciones de la entrada anterior. Las que tocan `AGENTS.md` §14 (D-22 capa de verificación, D-23 máquina de estados, D-24 escrow) quedan autorizadas por esa delegación; ninguna cambia el contrato desplegado.
+
+**Decisión:**
+1. **D-22:** llave de trayecto: segunda llave de hardware no exportable y sin biometría en el mismo módulo nativo (`llave-dispositivo`), sin dependencias nuevas. Su llave pública viaja en el cuerpo de una petición F+B (conductor al pedir el primer código, pasajero en el handshake de abordaje), así queda atada a la biometría del dueño. Firma el código rotativo y las posiciones; vale solo para ese viaje o esa reserva. La llave biométrica no cambia (HU-29 RN-3: una huella por acción).
+2. **D-23:** estado por reserva (`pendiente`, `confirmada`, `abordada`, `verificada`, `pagada`, `fallida`, `verificacion_fallida`; HU-20 agrega `cancelada` y `expirada`). El estado del viaje se deriva y no gana transiciones nuevas: `reservado` con ≥ 1 confirmada, `en_curso` con el primer abordaje, `verificado` cuando todas las abordadas se verificaron y no queda ninguna confirmada sin abordar, `pagado` cuando todas las verificadas se pagaron. El escrow se libera por reserva (el contrato ya trabaja por `idReserva`).
+3. **D-24:** una verificación fallida retiene el escrow con alerta en auditoría; la resuelve HU-20 o HU-26.
+4. **D-25:** precio por asiento en múltiplos de 0,02 URC, validado al publicar (ajuste menor de HU-17 dentro de HU-19). Sin cambio de contrato ni de decimales del libro.
+5. **D-26:** la búsqueda oculta los viajes propios; reservar el propio se rechaza siempre.
+6. **D-27:** cuenta suspendida no reserva y su viaje no admite reservas nuevas; lo ya reservado, con HU-20.
+
+**Por qué:** es lo más simple que respeta las cinco capas: no debilita la biometría de las acciones de dinero (D-22), no agrega estados al viaje (D-23), no mueve dinero sin prueba (D-24) y no toca el contrato desplegado (D-25).
+
+**Archivos afectados:** `SPECS/features/sprint-3/*/spec.md`, `SPECS/ssd.md` §6 y §9, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+---
+
+## 2026-11-08 · Resuelve D-28: HU-10 sube a S3
+
+**Evento:** El integrante pide resolver que una huella nueva deje la cuenta sin salida. Causa en el código: `LlaveDispositivoModule.kt` crea la llave con `setInvalidatedByBiometricEnrollment(true)` y reduce `KeyPermanentlyInvalidatedException` a `KEYSTORE_NO_DISPONIBLE`, que la app traduce como «Actualiza la app»; y `DispositivosService.emitirDesafio`/`vincular` rechazan con `DISPOSITIVO_YA_VINCULADO` si hay un dispositivo activo, con `UNIQUE(usuario_id)` en `dispositivos`.
+
+**Decisión:**
+1. **Se mantiene la anulación por huella nueva** (A-04): quitarla dejaría que quien conoce el PIN agregue su huella y firme como el dueño.
+2. **HU-10 sube de Reserva a S3 como Must (5 PHU, S3 pasa a 37):** volver a vincular, en el mismo teléfono o en uno nuevo, con prueba de vida + comparación ≥ 90 % con la foto del carnet ya guardada (`MotorFacial.compararRostros`, umbrales y bloqueo de 3 fallos / 24 h de HU-08), integridad y llave nueva; el dispositivo anterior queda inactivo en la misma transacción y su llave deja de valer. Sin identidad aprobada basta la integridad (no hay dinero ni viajes que proteger). Aviso por correo en cada revinculación.
+3. **Para el plan:** código nativo propio `LLAVE_ANULADA` y mensaje correcto; `UNIQUE(usuario_id)` pasa a índice único parcial sobre `activo` (como ya dice `ssd.md` §6, sin borrar datos); invalidar las llaves de trayecto del teléfono anterior (D-22); el `FirmaDispositivoGuard` ya busca solo el activo.
+
+**Riesgo:** depende de la prueba de vida nativa de HU-08, aún pendiente en la app.
+
+**Archivos afectados:** `SPECS/features/sprint-3/HU-10-cambio-dispositivo/spec.md`, `SPECS/features/sprint-3/HU-29-confirmacion-biometrica/spec.md`, `SPECS/roadmap.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+---
+
+## 2026-11-08 · Specs del Sprint 3 aprobadas y planes en borrador
+
+**Evento:** El PO aprueba las 6 specs de S3 (HU-10, HU-29, HU-19, HU-22, HU-23, HU-24). Se redactan sus `plan.md` en borrador, para revisión del equipo por PR. Tareas propuestas SP134–SP176 (todavía no van al backlog).
+
+**Desvíos de `ssd.md` (se aplican en §6 y §8):**
+1. **Encuentro por viaje:** `desafios_handshake` lleva `viaje_id` (un QR sirve a cualquier pasajero, un uso cada uno) y guarda la posición del conductor; `POST /reservas/{id}/desafios` pasa a `POST /viajes/{id}/desafios`.
+2. **Handshakes:** `POST /reservas/{id}/handshakes` se divide en `/abordaje` y `/bajada`.
+3. **Llave de trayecto (D-22):** `POST /viajes/{id}/llave-trayecto` (conductor, F+B); el pasajero manda la suya en el abordaje. `FirmaTrayectoGuard` reutiliza la verificación de `FirmaDispositivoGuard`. La llave queda atada al `dispositivo_id`: si HU-10 desactiva ese teléfono, deja de valer sin código extra.
+4. **Posiciones:** `puntos_gps` es por viaje y usuario (la del conductor sirve a todas sus reservas), con lotes `POST /viajes/{id}/posiciones` y `POST /reservas/{id}/posiciones`.
+5. **Integridad sin ida y vuelta:** el nonce de Play Integrity del abordaje y de la llave del conductor es el `X-Nonce` de la misma petición firmada.
+6. **QR dibujado en el servidor** con `qrcode` (ya instalado); la app no necesita librería de QR.
+7. **Estado del viaje en un solo lugar:** `EstadoViajeService.recalcular`, solo hacia adelante (D-23).
+
+**Hallazgos para la implementación:** el worker on-chain está escrito solo para recargas (se generaliza por `operacion`); `ResumenLibro.contable` solo suma confirmados, así que el saldo de una reserva resta además los bloqueos pendientes; el despliegue de Ignition no otorga los roles; el contrato no cambia (`reservas(id)` da la idempotencia).
+
+**Dependencias nuevas que piden autorización (§14):** `expo-camera` (HU-22) y `expo-task-manager` (HU-23), ambas oficiales de Expo y MIT.
+
+**Archivos afectados:** `SPECS/features/sprint-3/*/{spec,plan}.md`, `SPECS/ssd.md`, `SPECS/roadmap.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+---
+
+## 2026-11-08 · Planes del Sprint 3 aprobados
+
+**Evento:** El integrante aprueba los 6 planes de S3 y autoriza lo que exige `AGENTS.md` §14: migraciones `013`–`016` (no destructivas), estados de reserva y viaje derivado (D-23), escrow (bloqueo y liberación), capas de encuentro y trayecto (D-22), y las dependencias `expo-camera` y `expo-task-manager`. También autoriza crear la rama, el commit, el PR de la raíz y fusionarlo. Tareas SP134–SP176 cargadas en `backlog.md`.
+
+**Archivos afectados:** `SPECS/features/sprint-3/*/plan.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{MEMORY,HEARTBEAT}.md`.
+
+---
+
+## 2026-11-10 · HU-10: correcciones del contrato en el backend
+
+**Evento:** Sobre la rama de Smile-HD (`feat/HU-10-cambio-dispositivo`, con OK del integrante) se corrige lo que la revisión del 10/11 encontró en el backend. Los commits nuevos usan SP136 y SP137, no SP03.
+
+**Decisiones:**
+1. **Códigos de HU-08:** la revinculación responde `PRUEBA_VIDA_FALLIDA` e `INTENTOS_AGOTADOS`, como la verificación de identidad. Se corrige el plan, que decía `LIVENESS_FALLIDA` e `IDENTIDAD_BLOQUEADA`. La app (`mobile/src/app/dispositivo.tsx`) tiene que esperar estos en SP139.
+2. **Sesión de vida atada al desafío (A-08):** una sesión que no salió con ese desafío (repetida de otro, inventada o ausente) cuenta como prueba de vida fallida. Se acepta el sufijo `~<rostro>` del motor simulado; Rekognition rechaza un id así.
+3. **409 `CONFLICTO_CONCURRENTE`** con `dispositivo.revincular.concurrente` y en Swagger.
+4. **Auditoría:** cada rechazo lleva modelo y motivo (CA-12). El correo lleva la fecha en hora de Bolivia (CA-8).
+5. **CORS:** se quita el `enableCors` abierto con credenciales; el desarrollo web usa el proxy.
+
+**Prueba real de la API** (base propia, motor y Play Integrity simulados): revinculación sin identidad 201, desafío reusado 400, dos a la vez quedan con un solo activo, sesión inventada y sesión de otro desafío 422 (cuentan 2 intentos), servicio caído 503 sin contar. La semilla de `con@prueba.test` no tiene carnet en S3: el camino feliz con identidad solo se prueba en las e2e.
+
+**Archivos afectados:** `backend/src/dispositivos/{revinculacion.service,dispositivos.controller}.ts`, `dto/dispositivo.dto.ts`, `src/configurar-aplicacion.ts`, `src/i18n/es-BO.json`, pruebas de `dispositivos`, `notificaciones` y `test/ataques/a-08-revinculacion.e2e-spec.ts`; `SPECS/features/sprint-3/HU-10-cambio-dispositivo/plan.md`, `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
+
+---
+
+## 2026-11-10 · HU-10: app móvil y teléfono físico
+
+**Evento:** Sobre la rama de Smile-HD se corrige la app (SP138–SP139) y se prueba en un teléfono real (SP140). Commits en `mobile`: `306de57`, `08167fd`, `f269314`, `690e86b`, `472e22b`.
+
+**Decisiones:**
+1. **La llave nueva firma solo tras el 201:** el módulo nativo genera la llave en el otro de dos alias (`uniride.llave.dispositivo` y `….2`); `confirmarLlave()` la activa y borra la anterior. Sin preferencia guardada la activa es la de siempre, así las llaves de HU-09 siguen valiendo. Un rechazo del servidor deja el teléfono con su llave.
+2. **CA-1 en las tres pantallas que firman:** `fallaDeLlave()` en `keystore.ts` traduce `LLAVE_ANULADA` y `SIN_LLAVE` a la explicación y a `BotonRevincular`, que abre «Mi teléfono» con `motivo`. Ahí la acción principal es «Confirmar mi identidad» o «Pasar mi cuenta a este teléfono».
+3. **Fuera de la historia y bajaban la seguridad:** llave, firma y nonce simulados en cualquier build web, refresco en `localStorage`, contexto de sesión en `globalThis`, prueba de vida simulada en web y el script `android`. En web sin módulo nativo todo falla de forma segura.
+4. **La hora para reintentar dice el día si no es hoy** (`formatearHora`): un bloqueo de 24 h termina a la misma hora de mañana y «a las 18:24» parecía ya vencido. Vale también para HU-08.
+5. **API sin ETag** (`backend` `9951b72`): con el token vencido, el reintento de un GET podía llegar a la app como `304` sin cuerpo y `leer()` lo mostraba como error. Son datos privados de cada usuario: no se cachean. Venía de antes de HU-10; se corrige aquí con OK del integrante.
+6. El Kotlin de la rama no compilaba (`CodedException` sin causa): se compila el dev build antes de dar por hecho un cambio nativo.
+
+**Teléfono (Infinix X669):** vincular, rechazo forzado que conserva la llave (firma 200 después), huella nueva real (`dumpsys fingerprint` count 1→2) → aviso CA-1 sin pedir huella ni enviar nada → revinculación con identidad (carnet sembrado en MinIO, motor simulado) → firma con la llave nueva 202. Teléfono sin llave (`pm clear`): aviso «vinculada a otro teléfono» y revinculación. Carnet con otro rostro: dos `ROSTRO_NO_COINCIDE` y el tercero `INTENTOS_AGOTADOS` con el día. Base: anterior inactivo con `desactivado_en`, auditoría sin datos biométricos, correo encolado. Capturas y registro de peticiones guardados fuera del repositorio.
+
+**Archivos afectados:** `backend/src/configurar-aplicacion.ts`, `backend/test/salud.e2e-spec.ts`, `mobile/modules/llave-dispositivo/…/LlaveDispositivoModule.kt`, `mobile/src/dispositivo/keystore.ts`, `src/componentes/BotonRevincular.tsx`, `src/app/{dispositivo,recargar}.tsx`, `src/app/(pestanas)/{billetera,publicar}.tsx`, `src/api/cliente.ts`, `src/i18n/es-BO.json`, pruebas; `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
+
+## 2026-11-10 · HU-10: verificación limpia
+
+- Regresión completa de backend y mobile en verde sobre `backend` `8887527` (484 unitarias, 524 e2e, cobertura 92 %).
+- Peticiones reales contra el backend de pruebas, con MinIO real (`.harness` local): CA-2, CA-3 (firma del anterior → 401), CA-4, CA-5, CA-6, CA-7 (429 con `bloqueadoHasta` a 24 h), CA-8 (correo con fecha de Bolivia y modelo; el perdedor del 409 no recibe correo), CA-10, CA-11 (integridad caída y almacenamiento detenido: 503, nada cambia, sin intento), CA-12, A-08 y dos revinculaciones a la vez (una 201 y otra 409, un solo activo).
+- Corregido: pedir el desafío durante un bloqueo o con el motor caído no quedaba en auditoría (CA-12); el sufijo `~rostro` del motor simulado se aceptaba sobre ids reales de Rekognition y daba 503 sin contar intento: ahora solo sobre `sim-…` (`86d6e54`).
+- Sin verificar: CA-9 (depende de HU-22); prueba de vida nativa (HU-08) y Play Integrity reales (despliegue).
+
+## 2026-11-10 · HU-29: contrato en el backend
+
+- `@AccionSensible(nombre, ...antes)` en `comun/firma-dispositivo.guard.ts`: metadato con el nombre, guard de firma al final, cabeceras y texto en Swagger. Lo llevan `POST /billetera`, `POST /billetera/recargas/:id/confirmar` y `POST /viajes`; `GET /billetera/mia` sigue con `@RequiereFirmaDispositivo()`.
+- CA-7: `test/ataques/a-11-catalogo-sensible.e2e-spec.ts` lee las rutas de los metadatos de Nest y falla si una escritura de billetera, viajes, reservas o presencia no está en el catálogo ni en la lista justificada (`POST /billetera/recargas`: solo crea la orden). Comprobado quitando la firma de publicar: 15 pruebas fallan.
+- CA-3, CA-6 y A-08: `a-08-acciones-sensibles.e2e-spec.ts`, por acción: sin firma, teléfono de otra persona, otra llave con el id del dueño (401, nada cambia) y firma del dueño (ejecuta, audita, repetida da `PETICION_EXPIRADA`). La última prueba exige un caso por cada acción registrada.
+- Prueba real contra el backend de pruebas: los cuatro casos sobre confirmar recarga y su auditoría, con `accionSensible` en cada rechazo.
+- Sin verificar en esta parte: CA-1, CA-2, CA-8, CA-9 (app, parte 2) y CA-5 en teléfono físico (SP144).
+
+**Archivos afectados:** `backend/src/comun/firma-dispositivo.guard.ts` (y su prueba), `src/configurar-aplicacion.ts`, `src/billetera/{billetera,recargas}.controller.ts`, `src/billetera/billetera.guard.spec.ts`, `src/viajes/viajes.controller.ts`, `test/ataques/{catalogo-rutas.ts,a-08-acciones-sensibles.e2e-spec.ts,a-11-catalogo-sensible.e2e-spec.ts}`; `plan.md` §7b, `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
+
+## 2026-11-10 · HU-29: confirmación biométrica en la app
+
+- `useAccionSensible(accion)` (`mobile/src/hooks/`): ejecuta la petición firmada con el diálogo de esa acción, lleva `reposo`/`firmando`/`enviando` (pasa a `enviando` cuando `cabecerasFirma` avisa que ya firmó) y no abre un segundo diálogo con uno en curso. `fallaDeFirma` explica igual en toda acción la cancelación («No se confirmó {acción}.», CA-2), la llave anulada o ausente, la huella bloqueada, sin biometría, `PETICION_EXPIRADA` y `SIN_CONEXION`; lo demás lo explica cada pantalla.
+- `ConfirmacionBiometrica`: botón con `fingerprint` que dice la acción y el monto y «Confirmando…» mientras espera al servidor (CA-9). El resumen es el que ya mostraba cada pantalla (monto a pagar del QR; el formulario en publicar).
+- `firmar(antes, despues, dialogo?)`: título y subtítulo por acción (`comun.biometria.dialogo.*`); sin `dialogo` (lectura de billetera) queda el texto genérico. Billetera no tiene botón: la creación es automática (HU-12) y solo lleva el diálogo de su acción.
+- Cambio de texto: los avisos de cancelación por pantalla pasan al de la spec (CA-2); se quitaron `billetera.recarga.biometria_cancelada`, `viajes.publicar.biometria_cancelada` y `billetera.pantalla.peticion_expirada` (ahora `comun.errores.peticion_expirada`). La lectura de billetera conserva su aviso propio.
+- Teléfono físico (Infinix X669): la persona leyó el diálogo de recargar, publicar y crear billetera; cancelar no envió nada; con el proxy reteniendo 20 s se vio «Confirmando…» hasta la respuesta (`.harness/evidencias/HU-29/telefono/`).
+- Sin verificar: CA-8 en teléfono (borrar las huellas anula la llave; decidido hacerlo en SP144) y CA-5 (SP144).
+
+**Archivos afectados:** `mobile/src/hooks/useAccionSensible.ts`, `src/componentes/ConfirmacionBiometrica.tsx`, `src/__tests__/confirmacion-biometrica.test.tsx`, `src/dispositivo/{firma,keystore}.ts`, `src/api/cliente.ts`, `src/app/recargar.tsx`, `src/app/(pestanas)/{publicar,billetera}.tsx`, `src/i18n/es-BO.json`, pruebas de recargar y publicar; `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
+
+## 2026-11-10 · HU-29 verificada en backend y app
+
+- Verificación limpia de backend (`d9875bd`) y mobile (`555dc78`): regresión completa en verde (488 unitarias, 543 e2e, cobertura 92,3 %; mobile 399 pruebas y build).
+- Peticiones reales contra un backend de pruebas, en las tres acciones del catálogo: sin firma, otra llave con el id del dueño (A-04), teléfono de otra cuenta, firma de hace 31 s, firma de otra ruta, cuerpo cambiado y firma repetida dan 401 sin efecto en la base; la firma del dueño ejecuta y se audita. Sin identidad o sin membresía, 403 antes que la firma, y un 403 no gasta la firma (confirmar con cuenta suspendida → 403; la misma firma después → 202). Swagger: las tres dicen «Requiere firma biométrica del teléfono vinculado.».
+- Corregido (CA-2): cancelar la huella al crear la billetera mostraba el aviso de la lectura; ahora dice «No se confirmó la creación de tu billetera.», con reintentar y sin enviar nada.
+- Crear la billetera sin resumen previo (CA-1) se propuso como desvío; el usuario pidió cumplirlo (ver la entrada siguiente).
+- Las e2e de concurrencia (A-02 billetera, publicar simultáneo, A-09 recarga) agotan tiempo si un backend de pruebas sigue arriba en la misma PC; con todo abajo pasan.
+- Sin verificar: CA-5 (huella ajena), CA-8 (sin huellas) y cancelar al crear la billetera, en teléfono físico (SP144).
+
+**Archivos afectados:** `mobile/src/app/(pestanas)/billetera.tsx`, `src/__tests__/billetera.test.tsx`; `SPECS/features/sprint-3/HU-29-confirmacion-biometrica/spec.md`, `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
+
+## 2026-11-10 · HU-29: resumen al crear la billetera
+
+- A pedido del usuario se cumple CA-1 también al crear la billetera: si la creación automática de HU-12 falló, Billetera ya no la reintenta sola. Muestra «Tu billetera aún no está lista», qué hace («Se crea a tu nombre y vacía… No mueve dinero») y el botón con huella «Crear mi billetera». Cancelar deja el aviso «No se confirmó la creación de tu billetera.» y el mismo botón.
+- Movimientos creaba la billetera sin resumen y con el diálogo genérico: ahora, con el 404, avisa y lleva a Billetera («Ir a Billetera»). Billetera es el único lugar donde se crea desde la app.
+- Mobile `10e50d8`: lint, formato, tipos, 398 pruebas y build en verde. Sin probar todavía en el teléfono: SP144.
+
+**Archivos afectados:** `mobile/src/app/(pestanas)/billetera.tsx`, `src/app/movimientos.tsx`, sus pruebas, `src/i18n/es-BO.json`; `spec.md`, `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
+
+### HU-29 parte 3b · SP144 en teléfono (10/11)
+
+- Hecho en el Infinix X669 con `sin@`: resumen de crear la billetera, CA-1, CA-5 (meñique no registrado: 16 rechazos en `dumpsys fingerprint`, ningún `POST /billetera`; el nudillo no cuenta como intento en este lector), CA-2, Movimientos → «Ir a Billetera» y CA-8 (aviso `comun.biometria.sin_registrar`, sin peticiones). Sin huellas, Android anula la llave: al volver a registrar una, la app pide «Confirmar mi identidad» (HU-10).
+- La primera vez la persona puso el dedo registrado en la prueba de nudillo y la billetera se creó de verdad. Control: `/__bloquear` en el proxy de `HU-29/telefono/telefono.mjs`.
+- Bloqueo (RN-5) no provocable en el Infinix: sin `lockout` tras 16 rechazos dentro del diálogo; queda con Jest. El diálogo no ofrece PIN ni patrón (RN-4).
+
+## 2026-11-12 · HU-19 implementada (backend y app)
+
+**Evento:** Se implementa HU-19 (Reserva con escrow) en `feat/HU-19-reserva-escrow` de `backend`, `mobile` y la raíz, sobre `develop` con HU-10 y HU-29 ya fusionadas. Sin commits ni PR todavía. Autorizado por el plan aprobado el 08/11: migración `014`, estados de reserva y viaje derivado (D-23), bloqueo en el escrow, FK en el libro.
+
+**Decisiones al implementar** (detalle en `plan.md` §9; ninguna cambia la spec ni el contrato del escrow):
+1. **Candado por pasajero con `pg_advisory_xact_lock`**, no `FOR UPDATE` sobre `billeteras`: el rol de la API no puede actualizar esa tabla.
+2. **`recalcular` solo hace `publicado → reservado`**; HU-22, HU-23 y HU-24 agregan su transición en el mismo servicio.
+3. **El worker escribe con `comoSuperAdmin`** (RLS por organización) y despacha por `operacion`; el permit EIP-2612 se firma ahí con la llave custodiada descifrada solo para firmar.
+4. **Las reversiones permanentes se leen de los datos con el ABI** (`nombreDeReversion`): ethers deja `revert: null` al estimar el gas. Comprobado contra Hardhat.
+5. **Permisos nuevos del rol de la API:** `UPDATE (cupos_disponibles, estado)` en `viajes` y `UPDATE (estado, motivo, actualizado_en)` en `reservas`; sigue sin DELETE. `viajes` ya no es de solo lectura: se cambió la prueba A-13 que lo afirmaba.
+6. **FK `movimientos_billetera.reserva_id → reservas`:** las pruebas del libro que usaban un UUID suelto crean ahora una reserva de relleno (`asegurarReserva` en `ayudas-billetera.ts`).
+7. **Errores nuevos:** `CLAVE_IDEMPOTENCIA_EN_CONFLICTO` (la misma clave en otro viaje u otra persona no devuelve la reserva ajena) y `PRECIO_NO_MULTIPLO` (RN-11).
+8. **App:** el botón con huella vive abajo del detalle (el diálogo biométrico es la confirmación), con el faltante y «Recargar saldo»; la clave de idempotencia se conserva mientras la pantalla siga abierta; `mis-reservas` trae también las que no se completaron.
+
+**Verificación (12/11):** backend con 521 unitarias (cobertura 91,5 %) y 640 e2e en verde, lint, formato y build; ataques A-08, A-09, A-10, A-11 y A-13 en API y en PostgreSQL con el rol de la API. Bloqueo real contra `UniCoin` y `EscrowUniRide` en Hardhat local (`backend/test/blockchain/escrow-hardhat.e2e-spec.ts`, se omite sin `HARDHAT_RPC_URL`): permit de un pasajero sin ETH, nonce que avanza, hash recuperado del evento y las tres reversiones como fallas permanentes. Mobile con 439 pruebas, lint, formato, tipos y export de Android. Los fixtures `reservaReal` de la app salen de respuestas reales del backend (cadena simulada).
+
+**Entorno de esta sesión:** `node_modules` de `backend` estaba desactualizado (sin `ethers` ni `qrcode`): `npx npm@11 ci`. El puerto 5433 lo tomó otro contenedor de la PC (`mekano-postgres-1`), así que el PostgreSQL de UniRide se levantó en el 5434 solo para estas pruebas (`POSTGRES_PUERTO=5434`, variables `DATABASE_URL*` en el proceso). `contracts/artifacts` estaba viejo: se recompiló con `hardhat build`.
+
+**Sin verificar:** reservar en teléfono físico (SP151, SP152), `TalkBack`, Polygon Amoy (escrow sin desplegar, relayer sin fondos) y despliegue. Diagramas UML (secuencia, clases, estados) sin actualizar. Nadie revisó el código.
+
+**Archivos afectados:** `backend/prisma/{schema.prisma,migrations/014_reservas}`, `src/{reservas,viajes,blockchain,billetera,i18n}`, `test/{reservas,ataques,blockchain,viajes,billetera}`; `mobile/src/{api,app/reserva,app/(pestanas),app/viajes,componentes,hooks,i18n,pruebas,viajes,__tests__}`; `SPECS/features/sprint-3/HU-19-reserva-escrow/{spec,plan}.md`, `SPECS/ssd.md`, `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-22 mobile: llave de trayecto, «Mostrar código» y «Escanear QR» (SP159–SP161)
+
+**Evento:** Se construye el cliente móvil del abordaje en `mobile` `feat/HU-22-verificacion-abordaje` (`4af8952`, `df2e995`, `d5d5af5`, sin push).
+
+- **SP159:** `LlaveDispositivoModule.kt` gana `crearLlaveTrayecto()` y `firmarTrayecto()` (alias `uniride.llave.trayecto`, P-256 en hardware, sin biometría). `cabecerasFirmaTrayecto` en `firma.ts`; `solicitarFirmado` acepta el `X-Nonce` elegido antes para atar el token de integridad (RN-5); `registrarLlaveTrayecto`, `pedirDesafio` y `abordar` en `cliente.ts`.
+- **SP160:** `app/abordaje/mostrar/[viajeId].tsx`: una huella registra la llave; el QR se renueva cada 25 s firmado con la llave de trayecto y la posición del momento; sondeo de 3 s a los pasajeros para renovar apenas uno aborda. Acceso desde «Mis viajes» (viaje `reservado` o `en_curso`).
+- **SP161:** `app/abordaje/escanear/[reservaId].tsx` con `expo-camera` 58.0.14 (exacta, autorizada el 08/11): nombre del conductor y placa, huella al leer, resultado con vibración y anuncio; cada rechazo con su texto (§10.4). Acceso desde la reserva `confirmada`.
+
+**Verificado:** `verificar.py mobile --rapido` en verde (lint, tipos, 466 pruebas). `abordaje.test.tsx` (21): firma con la llave de trayecto verificada con la pública, token atado al `X-Nonce`, renovación sin huella, CA-3 a CA-7, CA-9, CA-11, CA-14, permisos, sin conexión y lectura repetida.
+
+**Sin verificar:** el Kotlin nuevo no se compiló (falta `expo run:android`); las pantallas no se vieron en un teléfono ni en web. El usuario decidió dejarlo para la siguiente sesión.
+
+**Archivos afectados:** `mobile/modules/llave-dispositivo/.../LlaveDispositivoModule.kt`, `mobile/src/{api/cliente.ts,dispositivo,servicios/ubicacion.ts,viajes/abordaje.ts,hooks/useAccionSensible.ts,app/abordaje,app/reserva,app/(pestanas)/viajes.tsx,i18n,pruebas,__tests__}`, `mobile/{app.json,package.json,package-lock.json}`; `plan.md` de HU-22, `backlog.md`, `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-22 verificada en backend y app (salvo teléfonos)
+
+**Evento:** Se verifica HU-22 por criterio y por riesgo, sin cambiar el contrato.
+
+- **Build nativa:** `expo prebuild` (faltaba el permiso de cámara de `expo-camera`) y `gradlew assembleDebug` en verde (29 min); `LlaveDispositivoModule` compilado con `crearLlaveTrayecto` y `firmarTrayecto`. El prebuild borra `cmake.dir` de `android/local.properties`: se repone.
+- **Criterios:** CA-1 a CA-14 y A-03, A-05, A-06, A-07, A-08, A-13 cada uno con su prueba e2e o Jest. Revisión de amenazas sin hallazgos bloqueantes.
+- **Corregido (`mobile` `16ae4a6`):** «Mostrar código» daba por verificado a un pasajero en `verificacion_fallida`; ahora solo `abordada`, `verificada` y `pagada`.
+
+**Verificado:** `verificar.py --cambiados --todo` en verde (backend con e2e, mobile con build).
+
+**Sin verificar:** pantallas en el teléfono, CA-7 con Play Integrity real y el abordaje < 3 s: van en la parte con dos teléfonos (SP162). Diagramas UML del plan §5.
+
+**Archivos afectados:** `mobile/src/{viajes/abordaje.ts,app/abordaje/mostrar/[viajeId].tsx,__tests__/abordaje.test.tsx}`; `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-22 en el teléfono (SP162)
+
+**Evento:** Abordaje probado en el Infinix X669 como conductor y como pasajero. La otra persona fue un guion con llaves y firmas ECDSA reales; el usuario decidió que un teléfono basta.
+
+- **Conductor:** una huella registra la llave de trayecto; el Keystore firma los códigos y se renuevan sin huella (≈28 s con el GPS). La pasajera del guion aborda (`200`, 123 ms) y el teléfono ve «Verificado ✓» en ≈1,5 s; viaje «En curso».
+- **Pasajero:** lee el QR de la pantalla de la PC con `expo-camera`, una huella, `200` en 90 ms y «Abordaje verificado»; «Mis viajes» muestra «A bordo». Sin conexión, el aviso de la spec y nada verificado.
+- **Corregido (`mobile` `0a528a7`, `715ae78`):** sin teléfono vinculado, las dos pantallas mostraban un error genérico; ahora piden vincularlo y llevan a «Mi teléfono».
+
+**Sin verificar:** CA-7 con Play Integrity real (simulada en desarrollo; con el despliegue).
+
+**Anotado:** el aviso de cámara dice «ajustes» aunque el botón pide el permiso ahí; el aviso de vincular sigue al volver de «Mi teléfono» hasta tocar «Mostrar código».
+
+**Archivos afectados:** `mobile/src/{viajes/abordaje.ts,app/abordaje,i18n/es-BO.json,__tests__/abordaje.test.tsx}`; `backlog.md`, `HEARTBEAT.md`.
+
+
+## 2026-11-14 · HU-23 backend: posiciones, bajada y evaluación del trayecto (SP163–SP167)
+
+**Evento:** Contrato de HU-23 en el backend, en la rama `feat/HU-23-seguimiento-bajada` apilada sobre HU-22 (raíz, `backend`, `mobile`). Antes de escribir código se completó el plan: decisiones de diseño, consultas sin N+1, amenazas con su prueba y §7b.
+
+- **Migración `016_puntos_gps`** (`94c5d6a`): puntos por viaje y persona con RLS forzado; la del conductor sirve a todas sus reservas. `reservas.evaluacion` guarda pares, coincidencia, velocidad máxima y motivo (CA-15).
+- **`evaluarTrayecto`** (`presencia/trayecto.ts`, función pura): la coincidencia se compara en enteros (5·coincidentes ≥ 4·total) y la velocidad redondeada a 0,1 km/h, para que 80 % y 150 km/h exactos no fallen por coma flotante.
+- **Bajada = encuentro de HU-22** (`08e7fef`): consumo, validaciones, integridad y hash pasan a un método común con el `tipo`; un código de abordaje no sirve para bajar ni al revés. La bajada aceptada evalúa en su transacción y es definitiva. La repetida responde su resultado sin código nuevo.
+- **Posiciones** con la llave de trayecto (sin huella): la del conductor solo en `/viajes/:id/posiciones` mientras lleva a alguien `abordada`; la del pasajero solo en su reserva `abordada`. Se ignoran sin error los repetidos, los del futuro y los anteriores al abordaje.
+- **Contrato de HU-22 ampliado:** el abordaje devuelve `llaveTrayectoId`, que el pasajero necesita para firmar sus posiciones.
+- **Viaje `verificado`** (D-23): sin reservas pendientes, confirmadas, abordadas ni con verificación fallida. Una fallida deja el viaje `en_curso` (D-24) y queda la alerta `presencia.verificacion_fallida`.
+
+**Verificado:** backend completo (lint, formato, 554 unitarias, 727 e2e, build), cobertura 91,7 %. Prueba real contra el backend de `entorno.py` (`.harness/evidencias/HU-23/api-real.txt`): dos pasajeros, uno `verificada` y el otro `verificacion_fallida` por un salto de 510 km/h, repetidos ignorados, 401 con la llave cambiada de ruta, 409 tras bajar y sin nadie a bordo; ninguna coordenada en el log del backend (RN-8).
+
+**Sin verificar:** HU-24 encola la liberación (SP172). Todo lo del teléfono va en la parte 2.
+
+**Archivos afectados:** `backend/prisma/{schema.prisma,migrations/016_puntos_gps}`, `backend/src/presencia/*`, `backend/src/viajes/estado-viaje.service*.ts`, `backend/src/i18n/es-BO.json`, `backend/test/{presencia,ataques}/*`, `backend/test/ayudas-organizaciones.ts`; plan de HU-23, `backlog.md`, `HEARTBEAT.md`.
+
+
+## 2026-11-14 · HU-23 app: seguimiento en segundo plano y bajada (SP168, SP169)
+
+**Evento:** Cliente móvil de HU-23 sobre el contrato de la parte 1, en `mobile` `feat/HU-23-seguimiento-bajada` (`38b5ae7`, `956fa38`).
+
+- **Seguimiento** (`src/viajes/seguimiento.ts`): una tarea de `expo-task-manager` 58.0.13 con `startLocationUpdatesAsync` cada 15 s y servicio en primer plano («Compartiendo tu ubicación cada 15 s»). Una cola por ruta (viaje del conductor, reserva del pasajero), lotes de hasta 60 firmados con la llave de trayecto, sin huella; sin señal espera y envía con la hora original; un 409 detiene esa ruta; un 401 conserva los puntos hasta la llave nueva. Lo activo se guarda en el almacén seguro para la tarea con la app cerrada; la cola, en memoria (riesgo del plan).
+- **Alias por rol:** la llave de trayecto es `uniride.llave.trayecto.conductor` / `.pasajero` (Kotlin, `keystore.ts`, `firma.ts`). Conducir un viaje e ir de pasajero en otro ya no se pisan (pendiente de HU-22).
+- **Pantallas:** «Viaje en curso» (`app/viaje-activo/[id].tsx`) con avisos de señal, ubicación apagada y permiso «Todo el tiempo»; «Mostrar código» y el escáner aceptan `tipo=bajada` (el conductor firma con la llave del seguimiento, sin otra huella; el pasajero envía la cola antes de bajar y ve «Viaje verificado» o el motivo, sin decir cómo se detectó). Entradas en «Mis viajes» (en curso) y en la reserva abordada.
+- **Permisos:** `app.json` con ubicación en segundo plano y servicio en primer plano; el prebuild los dejó en el manifiesto fusionado (`ACCESS_BACKGROUND_LOCATION`, `FOREGROUND_SERVICE_LOCATION`).
+- **Corregido en la mirada:** «Viaje en curso» no cargaba en web: `useSyncExternalStore` necesita `getServerSnapshot` en el render del servidor.
+
+**Verificado:** `verificar.py mobile --rapido` en verde (487 pruebas, `seguimiento.test.tsx` nuevo); 7 pantallas en navegador a 360 y 412 sin desborde, miradas (`.harness/evidencias/HU-23/mirada/`). App de debug compilada e instalada en el Infinix con sesión iniciada.
+
+**Teléfono (Infinix, misma sesión):** el teléfono condujo un viaje y viajó en otro a la vez, con la otra parte de cada uno por guion (`.harness/evidencias/HU-23/telefono/informe.md`). Notificación del servicio correcta; dos rutas cada 15 s con las dos llaves del Keystore; 2 min con la pantalla apagada sin cortes; una desconexión real del USB dejó la cola en espera y luego se envió con la hora original; las dos bajadas quedaron `verificada` (100 %) y el 409 detuvo el servicio. Con el teléfono quieto bajo techo la velocidad máxima llegó a 82,9 km/h (límite 150): dato para el riesgo de GPS ruidoso.
+
+**Sin verificar:** dos teléfonos moviéndose juntos por la calle (3b, SP170).
+
+**Archivos afectados:** `mobile/{app.json,package.json,modules/llave-dispositivo,src/viajes,src/app/{viaje-activo,abordaje,reserva,(pestanas)/viajes.tsx,_layout.tsx},src/api/cliente.ts,src/dispositivo,src/servicios/ubicacion.ts,src/i18n/es-BO.json,src/pruebas/respuestasApi.ts,src/__tests__}`; `backlog.md`, `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-23 verificada (parte 3)
+
+**Evento:** Verificación de HU-23 en una sesión que no la implementó, por criterio y por riesgo. Informe: `.harness/evidencias/HU-23/verificacion/informe.md`.
+
+- **Los 15 CA cumplen**, cada uno con su prueba automática y con petición real o teléfono. Peticiones reales con firmas ECDSA contra `entorno.py` (41 comprobaciones): bajada a 60 m, con ubicación simulada, desde un teléfono no íntegro y sin firma; código de abordaje usado para bajar y código de bajada gastado (A-05); persona ajena y otra organización igual que una reserva inexistente (A-13); `ubicacion_simulada`, `trayectos_separados` y `datos_insuficientes` con su alerta; viaje `verificado` con su único pasajero; auditoría sin coordenadas (RN-8).
+- **Plan contra lo hecho:** decisiones, amenazas, consultas y §7b se cumplen; las pruebas de HU-22 no se debilitaron (solo agregan `llaveTrayectoId`). Swagger completo. Bajada en 48–64 ms.
+- **Corregido:** «Viaje en curso» no tenía la `EtiquetaEstado` de DESIGN_SYSTEM §10.4. Ahora muestra el estado del viaje (conductor) o de la reserva (pasajero) y lo vuelve a consultar al volver a la pantalla (`mobile` `6cd4b8e`, con prueba).
+- **Revisado sin cambio:** el conductor también envía su cola antes de la bajada: al mostrar el código, `iniciarSeguimiento` llama a `enviarCola`.
+
+**Verificado:** `verificar.py --cambiados --todo` en verde (backend 727 e2e, cobertura 91,7 %; mobile 487); `verificar.py mobile --rapido` tras el cambio; 14 capturas a 360 y 412, miradas.
+
+**Sin verificar:** dos teléfonos moviéndose juntos por la calle (3b, SP170). Paridad N7 (viaje activo anclado) a medias: «Tu próximo viaje» de HU-19 solo cubre al pasajero, sin la acción del momento y por una hora tras la salida; decisión abierta en HEARTBEAT.
+
+**Archivos afectados:** `mobile/src/app/viaje-activo/[id].tsx`, `mobile/src/__tests__/seguimiento.test.tsx`; `backlog.md`, `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-23 viaje activo anclado (SP177)
+
+**Evento:** El usuario pidió hacer en HU-23 lo que faltaba de DESIGN_SYSTEM N7 antes de subir. `mobile` `864659b`.
+
+- `viajeAnclado` (`componentes/ViajeActivo.tsx`): primero el viaje en curso (el del conductor, luego la reserva a bordo) sin límite de hora; si no, la reserva `confirmada` o el viaje `reservado` desde 30 min antes hasta una hora después de la salida, el que sale primero.
+- `TarjetaAnclada` arriba en Buscar (antes del formulario) y en Mis viajes (sin repetirse en su lista), con «Tu viaje en curso» / «Tu próximo viaje». Pasajero: «Escanear código del conductor» o «Ver viaje en curso» (`AccionDeReserva`, también en el detalle de la reserva). Conductor: `TarjetaMiViaje` (sale de Mis viajes); en curso, «Ver viaje en curso» es la acción principal y «Mostrar código de abordaje» queda para quien falte subir.
+- Sin viaje del momento, Buscar sigue mostrando la próxima reserva de HU-19. Una reserva a bordo ya no desaparece una hora después de la salida.
+- **Corregido en la mirada:** el formulario de Buscar sube `espacio(6)` para montarse en la banda y tapaba la tarjeta; la tarjeta lo compensa con su margen inferior.
+
+**Verificado:** `verificar.py mobile --rapido` en verde (492 pruebas, 5 nuevas); Buscar y Mis viajes a 360 y 412, miradas. Los `DIV` que marca `medirEnAnchos` en Buscar ya estaban sin la tarjeta (filas que se desplazan a lo ancho).
+
+**Sin hacer:** tarjeta oscura «destacada» (`marcaProfundo`) para el viaje anclado: decisión abierta. SP170 (dos teléfonos) pendiente: el usuario todavía no puede hacerla.
+
+**Archivos afectados:** `mobile/src/componentes/{ViajeActivo,TarjetaMiViaje}.tsx`, `mobile/src/app/{(pestanas)/viajes.tsx,(pestanas)/index.tsx,reserva/[id].tsx}`, `mobile/src/i18n/es-BO.json`, `mobile/src/__tests__/mis-viajes.test.tsx`; `backlog.md`, `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-23 revisión de código antes de subir
+
+**Evento:** Revisión de código de backend y mobile de HU-23 (diff sobre HU-22): 9 hallazgos, 5 corregidos. `backend` `7a0550d`, `mobile` `af2206a` y `bf42d6c`.
+
+- **Llave del conductor con el viaje en curso:** `POST /viajes/:id/llave-trayecto` ya no pide la ventana de abordaje si el viaje está `en_curso` (RN-7): sin llave en el teléfono nadie podía bajar pasada la ventana. La app, con el viaje en curso, usa la llave del seguimiento también en el código de abordaje, sin crear otra.
+- **Viaje verificado con bajadas simultáneas:** `EstadoViajeService.recalcular` bloquea la fila del viaje (`FOR UPDATE`) antes de mirar las reservas.
+- **Cola del seguimiento:** un lote rechazado por su contenido (4xx salvo 401, 409, 429) se descarta; lo descartado por el tope mientras un lote viaja ya no borra puntos sin enviar.
+- **Sin cambio, por la spec:** RN-2 (punto del pasajero sin pareja = no coincide), RN-4 (velocidad sin mirar precisión), RN-10 (una reserva confirmada sin abordar deja el viaje en curso, HU-20).
+
+**Verificado:** `verificar.py backend` y `verificar.py mobile` completos en verde.
+
+**Sin verificar:** lo corregido en la app, solo con Jest (sin teléfono).
+
+**Archivos afectados:** `backend/src/presencia/presencia.service.ts`, `backend/src/viajes/estado-viaje.service{,.spec}.ts`, `backend/test/presencia/bajada.e2e-spec.ts`; `mobile/src/app/abordaje/mostrar/[viajeId].tsx`, `mobile/src/viajes/seguimiento.ts`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/{seguimiento,abordaje}.test.tsx`; `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-24 backend: liberación del pago (SP171–SP174)
+
+**Evento:** Contrato de HU-24 en el backend: el pago se libera solo tras la bajada verificada. Rama `feat/HU-24-liberacion-pago` en raíz, `backend` y `mobile`, apilada sobre HU-23 (orden de fusión: HU-22, HU-23, HU-24). `backend` `b4cc7f9`, `379e0db`, `99faaa6`.
+
+- **Encolado (RN-3):** la Tx de la bajada que deja la reserva `verificada` registra el movimiento `liberacion_viaje` en la billetera del conductor (`pendiente`, clave `liberacion:<reservaId>`, `metadatos.hashPrueba`) y el trabajo `liberar_reserva`. Migración `017_liberar_reserva`: el CHECK de `trabajos_onchain.operacion` no lo admitía (el plan decía «sin migración»; corregido).
+- **Hash de la prueba (RN-4, CA-2):** `presencia/prueba.ts`, keccak256 de `{ reservaId, hashAbordaje, hashBajada, evaluacion }` con llaves ordenadas, porque `jsonb` las reordena: el recalculado desde la BD coincide.
+- **Worker:** solo reserva `verificada` (si no, movimiento `fallido` y `pago.rechazado`); el escrow debe tenerla `bloqueada` para ese conductor y monto (si no, `pago.liberacion.imposible`); `liberada` = respuesta perdida, recupera el hash de `PagoLiberado`. Éxito: movimiento `confirmado`, reserva `pagada`, viaje recalculado, `pago.liberado`. Red caída: reintento y `pago.liberacion.atascada` a los 5.
+- **Viaje `verificado → pagado`** en `EstadoViajeService` cuando no queda reserva sin pagar (D-23).
+- **`GET /reservas/:id`** agrega `pago: { estado, monto, hashTx, exploradorUrl }` para pasajero y conductor; `null` hasta la bajada verificada.
+- **Cadena:** `liberarReserva` firma con `VERIFICADOR_LLAVE_PRIVADA` (otra cuenta que el relayer; prohibida en producción, SP129). `CadenaSimulada` guarda el escrow en `CadenaSimulada.ESCROW` para que A-10 sume igual que en Hardhat.
+
+**Verificado:** `verificar.py backend` completo en verde (e2e nuevos: `viaje-completo`, `a-09-liberacion`, `a-10-viaje-completo`). Hardhat: `liberar` real con la cuenta verificadora, doble liberación revierte y el relayer es rechazado (`.harness`, lanzador local). Prueba real de la API de `entorno.py`: billetera, recarga, reserva, abordaje, trazas y bajada; pago `confirmado` a los ~5 s, reserva y viaje `pagado`, saldos 10.50 / 39.50 y 404 en cualquier ruta de liberar.
+
+**Sin verificar:** SP176 (backend contra Hardhat con el hash en el historial de la app) va en la parte 3; `grantRole` de `ROL_VERIFICADOR` sin documentar todavía en `contracts/README.md`. La app (SP175) es la parte 2.
+
+**Archivos afectados:** `backend/src/blockchain/{blockchain,trabajos-onchain}.service{,.spec}.ts`, `backend/src/presencia/{presencia.service,prueba,prueba.spec}.ts`, `backend/src/viajes/estado-viaje.service{,.spec}.ts`, `backend/src/reservas/{reservas.service,dto/reserva.dto}.ts`, `backend/prisma/migrations/017_liberar_reserva/`, `backend/test/{viajes/viaje-completo,ataques/a-09-liberacion,ataques/a-10-viaje-completo}.e2e-spec.ts`, `backend/test/{blockchain/escrow-hardhat.e2e-spec,presencia/ayudas-presencia,presencia/bajada.e2e-spec,billetera/ayudas-billetera}.ts`; `.env.example`, `plan.md` de HU-24, `backlog.md`, `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-24 app: estado del pago (SP175)
+
+**Evento:** La app muestra el pago de cada reserva verificada. `mobile` `80d5b17`, `360d3c2`, `358d8c6`, `571e5cd`.
+
+- **`EstadoPago` (nuevo):** lee `GET /reservas/:id` cada 5 s hasta `confirmado` o `fallido` (el worker corre cada 5 s). Conductor: «Recibirás {monto} URC» → «Recibiste»; pasajero: «Pago al conductor: {monto} URC», *Pendiente* → *Pagado*; texto de la red mientras está pendiente; enlace al explorador si la API lo trae. `alLeer` le pasa cada lectura a la pantalla que lo contiene, así la cabecera pasa a *Pagada* sin otro sondeo.
+- **Dónde:** resultado de la bajada del pasajero, código de bajada del conductor (por pasajero verificado), Viaje en curso (pasajero, y conductor por pasajero vía `GET /viajes/:id/pasajeros`), detalle de la reserva (sin «En garantía» desde verificada) y Mis viajes › Ver pasajeros.
+- **Viaje en curso sin acción de bajada** cuando la reserva (pasajero) o el viaje (conductor) ya está verificado o pagado.
+- **`EnlaceExplorador`** extraído de `FilaMovimiento` y reutilizado. Claves `billetera.pago.*`.
+
+**Verificado:** `verificar.py mobile --rapido` en verde (504 pruebas, 9 nuevas). En el teléfono, con dos viajes completos por la API real y el pago retenido en la cola: Pendiente → Pagado sin tocar nada, para conductor y pasajero, en Mis viajes, reserva y Viaje en curso, y el sondeo para al confirmarse (capturas revisadas). Dos defectos encontrados ahí y corregidos: la cabecera seguía «Verificada» con el pago confirmado, y Viaje en curso ofrecía la bajada ya hecha.
+
+**Sin verificar:** enlace al explorador en el teléfono (la cadena simulada no da `exploradorUrl`; Jest sí); resultado de la bajada y código de bajada con el pago, solo con Jest (necesitan cámara y huella: 3b).
+
+**Archivos afectados:** `mobile/src/componentes/{EstadoPago,FilaMovimiento,TarjetaMiViaje}.tsx`, `mobile/src/app/{abordaje/escanear/[reservaId],abordaje/mostrar/[viajeId],viaje-activo/[id],reserva/[id]}.tsx`, `mobile/src/api/cliente.ts`, `mobile/src/i18n/es-BO.json`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/{estado-pago,reserva,seguimiento}.test.tsx`; `backlog.md`, `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-24 verificación: pago contra la cadena real (SP176)
+
+**Evento:** Verificación de HU-24 por criterio y por riesgo, en una sesión que no implementó. `backend` `d19d656`, `555720d`; `contracts` `b7e049e` (rama nueva `feat/HU-24-liberacion-pago`: hace falta su puntero en la raíz y su PR, base `develop`).
+
+- **Viaje completo contra UniCoin + EscrowUniRide en Hardhat** con el backend real (worker real) y un proxy RPC (guion local, fuera del repo): recarga acuñada, bloqueo con permit, abordaje, trazas y bajada. Red caída en la bajada → pago `pendiente`, trabajo con reintento (`ECONNRESET`) y nada movido en la cadena (CA-6); al volver se perdió la respuesta del envío y el reintento recuperó el hash del evento: un solo `PagoLiberado` (CA-4), firmado por la cuenta verificadora (CA-5). Hash de la prueba en la red = guardado = recalculado desde la BD (CA-2). Total pasajero + conductor + escrow 50 → 50 (CA-7); saldos de la API = cadena y sin `billetera.conciliacion` (CA-8); reserva y viaje `pagado` (CA-10); historial del conductor con el hash real de la red. Otra organización recibe el mismo 404 que una reserva inexistente; sin rutas de liberación; ninguna llave en el log del backend ni en la auditoría (A-12).
+- **Hallazgo del plan (§7, riesgo 2) sin hacer:** el aviso al arrancar si la cuenta verificadora no tiene `ROL_VERIFICADOR`. Hecho: `CadenaReal.verificadorTieneRol` y aviso en `BlockchainService.onModuleInit` (solo aviso; un nodo caído no detiene el arranque y el aviso no lleva la URL del nodo). `contracts/README.md` explica el `grantRole` de los tres roles; probado en un nodo local tras el despliegue de Ignition.
+- **CA-3 ampliado:** el ataque cubría `confirmada`, `abordada` y `verificacion_fallida`; ahora también `pendiente` y `fallida`. `cancelada` no existe en el esquema hasta HU-20.
+- **Cuenta verificadora sin gas** (spec §4) contra Hardhat: rechaza sin pagar ni resolver la reserva y no es falla permanente; con gas, el reintento paga.
+
+**Verificado:** `verificar.py --cambiados --todo` en verde sobre `555720d` (backend con e2e, mobile, contracts); e2e de escrow contra Hardhat (11).
+
+**Sin verificar:** enlace al explorador en el historial y en la app (solo Amoy, con el despliegue); resultado de la bajada y código de bajada con el pago en el teléfono (cámara y huella: 3b).
+
+**Archivos afectados:** `backend/src/blockchain/blockchain.service{,.spec}.ts`, `backend/test/{ataques/a-09-liberacion,blockchain/escrow-hardhat}.e2e-spec.ts`, `contracts/README.md`; `plan.md` de HU-24, `backlog.md`, `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-24 teléfono: bajada y código de bajada con el pago (SP175)
+
+**Evento:** Pasada en el Infinix X669 con huella y cámara, entorno de pruebas con la cadena simulada. Reservas reales por la API; el pago se retuvo en la cola on-chain para ver Pendiente y después se soltó al worker. `mobile` `cf76721`.
+
+- **Pasajero (B):** abordaje y bajada escaneando el QR del conductor (en la PC) con huella. El resultado de la bajada mostró «Pago al conductor: 10,50 URC · Pendiente» y pasó solo a «Pagado»; la consulta cada 5 s se detuvo al llegar. Viaje en curso pagado: sin bajada y sin compartir ubicación.
+- **Conductor (A):** código de abordaje con huella; código de bajada sin huella (llave del seguimiento). Con la bajada de la pasajera: «Ana · Verificada», «Recibirás 10,50 URC · Pendiente» → «Recibiste 10,50 URC · Pagado».
+- **Corregido:** con el viaje terminado, el código de bajada ofrecía «Reintentar» ante `VIAJE_NO_EN_CURSO`, sin salida posible. Ahora es una falla final sin botón (`final` en `FallaAbordaje`); prueba en `seguimiento.test.tsx` y visto en el teléfono con un viaje nuevo.
+- **Firmas sin huella pedida:** dos firmas salieron sin que la persona notara el diálogo. Con el teléfono sobre la mesa, el diálogo esperó 20 s sin firmar: el lector lateral se toca al sostener el teléfono. La llave sigue exigiendo biometría fuerte por operación.
+- El primer escaneo de bajada dio `CODIGO_INVALIDO`: la página del QR de la PC aún mostraba la imagen anterior; la app dejó volver a escanear.
+
+**Verificado:** `verificar.py mobile` completo en verde (505 pruebas, build, dependencias).
+
+**Sin verificar:** enlace al explorador del pago (solo Amoy, con el despliegue).
+
+**Archivos afectados:** `mobile/src/viajes/abordaje.ts`, `mobile/src/app/abordaje/mostrar/[viajeId].tsx`, `mobile/src/__tests__/seguimiento.test.tsx`.
+
+## 2026-11-14 · HU-24 revisión de código antes de subir
+
+**Evento:** Revisión de código de backend y mobile de HU-24 (diff sobre HU-23) y del README de `contracts`: 10 hallazgos, 6 corregidos. `backend` `43dbd3c`, `mobile` `8c8fe74`.
+
+| # | Hallazgo | Tipo | Qué se hizo |
+|---|---|---|---|
+| 1 | Sin `VERIFICADOR_LLAVE_PRIVADA` no salía ningún aviso al arrancar | otro | `verificadorTieneRol` da `false` con escrow y sin verificador; el aviso lo nombra |
+| 2 | Relayer y verificador podían ser la misma llave (A-09) | entrada-sin-validar | `crearCadena` lo rechaza; prueba |
+| 3 | La alerta `pago.liberacion.atascada` quedaba sin organización | otro | lleva `organizacionId` de la reserva; prueba |
+| 4 | Sin prueba de abordaje aceptada, el hash de la prueba se calculaba con `''` (RN-4) | otro | la liberación falla y revierte la bajada |
+| 5 | Pasajero con `verificacion_fallida` seguía viendo «Escanear QR de bajada» | cruce | la bajada cuenta como hecha; prueba en `seguimiento.test.tsx` |
+| 6 | Saldos de la cadena simulada actualizados en tres lugares | copia | todos por `sumar()` |
+
+- **Sin cambio:** pago de pasajeros de otra organización en Mis viajes (la lista de pasajeros ya está limitada a la organización activa, así que `EstadoPago` no llega a mostrarse); reservas verificadas antes del despliegue sin liberar (HU-23 no está en `develop` ni en producción); liberación imposible deja la reserva `verificada` y el viaje sin `pagado` (sí, el conductor no cobró y queda la alerta para revisión); `EstadoPago` consulta otra vez la reserva que la pantalla ya tiene (una petición de más, aceptado).
+
+**Verificado:** `verificar.py backend` completo en verde (e2e en 367 s) y `verificar.py mobile --rapido` (506 pruebas).
+
+**Trampa:** con la laptop a batería la e2e pasó el tope de 600 s tres veces y las mismas pruebas agotaron sus 5 s; con el cargador, 367 s. Además, al pasar el tope el `vitest` de la e2e siguió vivo y hubo que detenerlo por PID.
+
+**Archivos afectados:** `backend/src/blockchain/{blockchain,trabajos-onchain}.service{,.spec}.ts`, `backend/src/presencia/presencia.service.ts`; `mobile/src/app/viaje-activo/[id].tsx`, `mobile/src/pruebas/respuestasApi.ts`, `mobile/src/__tests__/seguimiento.test.tsx`; `HEARTBEAT.md`.
+
+## 2026-11-14 · HU-19 en el teléfono (SP151, SP152)
+
+**Qué se probó:** reservar y «Mis viajes» en el Infinix X669 con huella y Keystore reales, sobre la punta de `feat/HU-24-liberacion-pago`, contra el backend del entorno de pruebas y un proxy que registra cada petición y si iba firmada.
+
+**Visto bien:** doble toque en «Reservar y pagar» → una sola reserva firmada (CA-1, CA-4); faltante y «Recargar saldo», y al volver de la recarga la misma confirmación (CA-2); *Pendiente* que pasa sola a *Confirmada* al liberar el bloqueo retenido (CA-12); «Ya no quedan asientos» sin bloqueo (CA-3); «Ya tienes una reserva en este viaje» (CA-10); «Este viaje ya no admite reservas» con el botón desactivado (CA-11); diálogo de huella cancelado sin petición firmada; el viaje propio no aparece en la búsqueda (CA-9); el viaje reservado sigue en la búsqueda con sus asientos libres (CA-13); Mis viajes de pasajero y de conductor con el pasajero por nombre de pila (CA-14); «Tu próximo viaje» en Inicio; Billetera con disponible y garantía iguales a la base; total de URC cambiado solo por las recargas (CA-15). «No se completó» (CA-12) solo como pantalla: el estado lo puso SQL.
+
+**Hallazgos, pendientes por decisión del usuario:**
+1. El detalle de un viaje ya reservado no lo sabe: con saldo corto ofrece «Recargar saldo»; con saldo suficiente, «Reservar y pagar» y la huella. El rechazo llega recién del servidor.
+2. Tras «Ya no quedan asientos» y la nueva lectura del viaje con 0 libres, el botón sigue activo; con el viaje vencido sí se desactiva.
+3. La lista de resultados no se refresca al volver del detalle (un viaje vencido seguía listado).
+
+**Trampa:** la prueba de cancelar la huella terminó en una reserva real (dedo por costumbre) porque no se activó antes el bloqueo del proxy. Repetida con el bloqueo, bien.
+
+**Sin verificar:** TalkBack (pendiente por pedido del usuario).
+
+**Archivos afectados:** `backlog.md`, `MEMORY.md`, `HEARTBEAT.md`.
+
+## 2026-11-15 · Specs del Sprint 4 en borrador y decisiones D-29 a D-31
+
+**Evento:** Se redactan en borrador las 7 specs de S4 (`SPECS/features/sprint-4/`), en orden de dependencia: HU-20, HU-27, HU-28, HU-25, HU-04, PB-05, HU-30 (34 PHU). Falta la aprobación del PO y, después, los planes. Se revisaron contra el código de `develop` (S3 fusionado): el contrato `EscrowUniRide.reembolsar` ya reparte entre pasajero y conductor, así que HU-20 **no cambia el contrato**; `EstadoViaje` ya tiene `cancelado` y `expirado`; `usuarios.suspendida_en` existe pero nada lo escribe; la búsqueda (HU-18) no filtra por destino.
+
+**Valores nuevos propuestos en las specs (los aprueba el PO):** cancelación del pasajero con > 30 min estricto = 100 % (30:00 exacto ya es 50 %), hora del servidor; vista previa del reembolso calculada por el servidor y rechazo si al confirmar rige un porcentaje menor (resuelve P-06); expiración procesada < 1 min tras salida + 15 min; el viaje no vuelve a `publicado` al cancelarse su única reserva; correo a los pasajeros si cancela el conductor. Voz: hora sin franja = próxima ocurrencia desde 30 min antes de ahora, mostrada antes de buscar; destino por palabras contenidas, filtrado en el servidor; 2 fallos → teclado; silencio 5 s. «¿Dónde está mi conductor?»: distancia al punto de encuentro con la última posición ≤ 60 s que el servidor ya recibe (código de abordaje o trayecto), nunca coordenadas. HU-25: P-1 ≥ 3 pagadas del par en 24 h, P-2 < 1 km o < 3 min (2 en 7 días bloquean), P-3 ≥ 3 verificaciones fallidas en 7 días; par bloqueado 7 días, cuenta 72 h, levantamiento automático. HU-04: precio máximo 1,00–500,00 URC sin efecto retroactivo. PB-05: informe generado de las pruebas, 13/13, < 15 min. HU-30: una cuenta de prueba compartida en el teléfono del equipo; la huella la pone un integrante.
+
+**Decisiones abiertas, con recomendación (ninguna se toma sin el equipo):**
+
+| ID | Tema | Recomendación | Alternativa |
+|---|---|---|---|
+| D-29 | Verificación fallida sin HU-26 (D-24 dejó el escrow retenido) | Reembolso 100 % al pasajero 24 h después: sin prueba de viaje no se paga; el abuso repetido lo frena HU-25 P-3 | Retener hasta HU-26 (dinero inmóvil sin fecha) · 50/50 (paga sin prueba, también a quien falsificó el GPS) |
+| D-30 | Módulo de reconocimiento y lectura en voz alta (P-04) | Decidir en el plan de HU-27 un módulo que use el reconocedor de Android y el TTS del sistema, sin servicio externo nuevo (dependencia nueva: §14) | — |
+| D-31 | Alcance de HU-04 | El ciclo completo de un viaje entre organizaciones cruza RLS en reserva, encuentro, trayecto y pago: reestimar a 8 PHU o pasar HU-04 a Reserva. No entregar vínculos sin reserva | Entregar solo tarifas (CA-1 a CA-3) |
+
+**Riesgo de calendario:** hoy es 15/11 y S4 cierra el 17/11; HU-22 a HU-24 recién se fusionaron. La regla del roadmap permite pasar los *Should* (HU-25, HU-04) a Reserva; PB-05 y HU-30 dependen de lo demás y HU-30 necesita cinco personas antes de la Review.
+
+**Archivos afectados:** `SPECS/features/sprint-4/*/spec.md`, `SPECS/roadmap.md`, `.agents/MEMORY/MEMORY.md`.
+
+## 2026-11-15 · Resuelve D-29 y D-31
+
+**Decisión del PO:**
+1. **D-29:** se aprueba la recomendación: una reserva en *Verificación fallida* se reembolsa 100 % al pasajero 24 h después (HU-20 RN-11, CA-9). Reemplaza la retención indefinida de D-24.
+2. **D-31:** **HU-04 se descarta por completo** (ni S4 ni Reserva). S4 queda en 31 PHU. Consecuencias: ningún dato cruza entre organizaciones, sin excepciones (`constitution.md` Art. 2.3 y `ssd.md` §5 corregidos; se quitan de `ssd.md` §8 las rutas de tarifas y vínculos); el precio máximo por asiento solo se fija en el alta (HU-01) y no hay pantalla para cambiarlo; el requisito 1 sigue cubierto por PB-02, HU-01–HU-03, HU-05–HU-07 y HU-34. HU-01 RN-9 y §5 mencionan HU-04 como historia futura: quedan como historial. Se borra la spec en borrador `SPECS/features/sprint-4/HU-04-tarifas-vinculos/` (nunca se versionó). PB-05 ya no lleva ataques de vínculos.
+
+**Sigue abierta:** D-30 (módulo de voz).
+
+**Archivos afectados:** `SPECS/features/sprint-4/{HU-20,HU-25,PB-05}/spec.md`, `SPECS/features/sprint-3/HU-19-reserva-escrow/spec.md`, `SPECS/roadmap.md`, `SPECS/ssd.md`, `SPECS/constitution.md`, `.agents/MEMORY/MEMORY.md`.
+
+## 2026-11-15 · Resuelve D-30: voz con librerías existentes
+
+**Decisión del integrante:** «usar lo que ya está hecho», sin módulo nativo propio. Para HU-27 y HU-28: `expo-speech` (oficial de Expo, MIT, 58.0.4 en npm) para leer las respuestas en voz alta y `expo-speech-recognition` (jamsch, MIT, 58.0.1, peer `expo: *`, actualizada el 29/10/2026) para el reconocedor de Android. Resuelve DESIGN_SYSTEM P-04.
+
+**Para el plan de HU-27:** fijar versiones exactas, revisar los scripts de instalación (`allowScripts`, `AGENTS.md` §9), compilar en nativo y probar en el Infinix que el reconocedor de Google en español esté disponible (HU-27 CA-13 si no).
+
+**Archivos afectados:** `SPECS/features/sprint-4/HU-27-reservar-por-voz/spec.md`, `.agents/MEMORY/MEMORY.md`.
+
+## 2026-11-15 · Specs del Sprint 4 aprobadas
+
+**Evento:** El PO aprueba las 6 specs de S4 (HU-20, HU-27, HU-28, HU-25, PB-05, HU-30) con D-29, D-30 y D-31 resueltas. Siguen los `plan.md` en borrador, para revisión del equipo por PR.
+
+**Archivos afectados:** `SPECS/features/sprint-4/*/spec.md`, `SPECS/roadmap.md`, `.agents/MEMORY/MEMORY.md`.
+
+## 2026-11-15 · Corrección de HU-28 CA-13 antes del plan
+
+**Hallazgo al planificar:** la spec aprobada pedía la firma del teléfono para consultar la distancia del conductor (CA-13, RN-6). La llave del teléfono exige huella en cada firma (HU-09, HU-29 RN-3) y el pasajero *Confirmado* todavía no tiene llave de trayecto (se registra al abordar, D-22): cumplir CA-13 obligaría a poner la huella en una consulta, contra HU-29 RN-2.
+
+**Corrección (`constitution.md` Art. 1.4):** la consulta se protege como `GET /reservas/:id` (HU-19): sesión, membresía aprobada y ser el pasajero de esa reserva *Confirmada*; solo devuelve la distancia al punto de encuentro, nunca coordenadas (A-13 igual). A-08 queda acotado: sin la app, alguien con la sesión del pasajero solo obtiene esa distancia de su propio viaje.
+
+**Archivos afectados:** `SPECS/features/sprint-4/HU-28-consultas-por-voz/spec.md`, `.agents/MEMORY/MEMORY.md`.
+
+## 2026-11-15 · Planes del Sprint 4 en borrador
+
+**Evento:** Se redactan los 6 `plan.md` de S4 en borrador. Orden y fusión: HU-20 → HU-27 → HU-28 (apilada sobre las dos) → HU-25 (sobre HU-20) → PB-05 → HU-30. Tareas propuestas SP178–SP208 (todavía no van al backlog). Se alinea el «Orden en S4» de las specs con este orden.
+
+**Hallazgos en el código que entran a los planes:**
+1. El índice único parcial `reservas_viaje_pasajero_activa_key` solo excluye `fallida` y «ya reservado» igual: tras cancelar no se podría volver a reservar. HU-20 rehace el índice en la migración `018` (sin tocar datos).
+2. El abordaje, si su `UPDATE` condicional pierde, responde «ya abordada» sin releer: con HU-20 la que gana puede ser una cancelación. HU-20 lo corrige (relee y rechaza).
+3. `CuentaActivaGuard` protege también saldo, abordaje, bajada y posiciones: el bloqueo preventivo de HU-25 no va ahí (el bloqueado debe completar lo reservado) sino en publicar, reservar y recargar. Cancelar no lleva ese guard.
+4. La búsqueda no filtra por destino: HU-27 agrega `destino` opcional en el servidor.
+5. Cada repositorio ya corre sus ataques en CI: PB-05 no necesita tocar workflows.
+
+**Desvíos de `ssd.md` (aplicados en §6 y §8):** `bloqueos_preventivos` (HU-25), tipo `compensacion_cancelacion` (HU-20), `GET /reservas/{id}/conductor` sin firma (HU-28) en lugar de `GET /reservas/{id}` con F.
+
+**Dependencias:** `expo-speech` y `expo-speech-recognition` (D-30), versión exacta y scripts en SP184.
+
+**Archivos afectados:** `SPECS/features/sprint-4/*/{spec,plan}.md`, `SPECS/ssd.md`, `SPECS/roadmap.md`, `.agents/MEMORY/MEMORY.md`.
+
+## 2026-11-15 · Planes del Sprint 4 aprobados
+
+**Evento:** El integrante aprueba los 6 planes de S4 y, con ellos, lo que exige `AGENTS.md` §14: migraciones `018_cancelaciones` y `019_anomalias` (no destructivas; `018` rehace un índice único parcial), estados `cancelada`/`expirada` de reserva y transiciones del viaje a `cancelado`/`expirado`, lógica de reembolso (100 %, 50/50 y verificación fallida a las 24 h, D-29), dependencias `expo-speech` y `expo-speech-recognition` (D-30; versión exacta y scripts en SP184), endpoint `GET /reservas/{id}/conductor` y filtro `destino` en la búsqueda. También queda aceptada la corrección de HU-28 CA-13. Tareas SP178–SP208 (81 h) cargadas en `backlog.md`.
+
+**Riesgo:** 81 h para un sprint que cierra el 17/11, con HU-30 dependiendo de cinco personas y de HU-27/HU-28 en el teléfono.
+
+**Archivos afectados:** `SPECS/features/sprint-4/*/plan.md`, `SPECS/roadmap.md`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/MEMORY.md`.
+
+---
+
+## 2026-11-17 · Implementación de HU-28 (Consultas por voz)
+
+**Evento:** Se completan las tareas técnicas de backend y mobile de HU-28 (SP190, SP191, SP192, SP193) en la rama `feat/HU-28-consultas-por-voz`, apilada sobre HU-27 y HU-20.
+
+**Hecho:**
+1. **SP190 (Backend):** Endpoint `GET /reservas/:id/conductor` con `OrganizacionGuard`, cálculo de distancia Haversine redondeado a decenas de metros (o km desde 1 km), umbral de llegada a 50 m (`enPuntoDeEncuentro`), ventana de vigencia de 60 s para última posición conocida del conductor (desafíos o puntos GPS de HU-22/HU-23). Suites unitarias, e2e y suites de ataque A-08 (sin coordenadas, requiere membresía y sesión) y A-13 (aislamiento multi-org y reserva no confirmada) en verde. Commit `6aaf7b2`.
+2. **SP191 (Mobile):** Intérprete `interprete.ts` ampliado con intenciones `saldo`, `conductor`, `estado_viaje`, `cancelar` (con soporte a ordinales y números), `ayuda` y `elegir`. Prioridad fija: cancelar > conductor > estado_viaje > saldo > ayuda > elegir > reservar > buscar. Módulo de respuestas puras `respuestas.ts` con una frase por estado (RN-5) y formato de distancias/montos. 96 pruebas Jest pasando al 100%. Commit `c3368b6`.
+3. **SP192 / SP193 (Mobile):** Orquestador de acciones `acciones.ts`, pantalla de ayuda `app/ayuda.tsx` con ejemplos y accesos táctiles, integración en perfil (`app/(pestanas)/perfil.tsx`), visualización de distancia en `app/reserva/[id].tsx`, flujo de cancelación por voz con huella de HU-20 (`app/cancelar.tsx`) y prueba de ataque A-11 (`voz-cancelar.test.tsx`: la voz nunca envía petición firmada ni ejecuta mutaciones de cancelación sin biometría). Commit `70fca15`.
+4. **Verificación:** `oxlint` y `nest build` en backend limpios. `expo lint` y `prettier --check` en mobile limpios. 641 tests pasando en backend; 31 suites (656 tests) pasando en mobile (incluyendo 144 tests específicos de voz).
+
+**Pendiente:** SP194 (prueba en teléfono Android físico Infinix X669 con comandos reales). Siguiente historia: HU-25 (Detección de anomalías).
+
+**Archivos afectados:** `backend/src/presencia/*`, `backend/test/*`, `mobile/src/voz/*`, `mobile/src/app/ayuda.tsx`, `mobile/src/app/reserva/[id].tsx`, `mobile/src/__tests__/voz-*`, `SPECS/features/sprint-4/HU-28-consultas-por-voz/*`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{HEARTBEAT,MEMORY}.md`.
+
+## 2026-11-17 · Specs y planes de las HUs de cierre (HU-21, HU-26, HU-31, HU-32, HU-33, PB-06)
+
+**Evento:** Con el Sprint 4 como último, el PO aprueba pasar de Reserva a S4 (plazo: viernes 20/11) las specs de HU-21, HU-26 (solo lectura), HU-31, HU-32 (reducida a 4 cifras, 3 PHU), HU-33 y PB-06 (reducida, 2 PHU). Descartadas: HU-15 y HU-16 (exigen cambiar el contrato; sin tiempo), por decisión de alcance.
+
+**Decisiones:** factor de CO₂ de 0,12 kg por pasajero y km (propuesta del equipo, aprobada); HU-21 cierra D-17; HU-33 resuelve «`app.super_admin` en viajes» con una lectura fija solo de agregados. Planes en borrador, pendientes de aprobación del equipo; **HU-21 pide confirmación (§14): nueva tabla con RLS y función `SECURITY DEFINER`**. HU-31 migra 54 archivos de mobile; recorte propuesto: solo el flujo principal.
+
+**Archivos afectados:** `SPECS/features/sprint-4/{HU-21,HU-26,HU-31,HU-32,HU-33,PB-06}-*/`, `SPECS/roadmap.md`.
+
+## 2026-11-18 · HUs de cierre del Sprint 4 implementadas (HU-26, HU-32, HU-33, HU-21, HU-31, PB-06)
+
+**Evento:** las seis historias quedaron fusionadas en `develop` con CI verde y punteros del principal actualizados. Sin coautoría en commits ni firmas de IA en PR (regla del proyecto).
+
+**Decisiones y hallazgos:** HU-21 cierra D-17 (promedio solo con ≥ 3 calificaciones; excluye pares bloqueados por HU-25; tabla con RLS ENABLE, no FORCE, para la función `SECURITY DEFINER`). HU-31: tema por `crearEstilos`/`useColores`, mapa siempre claro (CA-8). PB-06: la prueba de carga destapó un interbloqueo 40P01 (5 de 10 abordajes con 5xx) por `FOR UPDATE` en `viajes` contra bloqueos de FK; se cambió a `FOR NO KEY UPDATE` en `estado-viaje.service.ts` con prueba de regresión. Medición local: búsqueda p95 122 ms, abordaje p95 141 ms.
+
+**Pendiente:** SP232 (teléfono, TalkBack), SP194, sesiones HU-30, despliegue/SP129; UI del conductor para calificar pasajeros.
+
+**Archivos afectados:** `backend/src/{metricas,calificaciones,viajes}`, `web/src/paginas/{admin,Metricas}`, `mobile/src/{tema,app/calificar,app/ajustes-apariencia}`, `scripts/carga.mjs`, `SPECS/features/sprint-4/*`, `.agents/STEERING/backlog.md`.

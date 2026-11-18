@@ -9,15 +9,18 @@
 | Carpeta | Módulo / componente | Cambio |
 |---|---|---|
 | backend | `viajes` | Nuevo: endpoint `GET /viajes/buscar` con consulta geoespacial Haversine y filtro de ventana temporal |
-| backend | `comun` | Utilidad matemática `GeoDistance` (cálculo de distancia geodésica) e índices espaciales en BD |
-| mobile | `app/viajes/buscar.tsx` | Nuevo: pantalla con mapa o lista de viajes disponibles, filtros de horario y selector de destino |
+| backend | `viajes` | Índice `idx_viajes_busqueda`. Sin utilidad `GeoDistance`: la distancia se calcula solo en SQL |
+| mobile | `app/(pestanas)/index.tsx`, `componentes/FormularioBusqueda.tsx` | La pestaña Buscar: origen por GPS, buscador o mapa, fecha y hora, sin destino (spec §5), y saldo disponible |
+| mobile | `app/viajes/buscar.tsx`, `app/viajes/[id].tsx` | Nuevo: resultados en lista y detalle del viaje, con Reservar deshabilitado hasta HU-19 |
+| backend | `viajes` | `GET /viajes/:id` agrega `cuposTotales` para mostrar «2 de 4» (07/11) |
+| mobile | `componentes/SelectorMapa.tsx`, `servicios/ubicacion.ts` | Nuevo: elegir el punto moviendo el mapa bajo un pin, y leer la ubicación con tope de 15 s |
 | mobile | `componentes/TarjetaViaje.tsx` | Nuevo: tarjeta de viaje con datos del conductor, vehículo, precio, cupos y distancia |
 
 Reutiliza: `OrganizacionGuard` (HU-02), `viajes` (HU-17), `VehiculoPublico` (HU-11).
 
 ## 2. Cambios al modelo de datos
 
-No crea tablas nuevas. Utiliza la tabla `viajes` (HU-17) y añade un índice compuesto optimizado para búsqueda:
+No crea tablas nuevas. Utiliza la tabla `viajes` (HU-17) y, en la migración `012_busqueda_viajes`, añade un índice compuesto optimizado para búsqueda, que reemplaza al de HU-17 porque empieza por las mismas columnas:
 
 ```sql
 CREATE INDEX idx_viajes_busqueda ON viajes (
@@ -32,15 +35,16 @@ CREATE INDEX idx_viajes_busqueda ON viajes (
 
 | Método | Ruta | Rol | Request → Response | Errores (`codigo`) |
 |---|---|---|---|---|
-| GET | `/api/v1/viajes/buscar` | miembro aprobado | Query: `?origenLat=-17.783&origenLng=-63.182&horaSalida=2026-11-03T07:30:00Z` → 200 `[ { id, origenNombre, distanciaKm, destinoNombre, fechaHoraSalida, cuposDisponibles, precioPorAsiento, conductor: { nombre, verificado, calificacionPromedio }, vehiculo } ]` | `COORDENADAS_INVALIDAS` 400 |
+| GET | `/api/v1/viajes/buscar` | miembro aprobado | Query: `?origenLat=-17.783&origenLng=-63.182&horaSalida=2026-11-03T07:30:00Z` → 200 `[ { id, origenNombre, distanciaKm, destinoNombre, fechaHoraSalida, cuposDisponibles, precioPorAsiento, conductor: { nombre, verificado, calificacionPromedio, esNuevo, miembroDesde }, vehiculo } ]`, por hora de salida y con un máximo de 50 | `COORDENADAS_INVALIDAS` 400, `VALIDACION_FALLIDA` 400 (hora), `NO_AUTORIZADO` 403 |
 
 ### Algoritmo de filtrado geoespacial y temporal
 
 1. **Filtro de aislamiento (A-13):** Aplica automáticamente RLS por `organizacion_id`.
 2. **Filtro temporal:** `fecha_hora_salida BETWEEN :horaSalida - INTERVAL '30 minutes' AND :horaSalida + INTERVAL '30 minutes'`.
-3. **Filtro de disponibilidad:** `estado IN ('publicado', 'reservado') AND cupos_disponibles > 0`.
+3. **Filtro de disponibilidad:** `estado IN ('publicado', 'reservado') AND cupos_disponibles > 0 AND fecha_hora_salida > now()`, y conductor sin cuenta suspendida (RN-7).
 4. **Filtro geoespacial (Haversine):**
    ```sql
+   -- Argumento acotado a [-1, 1]: el redondeo lo saca apenas de ese rango y acos fallaría.
    (6371 * acos(
      cos(radians(:origenLat)) * cos(radians(origen_lat)) *
      cos(radians(origen_lng) - radians(:origenLng)) +
@@ -83,14 +87,17 @@ sequenceDiagram
 | CA-4 Viajes sin cupos o pasados quedan excluidos | e2e | `buscar.e2e-spec.ts` |
 | CA-5 Conductor sin calificación muestra badge 'Nuevo' (D-17) | e2e | `buscar.e2e-spec.ts` |
 | CA-6 Rendimiento: respuesta en < 2 segundos con 50 viajes | e2e / carga | `buscar.e2e-spec.ts` |
-| Móvil: lista de resultados y tarjeta de viaje | Jest (preset Expo) | `mobile/test/viajes/buscar.test.tsx` |
+| Ataque A-13 por la API y en PostgreSQL | e2e | `backend/test/ataques/a-13-viajes.e2e-spec.ts` |
+| Móvil: formulario, resultados, tarjeta y detalle | Jest (preset Expo) | `mobile/src/__tests__/buscar.test.tsx` |
 
 ## 7. Dependencias y requerimientos
 
 - Reutiliza módulo `viajes` (HU-17) y OpenStreetMap.
+- `expo-location` en `mobile` (autorizado por el integrante el 07/11, `AGENTS.md` §14). Es un módulo nativo: hay que recompilar la app. El mapa nació sin librería, con las teselas de `MapaRuta`. Tras probarlo en el teléfono, el integrante autorizó el 07/11 `@maplibre/maplibre-react-native` (`AGENTS.md` §14), también nativa: ver `SP130`.
 
 ## 8. Tareas propuestas (para backlog.md al aprobar)
 
+- `SP130`: Mapa con MapLibre: pellizco, doble toque, rotar y brújula, punto de mi ubicación y tipos de mapa, con estilo propio; revisar navegador — 6h. Hecho el 07/11: teselas de OpenFreeMap con estilo propio, calles y relieve, pin que se coloca al tocar; la web conserva las teselas.
 - `SP120`: Lógica de consulta geoespacial Haversine y filtro de ventana temporal — 3h.
 - `SP121`: Endpoint `/viajes/buscar` con DTOs seguros y resolución D-17 — 3h.
 - `SP122`: Suite de pruebas automatizadas, prueba de aislamiento A-13 y medición de latencia < 2s — 3h.

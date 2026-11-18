@@ -10,8 +10,8 @@
 |---|---|---|
 | backend | `billetera` | Endpoints para consultar balance desglosado (`/saldo`) y lista paginada de movimientos (`/movimientos`) |
 | backend | `blockchain` | Método para consultar balance ERC-20 con caché de corto plazo (15 s) y conciliación con libro mayor contable |
-| mobile | `app/billetera/movimientos.tsx` | Nuevo: pantalla con lista de transacciones, estados, pull-to-refresh y enlaces al explorador Polygonscan |
-| mobile | `componentes/TarjetaSaldo.tsx` | Nuevo: desglose visual de saldo disponible vs bloqueado en escrow |
+| mobile | `src/app/movimientos.tsx` | Nuevo: pantalla con lista de transacciones, estados, pull-to-refresh y enlaces al explorador Polygonscan |
+| mobile | `src/componentes/TarjetaSaldo.tsx` | Nuevo: desglose visual de saldo disponible vs bloqueado en escrow. En Inicio se agrega con HU-18, cuando exista su vista verificada |
 
 Reutiliza: `BlockchainService` (HU-12), `AuditoriaService` (HU-06).
 
@@ -19,7 +19,7 @@ Reutiliza: `BlockchainService` (HU-12), `AuditoriaService` (HU-06).
 
 | Tabla | Cambio | Restricciones | ¿`organizacion_id` + RLS? |
 |---|---|---|---|
-| `movimientos_billetera` | Nueva: `id`, `billetera_id`, `tipo`, `monto`, `saldo_posterior`, `estado`, `hash_tx`, `clave_idempotencia`, `metadatos`, `creado_en` | `FOREIGN KEY (billetera_id) REFERENCES billeteras(id)`, `UNIQUE(clave_idempotencia)`, `INDEX(billetera_id, creado_en DESC)` | No: dato personal (Art. 2.6 y D-07); protegido por dueño |
+| `movimientos_billetera` | Nueva: `id`, `billetera_id`, `tipo`, `monto` (`NUMERIC(12,2)`, positivo), `estado` (`pendiente`/`confirmado`/`fallido`), `reserva_id` (opcional; su llave foránea llega con HU-19), `hash_tx`, `clave_idempotencia`, `metadatos`, `creado_en` | `FOREIGN KEY (billetera_id) REFERENCES billeteras(id)`, `UNIQUE(clave_idempotencia)`, `INDEX(billetera_id, creado_en DESC)`. Solo inserción: un trigger permite cambiar únicamente `estado` y `hash_tx`, y la API no tiene DELETE (`ssd.md` §6) | No: dato personal (Art. 2.6 y D-07); protegido por dueño |
 
 Migración: `009_movimientos_billetera`.
 
@@ -34,16 +34,19 @@ Tipos de movimiento (`tipo` ENUM):
 | Método | Ruta | Rol | Request → Response | Errores (`codigo`) |
 |---|---|---|---|---|
 | GET | `/api/v1/billetera/saldo` | verificado | — → 200 `{ saldoTotal: "150.00", saldoDisponible: "135.00", saldoBloqueadoEscrow: "15.00", moneda: "URC", enLinea: true }` | `BILLETERA_NO_ENCONTRADA` 404 |
-| GET | `/api/v1/billetera/movimientos` | verificado | Query: `?pagina=1&limite=20` → 200 `{ items: [...], total, pagina, paginas }` | `BILLETERA_NO_ENCONTRADA` 404 |
+| GET | `/api/v1/billetera/movimientos` | verificado | Query: `?pagina=1&limite=20&tipo=recarga` (`tipo` opcional, uno o varios separados por coma) → 200 `{ items: [...], total, pagina, paginas }` | `BILLETERA_NO_ENCONTRADA` 404 |
+
+Ambas son lecturas sin firma de dispositivo: token, cuenta activa e identidad verificada. Cada firma pide huella, y el refresco y el scroll infinito (CA-5) no pueden pedirla en cada lectura. `POST /billetera` y `GET /billetera/mia` siguen con firma.
 
 ### Estrategia de conciliación y resiliencia (CA-4)
 
 1. Para responder `/saldo`:
-   - El backend lee el balance on-chain de `UniCoin.balanceOf(direccion)` (con caché en memoria de 15 segundos para no saturar el RPC de Amoy).
-   - Consulta en base de datos la suma de fondos en estado `bloqueado` en escrow para el usuario.
-   - `saldoDisponible = saldoTotalOnChain - saldoBloqueadoEscrow`.
+   - El backend lee el balance on-chain de `UniCoin.balanceOf(direccion)` (con caché en memoria de 15 segundos para no saturar el RPC de Amoy; un movimiento confirmado de la billetera lo invalida, para no mostrar como disponible lo que ya se retuvo).
+   - `saldoBloqueadoEscrow` = suma de los movimientos `bloqueo_reserva` confirmados de la billetera cuya `reserva_id` aún no tiene una `liberacion_viaje` o `reembolso_reserva` confirmada. Hasta HU-19 da `0.00`.
+   - `saldoDisponible = balanceOf` y `saldoTotal = balanceOf + saldoBloqueadoEscrow`: `EscrowUniRide.bloquear` ya sacó esos tokens de la billetera (`ssd.md` §10).
 2. Si el RPC de Polygon Amoy tiene latencia o no responde:
-   - Responde inmediatamente con el último saldo contable consolidado en PostgreSQL y marca `enLinea: false` para que la app informe al usuario sin bloquear la pantalla.
+   - Responde con el saldo contable, calculado sobre los movimientos confirmados (RN-1), y marca `enLinea: false` para que la app informe al usuario sin bloquear la pantalla.
+3. Conciliación: en cada lectura real de la cadena, sin movimientos pendientes, compara `balanceOf` con el saldo contable (`recarga`, `liberacion_viaje` y `reembolso_reserva` suman; `bloqueo_reserva` resta). Una diferencia queda en `registros_auditoria` y en el log de advertencia, sin cambiar la respuesta.
 
 ## 4. Pantallas y flujo móvil
 
@@ -65,15 +68,15 @@ sequenceDiagram
   App->>API: GET /billetera/saldo
   API->>BC: balanceOf(direccion) [Caché 15s]
   alt RPC responde exitoso
-    BC-->>API: saldoOnChain (150 URC)
+    BC-->>API: balanceOf (135 URC)
   else Falla o timeout de RPC
-    API->>BD: Obtiene último saldo contable de movimientos_billetera
-    BD-->>API: saldoContable (150 URC)
+    API->>BD: Calcula saldo contable de movimientos confirmados
+    BD-->>API: saldoContable (135 URC)
   end
-  API->>BD: SUM(monto) WHERE estado = 'bloqueado'
+  API->>BD: Suma bloqueos confirmados sin resolver
   BD-->>API: saldoBloqueado (15 URC)
-  API->>API: Calcula disponible = 135 URC
-  API-->>App: 200 { saldoTotal, saldoDisponible, saldoBloqueadoEscrow }
+  API->>API: disponible = 135 URC, total = 150 URC
+  API-->>App: 200 { saldoTotal, saldoDisponible, saldoBloqueadoEscrow, enLinea }
 ```
 
 ## 6. Estrategia de pruebas
@@ -86,7 +89,7 @@ sequenceDiagram
 | CA-4 Conciliación contable BD ↔ Blockchain | unitaria + e2e | `conciliacion.service.spec.ts` |
 | CA-5 Paginación fluida (20 items) | e2e | `movimientos.e2e-spec.ts` |
 | CA-6 Redirección si no tiene billetera | integración | `billetera.guard.spec.ts` |
-| Móvil: listado y pull-to-refresh | Jest (preset Expo) | `mobile/test/billetera/movimientos.test.tsx` |
+| Móvil: listado y pull-to-refresh | Jest (preset Expo) | `mobile/src/__tests__/movimientos.test.tsx` |
 
 ## 7. Dependencias y configuración
 

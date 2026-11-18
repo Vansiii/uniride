@@ -43,7 +43,7 @@ flowchart LR
     end
     DB[(PostgreSQL RDS<br/>RLS por organización)]
     S3[(S3 cifrado<br/>carnets y vehículos)]
-    KMS[KMS<br/>llaves billeteras y verificador]
+    KMS[KMS<br/>llaves relayer y verificador]
     REK[Rekognition<br/>Face Liveness]
     SES[SES<br/>OTP e invitaciones]
   end
@@ -113,8 +113,8 @@ Un módulo NestJS por responsabilidad, cada uno con controlador / servicio / rep
 - Registro y unión a organizaciones (sin organización todavía): la función `organizacion_por_dominio(dominio)` es `SECURITY DEFINER` y devuelve solo el id de la organización activa dueña del dominio.
 - Las políticas RLS se escriben en SQL dentro de las migraciones de Prisma (`backend/prisma/migrations/*/migration.sql`), porque Prisma no las modela.
 - La API se conecta con un rol de PostgreSQL que **no** es dueño de las tablas ni superusuario, para que RLS no se omita. Las migraciones usan otro rol.
-- Excepción de lectura: la política de `SELECT` de `viajes` admite organizaciones vinculadas en `vinculos_organizacion` (HU-04). Ninguna otra tabla cruza organizaciones.
-- Datos personales (D-07): `usuarios`, `codigos_otp`, `tokens_refresco`, `verificaciones_identidad`, `dispositivos`, `billeteras`, `recargas`, `movimientos`, `vehiculos`. No llevan `organizacion_id`: el backend los filtra por el usuario del token y a terceros solo expone proyecciones mínimas (`VehiculoPublico`, nombre y correo institucional ante el admin de su organización).
+- Excepción de lectura: ninguna. HU-04 (viajes entre organizaciones vinculadas) se descartó (D-31): ninguna tabla cruza organizaciones.
+- Datos personales (D-07): `usuarios`, `codigos_otp`, `tokens_refresco`, `verificaciones_identidad`, `dispositivos`, `billeteras`, `ordenes_recarga`, `movimientos`, `vehiculos`. No llevan `organizacion_id`: el backend los filtra por el usuario del token y a terceros solo expone proyecciones mínimas (`VehiculoPublico`, nombre y correo institucional ante el admin de su organización).
 - Tablas internas sin acceso de usuarios: `correos_salientes`, `trabajos_onchain`.
 
 **Nivel de API**
@@ -140,15 +140,17 @@ Claves primarias UUID. Todas las tablas tienen `creado_en`. En Prisma, cada `mod
 | `dispositivos` | usuario_id, llave_publica, veredicto_atestacion, estado, vinculado_en | un dispositivo activo por usuario (índice único parcial) | persona |
 | `vehiculos` | propietario_id, placa, marca, modelo, color, capacidad, clave_s3_foto, consentimiento_foto_en | `UNIQUE(placa)`, `UNIQUE(propietario_id)` (v1), `capacidad BETWEEN 1 AND 6`, placa `^[0-9]{3,4}[A-Z]{3}$` | persona |
 | `viajes` | organizacion_id, conductor_id, vehiculo_id, origen, destino, sale_en, cupos_totales, cupos_disponibles, precio_urc, estado | `0 ≤ cupos_disponibles ≤ cupos_totales ≤ vehiculo.capacidad`; `precio_urc ≤ organizaciones.precio_maximo_urc` | sí |
-| `reservas` | organizacion_id, viaje_id, pasajero_id, monto_urc, estado, clave_idempotencia | `UNIQUE(viaje_id, pasajero_id)`, `UNIQUE(clave_idempotencia)` | sí |
-| `desafios_handshake` | organizacion_id, reserva_id, tipo (`abordaje`/`bajada`), nonce, vence_en, usado_en | `UNIQUE(nonce)`; vence 30 s; un solo uso | sí |
-| `pruebas_presencia` | organizacion_id, reserva_id, tipo, firma_conductor, firma_pasajero, posicion_conductor, posicion_pasajero, distancia_m, resultado, hash_prueba | `distancia_m ≤ 50` para aceptar | sí |
-| `puntos_gps` | organizacion_id, reserva_id, usuario_id, lat, lng, registrado_en, firma, ubicacion_simulada | | sí |
-| `billeteras` | usuario_id, direccion, id_llave_kms | `UNIQUE(usuario_id)`, `UNIQUE(direccion)`; nunca la llave privada | persona |
-| `recargas` | usuario_id, monto_bs, estado, referencia_pago | `monto_bs BETWEEN 10 AND 500` | persona |
-| `movimientos` | billetera_id, tipo (`recarga`/`bloqueo`/`liberacion`/`reembolso`/`retiro`/`subsidio`), monto_urc, reserva_id, clave_idempotencia, estado (`pendiente`/`confirmado`/`fallido`), hash_tx | `UNIQUE(clave_idempotencia)`; solo inserción (un trigger permite cambiar únicamente `estado` y `hash_tx`) | persona |
+| `reservas` | organizacion_id, viaje_id, pasajero_id, monto, motivo (por qué no se completó), estado (`pendiente`/`confirmada`/`abordada`/`verificada`/`pagada`/`fallida`/`verificacion_fallida`; HU-20 agrega `cancelada`/`expirada`, D-23), clave_idempotencia, llave_trayecto_pasajero | `UNIQUE(viaje_id, pasajero_id)` para reservas activas, `UNIQUE(clave_idempotencia)` | sí |
+| `llaves_trayecto` | organizacion_id, viaje_id, reserva_id (nulo para el conductor), usuario_id, dispositivo_id, llave_publica, revocada_en | una activa por participante y viaje; se registra en una petición F+B (D-22) | sí |
+| `desafios_handshake` | organizacion_id, viaje_id, tipo (`abordaje`/`bajada`), nonce, posición del conductor, vence_en, usado_en, reserva_id (quién lo usó) | `UNIQUE(nonce)`; vence 30 s; un solo uso (HU-22) | sí |
+| `pruebas_presencia` | organizacion_id, reserva_id, desafio_id, tipo, posición del pasajero, distancia_m, veredicto_integridad, resultado, motivo, hash_prueba | `distancia_m ≤ 50` para aceptar; una aceptada por reserva y tipo | sí |
+| `puntos_gps` | organizacion_id, viaje_id, usuario_id, lat, lng, precision_m, tomada_en, simulada | `UNIQUE(viaje_id, usuario_id, tomada_en)`; la firma se verifica por lote (HU-23) | sí |
+| `billeteras` | usuario_id, direccion, llave_custodia_ref | `UNIQUE(usuario_id)`, `UNIQUE(direccion)`; la llave privada solo cifrada, nunca legible | persona |
+| `ordenes_recarga` | usuario_id, billetera_id, monto, estado (`pendiente`/`procesando`/`completada`/`expirada`), hash_tx, expira_en, completada_en | `monto BETWEEN 10 AND 500` | persona |
+| `movimientos_billetera` | billetera_id, tipo (`recarga`/`bloqueo_reserva`/`liberacion_viaje`/`reembolso_reserva`; HU-20 agrega `compensacion_cancelacion` (50 % al conductor); `retiro` y `subsidio` se agregan con HU-16 y HU-15), monto, reserva_id, clave_idempotencia, estado (`pendiente`/`confirmado`/`fallido`), hash_tx | `UNIQUE(clave_idempotencia)`; solo inserción (un trigger permite cambiar únicamente `estado` y `hash_tx`) | persona |
 | `invitaciones` | organizacion_id, correo, nombre, hash_token, vence_en (72 h), usada_en, reemplazada_en, creado_por | `UNIQUE(hash_token)` | sí |
 | `correos_salientes` | destinatario, plantilla, datos JSONB, estado (`pendiente`/`enviado`/`fallido`), intentos, proximo_intento_en, ultimo_error, referencia_tipo, referencia_id | — | interna |
+| `bloqueos_preventivos` | tipo (`par`/`cuenta`), usuario_id, usuario_par_id, patron, reserva_id, vence_en | solo inserción; `UNIQUE(reserva_id, patron)`; vigente si `vence_en > now()` (HU-25) | persona |
 | `trabajos_onchain` | movimiento_id, operacion, intentos, proximo_intento_en, ultimo_error, estado | `UNIQUE(movimiento_id)` | — |
 | `registros_auditoria` | organizacion_id (nulo en eventos personales), actor_id, accion, entidad, entidad_id, resultado, detalle JSONB | solo inserción; filas sin organización solo para super admin | sí |
 
@@ -212,21 +214,26 @@ Prefijo `/api/v1`. **F** = exige firma de dispositivo + atestación (`FirmaDispo
 | POST | `/dispositivos/desafio-vinculacion` | miembro | | HU-09 |
 | POST | `/dispositivos/vincular` | miembro | | HU-09 |
 | POST | `/viajes` | conductor verificado | F | HU-17 |
-| GET | `/viajes/buscar` | pasajero verificado | F | HU-18 |
-| GET | `/viajes/{id}` | miembro verificado | F | HU-18 |
-| GET | `/billetera` | miembro verificado | F | HU-12, HU-14 |
-| GET | `/billetera/movimientos` | miembro verificado | F | HU-14 |
-| POST | `/billetera/recargas` | miembro verificado | F B | HU-13 |
-| POST | `/billetera/recargas/{id}/simular-pago` | simulador (solo red de prueba) | | HU-13 |
+| GET | `/viajes/buscar` | miembro aprobado | | HU-18 |
+| GET | `/viajes/{id}` | miembro aprobado | | HU-17, HU-18 |
+| POST | `/billetera` | miembro verificado | F | HU-12 |
+| GET | `/billetera/mia` | miembro verificado | F | HU-12, HU-14 |
+| GET | `/billetera/saldo` | miembro verificado | | HU-14 |
+| GET | `/billetera/movimientos` | miembro verificado | | HU-14 |
+| POST | `/billetera/recargas` | miembro verificado | | HU-13 |
+| POST | `/billetera/recargas/{id}/confirmar` | miembro verificado | F B | HU-13 |
+| GET | `/billetera/recargas/{id}` | miembro verificado | | HU-13 |
 | POST | `/viajes/{id}/reservas` | pasajero verificado | F B | HU-19 |
-| POST | `/reservas/{id}/desafios` | conductor verificado | F | HU-22, HU-23 |
-| POST | `/reservas/{id}/handshakes` | pasajero verificado | F B | HU-22, HU-23 |
-| POST | `/reservas/{id}/posiciones` | conductor / pasajero | F | HU-23 |
-| GET | `/reservas/{id}` | participante | F | HU-28 |
+| GET | `/reservas/{id}`, `/reservas/mias`, `/viajes/{id}/pasajeros` | participante | | HU-19 |
+| POST | `/dispositivos/revinculacion`, `/dispositivos/revincular` | autenticado | | HU-10 |
+| POST | `/viajes/{id}/llave-trayecto` | conductor verificado | F B | HU-22 |
+| POST | `/viajes/{id}/desafios` | conductor verificado | llave de trayecto | HU-22, HU-23 |
+| POST | `/reservas/{id}/abordaje` | pasajero verificado | F B | HU-22 |
+| POST | `/reservas/{id}/bajada` | pasajero verificado | F B | HU-23 |
+| POST | `/viajes/{id}/posiciones`, `/reservas/{id}/posiciones` | conductor / pasajero | llave de trayecto | HU-23 |
+| GET | `/reservas/{id}/conductor` | pasajero con reserva confirmada | | HU-28 (distancia al punto de encuentro; sin firma, ver MEMORY 15/11) |
 | POST | `/reservas/{id}/cancelar` | pasajero | F B | HU-20 |
 | POST | `/viajes/{id}/cancelar` | conductor | F B | HU-20 |
-| PUT | `/organizaciones/{id}/tarifas` | admin. org | | HU-04 |
-| PUT | `/organizaciones/{id}/vinculos` | admin. org | | HU-04 |
 | POST | `/billetera/retiros` | conductor | F B | HU-16 |
 | POST | `/organizaciones/{id}/subsidios` | admin. org | | HU-15 |
 | GET | `/organizaciones/{id}/alertas-fraude` | admin. org | | HU-26 |
@@ -245,12 +252,12 @@ sequenceDiagram
   participant SC as EscrowUniRide
   P->>API: reserva firmada (F+B)
   API->>SC: bloquear(idReserva, pasajero, conductor, monto, permit)
-  C->>API: pide desafío (F)
-  API-->>C: nonce (30 s, un uso)
-  C->>P: QR {nonce, GPS conductor, firma conductor}
-  P->>API: handshake {QR, GPS pasajero, firma pasajero, atestación}
-  API->>API: valida firmas, nonce, atestación, distancia ≤ 50 m
-  API-->>C: viaje En curso
+  C->>API: llave de trayecto (F+B, integridad)
+  C->>API: pide desafío (llave de trayecto, GPS conductor)
+  API-->>C: nonce (30 s, un uso) + QR uniride://encuentro/<nonce>
+  P->>API: abordaje {nonce, GPS pasajero, atestación, llave de trayecto} (F+B)
+  API->>API: consume el nonce, distancia ≤ 50 m, GPS sin simular, atestación
+  API-->>P: reserva abordada; viaje En curso
   loop cada 15 s
     C->>API: posición firmada
     P->>API: posición firmada
@@ -281,8 +288,10 @@ sequenceDiagram
 | Máquina de estados solo en el servidor; el cliente no puede fijar estados | A-08 |
 | `liberar` solo con `ROL_VERIFICADOR`, solo para `idReserva` bloqueada y no resuelta | A-09 |
 | Los viajes no crean saldo; patrones repetitivos → alerta | A-10 |
-| Llaves en KMS; el backend solo pide firmas | A-12 |
+| Relayer y verificador en KMS (el backend solo pide firmas); llaves de usuario cifradas con AES-256-GCM | A-12 |
 | `organizacion_id` + RLS + `OrganizacionGuard` | A-13 |
+
+**Llave de trayecto (D-22):** el código rotativo del conductor y las posiciones cada 15 s se firman con una segunda llave de hardware sin biometría, registrada dentro de una petición F+B y válida solo para ese viaje o reserva. El estado del viaje se deriva de sus reservas (D-23); el escrow se libera por reserva.
 
 El modo emulador de desarrollo (`MODO_EMULADOR_DEV`) solo omite la atestación, está en `false` por defecto y el arranque falla si vale `true` con `NODE_ENV=production`.
 
@@ -291,7 +300,7 @@ Criterio medible de "invulnerable" propuesto al docente (documento técnico §3.
 ## 10. Diseño de la billetera
 
 **Contratos (PB-04, implementados en `contracts/`)**
-- `UniCoin` (símbolo `URC`): ERC-20 de OpenZeppelin con `ERC20Permit` y `AccessControl`. `ROL_ACUNADOR` (relayer) acuña con `acunar(destino, monto)` en recargas y subsidios; los viajes nunca acuñan. `ERC20Permit` permite que el usuario firme la autorización y el relayer pague el gas. Las funciones del estándar (`transfer`, `balanceOf`, `permit`) conservan su nombre. La quema para retiros se agrega con HU-16.
+- `UniCoin` (símbolo `URC`): ERC-20 de OpenZeppelin con `ERC20Permit` y `AccessControl`. `ROL_ACUNADOR` (relayer) acuña con `acunarRecarga(destino, monto, idOrden)` en recargas, idempotente por `idOrden`, y con `acunar(destino, monto)` en subsidios; los viajes nunca acuñan. `ERC20Permit` permite que el usuario firme la autorización y el relayer pague el gas. Las funciones del estándar (`transfer`, `balanceOf`, `permit`) conservan su nombre. La quema para retiros se agrega con HU-16.
 - `EscrowUniRide`:
   - `bloquear(idReserva, pagador, conductor, monto, plazo, v, r, s)` (`ROL_OPERADOR`, relayer) retiene el pasaje usando el `permit` del pasajero y **fija el conductor**. Es idempotente: una reserva no se bloquea dos veces.
   - `liberar(idReserva, hashPrueba)` paga el 100 % al conductor fijado y guarda el hash de la prueba de presencia.
@@ -300,18 +309,19 @@ Criterio medible de "invulnerable" propuesto al docente (documento técnico §3.
 - 1 URC = 1 Bs simulado. Montos en BD como `NUMERIC(12,2)`; conversión con `parseUnits` (18 decimales estándar de OpenZeppelin).
 
 **Llaves (A-12)**
-- Una llave KMS `ECC_SECG_P256K1` por billetera de usuario, una para el relayer (`ROL_ACUNADOR` en URC y `ROL_OPERADOR` en el escrow; paga el gas) y una para la cuenta verificadora (`ROL_VERIFICADOR`). Ninguna llave privada sale de KMS.
+- Llaves de usuario: generadas en el backend y guardadas solo cifradas con AES-256-GCM en `billeteras.llave_custodia_ref`, con la clave de la variable `WALLET_ENCRYPTION_KEY` (decisión del PO en HU-12 por costo: una llave KMS por usuario cuesta ~1 USD/mes). Riesgo aceptado: quien obtenga a la vez la base de datos y esa variable descifra las llaves; el token no tiene valor real.
+- Una llave KMS `ECC_SECG_P256K1` para el relayer (`ROL_ACUNADOR` en URC y `ROL_OPERADOR` en el escrow; paga el gas) y una para la cuenta verificadora (`ROL_VERIFICADOR`). Esas llaves no salen de KMS.
 
 **Qué se registra on-chain**: recargas (acuñación), bloqueos en escrow, liberaciones con `hashPrueba`, reembolsos, retiros (quema) y subsidios.
 
 **Consistencia PostgreSQL ↔ blockchain**
 1. La operación crea, en una sola transacción de BD, el `movimiento` (`pendiente`, con clave de idempotencia) y su `trabajo_onchain`.
 2. Un worker del módulo `blockchain` toma los trabajos, firma con KMS, envía y espera confirmación; marca `confirmado` con `hash_tx` o reintenta con espera creciente. Nada se descarta en silencio. La app muestra "pendiente" mientras tanto.
-3. Idempotencia doble: `UNIQUE(clave_idempotencia)` en BD e `idReserva` única en el contrato.
+3. Idempotencia doble: `UNIQUE(clave_idempotencia)` en BD, e `idReserva` e `idOrden` únicas en los contratos.
 4. Conciliación periódica: para cada billetera compara `balanceOf` + bloqueado en escrow con los movimientos confirmados; cada diferencia queda en `registros_auditoria` y genera alerta.
 5. Saldo disponible = `balanceOf`; saldo bloqueado = suma de reservas activas en escrow (HU-14).
 
-Mecanismo de cola: tabla `trabajos_onchain` en PostgreSQL, sin servicios extra `[D-10]`.
+Mecanismo de cola: tabla `trabajos_onchain` en PostgreSQL, sin servicios extra (D-10, resuelta en HU-13).
 
 ## 11. Comandos de voz
 

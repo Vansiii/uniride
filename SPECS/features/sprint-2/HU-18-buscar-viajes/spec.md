@@ -29,6 +29,8 @@
 - RN-3: **Aislamiento institucional (A-13):** La búsqueda filtra obligatoriamente por el `organizacion_id` de la membresía activa del pasajero reforzado con Row-Level Security en PostgreSQL.
 - RN-4: **Privacidad del conductor (D-20):** En los resultados de búsqueda se muestra la proyección `VehiculoPublico` (marca, modelo, color, placa) y el nombre de pila. La foto del carnet, selfie y número de documento nunca se exponen.
 - RN-5: **Resolución de D-17 (Calificaciones):** El campo `calificacion` es opcional; si no existen reseñas (dado que HU-21 está en Reserva), se expone el estado de verificación y antigüedad en la plataforma.
+- RN-6: **Acceso (decisión del integrante, 07/11):** Basta la membresía aprobada, sin firma de dispositivo: buscar no pide huella. El detalle del viaje sigue la misma regla y también muestra solo el nombre de pila.
+- RN-7: **Cuenta suspendida (decisión del integrante, 07/11):** Los viajes de un conductor con la cuenta suspendida no aparecen en los resultados. El viaje no cambia de estado.
 
 ## 4. Casos borde y errores
 
@@ -43,6 +45,7 @@
 - Reserva de cupos y congelamiento de saldo en escrow → HU-19 (Sprint 3).
 - Búsqueda y reserva asistida mediante comandos de voz en lenguaje natural → HU-27 (Sprint 4).
 - Sistema de puntuación y reseñas mutuas post-viaje → HU-21 (en Reserva).
+- Filtrar por destino (decisión del integrante, 07/11): cada viaje muestra su destino y el pasajero elige. Agregarlo después no rompe el contrato.
 
 ## 6. Dependencias
 
@@ -53,12 +56,12 @@
 
 Marcar al cerrar la fase **Verify**. Referencia: `SPECS/constitution.md` Art. 12.
 
-- [ ] Criterios CA-1 a CA-6 cumplidos.
-- [ ] Pruebas automatizadas del `plan.md` en verde; cobertura en backend ≥ 70 %.
-- [ ] Prueba de aislamiento multi-organización A-13 en verde.
-- [ ] Tiempo de respuesta verificado < 2 segundos.
+- [x] Criterios CA-1 a CA-6 cumplidos.
+- [x] Pruebas automatizadas del `plan.md` en verde; cobertura en backend ≥ 70 %.
+- [x] Prueba de aislamiento multi-organización A-13 en verde.
+- [x] Tiempo de respuesta verificado < 2 segundos.
 - [ ] PR revisado · CI en verde.
-- [ ] Documentado en Swagger.
+- [x] Documentado en Swagger.
 - [ ] Aceptada por el PO en la Sprint Review.
 
 ## 8. Historial de cambios
@@ -67,4 +70,9 @@ Marcar al cerrar la fase **Verify**. Referencia: `SPECS/constitution.md` Art. 12
 |---|---|---|
 | 2026-11-02 | Creación (borrador) | — |
 | 2026-11-02 | Aprobación de spec y plan; Haversine <= 1 km, ventana +/- 30 min y resolución D-17 | 2026-11-02 · HU-18 Buscar viajes: spec y plan técnico aprobados (Resuelve D-17) |
+| 2026-11-07 | RN-6 y RN-7, sin filtro de destino, y nombre de pila también en el detalle (decisiones del integrante) | 2026-11-07 · HU-18: contrato de búsqueda |
+| 2026-11-07 | Sin cambios de criterios. Pantallas móviles con `expo-location` autorizado por el integrante | 2026-11-07 · HU-18: pantallas móviles |
+| 2026-11-07 | Sin cambios de criterios. Mapa con funciones habituales y tipos de mapa, con MapLibre autorizado por el integrante (`SP130`) | 2026-11-07 · HU-18: teléfono físico y decisión del mapa |
+| 2026-11-07 | Sin cambios de criterios. Verificación en sesión limpia: CA-1 a CA-6 cumplidos, cobertura 92,4 %, CA-6 en 25 ms con 40 500 viajes | 2026-11-07 · HU-18: verificación en sesión limpia |
+| 2026-11-07 | Sin cambios de criterios. Igual al prototipo: nombre de pila en el saludo, voz desactivada, una fila a 360 y «2 de 4» con `cuposTotales` en el detalle (decisión del integrante) | 2026-11-07 · HU-18: verificación en sesión limpia |
 

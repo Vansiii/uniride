@@ -10,8 +10,7 @@
 |---|---|---|
 | backend | `identidad` | Nuevo: controlador, servicio, DTOs y validación de vivacidad y comparación facial |
 | backend | `comun` | `RekognitionService` (interacción con AWS Rekognition: sesiones de liveness, comparación y búsqueda de duplicados); decorador `@RequiereIdentidadVerificada()` |
-| mobile | `app/identidad/verificar.tsx` | Nuevo: flujo en 3 pasos (consentimiento, captura de carnet, sesión de Face Liveness) |
-| mobile | `app/identidad/estado.tsx` | Nuevo: pantalla informativa del estado de verificación |
+| mobile | `src/app/identidad.tsx` | Nuevo: estado de verificación y flujo en 3 pasos (consentimiento y número, captura de carnet, prueba de vida); `src/identidad/liveness.ts` es la frontera nativa de Face Liveness (sin módulo nativo falla de forma segura) |
 | raíz | `.env.example` | Variables de AWS Rekognition y bandera `REKOGNITION_SIMULADO=true` para desarrollo/emulador |
 
 Reutiliza: `AlmacenamientoService` (HU-11: subida y borrado de compensación en S3/MinIO), `AuditoriaService` (HU-06).
@@ -114,7 +113,7 @@ sequenceDiagram
 | CA-7 Rechazo de imagen ilegible | e2e | `verificacion.e2e-spec.ts` |
 | CA-8 Privacidad: foto y hash nunca expuestos en respuestas/logs | e2e | `verificacion.e2e-spec.ts` |
 | CA-9 Bloqueo temporal tras 3 fallos consecutivos | unitaria + e2e | `verificacion.e2e-spec.ts` |
-| Pantallas y consentimiento | Jest (preset Expo) | `mobile/test/identidad/verificar.test.tsx` |
+| Pantallas y consentimiento | Jest (preset Expo) | `mobile/src/__tests__/identidad.test.tsx` |
 
 ## 7. Dependencias y requerimientos
 

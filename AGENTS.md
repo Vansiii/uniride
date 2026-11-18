@@ -66,7 +66,7 @@ Servicios externos y su único uso permitido:
 |---|---|
 | Play Integrity API | Atestar que la app es original y corre en un teléfono real |
 | Rekognition Face Liveness | Prueba de vida y comparación del rostro con el carnet |
-| AWS KMS | Llaves de las billeteras y de la cuenta verificadora |
+| AWS KMS | Llaves del relayer y de la cuenta verificadora (las de usuario: ver §11) |
 | Amazon SES | Códigos OTP e invitaciones |
 | Amazon S3 | Fotos de carnets y vehículos, cifradas |
 | Polygon Amoy | Token URC y contrato escrow (JSON-RPC vía ethers.js) |
@@ -111,7 +111,7 @@ No sustituyas ninguna tecnología del stack (el docente la exigió) ni añadas u
 | A-09 | Liberar pago sin viaje o cobrar dos veces | Solo el verificador libera, solo viajes verificados, una vez | HU-24 |
 | A-10 | Colusión para simular viajes | Los viajes no crean saldo; detección de patrones | HU-25 |
 | A-11 | Mover dinero con un comando de voz | La voz nunca autoriza; acción sensible pide biometría | HU-29 |
-| A-12 | Robar llaves del servidor | Llaves en AWS KMS, nunca en código ni en BD | HU-12 |
+| A-12 | Robar llaves del servidor | Relayer y verificador en AWS KMS; llaves de usuario solo cifradas (AES-256-GCM) en BD, nunca legibles | HU-12 |
 | A-13 | Ver o modificar datos de otra organización | Id de organización en cada registro + RLS | HU-01, HU-02 |
 
 Reglas para agentes:
@@ -174,7 +174,7 @@ Procedimiento obligatorio:
 ## 11. Configuración, secretos y datos sensibles
 
 - Toda configuración entra por variables de entorno; el mismo código debe correr en desarrollo, pruebas y producción.
-- **Nunca** escribas secretos, tokens, llaves privadas, credenciales de AWS ni frases semilla en el código, en commits, en logs, en pruebas ni en la base de datos. Las llaves de billeteras y del verificador viven solo en AWS KMS.
+- **Nunca** escribas secretos, tokens, llaves privadas, credenciales de AWS ni frases semilla en el código, en commits, en logs, en pruebas ni en la base de datos. Las llaves del relayer y del verificador viven solo en AWS KMS. Excepción aprobada por el PO (HU-12, por costo): la llave de cada billetera de usuario se guarda en la base de datos **solo cifrada** con AES-256-GCM (`WALLET_ENCRYPTION_KEY`, variable de entorno que nunca va a la base de datos); en texto claro no se guarda ni se registra nunca.
 - Si añades una variable de entorno, documéntala en el archivo de ejemplo de variables del proyecto (sin valores reales).
 - Fotos de carnets, datos biométricos y fotos de vehículos son datos sensibles: se recogen con consentimiento explícito, se guardan cifrados en S3 y se usan solo para verificación. No los expongas en respuestas de la API, logs ni mensajes de error.
 - Toda comunicación usa HTTPS.

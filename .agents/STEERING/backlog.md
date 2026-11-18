@@ -134,58 +134,205 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 ## Sprint 2 · 28/10 – 03/11/2026 · Identidad, billetera y primeros viajes
 
 ### HU-08 · Verificación de identidad (22 h)
-- [ ] SP88 · Modelo Prisma `identidades`, migración `006_identidades` y pruebas de repositorio — 3h — @[POR DEFINIR]
-- [ ] SP89 · `RekognitionService` con soporte para sesiones de vivacidad, comparación facial y colección (con mock `REKOGNITION_SIMULADO`) — 4h — @[POR DEFINIR]
-- [ ] SP90 · Endpoints `/liveness-sesion`, `/verificar`, `/estado` y guard `@RequiereIdentidadVerificada()` — 5h — @[POR DEFINIR]
-- [ ] SP91 · Suite de pruebas automatizadas y pruebas de ataque A-01 y A-02 (cobertura ≥ 70 %) — 4h — @[POR DEFINIR]
-- [ ] SP92 · Mobile: pantallas y flujo de verificación de identidad en Expo (consentimiento, carnet y vivacidad) — 6h — @[POR DEFINIR]
+- [x] SP88 · Modelo Prisma `identidades`, migración `006_identidades` y pruebas de repositorio — 3h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
+- [x] SP89 · `RekognitionService` con soporte para sesiones de vivacidad, comparación facial y colección (con mock `REKOGNITION_SIMULADO`) — 4h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
+- [x] SP90 · Endpoints `/liveness-sesion`, `/verificar`, `/estado` y guard `@RequiereIdentidadVerificada()` — 5h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
+- [x] SP91 · Suite de pruebas automatizadas y pruebas de ataque A-01 y A-02 (cobertura ≥ 70 %) — 4h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
+- [x] SP92 · Mobile: pantallas y flujo de verificación de identidad en Expo (consentimiento, carnet y vivacidad) — 6h — @[POR DEFINIR] · mobile @agente 05/11 (PR uniride-mobile#6; la prueba de vida real queda tras `ejecutarLiveness`, sin módulo nativo)
 
 ### HU-09 · Vinculación de dispositivo (26 h)
-- [ ] SP93 · Modelo Prisma `dispositivos`, migración `007_dispositivos` y pruebas de repositorio — 3h — @[POR DEFINIR]
-- [ ] SP94 · `PlayIntegrityService` (Google Play Integrity API y mock simulado bloqueado en prod) — 4h — @[POR DEFINIR]
-- [ ] SP95 · Endpoints de desafío de atestación, vinculación y consulta de dispositivo — 4h — @[POR DEFINIR]
-- [ ] SP96 · `FirmaDispositivoGuard` con verificación ECDSA P-256, nonce y ventana de 30s — 5h — @[POR DEFINIR]
-- [ ] SP97 · Suite de pruebas y pruebas de ataque A-03 (no íntegro), A-04 (llave ajena) y A-08 (sin firma) — 4h — @[POR DEFINIR]
-- [ ] SP98 · Mobile: integración con Android Keystore y pantalla de vinculación en Expo — 6h — @[POR DEFINIR]
+- [x] SP93 · Modelo Prisma `dispositivos`, migración `007_dispositivos` y pruebas de repositorio — 3h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
+- [x] SP94 · `PlayIntegrityService` (Google Play Integrity API y mock simulado bloqueado en prod) — 4h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
+- [x] SP95 · Endpoints de desafío de atestación, vinculación y consulta de dispositivo — 4h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
+- [x] SP96 · `FirmaDispositivoGuard` con verificación ECDSA P-256, nonce y ventana de 30s — 5h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
+- [x] SP97 · Suite de pruebas y pruebas de ataque A-03 (no íntegro), A-04 (llave ajena) y A-08 (sin firma) — 4h — @[POR DEFINIR] · backend @agente 04/11 (rama local, sin push)
+- [x] SP98 · Mobile: integración con Android Keystore y pantalla de vinculación en Expo — 6h — @[POR DEFINIR] · mobile @agente 05/11 (PR uniride-mobile#7; pantalla, firma canónica y pruebas; Keystore/Play Integrity nativos pendientes de dev build)
+
+- [x] SP125 · Mobile: módulo nativo local de Expo para Android Keystore (ECDSA P-256 no exportable, huella en cada firma con `BiometricPrompt` y `CryptoObject`), detrás de `keystore.ts`; prueba en teléfono físico. Requisito de SP103 y SP114 — 6h — @[POR DEFINIR] · mobile @agente 06/11: probado en Infinix X669 (TEE, sin StrongBox): el backend acepta la firma real; repetida, ajena y cancelada no pasan. Play Integrity sigue simulado. 07/11, en la rama de HU-17: la hora se firma tras la huella y una sesión vencida no pide otra
 
 ### HU-12 · Creación de billetera (16 h)
-- [ ] SP99 · Modelo Prisma `billeteras`, migración `008_billeteras` y repositorio — 2h — @[POR DEFINIR]
-- [ ] SP100 · `BlockchainService` (ethers.js, conexión Polygon Amoy/Hardhat y lectura de balance UniCoin) — 4h — @[POR DEFINIR]
-- [ ] SP101 · Endpoints de creación idempotente y consulta de billetera en backend — 3h — @[POR DEFINIR]
-- [ ] SP102 · Suite de pruebas y validación de seguridad A-12 (sin llaves en BD) — 3h — @[POR DEFINIR]
-- [ ] SP103 · Mobile: pantalla de Billetera en Expo (tarjeta de balance URC, dirección y accesos) — 4h — @[POR DEFINIR]
+- [x] SP99 · Modelo Prisma `billeteras`, migración `008_billeteras` y repositorio — 2h — @[POR DEFINIR] · backend @agente 06/11: también `usuarios.suspendida_en` (spec §4); la API solo tiene SELECT e INSERT sobre `billeteras`
+- [x] SP100 · `BlockchainService` (ethers.js, conexión Polygon Amoy/Hardhat y lectura de balance UniCoin) — 4h — @[POR DEFINIR] · backend @agente 06/11: solo redes 31337 y 80002, tope de 5 s; probado contra Hardhat, Amoy sin probar
+- [x] SP101 · Endpoints de creación idempotente y consulta de billetera en backend — 3h — @[POR DEFINIR] · backend @agente 06/11: creación automática al aprobar la identidad y firma de dispositivo en ambos endpoints
+- [x] SP102 · Suite de pruebas y validación de seguridad A-12 (sin llaves en BD) — 3h — @[POR DEFINIR] · backend @agente 06/11: 360 unitarias y 241 e2e en verde, cobertura 95,9 %, ataques A-02, A-08 y A-12
+- [x] SP103 · Mobile: pantalla de Billetera en Expo (tarjeta de balance URC, dirección y accesos) — 4h — @[POR DEFINIR] · mobile @agente 06/11: pestaña Billetera probada en teléfono físico contra Hardhat; Recargar y Movimientos llegan con HU-13 y HU-14
 
 ### HU-14 · Saldo e historial (15 h)
-- [ ] SP104 · Modelo Prisma `movimientos_billetera`, migración `009_movimientos_billetera` e índices contables — 2h — @[POR DEFINIR]
-- [ ] SP105 · Lógica de conciliación de saldo (on-chain + escrow en BD) y endpoint `/saldo` — 3h — @[POR DEFINIR]
-- [ ] SP106 · Endpoint paginado `/movimientos` y servicio de registro inmutable — 3h — @[POR DEFINIR]
-- [ ] SP107 · Suite de pruebas automatizadas y prueba de conciliación contable — 3h — @[POR DEFINIR]
-- [ ] SP108 · Mobile: pantalla de Historial de movimientos y componente `TarjetaSaldo` en Expo — 4h — @[POR DEFINIR]
+- [x] SP104 · Modelo Prisma `movimientos_billetera`, migración `009_movimientos_billetera` e índices contables — 2h — @[POR DEFINIR] · backend @agente 06/11: solo inserción; el trigger congela lo confirmado y la API no tiene DELETE
+- [x] SP105 · Lógica de conciliación de saldo (on-chain + escrow en BD) y endpoint `/saldo` — 3h — @[POR DEFINIR] · backend @agente 06/11: caché de 15 s; nodo caído o colgado da 200 con `enLinea: false`; las diferencias van a auditoría; sin firma de dispositivo. Probado contra Hardhat con `EscrowUniRide` real, Amoy sin probar · 07/11: un movimiento confirmado invalida el caché
+- [x] SP106 · Endpoint paginado `/movimientos` y servicio de registro inmutable — 3h — @[POR DEFINIR] · backend @agente 06/11: filtro `?tipo=`, sin firma de dispositivo; el registro se usará desde HU-13
+- [x] SP107 · Suite de pruebas automatizadas y prueba de conciliación contable — 3h — @[POR DEFINIR] · backend @agente 06/11: 395 unitarias y 318 e2e en verde (07/11), cobertura 95,7 %, ataques A-09 y A-10
+- [x] SP108 · Mobile: pantalla de Historial de movimientos y componente `TarjetaSaldo` en Expo — 4h — @[POR DEFINIR] · mobile @agente 06/11: 247 pruebas en verde (07/11); probado en teléfono físico contra Hardhat con 46 movimientos, sin verificar, vacío y nodo caído. 07/11: web a 360 y 412, teléfono a 412 dp, enlace a Polygonscan en pantalla y una sola huella al abrir Billetera. Saldo en Inicio queda para HU-18
 
-### HU-13 · Recarga de saldo (20 h)
-- [ ] SP109 · Modelo Prisma `ordenes_recarga`, migración `010_ordenes_recarga` y repositorio — 2h — @[POR DEFINIR]
-- [ ] SP110 · Servicio de generación de QR con expiración y cálculo de idempotencia — 3h — @[POR DEFINIR]
-- [ ] SP111 · Método `acunarTokens` en `BlockchainService` e integración con relayer — 3h — @[POR DEFINIR]
-- [ ] SP112 · Endpoint de confirmación de recarga con `FirmaDispositivoGuard` (D-13) — 4h — @[POR DEFINIR]
-- [ ] SP113 · Suite de pruebas automatizadas y prueba de ataque A-09 (doble acreditación) — 3h — @[POR DEFINIR]
-- [ ] SP114 · Mobile: pantalla de recarga en Expo (selector, QR y confirmación biométrica) — 5h — @[POR DEFINIR]
+### HU-13 · Recarga de saldo (31 h)
+- [x] SP109 · Modelo Prisma `ordenes_recarga` y `trabajos_onchain`, migración `010_ordenes_recarga` y repositorio — 2h — @[POR DEFINIR] · backend @agente 07/11: migración 010 aplicada; sin diferencias entre esquema y migraciones
+- [x] SP110 · Servicio de generación de QR con expiración y cálculo de idempotencia — 3h — @[POR DEFINIR] · backend @agente 07/11: QR PNG en el servidor; la clave es `recarga:<ordenId>`
+- [x] SP111 · Método `acunarRecarga` en `BlockchainService` e integración con relayer — 3h — @[POR DEFINIR] · backend @agente 07/11: probado contra UniCoin en Hardhat, también nodo caído y respuesta perdida; el evento se busca por ventanas de 1000 bloques; producción no arranca sin SP129
+- [x] SP112 · Endpoint de confirmación de recarga con `FirmaDispositivoGuard` (D-13) — 4h — @[POR DEFINIR] · backend @agente 07/11: confirmar con firma, 202 o 200 idempotente
+- [x] SP113 · Suite de pruebas automatizadas y prueba de ataque A-09 (doble acreditación) — 3h — @[POR DEFINIR] · backend @agente 07/11: e2e de recarga y ataques A-08, A-09, A-10 y A-11
+- [x] SP114 · Mobile: pantalla de recarga en Expo (selector, QR y confirmación biométrica), botón Recargar y aviso de pendiente — 5h — @[POR DEFINIR] · mobile @agente 07/11: probada con Jest y en navegador contra UniCoin en Hardhat, con firma real de una llave de prueba; en teléfono físico (Infinix X669) contra UniCoin en Hardhat: una firma por confirmación, cancelar no cobra, reintentar acredita, 412 dp y TalkBack; tras la revisión, Billetera y Movimientos se actualizan solos, y dedo no registrado y "Recarga en camino" probados en el teléfono
+- [x] SP126 · `UniCoin.acunarRecarga` idempotente con evento, y sus pruebas — 2h — @[POR DEFINIR] · contracts @agente 07/11: `acunarRecarga`, `ordenAcunada` y evento; contrato sin desplegar en Amoy
+- [x] SP127 · Worker de `trabajos_onchain` con reintentos y alerta en auditoría (D-10) — 4h — @[POR DEFINIR] · backend @agente 07/11: reintentos hasta 1 h entre intentos y alerta única al quinto; tras la revisión, una falla de la BD después de acuñar también suma intento y llega a la alerta
+- [x] SP128 · Libro mayor: clave en conflicto, decimales y `fallido` final — 2h — @[POR DEFINIR] · backend @agente 07/11: clave en conflicto, decimales y `fallido` final; tras la revisión, otra reserva con la misma clave también es conflicto
+- [ ] SP129 · Firmante KMS del relayer (al desplegar; requiere `@aws-sdk/client-kms`), con N confirmaciones antes de dar por acuñada una recarga y reemplazo con más gas de una transacción atascada — 3h — @[POR DEFINIR] · backend
 
 ### HU-17 · Publicar viaje (18 h)
-- [ ] SP115 · Modelo Prisma `viajes`, migración `011_viajes` y políticas RLS por organización — 3h — @[POR DEFINIR]
-- [ ] SP116 · Lógica de validación de conductor, vehículo y anti-solapamiento — 3h — @[POR DEFINIR]
-- [ ] SP117 · Endpoints `/viajes`, `/mis-viajes` y consulta de detalle — 4h — @[POR DEFINIR]
-- [ ] SP118 · Suite de pruebas y validación de amenazas A-08 y A-13 — 3h — @[POR DEFINIR]
-- [ ] SP119 · Mobile: pantalla de Publicar viaje con mapa OSM y selección de cupos en Expo — 5h — @[POR DEFINIR]
+- [x] SP115 · Modelo Prisma `viajes`, migración `011_viajes` y políticas RLS por organización — 3h — @[POR DEFINIR] · backend @agente 07/11: el rol de la API solo tiene SELECT e INSERT; el precio máximo es el de cada organización, no un CHECK fijo de 20
+- [x] SP116 · Lógica de validación de conductor, vehículo y anti-solapamiento — 3h — @[POR DEFINIR] · backend @agente 07/11: el solape cruza las organizaciones de la persona y es atómico por conductor; un viaje publicado ya pasado no cuenta y origen y destino iguales se rechazan (decisión del integrante)
+- [x] SP117 · Endpoints `/viajes`, `/mis-viajes` y consulta de detalle — 4h — @[POR DEFINIR] · backend @agente 07/11: documentados en Swagger; verificados en sesión limpia
+- [x] SP118 · Suite de pruebas y validación de amenazas A-08 y A-13 — 3h — @[POR DEFINIR] · backend @agente 07/11: CA-1 a CA-7, A-08 y A-13 en API y en PostgreSQL con el rol de la API; prueba real por HTTP sin diferencias
+- [x] SP119 · Mobile: pantalla de Publicar viaje con mapa OSM y selección de cupos en Expo — 5h — @[POR DEFINIR] · mobile y backend (`GET /viajes/limites`) @agente 07/11: requisitos, formulario, resultado y errores con pruebas y firma real en navegador; verificación en sesión limpia (6 defectos corregidos) y en teléfono físico (4 corregidos) hechas; revisión del código hecha (10 corregidos, probados en el teléfono); TalkBack no lee los avisos que aparecen y queda abierto; falta PR
 
 ### HU-18 · Buscar viajes (14 h)
-- [ ] SP120 · Lógica de consulta geoespacial Haversine y filtro de ventana temporal — 3h — @[POR DEFINIR]
-- [ ] SP121 · Endpoint `/viajes/buscar` con DTOs seguros y resolución D-17 — 3h — @[POR DEFINIR]
-- [ ] SP122 · Suite de pruebas automatizadas, prueba de aislamiento A-13 y medición de latencia < 2s — 3h — @[POR DEFINIR]
-- [ ] SP123 · Mobile: pantalla de Búsqueda de viajes y componente `TarjetaViaje` en Expo — 5h — @[POR DEFINIR]
+- [x] SP120 · Lógica de consulta geoespacial Haversine y filtro de ventana temporal — 3h — @[POR DEFINIR] · backend @agente 07/11: índice `idx_viajes_busqueda`; el `acos` del plan fallaba en PostgreSQL por redondeo y quedó acotado; verificado con 40 500 viajes (26 ms como máximo)
+- [x] SP121 · Endpoint `/viajes/buscar` con DTOs seguros y resolución D-17 — 3h — @[POR DEFINIR] · backend @agente 07/11: documentado en Swagger; membresía sin firma, nombre de pila también en el detalle y sin cuentas suspendidas (decisiones del integrante)
+- [x] SP122 · Suite de pruebas automatizadas, prueba de aislamiento A-13 y medición de latencia < 2s — 3h — @[POR DEFINIR] · backend @agente 07/11: CA-1 a CA-6 y A-13 en API y en PostgreSQL; prueba real por HTTP sin diferencias; falta verificación en sesión limpia
+- [x] SP123 · Mobile: pantalla de Búsqueda de viajes y componente `TarjetaViaje` en Expo — 5h — @[POR DEFINIR] · mobile @agente 07/11: formulario en la pestaña Buscar, resultados y detalle; origen por GPS (`expo-location`, autorizado por el integrante), buscador o mapa; saldo a la vista. Probado en navegador contra el backend real y en teléfono físico: permiso, GPS real, ubicación apagada, tope de 15 s, arrastre con el dedo, zoom y atrás; falta verificación en sesión limpia. Verificado en sesión limpia el 07/11: ícono propio para «Nuevo» y auto con ícono en el detalle. Igual al prototipo (decisión del integrante): nombre de pila en el saludo, voz desactivada, una fila a 360 y «2 de 4» con `cuposTotales` en el detalle. Revisión de código (07/11, `a71e3db`): hora ya pasada, enlace incompleto, aviso en un viaje que ya no está, caché al salir, tope del GPS y redondeo de distancia, con pruebas.
+- [x] SP130 · Mobile: mapa con MapLibre, con las funciones habituales de un mapa: pellizco, doble toque, rotar y brújula, punto de mi ubicación y tipos de mapa, con estilo propio; navegador revisado — 6h — @[POR DEFINIR] · mobile @agente 07/11: dependencia autorizada por el integrante; teselas vectoriales de OpenFreeMap (datos OSM) con estilo de `tokens.ts`, tipos calles y relieve; pin en SVG que se coloca al tocar; créditos plegables; la web conserva las teselas. Probado en el teléfono: arrastre, zoom, relieve, atrás, trayecto y Publicar. Rotar, pellizco, doble toque, «Mi ubicación» y TalkBack los probó el integrante en el teléfono.
 
+### PB-01 · Vulnerabilidades de dependencias (`npm audit`)
+- [x] SP131 · `npm audit fix` sin `--force` en `backend` y `mobile`, rama `fix/dependencias-audit` desde `develop` — 1h — @[POR DEFINIR] · @agente 07/11: autorizado por el integrante (AGENTS.md §14). Las vulnerabilidades ya estaban en `develop`; las HU no agregaron ninguna. Backend de 14 (7 altas) a 3 moderadas: body-parser, multer, deepmerge-ts, mysql2, fast-uri, qs; Prisma 7.10.0 → 7.10.1 y `allowScripts` aprueba esa versión. Mobile de 31 (6 altas) a 23 (3 altas): zod, node-forge, uuid y parches de Expo dentro del SDK 57; sin cambios en `package.json`. Regresión completa en verde en los dos (backend con e2e, mobile con build Android)
+- [x] SP132 · Lo que `audit fix` no corrige y no pide `--force`: `vitest` y `@vitest/coverage-v8` 4.1.11 → 4.1.12 en `backend` (`@vitest/mocker`, moderada, solo desarrollo) — 0,5h — @[POR DEFINIR] · @agente 07/11: pedido por el integrante; `backend` queda con 0 vulnerabilidades y regresión completa en verde. En `mobile` no hay nada más sin versión mayor
+- [x] SP133 · Actualizar el SDK de Expo 57 → 58 en `mobile` (React Native 0.88.1, React 19.3, Jest 30, gesture-handler 3, reanimated 4.7): quita las 3 altas de `expo-router` 57 (decode-uri-component, query-string) — 3h — @[POR DEFINIR] · @agente 07/11: confirmado por el integrante (AGENTS.md §14). De 23 (3 altas) a 22 moderadas y 1 baja en producción, dentro del propio `expo` (glob, minimatch), sin versión que las corrija. `testTimeout` a 15 s: en frío, la primera prueba de las pantallas con foto pasaba de 5 s. Regresión completa en verde (163 pruebas también con caché vacía) y APK de debug compilado con Gradle. En Windows, la compilación nativa necesita rutas largas (`LongPathsEnabled=1`) y CMake 3.31.6 del SDK: gesture-handler 3 trae C++ con rutas de más de 260 caracteres
 
+## Sprint 3 · Viaje completo verificado y pagado
 
+### HU-10 · Volver a vincular o cambiar de teléfono (16,5 h)
+- [x] SP134 · Migración `013_dispositivos_historial` y ajuste de Prisma (1–N, `findFirst` activo) — 1,5h — @[POR DEFINIR] · backend `6c77d2d` (Smile-HD)
+- [x] SP135 · `IdentidadService.comprobarRostroDelTitular` con bloqueo de HU-08 — 2h — @[POR DEFINIR] · backend `6c77d2d` (Smile-HD)
+- [x] SP136 · `RevinculacionService` + endpoints + Swagger + correo + auditoría — 3h — @[POR DEFINIR] · backend `6c77d2d` (Smile-HD); @agente 10/11 `1c272cb`, `d979d72`: sesión de vida atada al desafío, 409 con mensaje y en Swagger, auditoría con modelo, fecha local en el correo, sin CORS abierto; verificación 10/11 `86d6e54`: auditoría también al pedir el desafío bloqueado y sufijo del motor simulado solo en sesiones `sim-`
+- [x] SP137 · Pruebas e2e y de ataque A-01, A-02, A-03, A-04 — 3h — @[POR DEFINIR] · backend `6c77d2d` (Smile-HD); @agente 10/11 `3d4f6fe`: CA-8, CA-12, 409 en concurrencia y A-08 propia. 482 unitarias, 523 e2e, cobertura 92 %; `8887527`: e2e de CA-12 con el desafío pedido durante el bloqueo (484 unitarias, 524 e2e)
+- [x] SP138 · Módulo nativo: códigos `LLAVE_ANULADA`, `SIN_LLAVE`, `SIN_BIOMETRIA`, `BIOMETRIA_BLOQUEADA`; `keystore.ts` — 2h — @[POR DEFINIR] · mobile `a59b287` (Smile-HD); @agente 10/11 `306de57`, `f269314`: la llave nueva firma solo tras el 201 (dos alias, `confirmarLlave`), sin llave ni firma simuladas en web, Kotlin que compila
+- [x] SP139 · Mobile: aviso de llave anulada y flujo de revinculación en «Mi teléfono»; textos — 4h — @[POR DEFINIR] · mobile `6a6eda4` (Smile-HD); @agente 10/11 `08167fd`, `690e86b`, `472e22b`: CA-1 en Billetera, Publicar y Recarga, códigos del contrato final, fuera `localStorage`, `globalThis` y script `android`, hora de desbloqueo con el día. 390 pruebas; backend `9951b72`: API sin ETag (304 vacío tras renovar la sesión)
+- [x] SP140 · Prueba en teléfono físico: registrar huella nueva y volver a vincular — 1h — @[POR DEFINIR] · @agente 10/11 en Infinix X669 con huella nueva real: aviso CA-1, revinculación con identidad, firma con la llave nueva; rechazo que conserva la llave; teléfono sin llave
 
+### HU-29 · Confirmación biométrica (8 h)
+- [x] SP141 · `@AccionSensible` y migración de los controladores existentes; Swagger — 1,5h — @[POR DEFINIR] · @agente 10/11 backend `0aa3d23`, `d9875bd`: crear billetera, confirmar recarga y publicar viaje; texto en Swagger; rechazo auditado con el nombre de la acción
+- [x] SP142 · Pruebas de catálogo y de ataque A-08/A-11 — 2h — @[POR DEFINIR] · @agente 10/11 backend `64e9cdb`: catálogo leído de las rutas registradas y A-08/A-04 por acción; 488 unitarias, 543 e2e, cobertura 92 %
+- [x] SP143 · Mobile: `ConfirmacionBiometrica`, `useAccionSensible`, textos por acción; adoptarlo en recargar, publicar y billetera — 4h — @[POR DEFINIR] · @agente 10/11 mobile `8fed720`: diálogo con acción y monto en recargar, publicar y crear billetera; CA-1, CA-2 y CA-9 en Jest y en teléfono físico; verificado el 10/11 (`555dc78`: CA-2 al crear la billetera; `10e50d8`: resumen con botón al crear la billetera)
+- [x] SP144 · Prueba en teléfono físico: huella ajena, cancelar, bloqueo — 0,5h — @[POR DEFINIR] · @agente 10/11 Infinix X669: CA-5 con dedo no registrado (nada firmado llega al servidor), CA-2, CA-8 sin huellas, resumen de crear la billetera, Movimientos → Billetera, sin PIN ni patrón en el diálogo; bloqueo del sistema no provocable en este teléfono (solo Jest)
 
+### HU-19 · Reserva con escrow (25,5 h)
+- [x] SP145 · Migración `014_reservas` (RLS, índices, FK) y modelos Prisma — 2h — @[POR DEFINIR] · backend @agente 12/11: `reservas` con RLS forzado y UNIQUE parcial `(viaje, pasajero)` salvo `fallida`; FK de `movimientos_billetera.reserva_id`; el CHECK de `trabajos_onchain.operacion` admite `bloquear_reserva`; el rol de la API solo actualiza `estado` y `motivo` de la reserva y `cupos_disponibles` y `estado` del viaje. Sin diferencias entre esquema y migraciones
+- [x] SP146 · `EstadoViajeService.recalcular` con pruebas — 1,5h — @[POR DEFINIR] · backend @agente 12/11: solo `publicado → reservado` (lo único que HU-19 puede producir); HU-22, HU-23 y HU-24 agregan su transición en el mismo lugar
+- [x] SP147 · `ReservasService.reservar` + endpoints + Swagger — 4h — @[POR DEFINIR] · backend @agente 12/11: `POST /viajes/:id/reservas`, `GET /reservas/:id`, `GET /reservas/mias` y `GET /viajes/:id/pasajeros`; una transacción con candado por pasajero (advisory lock, no `FOR UPDATE`: el rol de la API no puede actualizar `billeteras`)
+- [x] SP148 · `Cadena.bloquearReserva`/`estadoReservaEscrow` (real y simulada), permit con llave custodiada, worker por `operacion` — 4h — @[POR DEFINIR] · backend @agente 12/11: permit EIP-2612 firmado en el worker con la llave descifrada solo para firmar; las reversiones permanentes se leen de los datos con el ABI (ethers no las decodifica al estimar el gas)
+- [x] SP149 · HU-17: precio múltiplo de 0,02; HU-18: sin viajes propios — 1h — @[POR DEFINIR] · backend @agente 12/11: `PRECIO_NO_MULTIPLO` al publicar y la búsqueda excluye `conductor_id = usuario`
+- [x] SP150 · Pruebas e2e y de ataque A-08, A-09, A-10, A-13 — 4h — @[POR DEFINIR] · backend @agente 12/11: CA-1 a CA-15 y los cuatro ataques, también en PostgreSQL con el rol de la API; la prueba de catálogo y la A-08 por acción ya incluyen `reserva.crear`
+- [x] SP151 · Mobile: confirmación de reserva, resultado y estado — 4h — @[POR DEFINIR] · mobile @agente 12/11: «Reservar y pagar» con huella en el detalle, faltante y «Recargar saldo», clave de idempotencia estable en los reintentos y pantalla de resultado que consulta mientras está pendiente; con Jest; visto en el teléfono físico el 14/11 (CA-1 a CA-4, CA-10 a CA-12, CA-15); TalkBack pendiente
+- [x] SP152 · Mobile: pestaña «Mis viajes» y tarjeta del viaje activo — 4h — @[POR DEFINIR] · mobile @agente 12/11: reservas del pasajero y viajes del conductor con sus pasajeros (nombre de pila y estado), y «Tu próximo viaje» en Inicio; con Jest; visto en el teléfono físico el 14/11 (CA-9, CA-13, CA-14, Inicio); TalkBack pendiente
+- [x] SP153 · Prueba real de bloqueo contra `EscrowUniRide` en Hardhat local — 1h — @[POR DEFINIR] · backend @agente 12/11: `test/blockchain/escrow-hardhat.e2e-spec.ts` (se omite sin `HARDHAT_RPC_URL`): bloqueo con permit de un pasajero sin ETH, nonce que avanza, hash recuperado del evento y reversiones `ReservaExistente`, `ERC20InsufficientBalance` y `DatosInvalidos` como fallas permanentes
 
+### HU-22 · Verificación de abordaje (25 h)
+- [x] SP154 · Migración `015_presencia` (3 tablas, RLS) y modelos — 2h — @[POR DEFINIR]
+- [x] SP155 · Extraer `verificarFirmaPeticion` y crear `FirmaTrayectoGuard` — 2h — @[POR DEFINIR]
+- [x] SP156 · Llave de trayecto del conductor y desafíos con QR — 3h — @[POR DEFINIR]
+- [x] SP157 · Abordaje: consumo, validaciones, integridad, prueba con hash, estados — 4h — @[POR DEFINIR]
+- [x] SP158 · Pruebas e2e y de ataque A-03, A-05, A-06, A-07, A-08, A-13 — 4h — @[POR DEFINIR]
+- [x] SP159 · Módulo nativo: llave de trayecto sin biometría; `cabecerasFirmaTrayecto` — 2h — @[POR DEFINIR]
+- [x] SP160 · Mobile: «Mostrar código» del conductor — 3h — @[POR DEFINIR]
+- [x] SP161 · Mobile: «Escanear QR» con `expo-camera` (dependencia autorizada el 08/11) y resultados — 4h — @[POR DEFINIR]
+- [x] SP162 · Prueba con dos teléfonos físicos y medición < 3 s — 1h — @[POR DEFINIR]
 
+### HU-23 · Seguimiento y bajada (24 h)
+- [x] SP163 · Migración `016_puntos_gps` y `reservas.evaluacion` — 1h — @[POR DEFINIR] · @agente 14/11 backend `94c5d6a`: `puntos_gps` con RLS forzado, `UNIQUE(viaje, usuario, tomada_en)` y solo SELECT/INSERT para la API; `reservas.evaluacion` JSONB
+- [x] SP164 · `evaluarTrayecto` con pruebas de borde — 3h — @[POR DEFINIR] · @agente 14/11 backend `94c5d6a`: función pura en `presencia/trayecto.ts`; bordes 150/151 km/h, 16 vs 15 de 20 y 31 de 39, 4/3 pares, Δt 15/16 s, un punto simulado; `recalcular` gana `en_curso → verificado`
+- [x] SP165 · Endpoints de posiciones (lotes, filtros, idempotencia) — 3h — @[POR DEFINIR] · @agente 14/11 backend `08e7fef`: `POST /viajes/:id/posiciones` y `/reservas/:id/posiciones` con la llave de trayecto (1–60 puntos, 202 con aceptados e ignorados); el abordaje devuelve `llaveTrayectoId`
+- [x] SP166 · Bajada: encuentro, evaluación, estados y alerta — 3h — @[POR DEFINIR] · @agente 14/11 backend `08e7fef`: el encuentro de HU-22 pasa a un método común con el `tipo`; la bajada evalúa en su transacción, deja `verificada`/`verificacion_fallida` con `evaluacion` y la alerta `presencia.verificacion_fallida`
+- [x] SP167 · Pruebas e2e y de ataque A-05, A-06, A-07, A-08, A-13 — 4h — @[POR DEFINIR] · @agente 14/11 backend `08e7fef`: `posiciones`, `bajada`, `a-07-trayecto`, `a-08-posiciones` y casos de bajada en A-05, A-06, A-13 y acciones sensibles. 554 unitarias, 727 e2e, cobertura 91,7 %; prueba real de la API en `entorno.py`
+- [x] SP168 · Mobile: seguimiento en segundo plano con `expo-task-manager` (dependencia autorizada el 08/11) y permisos — 5h — @[POR DEFINIR] · hecho y probado en el teléfono (14/11, `mobile` `38b5ae7`)
+- [x] SP169 · Mobile: viaje en curso y bajada — 3h — @[POR DEFINIR] · hecho, en navegador y en el teléfono (14/11); verificación de la HU 14/11 (15 CA, regresión completa, 41 peticiones reales) y etiqueta de estado en «Viaje en curso» (`mobile` `6cd4b8e`)
+- [ ] SP170 · Viaje real con dos teléfonos (pantalla apagada, sin señal) — 2h — @[POR DEFINIR] · pendiente: el usuario todavía no puede hacerla (14/11)
+- [x] SP177 · Mobile: viaje activo anclado arriba en Buscar y Mis viajes con la acción del momento, conductor y pasajero (DESIGN_SYSTEM N7) — 2h — @[POR DEFINIR] · @agente 14/11 `mobile` `864659b`: 492 pruebas, capturas a 360 y 412
+
+### HU-24 · Liberación del pago (16 h)
+- [x] SP171 · `Cadena.liberarReserva` con cuenta verificadora (real y simulada), `VERIFICADOR_LLAVE_PRIVADA` y bloqueo en producción — 3h — @[POR DEFINIR] · backend @agente 14/11: también `hashDeLiberacion` y escrow simulado con dirección propia
+- [x] SP172 · `hashPruebaPresencia` y encolado en la bajada verificada — 2h — @[POR DEFINIR] · backend @agente 14/11: keccak256 con llaves ordenadas; migración 017 amplía el CHECK de la cola
+- [x] SP173 · Worker `liberar_reserva`: idempotencia, estados y auditoría — 3h — @[POR DEFINIR] · backend @agente 14/11: `pago.liberado`, `pago.rechazado`, `pago.liberacion.imposible`, `pago.liberacion.atascada`
+- [x] SP174 · Pruebas e2e y de ataque A-09, A-10, A-12; viaje completo — 4h — @[POR DEFINIR] · backend @agente 14/11: `viaje-completo`, `a-09-liberacion`, `a-10-viaje-completo`, Hardhat en `escrow-hardhat`
+- [x] SP175 · Mobile: estado del pago para conductor y pasajero — 2h — @[POR DEFINIR] · 14/11: `EstadoPago` en el resultado de la bajada, el código de bajada, Viaje en curso, la reserva y Mis viajes; visto en el teléfono (Pendiente → Pagado); 14/11 en el teléfono con huella y cámara: resultado de la bajada del pasajero y código de bajada del conductor pasan solos de Pendiente a Pagado; sin «Reintentar» con el viaje ya terminado
+- [x] SP176 · Viaje completo real contra Hardhat local y documentación de roles del despliegue — 2h — @[POR DEFINIR] · 14/11: backend real contra UniCoin + EscrowUniRide en Hardhat (red caída, respuesta perdida, hash de la prueba en la red = BD, total conservado, conciliación); `grantRole` en `contracts/README.md` (rama `feat/HU-24-liberacion-pago` en `contracts`) y aviso al arrancar sin `ROL_VERIFICADOR`
+
+## Sprint 4 · 11/11 – 17/11/2026 · Voz, cancelaciones y calidad
+
+### HU-20 · Cancelación con reembolso (20 h)
+- [x] SP178 · Migración `018_cancelaciones`, `politicaCancelacion` y `EstadoViajeService.cancelar`/`expirar` — 2h — @agente · migración 018 (CHECK reservas, movimientos, trabajos y UNIQUE parcial reservas), política de cancelación con bordes y EstadoViajeService.cancelar/expirar con FOR UPDATE
+- [x] SP179 · `Cadena.reembolsarReserva`/`hashDeReembolso` (real y simulada) y worker `reembolsar_reserva` — 3h — @agente · ABI_ESCROW, CadenaReal, CadenaSimulada (100% y 50/50) y worker reembolsar_reserva con auditoría, reintentos e idempotencia
+- [x] SP180 · Cancelar reserva y viaje: endpoints, vista previa en `GET /reservas/:id`, correo, abordaje que relee — 4h — @agente · CancelacionesService (reserva y viaje), vista previa y reembolso en GET /reservas/:id, abordaje con releído defensivo, plantilla viaje_cancelado y catálogo de acciones sensibles
+- [x] SP181 · Tic de vencimientos (expiración, viaje cancelado, viaje sin abordaje, verificación fallida 24 h) — 3h — @agente · VencimientosService con expiracion de reservas y viajes pasados 15 min, resolucion de reservas pendientes en viajes cancelados/expirados con correo y devolucion al 100 % tras 24 h de verificacion fallida; 8 pruebas unitarias
+- [x] SP182 · Pruebas e2e y de ataque A-08, A-09, A-10, A-11, A-13; Hardhat — 4h — @agente · e2e cancelar, cancelar-viaje, vencimientos, ataques A-08 (monto/politica alterada), A-09 (doble reembolso), A-10 (conservacion contable URC), A-13 (aislamiento org/usuario) y casos Hardhat de reembolso 100 % y 50/50
+- [x] SP183 · Mobile: pantalla de cancelación, botones, estados y movimientos nuevos — 4h — @agente · pantalla /cancelar para reserva y viaje con vista previa de politica (100% y 50/50), compensacion, boton con huella, manejo de POLITICA_CAMBIO, botones en detalle de reserva y Mis viajes, soporte a compensacion_cancelacion y 6 pruebas Jest en verde
+
+### HU-27 · Reservar por voz (15 h)
+- [ ] SP184 · Instalar `expo-speech` y `expo-speech-recognition` (versión exacta, scripts revisados), plugin y compilación nativa — 2h — @[POR DEFINIR]
+- [ ] SP185 · Backend: filtro `destino` en la búsqueda con pruebas — 2h — @[POR DEFINIR]
+- [ ] SP186 · `interpretar` y `resolverHora` con pruebas de todas las formas — 3h — @[POR DEFINIR]
+- [ ] SP187 · `useVoz`, `BotonVoz` y `PanelVoz` en las pantallas de RN-1 — 4h — @[POR DEFINIR]
+- [ ] SP188 · Buscar y reservar por voz: resultados leídos y detalle con la huella; pruebas A-11 — 3h — @[POR DEFINIR]
+- [ ] SP189 · Prueba en el teléfono físico con ruido moderado — 1h — @[POR DEFINIR]
+
+### HU-28 · Consultas por voz (12 h)
+- [x] SP190 · Backend: `GET /reservas/:id/conductor` con pruebas y ataques A-08, A-13 — 3h — @agente
+- [x] SP191 · Intérprete y respuestas de las intenciones nuevas con pruebas — 3h — @agente
+- [x] SP192 · Acciones por voz: saldo, conductor, estado y ayuda (pantalla `ayuda.tsx`) — 3h — @agente
+- [x] SP193 · «Cancela mi viaje»: cancelables, elección y confirmación de HU-20; prueba A-11 — 2h — @agente
+- [ ] SP194 · Prueba en el teléfono físico — 1h — @[POR DEFINIR]
+
+### HU-25 · Detección de anomalías (10 h)
+- [ ] SP195 · Migración `019_anomalias` y funciones puras P-1, P-2, P-3 con bordes — 2h — @[POR DEFINIR]
+- [ ] SP196 · Módulo `fraude`: tic, alertas por organización y bloqueos — 3h — @[POR DEFINIR]
+- [ ] SP197 · Aplicar bloqueos en reservar, publicar, recargar y búsqueda — 2h — @[POR DEFINIR]
+- [ ] SP198 · Pruebas e2e y de ataque A-07, A-08, A-10, A-13; textos en la app — 3h — @[POR DEFINIR]
+
+### PB-05 · Suite de ataques (15 h)
+- [ ] SP199 · Guion `suite-ataques.mjs`, `amenazas.json`, informe y su prueba; inventario real — 4h — @[POR DEFINIR]
+- [ ] SP200 · `esperarSinCambios` y su uso en los ataques de dinero, estado y verificación — 4h — @[POR DEFINIR]
+- [ ] SP201 · Huecos: `a-12-llaves`, `a-13-rutas`, A-03, A-04, A-05/A-06 en la bajada — 4h — @[POR DEFINIR]
+- [ ] SP202 · Contratos: casos y títulos `A-09` — 1h — @[POR DEFINIR]
+- [ ] SP203 · Lista manual en el teléfono (A-03 real si hay despliegue, A-04, A-07) e informe final versionado — 2h — @[POR DEFINIR]
+
+### HU-30 · Prueba de usabilidad (SUS) (9 h)
+- [ ] SP204 · Protocolo, consentimiento, cuestionario y hoja de registro; aprobación del PO — 2h — @[POR DEFINIR]
+- [ ] SP205 · `sus.mjs` con su prueba — 1h — @[POR DEFINIR]
+- [ ] SP206 · Reclutar 5 personas y preparar el entorno — 2h — @[POR DEFINIR]
+- [ ] SP207 · 5 sesiones — 2h — @[POR DEFINIR]
+- [ ] SP208 · Informe y hallazgos en el backlog y Trello — 2h — @[POR DEFINIR]
+
+### HU-26 · Alertas de fraude, solo lectura (10 h)
+- [x] SP209 · Backend: `GET /organizacion/alertas-fraude` y `/organizacion/bloqueos-vigentes` + Swagger — 3h — @[POR DEFINIR]
+- [x] SP210 · Backend: pruebas e2e y de ataque A-13, A-08 — 2h — @[POR DEFINIR]
+- [x] SP211 · Web: página «Alertas de fraude», ruta, menú y textos es-BO — 3h — @[POR DEFINIR]
+- [x] SP212 · Web: pruebas de la página — 1h — @[POR DEFINIR]
+- [x] SP213 · Verificar (lint, formato, pruebas, build) y PR — 1h — @[POR DEFINIR]
+
+### HU-32 · Panel de organización, reducido (9 h)
+- [x] SP214 · Backend: consulta de agregación compartida con HU-33, servicio, `GET /organizacion/resumen`, Swagger — 4h — @[POR DEFINIR]
+- [x] SP215 · Backend: pruebas unitarias (CO₂, bordes de período), e2e y de ataque A-13, A-08 — 2h — @[POR DEFINIR]
+- [x] SP216 · Web: página «Resumen», ruta y textos — 2h — @[POR DEFINIR]
+- [x] SP217 · Verificar y PR — 1h — @[POR DEFINIR]
+
+### HU-33 · Métricas globales (9 h) — después de HU-32
+- [x] SP218 · Backend: agrupar por organización, `GET /plataforma/metricas`, Swagger — 3h — @[POR DEFINIR]
+- [x] SP219 · Backend: pruebas e2e (global = suma de la tabla) y de ataque A-13, A-08 — 2h — @[POR DEFINIR]
+- [x] SP220 · Web: página «Métricas» con tabla ordenable y textos — 3h — @[POR DEFINIR]
+- [x] SP221 · Verificar y PR — 1h — @[POR DEFINIR]
+
+### HU-21 · Calificación mutua (14 h) — migración con RLS y función `SECURITY DEFINER` confirmada por el PO (17/11)
+- [x] SP222 · Migración `020_calificaciones` (tabla, RLS, función de promedio) y Prisma — 2h — @[POR DEFINIR]
+- [x] SP223 · Backend: servicio, controlador, plazo de 7 días, calificación ciega y promedio en la búsqueda — 4h — @[POR DEFINIR]
+- [x] SP224 · Backend: pruebas e2e y de ataque A-08, A-10, A-13 — 3h — @[POR DEFINIR]
+- [x] SP225 · Mobile: pantalla «Calificar», botón en Mis viajes e insignia con promedio — 4h — @[POR DEFINIR]
+- [x] SP226 · Verificar y PR — 1h — @[POR DEFINIR]
+
+### HU-31 · Accesibilidad (17 h) — alcance: flujo principal; el resto queda «solo claro» (aprobado 17/11)
+- [x] SP227 · Paletas oscuro y alto contraste + prueba de contraste — 2h — @[POR DEFINIR]
+- [x] SP228 · Proveedor de tema, `crearEstilos`, persistencia y pruebas — 3h — @[POR DEFINIR]
+- [x] SP229 · Pantalla «Apariencia» y fila en Perfil — 2h — @[POR DEFINIR]
+- [x] SP230 · Migrar componentes compartidos y pestañas — 4h — @[POR DEFINIR]
+- [x] SP231 · Migrar resto del flujo principal (buscar, reservar, abordar, billetera) — 4h — @[POR DEFINIR]
+- [ ] SP232 · Prueba en teléfono con capturas y TalkBack; verificar y PR — 2h — @[POR DEFINIR] — PR hecho; falta la prueba en teléfono físico (oscuro, texto muy grande, TalkBack)
+
+### PB-06 · Pruebas de carga, reducida (6 h)
+- [x] SP233 · Guion `carga.mjs`: siembra, búsqueda, abordaje, percentiles, informe y guardas — 4h — @[POR DEFINIR]
+- [x] SP234 · Prueba unitaria del guion (`carga.test.mjs`) — 1h — @[POR DEFINIR]
+- [x] SP235 · Corridas reales, informe y PR — 1h — @[POR DEFINIR]
