@@ -2,17 +2,17 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-11-17 (HU-25, PB-05 y material de HU-30 implementados)
+**Última actualización:** 2026-11-18 (HUs de cierre del Sprint 4 implementadas y fusionadas)
 
-**Sprint actual:** Sprint 4 · Casos de borde, expiración y voz (31 PHU).
-**Foco:** HU-20, HU-27 y HU-28 fusionadas en `develop` de backend y mobile (17/11, CI verde); punteros actualizados en el principal. Pendiente prueba en teléfono (SP194).
+**Sprint actual:** Sprint 4 · cierre (plazo viernes 20/11/2026).
+**Foco:** HU-26, HU-32, HU-33, HU-21, HU-31 y PB-06 fusionadas en `develop` (backend, web, mobile y principal), CI verde, punteros actualizados. Queda lo que solo hacen personas: pruebas en teléfono, sesiones reales de HU-30, despliegue.
 
 ## Estado actual
 
-- **17/11 noche:** HU-25 (backend `fraude`, migración 019, bloqueos en reservar/publicar/recargar/búsqueda; textos en la app) y PB-05 (`scripts/suite-ataques.mjs`, informe 13 de 13, `a-12-llaves`, `a-13-rutas`, contratos A-09) listos en ramas locales `feat/HU-25-deteccion-anomalias` (backend, mobile) y `feat/PB-05-suite-ataques` (raíz, contracts), sin push ni PR. HU-30: protocolo, consentimiento, SUS, hoja y `sus.mjs` listos; **faltan las 5 sesiones reales** (informe en blanco, no inventado). Filas manuales de PB-05 (A-03, A-04, A-07) pendientes en teléfono.
-
-- **Sprint 4:** HU-20, HU-27 y HU-28 completadas y fusionadas en `develop` de backend y mobile.
-- **Ramas previas:** HU-22, HU-23 y HU-24 ya están en `develop` de backend, mobile, contracts y principal (verificado en git el 17/11); solo quedan sus ramas remotas sin borrar.
+- **18/11:** HU-26 (alertas de fraude en web), HU-32 (resumen de organización, CO₂ = km × 0,12), HU-33 (métricas de plataforma), HU-21 (calificación mutua, migración 020 con RLS y `promedio_calificacion`), HU-31 (apariencia: tema, texto y alto contraste; 52 archivos migrados a `crearEstilos`) y PB-06 (carga local: búsqueda p95 122 ms, abordaje p95 141 ms, 0 errores 5xx; informe en `SPECS/features/sprint-4/PB-06-pruebas-carga/`). PB-06 halló y corrigió un interbloqueo real en abordajes simultáneos (`FOR NO KEY UPDATE`, backend PR #30; **pide revisión de otro integrante**, AGENTS.md §14).
+- **Pendientes de personas:** SP232 (HU-31 en teléfono con TalkBack), SP194 (voz en teléfono), 5 sesiones reales de HU-30 (informe en blanco, no inventado), filas manuales de PB-05 (A-03, A-04, A-07), despliegue y SP129.
+- **Hueco funcional:** el conductor no tiene en la app un acceso para calificar a sus pasajeros (API y pantalla lo soportan).
+- **Local:** `registro.e2e-spec` CA-3 falla en la base local por una placa `1234ABC` de datos UAGRM; en CI pasa.
 
 ## Última sesión (17/11, HU-28 implementación)
 

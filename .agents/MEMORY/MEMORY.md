@@ -1642,3 +1642,13 @@ Los dos se vieron en el teléfono físico.
 **Decisiones:** factor de CO₂ de 0,12 kg por pasajero y km (propuesta del equipo, aprobada); HU-21 cierra D-17; HU-33 resuelve «`app.super_admin` en viajes» con una lectura fija solo de agregados. Planes en borrador, pendientes de aprobación del equipo; **HU-21 pide confirmación (§14): nueva tabla con RLS y función `SECURITY DEFINER`**. HU-31 migra 54 archivos de mobile; recorte propuesto: solo el flujo principal.
 
 **Archivos afectados:** `SPECS/features/sprint-4/{HU-21,HU-26,HU-31,HU-32,HU-33,PB-06}-*/`, `SPECS/roadmap.md`.
+
+## 2026-11-18 · HUs de cierre del Sprint 4 implementadas (HU-26, HU-32, HU-33, HU-21, HU-31, PB-06)
+
+**Evento:** las seis historias quedaron fusionadas en `develop` con CI verde y punteros del principal actualizados. Sin coautoría en commits ni firmas de IA en PR (regla del proyecto).
+
+**Decisiones y hallazgos:** HU-21 cierra D-17 (promedio solo con ≥ 3 calificaciones; excluye pares bloqueados por HU-25; tabla con RLS ENABLE, no FORCE, para la función `SECURITY DEFINER`). HU-31: tema por `crearEstilos`/`useColores`, mapa siempre claro (CA-8). PB-06: la prueba de carga destapó un interbloqueo 40P01 (5 de 10 abordajes con 5xx) por `FOR UPDATE` en `viajes` contra bloqueos de FK; se cambió a `FOR NO KEY UPDATE` en `estado-viaje.service.ts` con prueba de regresión. Medición local: búsqueda p95 122 ms, abordaje p95 141 ms.
+
+**Pendiente:** SP232 (teléfono, TalkBack), SP194, sesiones HU-30, despliegue/SP129; UI del conductor para calificar pasajeros.
+
+**Archivos afectados:** `backend/src/{metricas,calificaciones,viajes}`, `web/src/paginas/{admin,Metricas}`, `mobile/src/{tema,app/calificar,app/ajustes-apariencia}`, `scripts/carga.mjs`, `SPECS/features/sprint-4/*`, `.agents/STEERING/backlog.md`.
