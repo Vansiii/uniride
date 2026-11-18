@@ -306,10 +306,10 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP213 · Verificar (lint, formato, pruebas, build) y PR — 1h — @[POR DEFINIR]
 
 ### HU-32 · Panel de organización, reducido (9 h)
-- [ ] SP214 · Backend: consulta de agregación compartida con HU-33, servicio, `GET /organizacion/resumen`, Swagger — 4h — @[POR DEFINIR]
-- [ ] SP215 · Backend: pruebas unitarias (CO₂, bordes de período), e2e y de ataque A-13, A-08 — 2h — @[POR DEFINIR]
-- [ ] SP216 · Web: página «Resumen», ruta y textos — 2h — @[POR DEFINIR]
-- [ ] SP217 · Verificar y PR — 1h — @[POR DEFINIR]
+- [x] SP214 · Backend: consulta de agregación compartida con HU-33, servicio, `GET /organizacion/resumen`, Swagger — 4h — @[POR DEFINIR]
+- [x] SP215 · Backend: pruebas unitarias (CO₂, bordes de período), e2e y de ataque A-13, A-08 — 2h — @[POR DEFINIR]
+- [x] SP216 · Web: página «Resumen», ruta y textos — 2h — @[POR DEFINIR]
+- [x] SP217 · Verificar y PR — 1h — @[POR DEFINIR]
 
 ### HU-33 · Métricas globales (9 h) — después de HU-32
 - [ ] SP218 · Backend: agrupar por organización, `GET /plataforma/metricas`, Swagger — 3h — @[POR DEFINIR]
