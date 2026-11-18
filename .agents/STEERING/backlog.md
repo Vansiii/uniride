@@ -297,3 +297,42 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [ ] SP206 · Reclutar 5 personas y preparar el entorno — 2h — @[POR DEFINIR]
 - [ ] SP207 · 5 sesiones — 2h — @[POR DEFINIR]
 - [ ] SP208 · Informe y hallazgos en el backlog y Trello — 2h — @[POR DEFINIR]
+
+### HU-26 · Alertas de fraude, solo lectura (10 h)
+- [ ] SP209 · Backend: `GET /organizacion/alertas-fraude` y `/organizacion/bloqueos-vigentes` + Swagger — 3h — @[POR DEFINIR]
+- [ ] SP210 · Backend: pruebas e2e y de ataque A-13, A-08 — 2h — @[POR DEFINIR]
+- [ ] SP211 · Web: página «Alertas de fraude», ruta, menú y textos es-BO — 3h — @[POR DEFINIR]
+- [ ] SP212 · Web: pruebas de la página — 1h — @[POR DEFINIR]
+- [ ] SP213 · Verificar (lint, formato, pruebas, build) y PR — 1h — @[POR DEFINIR]
+
+### HU-32 · Panel de organización, reducido (9 h)
+- [ ] SP214 · Backend: consulta de agregación compartida con HU-33, servicio, `GET /organizacion/resumen`, Swagger — 4h — @[POR DEFINIR]
+- [ ] SP215 · Backend: pruebas unitarias (CO₂, bordes de período), e2e y de ataque A-13, A-08 — 2h — @[POR DEFINIR]
+- [ ] SP216 · Web: página «Resumen», ruta y textos — 2h — @[POR DEFINIR]
+- [ ] SP217 · Verificar y PR — 1h — @[POR DEFINIR]
+
+### HU-33 · Métricas globales (9 h) — después de HU-32
+- [ ] SP218 · Backend: agrupar por organización, `GET /plataforma/metricas`, Swagger — 3h — @[POR DEFINIR]
+- [ ] SP219 · Backend: pruebas e2e (global = suma de la tabla) y de ataque A-13, A-08 — 2h — @[POR DEFINIR]
+- [ ] SP220 · Web: página «Métricas» con tabla ordenable y textos — 3h — @[POR DEFINIR]
+- [ ] SP221 · Verificar y PR — 1h — @[POR DEFINIR]
+
+### HU-21 · Calificación mutua (14 h) — migración con RLS y función `SECURITY DEFINER` confirmada por el PO (17/11)
+- [ ] SP222 · Migración `020_calificaciones` (tabla, RLS, función de promedio) y Prisma — 2h — @[POR DEFINIR]
+- [ ] SP223 · Backend: servicio, controlador, plazo de 7 días, calificación ciega y promedio en la búsqueda — 4h — @[POR DEFINIR]
+- [ ] SP224 · Backend: pruebas e2e y de ataque A-08, A-10, A-13 — 3h — @[POR DEFINIR]
+- [ ] SP225 · Mobile: pantalla «Calificar», botón en Mis viajes e insignia con promedio — 4h — @[POR DEFINIR]
+- [ ] SP226 · Verificar y PR — 1h — @[POR DEFINIR]
+
+### HU-31 · Accesibilidad (17 h) — alcance: flujo principal; el resto queda «solo claro» (aprobado 17/11)
+- [ ] SP227 · Paletas oscuro y alto contraste + prueba de contraste — 2h — @[POR DEFINIR]
+- [ ] SP228 · Proveedor de tema, `crearEstilos`, persistencia y pruebas — 3h — @[POR DEFINIR]
+- [ ] SP229 · Pantalla «Apariencia» y fila en Perfil — 2h — @[POR DEFINIR]
+- [ ] SP230 · Migrar componentes compartidos y pestañas — 4h — @[POR DEFINIR]
+- [ ] SP231 · Migrar resto del flujo principal (buscar, reservar, abordar, billetera) — 4h — @[POR DEFINIR]
+- [ ] SP232 · Prueba en teléfono con capturas y TalkBack; verificar y PR — 2h — @[POR DEFINIR]
+
+### PB-06 · Pruebas de carga, reducida (6 h)
+- [ ] SP233 · Guion `carga.mjs`: siembra, búsqueda, abordaje, percentiles, informe y guardas — 4h — @[POR DEFINIR]
+- [ ] SP234 · Prueba unitaria del guion (`carga.test.mjs`) — 1h — @[POR DEFINIR]
+- [ ] SP235 · Corridas reales, informe y PR — 1h — @[POR DEFINIR]

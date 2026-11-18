@@ -1634,3 +1634,11 @@ Los dos se vieron en el teléfono físico.
 **Pendiente:** SP194 (prueba en teléfono Android físico Infinix X669 con comandos reales). Siguiente historia: HU-25 (Detección de anomalías).
 
 **Archivos afectados:** `backend/src/presencia/*`, `backend/test/*`, `mobile/src/voz/*`, `mobile/src/app/ayuda.tsx`, `mobile/src/app/reserva/[id].tsx`, `mobile/src/__tests__/voz-*`, `SPECS/features/sprint-4/HU-28-consultas-por-voz/*`, `.agents/STEERING/backlog.md`, `.agents/MEMORY/{HEARTBEAT,MEMORY}.md`.
+
+## 2026-11-17 · Specs y planes de las HUs de cierre (HU-21, HU-26, HU-31, HU-32, HU-33, PB-06)
+
+**Evento:** Con el Sprint 4 como último, el PO aprueba pasar de Reserva a S4 (plazo: viernes 20/11) las specs de HU-21, HU-26 (solo lectura), HU-31, HU-32 (reducida a 4 cifras, 3 PHU), HU-33 y PB-06 (reducida, 2 PHU). Descartadas: HU-15 y HU-16 (exigen cambiar el contrato; sin tiempo), por decisión de alcance.
+
+**Decisiones:** factor de CO₂ de 0,12 kg por pasajero y km (propuesta del equipo, aprobada); HU-21 cierra D-17; HU-33 resuelve «`app.super_admin` en viajes» con una lectura fija solo de agregados. Planes en borrador, pendientes de aprobación del equipo; **HU-21 pide confirmación (§14): nueva tabla con RLS y función `SECURITY DEFINER`**. HU-31 migra 54 archivos de mobile; recorte propuesto: solo el flujo principal.
+
+**Archivos afectados:** `SPECS/features/sprint-4/{HU-21,HU-26,HU-31,HU-32,HU-33,PB-06}-*/`, `SPECS/roadmap.md`.

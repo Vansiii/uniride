@@ -13,7 +13,7 @@
 | S1 | 21/10 – 27/10/2026 | Organizaciones y cuentas funcionando | 26 | — |
 | S2 | 28/10 – 03/11/2026 | Identidad verificada, billetera activa y viajes publicados | 39 | — |
 | S3 | 04/11 – 10/11/2026 | Viaje completo verificado y pagado | 37 (32 + HU-10, D-28) | 1.0 |
-| S4 | 11/11 – 17/11/2026 | Voz, cancelaciones y calidad | 31 (34 − HU-04, D-31) | 2.0 |
+| S4 | 11/11 – 20/11/2026 | Voz, cancelaciones y calidad; cierre ampliado hasta el viernes 20/11 | 31 + 17 (HU-21, 26, 31, 32, 33, PB-06) | 2.0 |
 | Defensa | `[POR DEFINIR]` | Demo en vivo con dos teléfonos y dos organizaciones | — | — |
 
 Sprints de 1 semana, de miércoles a martes (D-14). El mismo alcance se comprimió de 9 a 5 semanas: al cerrar S1 se mide la velocidad y, si queda corta, se aplica la regla de abajo (ver riesgo en `MEMORY.md`).
@@ -72,13 +72,13 @@ Tareas concretas: `/.agents/STEERING/backlog.md`.
 | HU-25 | Detección de anomalías | Como sistema quiero detectar patrones de colusión y bloquear preventivamente para evitar fraude | Media (Should) | 5 | S4 | plan aprobado | HU-24 |
 | HU-04 | Tarifas y viajes entre organizaciones | Como admin. de organización quiero configurar tarifas y con qué organizaciones se comparten viajes | Media (Should) | 3 | — | descartada (D-31, 15/11) | HU-02, HU-17 |
 | HU-16 | Retiro de saldo | Como conductor quiero retirar saldo (simulado) para cobrar lo ganado | Media (Should) | 3 | Reserva | pendiente | HU-14, HU-29 |
-| HU-21 | Calificación mutua | Como usuario quiero calificar a la otra parte tras el viaje para construir confianza | Media (Should) | 3 | Reserva | pendiente | HU-24 |
-| HU-26 | Alertas de fraude | Como admin. de organización quiero revisar alertas de fraude para actuar a tiempo | Media (Should) | 3 | Reserva | pendiente | HU-25 |
-| HU-32 | Panel de organización | Como admin. de organización quiero ver viajes, usuarios y CO₂ evitado para medir el impacto | Media (Should) | 5 | Reserva | pendiente | HU-24 |
+| HU-21 | Calificación mutua | Como usuario quiero calificar a la otra parte tras el viaje para construir confianza | Media (Should) | 3 | S4 | plan aprobado (17/11) | HU-24 |
+| HU-26 | Alertas de fraude | Como admin. de organización quiero revisar alertas de fraude para actuar a tiempo | Media (Should) | 3 | S4 | plan aprobado (17/11) | HU-25 |
+| HU-32 | Panel de organización | Como admin. de organización quiero ver viajes, usuarios y CO₂ evitado para medir el impacto | Media (Should) | 3 (reducida de 5) | S4 | plan aprobado (17/11) | HU-24 |
 | HU-15 | Subsidio de saldo | Como organización quiero subsidiar saldo a mis miembros para fomentar el uso | Baja (Could) | 5 | Reserva | pendiente | HU-13 |
-| HU-31 | Accesibilidad | Como usuario quiero modo oscuro, tamaño de texto y contraste para usar la app cómodamente | Baja (Could) | 3 | Reserva | pendiente | PB-03 |
-| HU-33 | Métricas globales | Como super administrador quiero métricas globales para supervisar la plataforma | Baja (Could) | 3 | Reserva | pendiente | HU-32 |
-| PB-06 | Pruebas de carga | Como equipo queremos pruebas de carga básicas para validar las metas de rendimiento | Baja (Could) | 3 | Reserva | pendiente | HU-18, HU-22 |
+| HU-31 | Accesibilidad | Como usuario quiero modo oscuro, tamaño de texto y contraste para usar la app cómodamente | Baja (Could) | 3 | S4 | plan aprobado (17/11) | PB-03 |
+| HU-33 | Métricas globales | Como super administrador quiero métricas globales para supervisar la plataforma | Baja (Could) | 3 | S4 | plan aprobado (17/11) | HU-32 |
+| PB-06 | Pruebas de carga | Como equipo queremos pruebas de carga básicas para validar las metas de rendimiento | Baja (Could) | 2 (reducida de 3) | S4 | plan aprobado (17/11) | HU-18, HU-22 |
 
 `Reserva` = en el backlog pero **no comprometido**: entra solo si la velocidad real lo permite. Si la velocidad de S1 queda bajo 26 PHU, el PO mueve los *Should* de S4 a Reserva.
 
