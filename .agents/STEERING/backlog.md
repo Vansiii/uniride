@@ -333,6 +333,6 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [ ] SP232 · Prueba en teléfono con capturas y TalkBack; verificar y PR — 2h — @[POR DEFINIR] — PR hecho; falta la prueba en teléfono físico (oscuro, texto muy grande, TalkBack)
 
 ### PB-06 · Pruebas de carga, reducida (6 h)
-- [ ] SP233 · Guion `carga.mjs`: siembra, búsqueda, abordaje, percentiles, informe y guardas — 4h — @[POR DEFINIR]
-- [ ] SP234 · Prueba unitaria del guion (`carga.test.mjs`) — 1h — @[POR DEFINIR]
-- [ ] SP235 · Corridas reales, informe y PR — 1h — @[POR DEFINIR]
+- [x] SP233 · Guion `carga.mjs`: siembra, búsqueda, abordaje, percentiles, informe y guardas — 4h — @[POR DEFINIR]
+- [x] SP234 · Prueba unitaria del guion (`carga.test.mjs`) — 1h — @[POR DEFINIR]
+- [x] SP235 · Corridas reales, informe y PR — 1h — @[POR DEFINIR]
