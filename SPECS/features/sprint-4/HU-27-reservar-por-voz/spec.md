@@ -86,15 +86,15 @@
 
 Marcar al cerrar la fase **Verify**. Referencia: `SPECS/constitution.md` Art. 12.
 
-- [ ] Todos los criterios de aceptación cumplidos.
-- [ ] Pruebas automatizadas del `plan.md` en verde (intérprete de comandos con todas las formas de RN-2 y RN-4, y la confirmación por voz).
-- [ ] Prueba de ataque A-11 en verde: la voz no completa ninguna reserva sin huella.
-- [ ] Probado en un teléfono Android físico, con ruido de fondo moderado.
+- [x] Todos los criterios de aceptación cumplidos (CA-1 a CA-14 verificados).
+- [x] Pruebas automatizadas del `plan.md` en verde (intérprete con todas las formas de RN-2 y RN-4, hora, panel, búsqueda y reserva por voz).
+- [x] Prueba de ataque A-11 en verde: la voz no completa ninguna reserva sin huella.
+- [ ] Probado en un teléfono Android físico, con ruido de fondo moderado (SP189).
 - [ ] PR revisado por otro integrante.
-- [ ] CI en verde (lint, pruebas, build).
-- [ ] Correctitud · Eficiencia (resultados < 2 s) · Fiabilidad · Facilidad de uso (≤ 4 pasos) · Mantenimiento · Seguridad e integridad · Portabilidad.
-- [ ] Desplegada en AWS y documentada en Swagger (si cambia la API).
-- [ ] Esta spec refleja lo realmente construido.
+- [x] CI en verde (lint, pruebas, build).
+- [x] Correctitud · Eficiencia (resultados < 2 s) · Fiabilidad · Facilidad de uso (≤ 4 pasos) · Mantenimiento · Seguridad e integridad · Portabilidad.
+- [x] Desplegada en AWS y documentada en Swagger (filtro destino en `/viajes/buscar`).
+- [x] Esta spec refleja lo realmente construido.
 - [ ] Aceptada por el PO en la Sprint Review.
 
 ## 8. Historial de cambios
