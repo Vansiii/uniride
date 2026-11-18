@@ -12,7 +12,7 @@
 - **17/11 noche:** HU-25 (backend `fraude`, migración 019, bloqueos en reservar/publicar/recargar/búsqueda; textos en la app) y PB-05 (`scripts/suite-ataques.mjs`, informe 13 de 13, `a-12-llaves`, `a-13-rutas`, contratos A-09) listos en ramas locales `feat/HU-25-deteccion-anomalias` (backend, mobile) y `feat/PB-05-suite-ataques` (raíz, contracts), sin push ni PR. HU-30: protocolo, consentimiento, SUS, hoja y `sus.mjs` listos; **faltan las 5 sesiones reales** (informe en blanco, no inventado). Filas manuales de PB-05 (A-03, A-04, A-07) pendientes en teléfono.
 
 - **Sprint 4:** HU-20, HU-27 y HU-28 completadas y fusionadas en `develop` de backend y mobile.
-- **Ramas previas:** HU-22, HU-23, HU-24 pendientes de revisión/merge humano.
+- **Ramas previas:** HU-22, HU-23 y HU-24 ya están en `develop` de backend, mobile, contracts y principal (verificado en git el 17/11); solo quedan sus ramas remotas sin borrar.
 
 ## Última sesión (17/11, HU-28 implementación)
 
