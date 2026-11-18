@@ -325,12 +325,12 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP226 · Verificar y PR — 1h — @[POR DEFINIR]
 
 ### HU-31 · Accesibilidad (17 h) — alcance: flujo principal; el resto queda «solo claro» (aprobado 17/11)
-- [ ] SP227 · Paletas oscuro y alto contraste + prueba de contraste — 2h — @[POR DEFINIR]
-- [ ] SP228 · Proveedor de tema, `crearEstilos`, persistencia y pruebas — 3h — @[POR DEFINIR]
-- [ ] SP229 · Pantalla «Apariencia» y fila en Perfil — 2h — @[POR DEFINIR]
-- [ ] SP230 · Migrar componentes compartidos y pestañas — 4h — @[POR DEFINIR]
-- [ ] SP231 · Migrar resto del flujo principal (buscar, reservar, abordar, billetera) — 4h — @[POR DEFINIR]
-- [ ] SP232 · Prueba en teléfono con capturas y TalkBack; verificar y PR — 2h — @[POR DEFINIR]
+- [x] SP227 · Paletas oscuro y alto contraste + prueba de contraste — 2h — @[POR DEFINIR]
+- [x] SP228 · Proveedor de tema, `crearEstilos`, persistencia y pruebas — 3h — @[POR DEFINIR]
+- [x] SP229 · Pantalla «Apariencia» y fila en Perfil — 2h — @[POR DEFINIR]
+- [x] SP230 · Migrar componentes compartidos y pestañas — 4h — @[POR DEFINIR]
+- [x] SP231 · Migrar resto del flujo principal (buscar, reservar, abordar, billetera) — 4h — @[POR DEFINIR]
+- [ ] SP232 · Prueba en teléfono con capturas y TalkBack; verificar y PR — 2h — @[POR DEFINIR] — PR hecho; falta la prueba en teléfono físico (oscuro, texto muy grande, TalkBack)
 
 ### PB-06 · Pruebas de carga, reducida (6 h)
 - [ ] SP233 · Guion `carga.mjs`: siembra, búsqueda, abordaje, percentiles, informe y guardas — 4h — @[POR DEFINIR]
