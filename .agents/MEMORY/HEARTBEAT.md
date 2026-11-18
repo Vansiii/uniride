@@ -2,12 +2,14 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-11-17 (HU-28 · Consultas por voz implementada)
+**Última actualización:** 2026-11-17 (HU-25, PB-05 y material de HU-30 implementados)
 
 **Sprint actual:** Sprint 4 · Casos de borde, expiración y voz (31 PHU).
 **Foco:** HU-20, HU-27 y HU-28 fusionadas en `develop` de backend y mobile (17/11, CI verde); punteros actualizados en el principal. Pendiente prueba en teléfono (SP194).
 
 ## Estado actual
+
+- **17/11 noche:** HU-25 (backend `fraude`, migración 019, bloqueos en reservar/publicar/recargar/búsqueda; textos en la app) y PB-05 (`scripts/suite-ataques.mjs`, informe 13 de 13, `a-12-llaves`, `a-13-rutas`, contratos A-09) listos en ramas locales `feat/HU-25-deteccion-anomalias` (backend, mobile) y `feat/PB-05-suite-ataques` (raíz, contracts), sin push ni PR. HU-30: protocolo, consentimiento, SUS, hoja y `sus.mjs` listos; **faltan las 5 sesiones reales** (informe en blanco, no inventado). Filas manuales de PB-05 (A-03, A-04, A-07) pendientes en teléfono.
 
 - **Sprint 4:** HU-20, HU-27 y HU-28 completadas y fusionadas en `develop` de backend y mobile.
 - **Ramas previas:** HU-22, HU-23, HU-24 pendientes de revisión/merge humano.

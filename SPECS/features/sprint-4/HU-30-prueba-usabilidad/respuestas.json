@@ -1,0 +1,10 @@
+{
+  "nota": "Plantilla. Se llena al terminar cada sesión con el cuestionario en papel; sin nombres ni datos personales (HU-30 RN-7). `sus` son 10 enteros de 1 a 5 en el orden del cuestionario; hasta que haya 5, `node sus.mjs` no calcula.",
+  "participantes": [
+    { "id": "P1", "edad": null, "ocupacion": null, "sus": null, "tareas": { "T1": null, "T2": null, "T3": null, "T4": null } },
+    { "id": "P2", "edad": null, "ocupacion": null, "sus": null, "tareas": { "T1": null, "T2": null, "T3": null, "T4": null } },
+    { "id": "P3", "edad": null, "ocupacion": null, "sus": null, "tareas": { "T1": null, "T2": null, "T3": null, "T4": null } },
+    { "id": "P4", "edad": null, "ocupacion": null, "sus": null, "tareas": { "T1": null, "T2": null, "T3": null, "T4": null } },
+    { "id": "P5", "edad": null, "ocupacion": null, "sus": null, "tareas": { "T1": null, "T2": null, "T3": null, "T4": null } }
+  ]
+}
