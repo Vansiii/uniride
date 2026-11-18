@@ -312,10 +312,10 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP217 · Verificar y PR — 1h — @[POR DEFINIR]
 
 ### HU-33 · Métricas globales (9 h) — después de HU-32
-- [ ] SP218 · Backend: agrupar por organización, `GET /plataforma/metricas`, Swagger — 3h — @[POR DEFINIR]
-- [ ] SP219 · Backend: pruebas e2e (global = suma de la tabla) y de ataque A-13, A-08 — 2h — @[POR DEFINIR]
-- [ ] SP220 · Web: página «Métricas» con tabla ordenable y textos — 3h — @[POR DEFINIR]
-- [ ] SP221 · Verificar y PR — 1h — @[POR DEFINIR]
+- [x] SP218 · Backend: agrupar por organización, `GET /plataforma/metricas`, Swagger — 3h — @[POR DEFINIR]
+- [x] SP219 · Backend: pruebas e2e (global = suma de la tabla) y de ataque A-13, A-08 — 2h — @[POR DEFINIR]
+- [x] SP220 · Web: página «Métricas» con tabla ordenable y textos — 3h — @[POR DEFINIR]
+- [x] SP221 · Verificar y PR — 1h — @[POR DEFINIR]
 
 ### HU-21 · Calificación mutua (14 h) — migración con RLS y función `SECURITY DEFINER` confirmada por el PO (17/11)
 - [ ] SP222 · Migración `020_calificaciones` (tabla, RLS, función de promedio) y Prisma — 2h — @[POR DEFINIR]
