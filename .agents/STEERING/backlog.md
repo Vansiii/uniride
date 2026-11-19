@@ -336,3 +336,10 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP233 · Guion `carga.mjs`: siembra, búsqueda, abordaje, percentiles, informe y guardas — 4h — @[POR DEFINIR]
 - [x] SP234 · Prueba unitaria del guion (`carga.test.mjs`) — 1h — @[POR DEFINIR]
 - [x] SP235 · Corridas reales, informe y PR — 1h — @[POR DEFINIR]
+
+### PB-07 · Atestación con Key Attestation, sin Play Integrity (12 h)
+- [x] SP236 · Backend: `AtestacionKeystore` (cadena, desafío, arranque, paquete y firma) y `crearPlayIntegrity` — 4h — @[POR DEFINIR]
+- [x] SP237 · Backend: pruebas unitarias y de ataque (CA-1 a CA-7), ajustar dobles y Swagger — 2h — @[POR DEFINIR]
+- [x] SP238 · Mobile: función nativa `atestar`, `pedirTokenIntegridad`, claves i18n y pruebas Jest — 3h — @[POR DEFINIR]
+- [ ] SP239 · Config `ATESTACION_*`, quitar dependencias de Play Integrity, AGENTS.md §4 y §6 — 1h — @[POR DEFINIR]
+- [ ] SP240 · Prueba en teléfono físico, verificar y PRs — 2h — @[POR DEFINIR]
