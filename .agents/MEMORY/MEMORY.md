@@ -1672,3 +1672,11 @@ Los dos se vieron en el teléfono físico.
 **Pendiente (SP240):** huella de firma del APK, despliegue y prueba en teléfono físico; sin eso CA-1 y CA-8 no están verificados fuera de Jest.
 
 **Archivos afectados:** `backend/src/comun/{atestacion-keystore.service,raices-atestacion,play-integrity.service}.ts`, `mobile/modules/llave-dispositivo`, `mobile/src/dispositivo/keystore.ts`, `AGENTS.md`.
+
+## 2026-11-19 · OSRM para el trayecto por calles en la app móvil
+
+**Decisión/evento:** Aprobado (Vansiii, 19/11) usar OSRM para dibujar el trayecto en auto por las calles en `MapaRuta` (Publicar, detalle del viaje y reserva). La app llama al servidor público de demostración `router.project-osrm.org` solo con las coordenadas de origen y destino, nunca con la sesión; cada par se pide una vez y queda en memoria. Si falla, el mapa dibuja la línea aproximada punteada («Ruta aproximada»).
+
+**Razón:** El arco Bézier anterior no seguía las calles. OSRM es software libre (BSD-2), sin costo ni API key, y usa los mismos datos de OpenStreetMap del mapa. Límite aceptado: el servidor público pide como máximo 1 petición por segundo y no garantiza servicio. Si el uso crece, montar OSRM propio en Docker con el extracto de Bolivia (Geofabrik) y cambiar `URL_OSRM`.
+
+**Archivos afectados:** `mobile/src/servicios/rutas.ts`, `mobile/src/componentes/MapaRuta.tsx`, `AGENTS.md` §4.

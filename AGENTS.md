@@ -71,6 +71,7 @@ Servicios externos y su único uso permitido:
 | Amazon S3 | Fotos de carnets y vehículos, cifradas |
 | Polygon Amoy | Token URC y contrato escrow (JSON-RPC vía ethers.js) |
 | OpenStreetMap | Mapas de origen, destino y trayecto |
+| OSRM (sobre OpenStreetMap) | Trayecto en auto por las calles en los mapas de la app (solo coordenadas; aprobado el 19/11/2026) |
 | Reconocimiento de voz del dispositivo | Comandos de voz en español (API nativa de Android) |
 
 No sustituyas ninguna tecnología del stack (el docente la exigió) ni añadas un servicio externo nuevo sin aprobación del equipo.
