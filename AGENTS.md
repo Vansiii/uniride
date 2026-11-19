@@ -56,7 +56,7 @@ Regla de dependencias entre carpetas: `mobile/` y `web/` solo hablan con la API 
 | Base de datos | PostgreSQL en Amazon RDS, con Row-Level Security |
 | Blockchain | Solidity, Hardhat, OpenZeppelin, ethers.js; red de prueba Polygon Amoy |
 | Nube | AWS: EC2 (backend con Docker), RDS, S3, KMS, Rekognition, SES |
-| Seguridad | JWT + refresh token, Google Play Integrity API, Android Keystore |
+| Seguridad | JWT + refresh token, Android Keystore con Key Attestation |
 | Contenedores | Docker; configuración por variables de entorno |
 | CI | GitHub Actions: lint, pruebas y build en cada pull request |
 
@@ -64,7 +64,7 @@ Servicios externos y su único uso permitido:
 
 | Servicio | Uso |
 |---|---|
-| Play Integrity API | Atestar que la app es original y corre en un teléfono real |
+| Android Key Attestation | Atestar que la app es original y corre en un teléfono real sin alterar (cadena de certificados del Keystore, verificada en el servidor; PB-07) |
 | Rekognition Face Liveness | Prueba de vida y comparación del rostro con el carnet |
 | AWS KMS | Llaves del relayer y de la cuenta verificadora (las de usuario: ver §11) |
 | Amazon SES | Códigos OTP e invitaciones |
@@ -93,7 +93,7 @@ No sustituyas ninguna tecnología del stack (el docente la exigió) ni añadas u
 | Capa | Mecanismo |
 |---|---|
 | Identidad | Foto del carnet + prueba de vida + comparación facial. Un carnet y un rostro por cuenta. |
-| Dispositivo | Llave de hardware no exportable protegida con biometría; atestación de Play Integrity en cada petición sensible. |
+| Dispositivo | Llave de hardware no exportable protegida con biometría; atestación de hardware del Keystore (Key Attestation) en cada petición sensible. |
 | Encuentro | Desafío de un solo uso con 30 s de vida, doble firma conductor–pasajero, ambos GPS a ≤ 50 m, al subir y al bajar. |
 | Trayecto | Posiciones firmadas cada 15 s, cruzadas en el servidor, con detección de saltos imposibles. |
 | Dinero | Escrow liberado solo por el verificador. |
@@ -102,7 +102,7 @@ No sustituyas ninguna tecnología del stack (el docente la exigió) ni añadas u
 |---|---|---|---|
 | A-01 | Registrarse con foto o video de otro | Prueba de vida + comparación con carnet | HU-08 |
 | A-02 | Varias cuentas por persona | Carnet único, rostro duplicado, un dispositivo por cuenta | HU-08, HU-09 |
-| A-03 | Emulador, root o app modificada | Play Integrity validada en el servidor | HU-09 |
+| A-03 | Emulador, root o app modificada | Key Attestation validada en el servidor | HU-09 |
 | A-04 | Teléfono robado o prestado | La llave exige la biometría del dueño | HU-09, HU-29 |
 | A-05 | Repetir un handshake capturado | Desafío de un solo uso, vence en 30 s | HU-22 |
 | A-06 | Enviar foto del QR a alguien lejos | Doble firma + ambos GPS a ≤ 50 m en el mismo desafío | HU-22 |

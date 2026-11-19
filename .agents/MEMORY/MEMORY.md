@@ -1652,3 +1652,23 @@ Los dos se vieron en el teléfono físico.
 **Pendiente:** SP232 (teléfono, TalkBack), SP194, sesiones HU-30, despliegue/SP129; UI del conductor para calificar pasajeros.
 
 **Archivos afectados:** `backend/src/{metricas,calificaciones,viajes}`, `web/src/paginas/{admin,Metricas}`, `mobile/src/{tema,app/calificar,app/ajustes-apariencia}`, `scripts/carga.mjs`, `SPECS/features/sprint-4/*`, `.agents/STEERING/backlog.md`.
+
+## 2026-11-18 · Despliegue en producción (AWS) y SP129
+
+**Evento:** la app queda en producción en AWS (cuenta `543118008132`, us-east-2): CloudFront (HTTPS) → S3 (web) y EC2 (API en Docker con PostgreSQL en Docker). KMS firma al relayer y al verificador (SP129, rama `feat/SP129-firmante-kms`, sin PR todavía). Contratos desplegados en Amoy.
+
+**Decisiones del usuario:** recursos nuevos separados de los `sw1p-*`; sin dominio propio (HTTPS vía CloudFront); PostgreSQL en Docker en la EC2 en lugar de RDS (el master de RDS no puede crear la función de la migración 003 con `SET app.super_admin`; no se modificó la migración, §14); Play Integrity real **no** se configura (25 USD de Play Console); SES se deja en sandbox (la cuenta miembro no es accesible desde la consola y una SCP de la organización bloquea IAM).
+
+**Riesgos abiertos:** sin copias de seguridad automáticas de la base de datos; atestación fallando cerrada en producción hasta tener credenciales de Play Integrity; app móvil sin compilar para producción.
+
+**Archivos afectados:** `backend/src/blockchain/{firmante-kms,blockchain.service}.ts`, `.agents/MEMORY/{HEARTBEAT,MEMORY}.md`.
+
+## 2026-11-18 · PB-07: Key Attestation en lugar de Play Integrity
+
+**Evento:** el equipo aprueba (AGENTS.md §14) reemplazar Play Integrity por la atestación de hardware del Android Keystore. Motivo: Play Integrity exige Play Console (25 USD) y la app no se publicará; además la app móvil nunca pidió el token real. Spec y plan aprobados en `SPECS/features/sprint-4/PB-07-atestacion-keystore/`.
+
+**Decisiones:** se mantiene el campo `tokenIntegridad` y la clase `PlayIntegrityService` (sin cambio de API); el token es la cadena de certificados en base64 separada por comas; verificación local con `node:crypto` contra las raíces de Google (`raices-atestacion.ts`), sin dependencias nuevas; se quitaron `@googleapis/playintegrity` y `google-auth-library`. Variables nuevas `ATESTACION_PAQUETE` y `ATESTACION_FIRMA_SHA256`. Desvío del plan: la antigüedad de la llave (RN-4) solo se exige si el teléfono informa la fecha de creación.
+
+**Pendiente (SP240):** huella de firma del APK, despliegue y prueba en teléfono físico; sin eso CA-1 y CA-8 no están verificados fuera de Jest.
+
+**Archivos afectados:** `backend/src/comun/{atestacion-keystore.service,raices-atestacion,play-integrity.service}.ts`, `mobile/modules/llave-dispositivo`, `mobile/src/dispositivo/keystore.ts`, `AGENTS.md`.
