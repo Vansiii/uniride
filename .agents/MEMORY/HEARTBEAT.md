@@ -2,7 +2,7 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-11-18 (HUs de cierre del Sprint 4 implementadas y fusionadas)
+**Última actualización:** 2026-11-18 (rediseño del panel web fusionado y desplegado)
 
 **Sprint actual:** Sprint 4 · cierre (plazo viernes 20/11/2026).
 **Foco:** HU-26, HU-32, HU-33, HU-21, HU-31 y PB-06 fusionadas en `develop` (backend, web, mobile y principal), CI verde, punteros actualizados. Queda lo que solo hacen personas: pruebas en teléfono, sesiones reales de HU-30, despliegue.
@@ -14,11 +14,13 @@
 - **SP129 hecho y fusionado (backend #32, revisado por dos integrantes):** relayer y verificador firman con AWS KMS.
 - **Contratos en Amoy:** UniCoin `0xc1bDdbD5bb16B140e85d3bd39C354EBe78052676`, EscrowUniRide `0xff578E2Ad9C24f489Bb00E0fd9C4d42ba1974703`. Relayer `0x11B3…1cAA`, verificador `0x330D…c867` (KMS).
 - **Limitaciones aceptadas:** (1) **Atestación: Play Integrity descartado** (25 USD de Play Console y la app no se publica); PB-07 la reemplaza por Key Attestation del Keystore (backend `93496ef` y mobile `8cef0bc` en `feat/PB-07-atestacion-keystore`, sin PR). **Desplegado el 18/11 (SP129 + PB-07, fusionados en `develop` con backend #32 y #33, mobile #29; imagen anterior en ECR `prod-sp129` para volver atrás).** `ATESTACION_FIRMA_SHA256` = huella del APK firmado con la llave propia (llave y secretos guardados por el equipo fuera del repo). Falta SP240: probar la vinculación en un teléfono físico con ese APK (`Downloads/uniride.apk`). Compilar la app: `mobile/compilar-android/README.md`. (2) **Correo: Brevo desde el 19/11 (PB-08, backend #34; imagen anterior en ECR `prod-pb07`).** `CORREO_MODO=brevo` y `BREVO_*` en SSM `/uniride/env`; remitente `teamkillers591@gmail.com`, sin sandbox, 300 correos/día. SES queda como alternativa (`CORREO_MODO=ses`). (3) **App móvil:** APK compilado en Docker/Linux (en Windows falla el NDK).
+- **Web, rediseño PB-03 (web #15, desplegado el 18/11):** bucket `uniride-web-543118008132`, distribución CloudFront `E3BCWAR6O0AAT7`. Despliegue de la web: `npm run build` en `web/` (rama `develop`), `aws s3 sync dist s3://uniride-web-543118008132 --exclude index.html`, `index.html` aparte con `--cache-control no-cache` e invalidación `/*`. Volver atrás: recompilar el commit `94d8b0f` de `web/` y repetir.
 - Secretos de despliegue en `%TEMP%\uniride-secretos.env` (guardar fuera; incluye la llave de la cuenta desplegadora). Cambiar la contraseña del super admin `admin@uniride.local`.
 
 ## Estado actual
 
 - **18/11:** HU-26 (alertas de fraude en web), HU-32 (resumen de organización, CO₂ = km × 0,12), HU-33 (métricas de plataforma), HU-21 (calificación mutua, migración 020 con RLS y `promedio_calificacion`), HU-31 (apariencia: tema, texto y alto contraste; 52 archivos migrados a `crearEstilos`) y PB-06 (carga local: búsqueda p95 122 ms, abordaje p95 141 ms, 0 errores 5xx; informe en `SPECS/features/sprint-4/PB-06-pruebas-carga/`). PB-06 halló y corrigió un interbloqueo real en abordajes simultáneos (`FOR NO KEY UPDATE`, backend PR #30; **pide revisión de otro integrante**, AGENTS.md §14).
+- **18/11, rediseño del panel web (PB-03, web #15):** barra lateral de marca, bandas de marca, componentes de reporte (`web/src/componentes/Datos.tsx`), Inicio por rol, Resumen y Métricas con gráficos y CSV, resúmenes y búsqueda en Organizaciones, Solicitudes y Alertas. Sin cambios en la API. **Decisión pendiente del equipo:** la barra lateral oscura sigue DESIGN_SYSTEM §8.11, pero la revisión del 07/11 (§3.1) pedía barra clara; si se aprueba, actualizar §3.1. La equivalencia en árboles usa 21 kg de CO₂ por árbol al año (referencia nueva). Sin verificar: ancho menor a 500 px, Afiliación e Iniciar sesión, y una sesión real en producción.
 - **Pendientes de personas:** SP232 (HU-31 en teléfono con TalkBack), SP194 (voz en teléfono), 5 sesiones reales de HU-30 (informe en blanco, no inventado), filas manuales de PB-05 (A-03, A-04, A-07), despliegue y SP129.
 - **Hueco funcional:** el conductor no tiene en la app un acceso para calificar a sus pasajeros (API y pantalla lo soportan).
 - **Local:** `registro.e2e-spec` CA-3 falla en la base local por una placa `1234ABC` de datos UAGRM; en CI pasa.
