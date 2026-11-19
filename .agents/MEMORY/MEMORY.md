@@ -1680,3 +1680,13 @@ Los dos se vieron en el teléfono físico.
 **Razón:** El arco Bézier anterior no seguía las calles. OSRM es software libre (BSD-2), sin costo ni API key, y usa los mismos datos de OpenStreetMap del mapa. Límite aceptado: el servidor público pide como máximo 1 petición por segundo y no garantiza servicio. Si el uso crece, montar OSRM propio en Docker con el extracto de Bolivia (Geofabrik) y cambiar `URL_OSRM`.
 
 **Archivos afectados:** `mobile/src/servicios/rutas.ts`, `mobile/src/componentes/MapaRuta.tsx`, `AGENTS.md` §4.
+
+---
+
+## 2026-11-19 · Credenciales dedicadas y región us-east-1 para AWS Rekognition
+
+**Decisión/evento:** Se añade compatibilidad en `MotorFacialRekognition` para leer variables de entorno dedicadas (`AWS_REKOGNITION_REGION`, `AWS_REKOGNITION_ACCESS_KEY_ID`, `AWS_REKOGNITION_SECRET_ACCESS_KEY`). Si no están configuradas, hace fallback transparente a `us-east-1` y al proveedor por defecto del entorno.
+
+**Razón:** En el despliegue de producción (AWS us-east-2), Amazon Rekognition Face Liveness devolvía error de servicio no disponible porque Face Liveness solo está soportado en ciertas regiones (us-east-1, us-west-2, eu-west-1). Al tener la cuenta principal restricciones de región, esta solución permite utilizar una cuenta de AWS secundaria en us-east-1 exclusivamente para biometría facial, sin modificar las credenciales globales del servidor ni afectar los servicios en us-east-2 (KMS, S3, RDS).
+
+**Archivos afectados:** `backend/src/comun/motor-facial-rekognition.ts`, `backend/src/comun/motor-facial-rekognition.spec.ts`, `.env.example`.
