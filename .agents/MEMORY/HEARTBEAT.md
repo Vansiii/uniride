@@ -11,9 +11,9 @@
 
 - **Web y API:** `https://d27m7kukd6ob9b.cloudfront.net` (CloudFront → S3 para la web, `/api/*` → EC2 por HTTP). Cuenta AWS `543118008132`, región us-east-2, perfil CLI `1p-nuevo`. Recursos nuevos `uniride-*`; los `sw1p-*` no se tocan.
 - **Backend:** EC2 `i-047af04117c2b6428` con Docker (api + PostgreSQL 17). Se usó Postgres en Docker y no RDS porque el master de RDS no puede crear la función con `SET app.super_admin` (migración 003). **Sin copias de seguridad automáticas.** Acceso por SSM, variables en SSM `/uniride/env`.
-- **SP129 hecho (rama `feat/SP129-firmante-kms`, commit `0a393bb`, solo local):** relayer y verificador firman con AWS KMS. Falta push, PR y revisión de otro integrante (§14).
+- **SP129 hecho y fusionado (backend #32, revisado por dos integrantes):** relayer y verificador firman con AWS KMS.
 - **Contratos en Amoy:** UniCoin `0xc1bDdbD5bb16B140e85d3bd39C354EBe78052676`, EscrowUniRide `0xff578E2Ad9C24f489Bb00E0fd9C4d42ba1974703`. Relayer `0x11B3…1cAA`, verificador `0x330D…c867` (KMS).
-- **Limitaciones aceptadas:** (1) **Atestación: Play Integrity descartado** (25 USD de Play Console y la app no se publica); PB-07 la reemplaza por Key Attestation del Keystore (backend `93496ef` y mobile `8cef0bc` en `feat/PB-07-atestacion-keystore`, sin PR). **Desplegado el 18/11 desde la rama local `deploy/produccion` (SP129 + PB-07, sin PR; imagen anterior en ECR `prod-sp129` para volver atrás).** `ATESTACION_FIRMA_SHA256` = huella del APK firmado con la llave propia (`~/.uniride-firma`, guardarla). Falta SP240: probar la vinculación en un teléfono físico con ese APK (`Downloads/uniride.apk`). Compilar la app: `mobile/compilar-android/README.md`. (2) **SES en sandbox:** solo llega a correos verificados (hoy `teamkillers591@gmail.com`); la cuenta de consola de UniRide no es accesible desde la consola, solo por CLI. (3) **App móvil:** APK compilado en Docker/Linux (en Windows falla el NDK).
+- **Limitaciones aceptadas:** (1) **Atestación: Play Integrity descartado** (25 USD de Play Console y la app no se publica); PB-07 la reemplaza por Key Attestation del Keystore (backend `93496ef` y mobile `8cef0bc` en `feat/PB-07-atestacion-keystore`, sin PR). **Desplegado el 18/11 (SP129 + PB-07, fusionados en `develop` con backend #32 y #33, mobile #29; imagen anterior en ECR `prod-sp129` para volver atrás).** `ATESTACION_FIRMA_SHA256` = huella del APK firmado con la llave propia (`~/.uniride-firma`, guardarla). Falta SP240: probar la vinculación en un teléfono físico con ese APK (`Downloads/uniride.apk`). Compilar la app: `mobile/compilar-android/README.md`. (2) **SES en sandbox:** solo llega a correos verificados (hoy `teamkillers591@gmail.com`); la cuenta de consola de UniRide no es accesible desde la consola, solo por CLI. (3) **App móvil:** APK compilado en Docker/Linux (en Windows falla el NDK).
 - Secretos de despliegue en `%TEMP%\uniride-secretos.env` (guardar fuera; incluye la llave de la cuenta desplegadora). Cambiar la contraseña del super admin `admin@uniride.local`.
 
 ## Estado actual
@@ -59,7 +59,6 @@
 
 ## Bloqueos activos
 
-- SP129 resuelto en la rama `feat/SP129-firmante-kms`; pendiente fusionarla en `develop`.
 - Esta PC tiene Node 22 y npm 10: usar Node 24 portable, solo en el PATH del proceso y con un PATH corto.
 - `.env` local sin `WALLET_ENCRYPTION_KEY` ni `IDENTIDAD_SECRETO`: el backend no arranca sin ellas.
 - Compilar `mobile` en nativo en Windows: `LongPathsEnabled=1` y CMake 3.31.6 (MEMORY, SP133).
