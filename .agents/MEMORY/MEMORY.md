@@ -1690,3 +1690,19 @@ Los dos se vieron en el teléfono físico.
 **Razón:** En el despliegue de producción (AWS us-east-2), Amazon Rekognition Face Liveness devolvía error de servicio no disponible porque Face Liveness solo está soportado en ciertas regiones (us-east-1, us-west-2, eu-west-1). Al tener la cuenta principal restricciones de región, esta solución permite utilizar una cuenta de AWS secundaria en us-east-1 exclusivamente para biometría facial, sin modificar las credenciales globales del servidor ni afectar los servicios en us-east-2 (KMS, S3, RDS).
 
 **Archivos afectados:** `backend/src/comun/motor-facial-rekognition.ts`, `backend/src/comun/motor-facial-rekognition.spec.ts`, `.env.example`.
+
+---
+
+## 2026-11-20 · Migración de producción a otra cuenta de AWS (us-east-1) y Caddy en lugar de CloudFront
+
+**Evento:** la cuenta `543118008132` quedó sin acceso a la consola (una SCP de la organización niega IAM de consola; la CLI con `1p-nuevo` sigue funcionando). Para que el docente pueda ver los servicios, Vansiii autorizó migrar todo a la cuenta `012875038716` (us-east-1, usuario IAM `uniride-admin`, perfil `uniride-nueva`). En esa cuenta hay recursos de otros proyectos que no se tocan.
+
+**Qué se movió:** imagen de ECR, SSM `/uniride/env` (mismos secretos; cambian región, bucket y llaves), base de datos con `pg_dumpall` (61 usuarios), archivos de la web, rol `uniride-ec2`. Las colecciones de Rekognition y el bucket sensible estaban vacíos.
+
+**Decisiones:**
+- **KMS:** las llaves no se exportan; se crearon nuevas. Relayer `0x9CC30BDf6A265B358e43192A074474a8F1f165F2` y verificador `0xE9D432639A7e64D9e67bcF1f6eBea123B72Bf6B8`, con roles otorgados por la cuenta de despliegue y revocados a las viejas (`0x11B3…1cAA`, `0x330D…c867`). Contratos y saldos on-chain sin cambios.
+- **Sin CloudFront:** la cuenta nueva exige verificación con AWS Support para crear distribuciones. Se vuelve al diseño D-02: Caddy en el EC2 con HTTPS automático en `54-84-94-49.sslip.io`, sirve la web y hace de proxy de `/api/*`. Si se verifica la cuenta, se puede volver a poner CloudFront delante (implica recompilar el APK).
+- **Región us-east-1:** Face Liveness está disponible; el usuario `uniride-rekognition` (misma cuenta) da las credenciales temporales de la prueba de vida (backend #37, desplegado; política `liveness-sts`).
+- El EC2 viejo quedó detenido; nada se borró de la cuenta vieja.
+
+**Archivos afectados:** `.agents/MEMORY/{HEARTBEAT,MEMORY}.md`. Infraestructura en AWS (sin código).
