@@ -343,3 +343,9 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP238 · Mobile: función nativa `atestar`, `pedirTokenIntegridad`, claves i18n y pruebas Jest — 3h — @[POR DEFINIR]
 - [ ] SP239 · Config `ATESTACION_*`, quitar dependencias de Play Integrity, AGENTS.md §4 y §6 — 1h — @[POR DEFINIR]
 - [ ] SP240 · Prueba en teléfono físico, verificar y PRs — 2h — @[POR DEFINIR]
+
+### PB-09 · Notificaciones push en la app móvil (8 h)
+- [x] SP241 · Backend: migración 021, `PushService` (cola + worker), `EnviadorFcm` (HTTP v1, OAuth con `node:crypto`), endpoints `/yo/token-push` — 3h — @agente 19/11
+- [x] SP242 · Backend: avisos en reserva confirmada, cancelaciones, expiración, pago liberado y membresías; pruebas unitarias y e2e — 2h — @agente 19/11
+- [x] SP243 · Mobile: `expo-notifications`, permiso, canal, registro del token, toque → pantalla, fila «Notificaciones» con prueba en Perfil — 2h — @agente 19/11
+- [x] SP244 · Proyecto de Firebase, `google-services.json`, cuenta de servicio en SSM, despliegue, APK y prueba en teléfono — 1h — @agente 19/11
