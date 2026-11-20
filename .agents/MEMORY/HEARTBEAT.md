@@ -9,6 +9,8 @@
 
 ## Producción (migrada el 19/11/2026 a otra cuenta)
 
+> Referencia completa de la producción y cómo operarla: `SPECS/ssd.md` §13.1 y §13.2.
+
 - **Migración 19/11:** la cuenta `543118008132` (us-east-2, perfil `1p-nuevo`) quedó sin consola (SCP de la organización); solo funciona la CLI. Se migró a la cuenta `012875038716` (us-east-1, perfil `uniride-nueva`, usuario IAM `uniride-admin`). En esa cuenta hay recursos ajenos (EC2, `zoonosis-*`, EIP `elasticidad-precio`): no se tocan.
 - **Web y API (nueva):** `https://54-84-94-49.sslip.io` (API en `/api/v1`). CloudFront no se pudo crear (la cuenta exige verificación con AWS Support): se volvió al diseño D-02, con **Caddy** en el EC2 (HTTPS de Let's Encrypt, sirve `/opt/web` y hace de proxy de `/api/*` → `api:3000`).
 - **EC2 nuevo:** `i-05b763d4d152d8eb9`, t3.small, EIP `54.84.94.49`, SG `sg-0b60c91dae631866f` (80/443 públicos), rol `uniride-ec2`. Contenedores `postgres`, `api` (imagen ECR `uniride-backend:prod`) y `caddy` en la red `uniride`. La base se restauró con `pg_dumpall` del 20/11 01:10 UTC (61 usuarios, 20 migraciones).

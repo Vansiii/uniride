@@ -17,7 +17,7 @@
 | Red | Polygon Amoy (chain id 80002); Hardhat local como respaldo (R-04) | — | Solo red de prueba |
 | Seguridad | JWT + refresh token, Google Play Integrity API, Android Keystore | — | Sesión, atestación, llave de dispositivo |
 | Nube | AWS: EC2 (D-02), RDS, S3, KMS, Rekognition Face Liveness, SES | — | Despliegue, archivos, llaves, prueba de vida, correo |
-| Proxy HTTPS | Caddy (contenedor en EC2) — Propuesta | se fija en SP13 | TLS automático y servir el build del panel web |
+| Proxy HTTPS | Caddy 2 (contenedor en EC2, en producción desde el 20/11/2026, §13.1) | 2.x | TLS automático y servir el build del panel web |
 | Mapas | OpenStreetMap | — | Origen, destino y trayecto |
 | Voz | Reconocimiento de voz del dispositivo (Android SpeechRecognizer) | — | Comandos en español |
 | Contenedores | Docker + Docker Compose | — | Mismo despliegue en local y en EC2 |
@@ -387,23 +387,60 @@ La API devuelve errores con `codigo` estable (`VIAJE_CUPOS_EXCEDIDOS`); el clien
 
 ## 13. Despliegue en AWS
 
-| Servicio | Uso |
-|---|---|
-| EC2 (D-02) | Instancia pequeña con Docker Compose: contenedor del backend + Caddy (HTTPS automático y build estático del panel web). Elastic IP + dominio para el certificado |
-| RDS PostgreSQL | Base de datos |
-| S3 | Fotos cifradas (SSE-KMS) de carnets y vehículos |
-| KMS | Llaves de billeteras, relayer y verificador |
-| Rekognition Face Liveness | Prueba de vida y comparación facial |
-| SES | OTP e invitaciones |
-| Budgets | Alertas de costo (R-03); apagar la instancia fuera de horario |
+### 13.1 Producción actual (desde el 20/11/2026)
 
-Por qué EC2: AWS App Runner no acepta clientes nuevos desde el 30/04/2026, y EC2 corre el mismo `docker compose` que en local (portabilidad, `AGENTS.md` §9.4).
+**URL:** `https://54-84-94-49.sslip.io` (web en `/`, API en `/api/v1`, Swagger en `/api/docs`). Cuenta AWS `012875038716`, región us-east-1, perfil de CLI `uniride-nueva` (usuario IAM `uniride-admin`, también para la consola). Historia de la migración desde la cuenta `543118008132`: `MEMORY.md`, entrada del 20/11/2026.
+
+```mermaid
+flowchart LR
+  M[App móvil] -- HTTPS --> CAD
+  W[Navegador] -- HTTPS --> CAD
+  subgraph EC2[EC2 uniride-api · t3.small · EIP 54.84.94.49]
+    CAD[caddy<br/>Let's Encrypt · sirve /opt/web] -- /api/* --> API[api<br/>imagen ECR uniride-backend:prod]
+    API --> PG[(postgres 17<br/>/opt/pgdata)]
+  end
+  API --> KMS[KMS<br/>relayer · verificador · s3]
+  API --> S3[(S3 uniride-sensible)]
+  API --> REK[Rekognition us-east-1]
+  API --> BREVO[Brevo · correo]
+  API --> AMOY[Polygon Amoy]
+```
+
+| Servicio | Recurso | Uso |
+|---|---|---|
+| EC2 (D-02) | `uniride-api` (`i-05b763d4d152d8eb9`), Amazon Linux 2023, IP elástica `54.84.94.49`, SG `uniride-ec2` (80/443 públicos), rol `uniride-ec2` | Tres contenedores en la red Docker `uniride`: `caddy`, `api` y `postgres` |
+| PostgreSQL | Contenedor `postgres:17-alpine`, datos en `/opt/pgdata` | Base de datos con RLS. No se usa RDS: su usuario maestro no puede crear la función con `SET app.super_admin` (migración 003). **Sin copias automáticas** |
+| ECR | `uniride-backend`: `prod` (actual), `prod-hu08`, `prod-kmsfix` (anterior) | Imágenes de la API |
+| SSM Parameter Store | `/uniride/env` (SecureString) | Todas las variables de la API; el EC2 lo copia a `/opt/uniride.env` |
+| KMS | `alias/uniride-relayer`, `alias/uniride-verificador` (secp256k1), `alias/uniride-s3` | Firmas en Amoy y cifrado de fotos |
+| S3 | `uniride-sensible-012875038716` (SSE-KMS), `uniride-web-012875038716` | Fotos de carnets y vehículos; build del panel web (el EC2 lo copia a `/opt/web`) |
+| Rekognition | Colección `uniride-rostros`; usuario IAM `uniride-rekognition` | Comparación facial y Face Liveness (solo existe en us-east-1 y us-west-2). Ese usuario emite las credenciales temporales de la prueba de vida (`sts:GetFederationToken`) |
+| Correo | Brevo (`CORREO_MODO=brevo`) | OTP e invitaciones. SES queda como alternativa (`CORREO_MODO=ses`) |
+| Polygon Amoy | UniCoin `0xc1bDdbD5bb16B140e85d3bd39C354EBe78052676`, EscrowUniRide `0xff578E2Ad9C24f489Bb00E0fd9C4d42ba1974703` | Relayer `0x9CC30BDf6A265B358e43192A074474a8F1f165F2` (`ROL_ACUNADOR`, `ROL_OPERADOR`) y verificador `0xE9D432639A7e64D9e67bcF1f6eBea123B72Bf6B8` (`ROL_VERIFICADOR`) |
+
+**Sin CloudFront:** la cuenta exige verificación de AWS Support para crear distribuciones. Caddy da el HTTPS sobre el nombre `sslip.io` de la IP elástica. Si la IP cambia, cambian la URL, `WEB_URL` en SSM, el `Caddyfile` y el APK.
+
+### 13.2 Operación
+
+Todo por la CLI (perfil `uniride-nueva`). En el EC2 se entra con SSM (`aws ssm start-session --target i-05b763d4d152d8eb9`), sin SSH.
+
+| Tarea | Cómo |
+|---|---|
+| Desplegar la API | `docker build --platform linux/amd64` en `backend/`, subir a ECR con la etiqueta `prod-<algo>`, moverle la etiqueta `prod` y en el EC2 correr `bash /opt/desplegar-api.sh` (refresca `/opt/uniride.env` desde SSM y recrea solo `api`) |
+| Volver atrás la API | `bash /opt/desplegar-api.sh prod-kmsfix` (o cualquier otra etiqueta) |
+| Cambiar una variable | Editar `/uniride/env` en SSM y correr `bash /opt/desplegar-api.sh` |
+| Desplegar la web | `npm run build` en `web/`; `aws s3 sync dist s3://uniride-web-012875038716 --delete`; en el EC2, `aws s3 sync s3://uniride-web-012875038716 /opt/web --delete` (Caddy manda `index.html` sin caché) |
+| Respaldar la base | En el EC2: `docker exec postgres pg_dumpall -U uniride_migraciones \| gzip > respaldo.sql.gz` y subirlo al bucket sensible |
+| Compilar el APK | Desde `mobile/`: `FIRMA=<carpeta con clave.txt y uniride-release.jks> bash compilar-android/compilar.sh https://54-84-94-49.sslip.io/api/v1`. Con otra llave de firma cambia la huella y hay que actualizar `ATESTACION_FIRMA_SHA256` |
+| Cambiar los roles de los contratos | Con la cuenta de despliegue (`contracts/README.md`). Las llaves KMS no se pueden exportar: una llave nueva es una dirección nueva y necesita roles y POL para el gas |
+
+Por qué EC2: AWS App Runner no acepta clientes nuevos desde el 30/04/2026, y EC2 corre los mismos contenedores que en local (portabilidad, `AGENTS.md` §9.4).
 
 | Entorno | Dónde | Blockchain |
 |---|---|---|
 | dev | Local con `docker compose` | Nodo Hardhat local |
 | test | GitHub Actions (servicio PostgreSQL en el runner) | Red Hardhat en memoria |
-| prod (demo) | AWS (EC2 + RDS) | Polygon Amoy |
+| prod (demo) | AWS (EC2 con PostgreSQL en Docker, §13.1) | Polygon Amoy |
 
 Si hace falta un entorno AWS de staging aparte: `[DECISIÓN ABIERTA D-09]` (propuesta: no, por costos).
 
