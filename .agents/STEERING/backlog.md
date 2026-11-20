@@ -349,3 +349,14 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP242 · Backend: avisos en reserva confirmada, cancelaciones, expiración, pago liberado y membresías; pruebas unitarias y e2e — 2h — @agente 19/11
 - [x] SP243 · Mobile: `expo-notifications`, permiso, canal, registro del token, toque → pantalla, fila «Notificaciones» con prueba en Perfil — 2h — @agente 19/11
 - [x] SP244 · Proyecto de Firebase, `google-services.json`, cuenta de servicio en SSM, despliegue, APK y prueba en teléfono — 1h — @agente 19/11
+
+### PB-10 · Análisis de riesgo de fraude con IA local (19 h)
+- [x] SP245 · Backend: módulo `ia` (mover `GroqServicio`, `IaLocalServicio`, `IaServicio`) + pruebas unitarias — 2h — @agente 20/11
+- [x] SP246 · Backend: `analisis-riesgo.ts` (perfil seudónimo, prompt, validación) + pruebas — 2h — @agente 20/11
+- [x] SP247 · Backend: `AnalisisRiesgoService` (tic, SQL del perfil, registro con lock) — 3h — @agente 20/11
+- [x] SP248 · Backend: `GET alertas` con análisis + Swagger — 1h — @agente 20/11
+- [x] SP249 · Backend: e2e CA-1/2/3/11 y ataques A-10, A-13, A-08 — 3h — @agente 20/11
+- [x] SP250 · Web: insignia, orden, detalle, i18n + pruebas — 3h — @agente 20/11
+- [x] SP251 · `scripts/ia-local/kaggle.py` + README (Ollama, modelo, túnel) — 2h — @agente 20/11
+- [x] SP252 · EC2: usuario `tunel`, `sshd`, puerto 22, `extra_hosts`, variables en SSM — 2h — @agente 20/11
+- [x] SP253 · Despliegue y demo (local y respaldo) — 1h — @agente 20/11
