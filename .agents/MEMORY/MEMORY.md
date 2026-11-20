@@ -1706,3 +1706,15 @@ Los dos se vieron en el teléfono físico.
 - El EC2 viejo quedó detenido; nada se borró de la cuenta vieja.
 
 **Archivos afectados:** `.agents/MEMORY/{HEARTBEAT,MEMORY}.md`. Infraestructura en AWS (sin código).
+
+---
+
+## 2026-11-19 · PB-09 Notificaciones push con FCM directo (sin Expo ni firebase-admin)
+
+**Decisión/evento:** Vansiii pidió notificaciones push en la app (pregunta de la defensa). Se implementan con Firebase Cloud Messaging HTTP v1 llamado desde el backend, con la cuenta de servicio firmando el JWT de OAuth con `node:crypto`. Cola `notificaciones_push` encolada en la transacción de cada evento (reserva confirmada, nuevo pasajero, cancelaciones, expiración, pago recibido, decisión de membresía) y worker cada 5 s con reintentos, igual que los correos. Token en `usuarios.token_push` (único; se borra al cerrar sesión o si FCM lo rechaza). En la app, `expo-notifications` (dependencia nueva aprobada con el pedido) y fila «Notificaciones» en Perfil que manda una de prueba.
+
+**Razón:** FCM es el único canal push de Android. El servicio push de Expo exige cuenta de Expo y subir las credenciales de FCM allí; el APK se compila en Docker sin EAS. `firebase-admin` sumaba una dependencia grande por una sola llamada HTTP. Servicio externo nuevo (AGENTS.md §4): Firebase Cloud Messaging, solo para avisos sin datos sensibles.
+
+**Límite aceptado:** `google-services.json` no va al repo (cada equipo usa el de su proyecto; `app.config.js` lo incluye si existe). El de `Downloads/google-services.json` es de otro proyecto (`com.mecanicoya.app`) y **no sirve**.
+
+**Archivos afectados:** `backend/prisma/{schema.prisma,migrations/021_notificaciones_push}`, `backend/src/notificaciones/{fcm,push.service,push.controller}.ts`, servicios de `reservas`, `membresias`, `blockchain/trabajos-onchain`, `autenticacion`; `mobile/src/servicios/push.ts`, `contexto/sesion.tsx`, `app/(pestanas)/perfil.tsx`, `app.json`, `app.config.js`; `.env.example`, `AGENTS.md` §4, `SPECS/features/sprint-4/PB-09-notificaciones-push/spec.md`.
