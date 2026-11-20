@@ -429,7 +429,7 @@ Todo por la CLI (perfil `uniride-nueva`). En el EC2 se entra con SSM (`aws ssm s
 | Desplegar la API | `docker build --platform linux/amd64` en `backend/`, subir a ECR con la etiqueta `prod-<algo>`, moverle la etiqueta `prod` y en el EC2 correr `bash /opt/desplegar-api.sh` (refresca `/opt/uniride.env` desde SSM y recrea solo `api`) |
 | Volver atrás la API | `bash /opt/desplegar-api.sh prod-kmsfix` (o cualquier otra etiqueta) |
 | Cambiar una variable | Editar `/uniride/env` en SSM y correr `bash /opt/desplegar-api.sh` |
-| Desplegar la web | `npm run build` en `web/`; `aws s3 sync dist s3://uniride-web-012875038716 --delete`; en el EC2, `aws s3 sync s3://uniride-web-012875038716 /opt/web --delete` (Caddy manda `index.html` sin caché) |
+| Desplegar la web | `npm run build` en `web/`; `aws s3 sync dist s3://uniride-web-012875038716 --delete`; en el EC2, `aws s3 sync s3://uniride-web-012875038716 /opt/web --delete --exact-timestamps` (sin `--exact-timestamps` se salta un `index.html` del mismo tamaño y la web queda en blanco; Caddy manda `index.html` sin caché) |
 | Respaldar la base | En el EC2: `docker exec postgres pg_dumpall -U uniride_migraciones \| gzip > respaldo.sql.gz` y subirlo al bucket sensible |
 | Compilar el APK | Desde `mobile/`: `FIRMA=<carpeta con clave.txt y uniride-release.jks> bash compilar-android/compilar.sh https://54-84-94-49.sslip.io/api/v1`. Con otra llave de firma cambia la huella y hay que actualizar `ATESTACION_FIRMA_SHA256` |
 | Cambiar los roles de los contratos | Con la cuenta de despliegue (`contracts/README.md`). Las llaves KMS no se pueden exportar: una llave nueva es una dirección nueva y necesita roles y POL para el gas |

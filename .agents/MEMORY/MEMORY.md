@@ -1738,3 +1738,13 @@ Los dos se vieron en el teléfono físico.
 **Decisión/evento:** Vansiii aprobó subir el tiempo límite de la IA local (RN-2, CA-2) de 10 s a **30 s**: el modelo que ya corre en su cuaderno es `qwen2.5:14b`, y en una T4 una respuesta de ~150 tokens tarda 10–20 s. El análisis corre en segundo plano, así que nadie espera. El cuaderno de Kaggle pasa a abrir un solo túnel, hacia el EC2 de UniRide (`tunel@54.84.94.49`, reenvío `172.17.0.1:11434`); el túnel que tenía hacia otro proyecto (`3.136.254.13`) se descarta.
 
 **Archivos afectados:** `SPECS/features/sprint-4/PB-10-analisis-riesgo-ia/{spec,plan}.md`, `scripts/ia-local/{kaggle.py,README.md}`, `.env.example`, `backend/src/ia/ia-local.servicio.ts`.
+
+---
+
+## 2026-11-20 · HU-10: identidad verificada sin carnet y correcciones de la app (tutorial, hora, mapa)
+
+**Decisión/evento:** (1) En producción, pasar la cuenta a otro teléfono respondía 503: las identidades `verificada` sin `clave_s3_carnet` (las 61 cuentas de `prisma/datos-demo.ts` y cualquiera anterior a S3) no tienen carnet contra el cual comparar el rostro. Ahora el desafío y la revinculación responden `409 IDENTIDAD_SIN_CARNET` sin contar intento ni saltar la comparación (A-04); `GET /identidad/estado` trae `requiereCarnet`; `POST /identidad/liveness-sesion` y `/verificar` permiten completar esa identidad con carnet, prueba de vida, comparación, documento y rostro únicos (A-01, A-02). La app lleva de Dispositivo a Identidad con «Registrar mi carnet». **Límite aceptado por Vansiii:** en esas cuentas el primer carnet registrado queda como referencia (confianza en el primer uso), porque no existe otra. (2) El tutorial y el asistente crasheaban en Android: `accessibilityRole="dialog"` no existe allí y React Native lanza `IllegalArgumentException`; se usa `role="dialog"`. (3) La hora de salida se elige con el reloj nativo (`TimePickerDialog` de `@expo/ui`, ya instalado) en `CampoHora`. (4) Buscar muestra el mapa del origen (`MapaPunto`).
+
+**Razón:** reportes de Vansiii; la causa de (1) salió de los logs del contenedor `api` (`Identidad verificada de … no tiene claveS3Carnet`) y de CloudTrail (sesión, STS y video de Rekognition sin errores).
+
+**Archivos afectados:** backend `src/identidad/*`, `src/dispositivos/dispositivos.controller.ts`, `src/i18n/es-BO.json`, `test/identidad/verificacion.e2e-spec.ts` (PR #43); mobile `src/app/{dispositivo,identidad}.tsx`, `src/componentes/{CampoHora,MapaRuta,MapaRuta.web,SelectorLugar,FormularioBusqueda,TutorialUniRide,TarjetaGuiaAsistente}.tsx`, `src/app/(pestanas)/publicar.tsx` (PR #36). Desplegado como `prod-sincarnet` = `prod`.
