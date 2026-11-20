@@ -1718,3 +1718,23 @@ Los dos se vieron en el teléfono físico.
 **Límite aceptado:** `google-services.json` no va al repo (cada equipo usa el de su proyecto; `app.config.js` lo incluye si existe). El de `Downloads/google-services.json` es de otro proyecto (`com.mecanicoya.app`) y **no sirve**.
 
 **Archivos afectados:** `backend/prisma/{schema.prisma,migrations/021_notificaciones_push}`, `backend/src/notificaciones/{fcm,push.service,push.controller}.ts`, servicios de `reservas`, `membresias`, `blockchain/trabajos-onchain`, `autenticacion`; `mobile/src/servicios/push.ts`, `contexto/sesion.tsx`, `app/(pestanas)/perfil.tsx`, `app.json`, `app.config.js`; `.env.example`, `AGENTS.md` §4, `SPECS/features/sprint-4/PB-09-notificaciones-push/spec.md`.
+
+---
+
+## 2026-11-20 · PB-10 análisis de riesgo con IA local
+
+**Decisión/evento:** el ingeniero exigió IA en medio local que vaya más allá de un chat o del reconocimiento de imagen (el Asistente es chat y usa Groq; la prueba de vida es imagen en Rekognition). Se elige analizar con IA cada alerta de fraude de HU-25: perfil numérico seudónimo → riesgo, puntaje, motivos y recomendación para el admin en el panel web de Alertas (HU-26). Proveedores: IA propia self-hosted en Kaggle, alcanzada por un túnel SSH inverso (secretos `TUNNEL_KEY` y `TUNNEL_KNOWN_HOSTS` en Kaggle) hacia el EC2; respaldo Groq (`GROQ_API_KEY`). Aprobado por Vansiii: Kaggle como servicio externo nuevo, puerto 22 abierto en el EC2 para el túnel y el análisis guardado como registro de auditoría `fraude.analisis_ia` (sin migración). Mobile sin cambios.
+
+**Razón:** IA de análisis de comportamiento, ligada al requisito 2 y a A-10; corre en segundo plano (la latencia del túnel no afecta); la IA nunca bloquea ni mueve dinero (solo prioriza y explica); a la IA solo le llegan cifras seudónimas, así que el respaldo externo no expone datos personales.
+
+**Límite aceptado:** sesiones de Kaggle de 12 h máx. y unas 30 h/semana de GPU: la IA propia estará apagada a menudo y Groq será el camino habitual fuera de la demo.
+
+**Archivos afectados:** `SPECS/features/sprint-4/PB-10-analisis-riesgo-ia/spec.md` (borrador).
+
+---
+
+## 2026-11-20 · PB-10: tiempo límite 30 s y túnel a UniRide
+
+**Decisión/evento:** Vansiii aprobó subir el tiempo límite de la IA local (RN-2, CA-2) de 10 s a **30 s**: el modelo que ya corre en su cuaderno es `qwen2.5:14b`, y en una T4 una respuesta de ~150 tokens tarda 10–20 s. El análisis corre en segundo plano, así que nadie espera. El cuaderno de Kaggle pasa a abrir un solo túnel, hacia el EC2 de UniRide (`tunel@54.84.94.49`, reenvío `172.17.0.1:11434`); el túnel que tenía hacia otro proyecto (`3.136.254.13`) se descarta.
+
+**Archivos afectados:** `SPECS/features/sprint-4/PB-10-analisis-riesgo-ia/{spec,plan}.md`, `scripts/ia-local/{kaggle.py,README.md}`, `.env.example`, `backend/src/ia/ia-local.servicio.ts`.

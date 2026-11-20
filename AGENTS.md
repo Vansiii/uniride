@@ -73,6 +73,8 @@ Servicios externos y su único uso permitido:
 | OpenStreetMap | Mapas de origen, destino y trayecto |
 | OSRM (sobre OpenStreetMap) | Trayecto en auto por las calles en los mapas de la app (solo coordenadas; aprobado el 19/11/2026) |
 | Firebase Cloud Messaging | Notificaciones push a la app Android (PB-09; título, texto y pantalla, sin datos sensibles; aprobado el 19/11/2026) |
+| Kaggle (IA local) | Ollama en un cuaderno con GPU, alcanzado por túnel SSH inverso hacia el EC2; analiza alertas de fraude solo con cifras seudónimas (PB-10; respaldo Groq; aprobado el 20/11/2026) |
+| Groq | Modelo de lenguaje por API: asistente y respaldo del análisis de riesgo (PB-10) |
 | Reconocimiento de voz del dispositivo | Comandos de voz en español (API nativa de Android) |
 
 No sustituyas ninguna tecnología del stack (el docente la exigió) ni añadas un servicio externo nuevo sin aprobación del equipo.

@@ -2,7 +2,7 @@
 
 > Primer archivo a leer en cada sesión. Se **sobrescribe** al final de cada sesión.
 
-**Última actualización:** 2026-11-19 (mobile #31: trayecto por calles con OSRM, mapa de la reserva y panel de voz)
+**Última actualización:** 2026-11-20 (PB-10 análisis de riesgo con IA local: fusionado y desplegado)
 
 **Sprint actual:** Sprint 4 · cierre (plazo viernes 20/11/2026).
 **Foco:** HU-26, HU-32, HU-33, HU-21, HU-31 y PB-06 fusionadas en `develop` (backend, web, mobile y principal), CI verde, punteros actualizados. Queda lo que solo hacen personas: pruebas en teléfono, sesiones reales de HU-30, despliegue.
@@ -31,6 +31,7 @@
 
 ## Estado actual
 
+- **20/11, PB-10 análisis de riesgo de fraude con IA local (backend #42, web #18; fusionados sin revisión de otro integrante, autorizado por Vansiii) desplegado:** imagen `prod-pb10` = `prod` (volver atrás: `bash /opt/desplegar-api.sh prod-asistente2`); web sincronizada a S3 y `/opt/web`. Cada alerta de HU-25 se analiza con IA (riesgo, puntaje, motivos) y se ve en Alertas de la web; la IA nunca bloquea ni toca dinero. **IA local:** Ollama `qwen2.5:14b` en un cuaderno de Kaggle de Vansiii (`scripts/ia-local/kaggle.py`, 3 h por sesión) con túnel SSH inverso al EC2 (usuario `tunel` solo con reenvío a `172.17.0.1:11434`; puerto 22 abierto en el SG; `--add-host host.docker.internal:host-gateway` en `/opt/desplegar-api.sh`; respaldos `*.bak-pb10`). Respaldo: Groq. Variables `IA_*` en SSM `/uniride/env` (versión 5). Probado desde el contenedor `api`: JSON válido en 8,4 s. **Falta:** producción tiene 0 alertas de fraude, así que el análisis no se vio aún con una alerta real; la llave privada del túnel quedó solo en los secretos de Kaggle.
 - **20/11, asistente (Smile-HD, backend #39/#40/#41, web #16/#17, mobile #34/#35) desplegado (autorizado por Vansiii):** imagen `prod-asistente2` = `prod` (volver atrás: `prod-pb09`); `GROQ_API_KEY` en SSM `/uniride/env` (versión 4), modelo por defecto `qwen/qwen3.8-27b`; web sincronizada a S3 y `/opt/web`. Límite de 15 consultas/min por usuario; reservar, pagar y cancelar se resuelven en local (A-11). **Falta recompilar el APK** (rutas y tarjeta del asistente) y probar en teléfono.
 - **19/11, PB-09 notificaciones push (backend #38 y mobile #33 fusionados en `develop`):** FCM HTTP v1 desde el backend (cola `notificaciones_push`, migración 021, `PUSH_MODO`/`FCM_CUENTA_SERVICIO_B64`) y `expo-notifications` en la app (Perfil → «Notificaciones» manda una de prueba). Backend: 686 unitarias, e2e 865/868 (las 3 que fallan también fallan sin el cambio: placa local, artefactos de `contracts/` y un trabajo viejo en la BD local). Mobile: 710 Jest, lint, tipos y build. **20/11 desplegado (autorizado por Vansiii):** Firebase `uniride-app-mobile` (credenciales validadas con `validate_only`); respaldo `respaldo-pre-pb09-202611200335.sql.gz` (EC2 y `uniride-sensible-…/respaldos/`); migración 021 aplicada y registrada; `PUSH_MODO=fcm` y `FCM_CUENTA_SERVICIO_B64` en SSM `/uniride/env` (pasó a tier **Advanced**, 5,2 KB > 4 KB); imagen `prod-pb09` = `prod` (volver atrás: `prod-hu08`). APK con Firebase en `Downloads/UniRide/apk-push/uniride.apk` (huella igual a `ATESTACION_FIRMA_SHA256`). Probado en el teléfono por Vansiii (aviso de prueba, app cerrada y cierre de sesión).
 
