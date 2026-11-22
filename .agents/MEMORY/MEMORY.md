@@ -1748,3 +1748,19 @@ Los dos se vieron en el teléfono físico.
 **Razón:** reportes de Vansiii; la causa de (1) salió de los logs del contenedor `api` (`Identidad verificada de … no tiene claveS3Carnet`) y de CloudTrail (sesión, STS y video de Rekognition sin errores).
 
 **Archivos afectados:** backend `src/identidad/*`, `src/dispositivos/dispositivos.controller.ts`, `src/i18n/es-BO.json`, `test/identidad/verificacion.e2e-spec.ts` (PR #43); mobile `src/app/{dispositivo,identidad}.tsx`, `src/componentes/{CampoHora,MapaRuta,MapaRuta.web,SelectorLugar,FormularioBusqueda,TutorialUniRide,TarjetaGuiaAsistente}.tsx`, `src/app/(pestanas)/publicar.tsx` (PR #36). Desplegado como `prod-sincarnet` = `prod`.
+
+## 2026-11-21 · PB-11: definición de anillo
+
+**Decisión/evento:** al implementar SP258 se vio que RN-6 tal como estaba («≥ 80 % de los viajes dentro del grupo») marca a toda la organización como anillo: el grafo de viajes de una organización es su propio grupo conexo y todos hacen el 100 % de sus viajes «dentro». También marcaba un auto compartido legítimo (un conductor con pasajeros fijos). Se corrigió la spec (RN-6, CA-4): solo cuentan los **compañeros frecuentes** (el par suma ≥ 20 % de los viajes de 30 días de cada uno) y cada persona necesita ≥ 2 dentro del grupo (núcleo 2 del grafo: exige ciclos, como la rotación de roles de la colusión; una estrella no lo cumple). Se mantienen ≥ 3 personas, ≥ 80 % y ≥ 6 viajes internos.
+
+**Razón:** sin ese cambio la alerta no tiene sentido en datos reales; el anillo nunca bloquea (RN-1), así que una rotación legítima entre amigos solo llega como alerta para el administrador.
+
+**Archivos afectados:** `SPECS/features/sprint-4/PB-11-modelo-riesgo-propio/spec.md`, backend `src/fraude/anillos.ts`.
+
+## 2026-11-21 · PB-11 modelo de riesgo propio implementado (SP256–SP264)
+
+**Decisión/evento:** el ingeniero vio pobre el análisis de PB-10 (un LLM que reescribía cifras). Vansiii aprobó PB-11 (spec y plan, 21/11) **sin cambios en Kaggle**: Isolation Forest propio en TypeScript en el backend (sin dependencias), un modelo por organización reentrenado cada 24 h con los pares de 30 días (≥ 20), puntaje 0–100 reproducible (semilla por organización y día; en la auditoría se guardan las cifras y la semilla, no el bosque), factores con percentil, anillos de colusión por grafo, decisión del administrador (`fraude.decision`) y desempeño por origen. PB-10 pasa a usar el puntaje del modelo; la IA de lenguaje solo explica y cada motivo debe citar un número del perfil. Validación con escenarios simulados (incluye compañeros habituales, viajes cortos reales y cuentas nuevas legítimas): AUC 0,996, detección 100 % con 5,6 % de falsas alarmas; con el umbral 80, 67 % (los anillos los cubre el detector de grafos) y 0 % de falsas alarmas. Escala: 0,5 → 0, 0,62 → 80, 0,65 → 100. Nada de esto bloquea (RN-1). `npm run prisma:datos-riesgo [-- dominio]` siembra 13 personas de demostración sin dinero ni bloqueos.
+
+**Razón:** pedido de Vansiii para que el docente vea IA propia y medible, no un envoltorio de un LLM.
+
+**Archivos afectados:** backend `src/fraude/{bosque-aislamiento,cifras-par,escenarios,anillos,modelo-riesgo.service}.ts`, `alertas.*`, `analisis-riesgo*`, `prisma/datos-riesgo.ts`, `test/fraude/{modelo-riesgo,decisiones}.e2e-spec.ts`; web `src/componentes/{Riesgo,nivelRiesgo}*`, `src/paginas/admin/AlertasFraude*`; raíz `.env.example` (`MODELO_RIESGO_INTERVALO_MS`).
