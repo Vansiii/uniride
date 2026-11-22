@@ -360,3 +360,15 @@ Tareas copiadas de los `plan.md` aprobados el 14/10. Orden de implementación: H
 - [x] SP251 · `scripts/ia-local/kaggle.py` + README (Ollama, modelo, túnel) — 2h — @agente 20/11
 - [x] SP252 · EC2: usuario `tunel`, `sshd`, puerto 22, `extra_hosts`, variables en SSM — 2h — @agente 20/11
 - [x] SP253 · Despliegue y demo (local y respaldo) — 1h — @agente 20/11
+
+### PB-11 · Modelo de riesgo propio, anillos de colusión y retroalimentación (27 h)
+- [x] SP256 · Backend: `bosque-aislamiento.ts` + `cifras-par.ts` + pruebas — 3h — @agente 21/11
+- [x] SP257 · Backend: `escenarios.ts` (generador y evaluación ROC/AUC) + prueba CA-11 — 2h — @agente 21/11
+- [x] SP258 · Backend: `anillos.ts` + pruebas — 2h — @agente 21/11
+- [x] SP259 · Backend: `ModeloRiesgoService` (tic, SQL de pares, entrenamiento, alertas nuevas, lock) — 3h — @agente 21/11
+- [x] SP260 · Backend: PB-10 con el puntaje del modelo (perfil, prompt, validación) — 2h — @agente 21/11
+- [x] SP261 · Backend: decisión, desempeño, campos nuevos de alertas + Swagger — 2h — @agente 21/11
+- [x] SP262 · Backend: e2e CA-1/2/3/5/8/9/10/16 y ataques A-10, A-13, A-08 — 3h — @agente 21/11
+- [x] SP263 · Web: componentes `Riesgo` (medidor, percentil, histograma, ROC, grafo) + pruebas — 4h — @agente 21/11
+- [x] SP264 · Web: panel de inteligencia, desempeño, detalle y decisión, i18n + pruebas — 4h — @agente 21/11
+- [ ] SP265 · Organización de demostración sembrada y despliegue — 2h — @agente (guion `prisma:datos-riesgo` hecho y probado en local 21/11; falta sembrar y desplegar en AWS)
